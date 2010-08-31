@@ -35,7 +35,7 @@ SET_TARGET_PROPERTIES (FHiCLCpp
 
 #install files
 SET ( CMAKE_INSTALL_PREFIX 
-    ${FHiCLCpp_SOURCE_DIR}/build
+    ${FHiCLCpp_SOURCE_DIR}/install
     )
 
 FILE (GLOB includeFiles

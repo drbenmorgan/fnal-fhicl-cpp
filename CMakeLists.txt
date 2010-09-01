@@ -9,14 +9,22 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
 PROJECT (FHiCLCpp)
 
-INCLUDE (src/CMakeLists.txt)
+# Define the boost envrionment so we don't get system libraries
+set ( BOOST_ROOT       $ENV{BOOST_DIR} )
+set ( BOOST_INCLUDEDIR $ENV{BOOST_INC} )
+set ( BOOST_LIBRARYDIR $ENV{BOOST_LIB} )
 
+FIND_PACKAGE ( Boost 1.42 REQUIRED ) 
+
+# Project include directory
 INCLUDE_DIRECTORIES (
     ${FHiCLCpp_SOURCE_DIR}/interface
-    $ENV{BOOST_DIR}/include
+    ${Boost_INCLUDE_DIR}
     )
 
-# add all source files in the src/ diretory
+# Add source files in the src/ diretory
+INCLUDE (src/CMakeLists.txt)
+
 FOREACH (FILE ${FILES})
     SET (srcFiles ${srcFiles} src/${FILE})
 ENDFOREACH (FILE)
@@ -33,7 +41,7 @@ SET_TARGET_PROPERTIES (FHiCLCpp
     )
 
 
-#install files
+# Install files
 SET ( CMAKE_INSTALL_PREFIX 
     ${FHiCLCpp_SOURCE_DIR}/install
     )

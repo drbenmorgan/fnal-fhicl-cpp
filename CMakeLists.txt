@@ -9,12 +9,23 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
 PROJECT (FHiCLCpp)
 
+# Check if the boost library has been set
+SET ( BOOST $ENV{BOOST_DIR} )
+IF (NOT BOOST)
+    MESSAGE ("Boost library has not been set")
+ENDIF (NOT BOOST)
+
 # Define the boost envrionment so we don't get system libraries
 set ( BOOST_ROOT       $ENV{BOOST_DIR} )
 set ( BOOST_INCLUDEDIR $ENV{BOOST_INC} )
 set ( BOOST_LIBRARYDIR $ENV{BOOST_LIB} )
 
-FIND_PACKAGE ( Boost 1.42 REQUIRED ) 
+# Boost version
+SET ( BOOST_VER1  1  )
+SET ( BOOST_VER2  42 )
+SET ( BOOST_VER3  0  )
+
+FIND_PACKAGE ( Boost ${BOOST_VER1}.${BOOST_VER2} REQUIRED ) 
 
 # Project include directory
 INCLUDE_DIRECTORIES (
@@ -39,6 +50,13 @@ SET_TARGET_PROPERTIES (FHiCLCppD
 SET_TARGET_PROPERTIES (FHiCLCpp
     PROPERTIES OUTPUT_NAME FHiCLCpp
     )
+
+# Check if the install prefix is set
+IF (NOT CMAKE_INSTALL_PREFIX)
+    SET ( CMAKE_INSTALL_PREFIX
+        ${FHiCLCpp_SOURCE_DIR}/install
+        )
+ENDIF(NOT CMAKE_INSTALL_PREFIX)
 
 
 # Install files
@@ -82,3 +100,4 @@ INSTALL (TARGETS FHiCLCpp FHiCLCppD
 
 # Add subdirectories
 ADD_SUBDIRECTORY (test)
+ADD_SUBDIRECTORY (ups)

@@ -1,0 +1,19 @@
+File    = table
+Product = FHiCLCpp
+#*************************************************
+# Starting Group definition
+Group:
+Flavor     = ANY
+Qualifiers = ""
+
+Common:
+  Action = setup
+    setupEnv()
+    prodDir()
+    envSet(FHICLCPP_INC, ${UPS_PROD_DIR}/include )
+    envSet(FHICLCPP_LIB, ${UPS_PROD_DIR}/lib)
+    setupRequired(boost v${BOOST_VER1}_${BOOST_VER2}_${BOOST_VER3})
+    pathAppend(LD_LIBRARY_PATH, ${UPS_PROD_DIR}/lib)
+End:
+# End Group definition
+#*************************************************

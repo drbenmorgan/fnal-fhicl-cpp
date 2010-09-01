@@ -79,3 +79,6 @@ INSTALL (TARGETS FHiCLCpp FHiCLCppD
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
     ) 
+
+# Add subdirectories
+ADD_SUBDIRECTORY (test)

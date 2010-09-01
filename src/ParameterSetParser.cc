@@ -376,6 +376,11 @@ ParameterSet PSetParser<Iterator>::getPSet(std::string const & name)
 
 bool ParameterSetParser::Parse(std::string const & fname, ParameterSet & pset)
 {
+    std::string storage;
+
+    PreProcess(fname, storage);
+
+#if 0
     std::ifstream in(fname.c_str(), std::ios_base::in);
 
     if (!in)
@@ -391,9 +396,70 @@ bool ParameterSetParser::Parse(std::string const & fname, ParameterSet & pset)
         std::istream_iterator<char>(in),
         std::istream_iterator<char>(),
         std::back_inserter(storage));
+#endif
 
     // parse the configuration string
     return ParseString(storage, pset);
+}
+
+bool ParameterSetParser::PreProcess(std::string const & fname, std::string & storage)
+{
+    std::ifstream in(fname.c_str(), std::ios_base::in);
+
+    if (!in)
+    {
+        std::cerr << "Error: Could not open configuration file: "
+            << fname << std::endl;
+        return false;
+    }
+
+    std::string line;
+
+    while ( !in.eof() ) 
+    {
+        std::getline(in, line);
+        TrimSpace(line);
+
+        size_t pos = line.find("#include");
+
+        if ( pos!=0 ) 
+        {
+            storage += line;
+            storage += "\n";
+            continue;
+        }
+
+        size_t start = line.find_first_of("<\"");
+        size_t end   = line.find_last_of (">\"");
+
+        if ( (start==std::string::npos) || (end==std::string::npos)
+             || (start==end) || (start+1==end) )
+        {
+            std::cerr << "Error: Syntax error of #include in file: "
+                      << fname << std::endl;
+            return false;
+        }
+
+        std::string file = line.substr(start+1, end-start-1);
+
+        if ( PreProcess(file, storage) == false )
+            return false;
+        
+    }
+
+    in.close();
+    return true;
+}
+
+void ParameterSetParser::TrimSpace( std::string & str )
+{
+    size_t startpos = str.find_first_not_of(" \t");
+    size_t endpos   = str.find_last_not_of(" \t");
+
+    if( (std::string::npos == startpos ) || (std::string::npos == endpos) )
+        str = "";
+    else
+        str = str.substr( startpos, endpos-startpos+1 );
 }
 
 

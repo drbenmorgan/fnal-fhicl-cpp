@@ -95,6 +95,10 @@ private:
 public:
   static bool Parse(std::string const &, ParameterSet &);
   static bool ParseString(std::string &, ParameterSet &);
+
+private:
+  static bool PreProcess(std::string const &, std::string &);
+  static void TrimSpace(std::string &);
 };
 
 }// namespace mf

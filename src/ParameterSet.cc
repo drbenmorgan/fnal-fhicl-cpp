@@ -69,9 +69,21 @@ ParameterSet::getParameterObj(std::string const & name)
 }
     
 template <typename T>
-void ParameterSet::insertEntry(std::string const & name, T const & val) 
+bool ParameterSet::insertEntry(std::string const & name, T const & val, bool overwrite) 
 {
+  if (overwrite)
+  {
+    PSetMap.insert(std::make_pair(name, val));
+    return true;
+  }
+
+  valuemap::iterator it = PSetMap.find(name);
+
+  if(it!=PSetMap.end())
+    return false;
+
   PSetMap.insert(std::make_pair(name, val));
+  return true;
 }
 
 vstring ParameterSet::getNameList() const
@@ -105,7 +117,7 @@ vstring ParameterSet::getPSetNameList() const
 
 bool ParameterSet::getBool(
     std::string const & name, 
-    bool const & def) const
+    bool const def) const
 {
   valuemap::const_iterator it = PSetMap.find(name);
 
@@ -127,7 +139,7 @@ bool ParameterSet::getBool(
 
 int ParameterSet::getInt(
     std::string const & name, 
-    int const & def) const
+    int const def) const
 {
   valuemap::const_iterator it = PSetMap.find(name);
 
@@ -191,7 +203,7 @@ vint ParameterSet::getVInt(
 
 double ParameterSet::getDouble(
     std::string const & name, 
-    double const & def) const
+    double const def) const
 {
   valuemap::const_iterator it = PSetMap.find(name);
 
@@ -375,6 +387,8 @@ vParameterSet ParameterSet::getVPSet(
   return getVParameterSet(name, def);
 }
 
+
+// Print the ParameterSet Object
 void ParameterSet::print(int indent) const
 {
   valuemap::const_iterator it = PSetMap.begin();

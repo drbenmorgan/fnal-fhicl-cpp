@@ -18,13 +18,6 @@ namespace mf {
 
 class ParameterSet
 {
-
-typedef std::map<const std::string, boost::any>   valuemap;
-typedef std::vector<int>                    vint;
-typedef std::vector<double>                 vdouble;
-typedef std::vector<std::string>            vstring;
-typedef std::vector<ParameterSet>           vParameterSet;
-
 public:
   ParameterSet() : PSetMap() {}
   ~ParameterSet() {}
@@ -32,7 +25,7 @@ public:
 private:
 
   template <typename T>
-  void insertEntry(std::string const & name, T const & val);
+  bool insertEntry(std::string const & name, T const & val, bool overwrite=true);
   void insertEntryObj(std::pair<std::string, boost::any> const & pair);
 
   boost::any * getParameterObjPtr(std::string const & name, bool bInsert);
@@ -42,28 +35,102 @@ private:
 
 public:
 
+  typedef std::vector<int>          vint;
+  typedef std::vector<double>       vdouble;
+  typedef std::vector<std::string>  vstring;
+  typedef std::vector<ParameterSet> vParameterSet;
+
+
+  // Print out the ParameterSet object
   void print(int indent=0) const;
  
+  // Check if empty
   bool empty() const { return PSetMap.empty(); }
 
-  // returns the parameter value as the specified type
-  bool        getBool   (std::string const &, bool const & def=false) const;
-  int         getInt    (std::string const &, int const & def=0) const;
-  vint        getVInt   (std::string const &, vint const & def=vint()) const;
-  double      getDouble (std::string const &, double const & def=0.0) const;
-  vdouble     getVDouble(std::string const &, vdouble const & def=vdouble()) const;
-  std::string getString (std::string const &, std::string const & def=std::string()) const;
-  vstring     getVString(std::string const &, vstring const & def=vstring()) const;
-  ParameterSet getPSet(std::string const &, ParameterSet const & def=ParameterSet()) const;
-  ParameterSet getParameterSet(std::string const &, ParameterSet const & def=ParameterSet()) const;
-  vParameterSet getVPSet(std::string const &, vParameterSet const & def=vParameterSet()) const;
-  vParameterSet getVParameterSet(std::string const &, vParameterSet const & def=vParameterSet()) const;
+ 
+  // Get methods
+  bool getBool ( std::string const &
+               , const bool def=false) const;
+
+  int getInt ( std::string const &
+             , const int  def=0) const;
+
+  vint getVInt ( std::string const &
+               , const vint & def=vint()) const;
+
+  double getDouble ( std::string const &
+                   , const double def=0.0) const;
+
+  vdouble getVDouble ( std::string const &
+                     , const vdouble & def=vdouble()) const;
+
+  std::string getString ( std::string const &
+                        , const std::string & def=std::string()) const;
+
+  vstring getVString ( std::string const &
+                     , const vstring & def=vstring()) const;
+
+  ParameterSet getPSet ( std::string const &
+                        , const ParameterSet & def=ParameterSet()) const;
+
+  ParameterSet getParameterSet ( std::string const &
+                               , const ParameterSet & def=ParameterSet()) const;
+
+  vParameterSet getVPSet ( std::string const &
+                         , const vParameterSet & def=vParameterSet()) const;
+
+  vParameterSet getVParameterSet ( std::string const &
+                         , const vParameterSet & def=vParameterSet()) const;
+
+
+  // Methods for inserting parameters
+  bool addBool ( std::string const & name, bool val
+               , bool overwrite=true) 
+       { return insertEntry(name, val, overwrite); }
+
+  bool addInt ( std::string const & name, int  val
+              , bool overwrite=true)
+       { return insertEntry(name, val, overwrite); }
+
+  bool addDouble ( std::string const & name, double val
+                 , bool overwrite=true)
+       { return insertEntry(name, val, overwrite); }
+
+  bool addString ( std::string const & name, const std::string & val
+                 , bool overwrite=true)
+       { return insertEntry(name, val, overwrite); }
+
+  bool addVInt ( std::string const & name, const vint & val
+               , bool overwrite=true)
+       { return insertEntry(name, val, overwrite); }
+
+  bool addVDouble ( std::string const & name, const vdouble & val
+                  , bool overwrite=true)
+       { return insertEntry(name, val, overwrite); }
+
+  bool addPSet ( std::string const & name, const ParameterSet & val
+               , bool overwrite=true)
+       { return insertEntry(name, val, overwrite); }
+
+  bool addParameterSet ( std::string const & name, const ParameterSet & val
+                       , bool overwrite=true)
+       { return insertEntry(name, val, overwrite); }
+
+  bool addVPSet ( std::string const & name, const vParameterSet & val
+                , bool overwrite=true)
+       { return insertEntry(name, val, overwrite); }
+
+  bool addVParameterSet( std::string const & name, const vParameterSet & val
+                       , bool overwrite=true)
+       { return insertEntry(name, val, overwrite); }
 
   // returns the list of parameter names
   vstring getNameList     () const;
   vstring getPSetNameList () const;
   
 private:
+  typedef std::map<const std::string, boost::any>   valuemap;
+
   valuemap  PSetMap;
   static boost::any nil_obj;
 

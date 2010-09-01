@@ -26,7 +26,9 @@ private:
 
   template <typename T>
   bool insertEntry(std::string const & name, T const & val, bool overwrite=true);
-  void insertEntryObj(std::pair<std::string, boost::any> const & pair);
+  bool insertEntryObj(
+         std::pair<std::string, boost::any> const & pair
+       , bool overwrite=true);
 
   boost::any * getParameterObjPtr(std::string const & name, bool bInsert);
   boost::any   getParameterObj(std::string const & name);
@@ -85,44 +87,37 @@ public:
 
   // Methods for inserting parameters
   bool addBool ( std::string const & name, bool val
-               , bool overwrite=true) 
-       { return insertEntry(name, val, overwrite); }
+               , bool overwrite=true);
 
-  bool addInt ( std::string const & name, int  val
-              , bool overwrite=true)
-       { return insertEntry(name, val, overwrite); }
+  bool addInt ( std::string const & name, int val
+              , bool overwrite=true);
 
   bool addDouble ( std::string const & name, double val
-                 , bool overwrite=true)
-       { return insertEntry(name, val, overwrite); }
+                 , bool overwrite=true);
 
   bool addString ( std::string const & name, const std::string & val
-                 , bool overwrite=true)
-       { return insertEntry(name, val, overwrite); }
+                 , bool overwrite=true);
 
   bool addVInt ( std::string const & name, const vint & val
-               , bool overwrite=true)
-       { return insertEntry(name, val, overwrite); }
+               , bool overwrite=true);
 
   bool addVDouble ( std::string const & name, const vdouble & val
-                  , bool overwrite=true)
-       { return insertEntry(name, val, overwrite); }
+                  , bool overwrite=true);
+
+  bool addVString ( std::string const & name, const vstring & val
+                  , bool overwrite=true);
 
   bool addPSet ( std::string const & name, const ParameterSet & val
-               , bool overwrite=true)
-       { return insertEntry(name, val, overwrite); }
+               , bool overwrite=true);
 
   bool addParameterSet ( std::string const & name, const ParameterSet & val
-                       , bool overwrite=true)
-       { return insertEntry(name, val, overwrite); }
+                       , bool overwrite=true);
 
   bool addVPSet ( std::string const & name, const vParameterSet & val
-                , bool overwrite=true)
-       { return insertEntry(name, val, overwrite); }
+                , bool overwrite=true);
 
   bool addVParameterSet( std::string const & name, const vParameterSet & val
-                       , bool overwrite=true)
-       { return insertEntry(name, val, overwrite); }
+                       , bool overwrite=true);
 
   // returns the list of parameter names
   vstring getNameList     () const;

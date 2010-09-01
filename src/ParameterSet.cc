@@ -1,4 +1,5 @@
-
+#include <iostream> // for print(). will be removed in future
+#include <sstream>
 
 
 #include "ParameterSet.h"
@@ -33,9 +34,23 @@ namespace {
        { for(int i=0;i<indent;++i) std::cout<<' ';}
 }
 
-void ParameterSet::insertEntryObj(std::pair<std::string, boost::any> const & pair)
+bool ParameterSet::insertEntryObj( 
+       std::pair<std::string, boost::any> const & pair
+     , bool overwrite)
 {
+  if (overwrite)
+  {
+    PSetMap.insert(pair);
+    return true;
+  }
+
+  valuemap::iterator it = PSetMap.find(pair.first);
+
+  if(it!=PSetMap.end())
+    return false;
+
   PSetMap.insert(pair);
+  return true;
 }
 
 boost::any * 
@@ -71,9 +86,11 @@ ParameterSet::getParameterObj(std::string const & name)
 template <typename T>
 bool ParameterSet::insertEntry(std::string const & name, T const & val, bool overwrite) 
 {
+  boost::any obj = val;
+
   if (overwrite)
   {
-    PSetMap.insert(std::make_pair(name, val));
+    PSetMap.insert(std::make_pair(name, obj));
     return true;
   }
 
@@ -82,7 +99,7 @@ bool ParameterSet::insertEntry(std::string const & name, T const & val, bool ove
   if(it!=PSetMap.end())
     return false;
 
-  PSetMap.insert(std::make_pair(name, val));
+  PSetMap.insert(std::make_pair(name, obj));
   return true;
 }
 
@@ -385,6 +402,154 @@ vParameterSet ParameterSet::getVPSet(
     vParameterSet const & def) const
 {
   return getVParameterSet(name, def);
+}
+
+
+// Add methods
+
+bool ParameterSet::addBool ( 
+       std::string const & name
+     , bool val
+     , bool overwrite) 
+{ 
+  return insertEntryObj(std::make_pair(name, boost::any(val)), overwrite); 
+}
+
+bool ParameterSet::addInt ( 
+       std::string const & name
+     , int  val
+     , bool overwrite)
+{ 
+  std::stringstream ss;
+  ss << val;
+
+  return insertEntryObj(std::make_pair(name, boost::any(ss.str())), overwrite); 
+}
+
+bool ParameterSet::addDouble ( 
+       std::string const & name
+     , double val
+     , bool overwrite)
+{ 
+  std::stringstream ss;
+  ss << val;
+
+  return insertEntryObj(std::make_pair(name, boost::any(ss.str())), overwrite); 
+}
+
+bool ParameterSet::addString ( 
+       std::string const & name
+     , const std::string & val
+     , bool overwrite)
+{ 
+  return insertEntryObj(std::make_pair(name, boost::any(val)), overwrite); 
+}
+
+bool ParameterSet::addVInt ( 
+       std::string const & name
+     , const vint & val
+     , bool overwrite)
+{ 
+  std::vector<boost::any> v;
+  vint::const_iterator it = val.begin();
+
+  std::stringstream ss;
+
+  while(it != val.end())
+  {
+    ss.str("");
+    ss << *it;
+    v.push_back(boost::any(ss.str()));
+    ++it;
+  }
+
+  return insertEntryObj(std::make_pair(name, boost::any(v)), overwrite); 
+}
+
+bool ParameterSet::addVDouble ( 
+       std::string const & name
+     , const vdouble & val
+     , bool overwrite)
+{ 
+  std::vector<boost::any> v;
+  vdouble::const_iterator it = val.begin();
+
+  std::stringstream ss;
+
+  while(it != val.end())
+  {
+    ss.str("");
+    ss << *it;
+    v.push_back(boost::any(ss.str()));
+    ++it;
+  }
+
+  return insertEntryObj(std::make_pair(name, boost::any(v)), overwrite); 
+}
+
+bool ParameterSet::addVString ( 
+       std::string const & name
+     , const vstring & val
+     , bool overwrite)
+{ 
+  std::vector<boost::any> v;
+  vstring::const_iterator it = val.begin();
+
+  while(it != val.end())
+  {
+    v.push_back(boost::any(*it));
+    ++it;
+  }
+
+  return insertEntryObj(std::make_pair(name, boost::any(v)), overwrite); 
+}
+
+bool ParameterSet::addPSet ( 
+       std::string const & name
+     , const ParameterSet & val
+     , bool overwrite)
+{ 
+  return insertEntryObj(std::make_pair(name, boost::any(val)), overwrite); 
+}
+
+bool ParameterSet::addParameterSet ( 
+       std::string const & name
+     , const ParameterSet & val
+     , bool overwrite)
+{ 
+  return insertEntryObj(std::make_pair(name, boost::any(val)), overwrite); 
+}
+
+bool ParameterSet::addVPSet ( 
+       std::string const & name
+     , const vParameterSet & val
+     , bool overwrite)
+{ 
+  std::vector<boost::any> v;
+  vParameterSet::const_iterator it = val.begin();
+  while(it != val.end())
+  {
+    v.push_back(boost::any(*it));
+    ++it;
+  }
+
+  return insertEntryObj(std::make_pair(name, boost::any(v)), overwrite); 
+}
+
+bool ParameterSet::addVParameterSet( 
+       std::string const & name
+     , const vParameterSet & val
+     , bool overwrite)
+{ 
+  std::vector<boost::any> v;
+  vParameterSet::const_iterator it = val.begin();
+  while(it != val.end())
+  {
+    v.push_back(boost::any(*it));
+    ++it;
+  }
+
+  return insertEntryObj(std::make_pair(name, boost::any(v)), overwrite); 
 }
 
 

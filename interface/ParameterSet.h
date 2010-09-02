@@ -14,7 +14,7 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace mf {
+namespace fhicl {
 
 class ParameterSet
 {

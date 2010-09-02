@@ -6,7 +6,7 @@
 
 int main()
 {
-  mf::ParameterSet pset;
+  fhicl::ParameterSet pset;
 
   pset.addInt("a", 1);
   pset.addString("b", "string");
@@ -31,7 +31,7 @@ int main()
   vs.push_back("str3");
   pset.addVString("g", vs);
 
-  mf::ParameterSet pset2;
+  fhicl::ParameterSet pset2;
   pset2.addInt("a2", 1);
   pset2.addString("b2", "bstring");
   pset.addPSet("h", pset2);

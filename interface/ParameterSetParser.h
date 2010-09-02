@@ -17,7 +17,7 @@
 #include <string>
 #include <list>
 
-namespace mf 
+namespace fhicl 
 {
 
 namespace qi = boost::spirit::qi;
@@ -87,10 +87,10 @@ private:
 
 };
 
-class ParameterSetParser
+class Parser
 {
 private:
-  ParameterSetParser() {}
+  Parser() {}
 
 public:
   static bool Parse(std::string const &, ParameterSet &);
@@ -101,6 +101,6 @@ private:
   static void TrimSpace(std::string &);
 };
 
-}// namespace mf
+}// namespace fhicl 
 
 #endif

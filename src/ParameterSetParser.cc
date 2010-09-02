@@ -15,7 +15,7 @@
 #include <fstream>
 #include <utility>
 
-namespace mf 
+namespace fhicl 
 {
 
 namespace qi = boost::spirit::qi;
@@ -374,7 +374,7 @@ ParameterSet PSetParser<Iterator>::getPSet(std::string const & name)
   return pset;
 }
 
-bool ParameterSetParser::Parse(std::string const & fname, ParameterSet & pset)
+bool Parser::Parse(std::string const & fname, ParameterSet & pset)
 {
     std::string storage;
 
@@ -402,7 +402,7 @@ bool ParameterSetParser::Parse(std::string const & fname, ParameterSet & pset)
     return ParseString(storage, pset);
 }
 
-bool ParameterSetParser::PreProcess(std::string const & fname, std::string & storage)
+bool Parser::PreProcess(std::string const & fname, std::string & storage)
 {
     std::ifstream in(fname.c_str(), std::ios_base::in);
 
@@ -451,7 +451,7 @@ bool ParameterSetParser::PreProcess(std::string const & fname, std::string & sto
     return true;
 }
 
-void ParameterSetParser::TrimSpace( std::string & str )
+void Parser::TrimSpace( std::string & str )
 {
     size_t startpos = str.find_first_not_of(" \t");
     size_t endpos   = str.find_last_not_of(" \t");
@@ -463,7 +463,7 @@ void ParameterSetParser::TrimSpace( std::string & str )
 }
 
 
-bool ParameterSetParser::ParseString(std::string & str, ParameterSet & pset)
+bool Parser::ParseString(std::string & str, ParameterSet & pset)
 {
     str += ' '; // make sure the string ends with a white space
 
@@ -503,6 +503,6 @@ bool ParameterSetParser::ParseString(std::string & str, ParameterSet & pset)
     }
 }
 
-}//namespace mf
+}//namespace fhicl 
 
 

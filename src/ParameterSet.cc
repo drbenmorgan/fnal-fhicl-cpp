@@ -6,7 +6,7 @@
 
 #include "boost/lexical_cast.hpp"
 
-namespace mf {
+namespace fhicl {
 
 typedef std::map<std::string, boost::any>   valuemap;
 typedef std::vector<int>                    vint;

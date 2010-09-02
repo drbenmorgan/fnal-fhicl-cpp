@@ -1,5 +1,5 @@
 File    = table
-Product = FHiCLCpp
+Product = fhiclcpp
 #*************************************************
 # Starting Group definition
 Group:
@@ -12,7 +12,7 @@ Common:
     prodDir()
     envSet(FHICLCPP_INC, ${UPS_PROD_DIR}/include )
     envSet(FHICLCPP_LIB, ${UPS_PROD_DIR}/lib)
-    setupRequired(boost v${BOOST_VER1}_${BOOST_VER2}_${BOOST_VER3})
+    setupRequired(boost ${BOOST_VERSION})
     pathAppend(LD_LIBRARY_PATH, ${UPS_PROD_DIR}/lib)
 End:
 # End Group definition

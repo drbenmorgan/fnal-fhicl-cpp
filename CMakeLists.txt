@@ -7,29 +7,24 @@
 
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
-PROJECT (FHiCLCpp)
+PROJECT (fhicl-cpp)
 
 # Check if the boost library has been set
-SET ( BOOST $ENV{BOOST_DIR} )
-IF (NOT BOOST)
-    MESSAGE ("Boost library has not been set")
-ENDIF (NOT BOOST)
+SET ( BOOST_VERSION $ENV{BOOST_VERSION} )
+IF (NOT BOOST_VERSION)
+    MESSAGE (FATAL_ERROR "Boost library has not been setup")
+ENDIF()
 
 # Define the boost envrionment so we don't get system libraries
 set ( BOOST_ROOT       $ENV{BOOST_DIR} )
 set ( BOOST_INCLUDEDIR $ENV{BOOST_INC} )
 set ( BOOST_LIBRARYDIR $ENV{BOOST_LIB} )
 
-# Boost version
-SET ( BOOST_VER1  1  )
-SET ( BOOST_VER2  42 )
-SET ( BOOST_VER3  0  )
-
-FIND_PACKAGE ( Boost ${BOOST_VER1}.${BOOST_VER2} REQUIRED ) 
+FIND_PACKAGE ( Boost 1.41 REQUIRED )
 
 # Project include directory
 INCLUDE_DIRECTORIES (
-    ${FHiCLCpp_SOURCE_DIR}/interface
+    ${fhicl-cpp_SOURCE_DIR}/interface
     ${Boost_INCLUDE_DIR}
     )
 
@@ -40,32 +35,32 @@ FOREACH (FILE ${FILES})
     SET (srcFiles ${srcFiles} src/${FILE})
 ENDFOREACH (FILE)
 
-ADD_LIBRARY (FHiCLCppD SHARED ${srcFiles})  
-ADD_LIBRARY (FHiCLCpp         ${srcFiles})  
+ADD_LIBRARY (fhicl-cppD SHARED ${srcFiles})  
+ADD_LIBRARY (fhicl-cpp         ${srcFiles})  
 
-SET_TARGET_PROPERTIES (FHiCLCppD
-    PROPERTIES OUTPUT_NAME FHiclCpp
+SET_TARGET_PROPERTIES (fhicl-cppD
+    PROPERTIES OUTPUT_NAME fhicl-cpp
     )
 
-SET_TARGET_PROPERTIES (FHiCLCpp
-    PROPERTIES OUTPUT_NAME FHiCLCpp
+SET_TARGET_PROPERTIES (fhicl-cpp
+    PROPERTIES OUTPUT_NAME fhicl-cpp
     )
 
 # Check if the install prefix is set
 IF (NOT CMAKE_INSTALL_PREFIX)
     SET ( CMAKE_INSTALL_PREFIX
-        ${FHiCLCpp_SOURCE_DIR}/install
+        ${fhicl-cpp_SOURCE_DIR}/install
         )
 ENDIF(NOT CMAKE_INSTALL_PREFIX)
 
 
 # Install files
 SET ( CMAKE_INSTALL_PREFIX 
-    ${FHiCLCpp_SOURCE_DIR}/install
+    ${fhicl-cpp_SOURCE_DIR}/install
     )
 
 FILE (GLOB includeFiles
-    ${FHiCLCpp_SOURCE_DIR}/interface/*.h
+    ${fhicl-cpp_SOURCE_DIR}/interface/*.h
     )
 
 LIST (APPEND srcFiles
@@ -73,7 +68,7 @@ LIST (APPEND srcFiles
     )
 
 FILE (GLOB cmakeFiles
-    ${FHiCLCpp_SOURCE_DIR}/CMakeLists.txt
+    ${fhicl-cpp_SOURCE_DIR}/CMakeLists.txt
     )
 
 INSTALL (FILES ${includeFiles}
@@ -92,7 +87,7 @@ INSTALL (FILES ${cmakeFiles}
     DESTINATION src/ParameterSet
     )
 
-INSTALL (TARGETS FHiCLCppD FHiCLCpp 
+INSTALL (TARGETS fhicl-cppD fhicl-cpp 
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

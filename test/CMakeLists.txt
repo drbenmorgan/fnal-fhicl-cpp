@@ -16,7 +16,7 @@ ADD_EXECUTABLE (PSetTest
     )
 
 TARGET_LINK_LIBRARIES (PSetTest
-    FHiCLCppD
+    fhicl-cppD
     )
 
 ADD_EXECUTABLE (PSetInsert
@@ -24,7 +24,7 @@ ADD_EXECUTABLE (PSetInsert
     )
 
 TARGET_LINK_LIBRARIES (PSetInsert
-    FHiCLCppD
+    fhicl-cppD
     )
 
 INSTALL (FILES

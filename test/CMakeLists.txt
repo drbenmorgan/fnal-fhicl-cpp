@@ -27,6 +27,9 @@ TARGET_LINK_LIBRARIES (PSetInsert
     fhicl-cppD
     )
 
+ADD_TEST(PSetTest PSetTest)
+ADD_TEST(PSetInsert PSetInsert)
+
 INSTALL (FILES
     PSetSample.cc
     Sample.cfg

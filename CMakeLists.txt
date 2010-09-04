@@ -94,5 +94,6 @@ INSTALL (TARGETS fhicl-cppD fhicl-cpp
     ) 
 
 # Add subdirectories
+ENABLE_TESTING()
 ADD_SUBDIRECTORY (test)
 ADD_SUBDIRECTORY (ups)

@@ -73,7 +73,7 @@ FILE (GLOB cmakeFiles
     )
 
 INSTALL (FILES ${includeFiles}
-    DESTINATION include/
+    DESTINATION include/fhiclcpp/
     )
 
 INSTALL (FILES ${includeFiles}

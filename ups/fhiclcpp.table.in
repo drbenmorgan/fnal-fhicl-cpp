@@ -6,7 +6,8 @@ Group:
 Flavor     = ANY
 Qualifiers = ""
 
-Common:
+Flavor     = ANY
+Qualifiers = "b42"
   Action = setup
     setupEnv()
     prodDir()
@@ -14,6 +15,15 @@ Common:
     envSet(FHICLCPP_LIB, ${UPS_PROD_DIR}/lib)
     envSet(FHICLCPP_VERSION, @version@)
     setupRequired(boost @BOOST_VERSION@)
+    pathAppend(LD_LIBRARY_PATH, ${UPS_PROD_DIR}/lib)
+
+Common:
+  Action = setup
+    setupEnv()
+    prodDir()
+    envSet(FHICLCPP_INC, ${UPS_PROD_DIR}/include )
+    envSet(FHICLCPP_LIB, ${UPS_PROD_DIR}/lib)
+    envSet(FHICLCPP_VERSION, @version@)
     pathAppend(LD_LIBRARY_PATH, ${UPS_PROD_DIR}/lib)
 End:
 # End Group definition

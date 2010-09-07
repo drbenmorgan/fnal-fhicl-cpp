@@ -6,6 +6,7 @@
 
 #include "ParameterSetParser.h"
 
+#include <boost/version.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_bind.hpp>
@@ -38,11 +39,25 @@ PSetParser<Iterator>::PSetParser()
   using boost::spirit::eol;
   using boost::spirit::raw;
 
-  doc = *(re_assign);
+  doc = *( re_assign );
 
-  re_assign =  -( ref_literal [_a=_1] >> ':' )    
+#if BOOST_VERSION>104200
+  re_assign = qi::no_skip
+              [
+                qi::skip
+                [ 
+                    -( ref_literal [_a=_1] >> ':' )    
+                    >> expr    [phoenix::bind(&PSetParser::setObjFromName,this,_a,_1)]
+                ]
+                >> +space 
+              ]
+              ;
+#else
+  re_assign = -( ref_literal [_a=_1] >> ':' )    
               >> expr    [phoenix::bind(&PSetParser::setObjFromName,this,_a,_1)]
-              >> +space ;
+              >> +space
+              ;
+#endif
 
   assign =  //valid_key >> ':' >> expr ;  
             ref_literal >> ':' >> expr ; 
@@ -97,7 +112,8 @@ PSetParser<Iterator>::PSetParser()
 
   space = lit(' ') | lit('\t') | lit('\n')
         | lit("//")>> *( char_ - eol ) >> eol 
-        | lit('#') >> *( char_ - eol ) >> eol;
+        | lit('#') >> *( char_ - eol ) >> eol
+        ;
 }
 
 template<typename Iterator>

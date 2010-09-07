@@ -12,7 +12,8 @@ Common:
     prodDir()
     envSet(FHICLCPP_INC, ${UPS_PROD_DIR}/include )
     envSet(FHICLCPP_LIB, ${UPS_PROD_DIR}/lib)
-    setupRequired(boost ${BOOST_VERSION})
+    envSet(FHICLCPP_VERSION, @version@)
+    setupRequired(boost @BOOST_VERSION@)
     pathAppend(LD_LIBRARY_PATH, ${UPS_PROD_DIR}/lib)
 End:
 # End Group definition

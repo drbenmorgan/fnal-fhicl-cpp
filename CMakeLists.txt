@@ -1,13 +1,14 @@
 #
-#  ParameterSet/CMakeLists.txt
+#  fhiclcpp/CMakeLists.txt
 #  -------------------------------------------------------------------
 #
-#  CMake build file for library ParameterSet and ParameterSetD
+#  CMake build file for library fhiclcpp and fhiclcppD
 #
 
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
-PROJECT (fhicl-cpp)
+PROJECT (fhiclcpp)
+SET (version v1_0_0)
 
 # Check if the boost library has been set
 SET ( BOOST_VERSION $ENV{BOOST_VERSION} )
@@ -24,7 +25,7 @@ FIND_PACKAGE ( Boost 1.41 REQUIRED )
 
 # Project include directory
 INCLUDE_DIRECTORIES (
-    ${fhicl-cpp_SOURCE_DIR}/interface
+    ${fhiclcpp_SOURCE_DIR}/interface
     ${Boost_INCLUDE_DIR}
     )
 
@@ -35,32 +36,32 @@ FOREACH (FILE ${FILES})
     SET (srcFiles ${srcFiles} src/${FILE})
 ENDFOREACH (FILE)
 
-ADD_LIBRARY (fhicl-cppD SHARED ${srcFiles})  
-ADD_LIBRARY (fhicl-cpp         ${srcFiles})  
+ADD_LIBRARY (fhiclcppD SHARED ${srcFiles})  
+ADD_LIBRARY (fhiclcpp         ${srcFiles})  
 
-SET_TARGET_PROPERTIES (fhicl-cppD
-    PROPERTIES OUTPUT_NAME fhicl-cpp
+SET_TARGET_PROPERTIES (fhiclcppD
+    PROPERTIES OUTPUT_NAME fhiclcpp
     )
 
-SET_TARGET_PROPERTIES (fhicl-cpp
-    PROPERTIES OUTPUT_NAME fhicl-cpp
+SET_TARGET_PROPERTIES (fhiclcpp
+    PROPERTIES OUTPUT_NAME fhiclcpp
     )
 
 # Check if the install prefix is set
 IF (NOT CMAKE_INSTALL_PREFIX)
     SET ( CMAKE_INSTALL_PREFIX
-        ${fhicl-cpp_SOURCE_DIR}/install
+        ${fhiclcpp_SOURCE_DIR}/install
         )
 ENDIF(NOT CMAKE_INSTALL_PREFIX)
 
 
 # Install files
 SET ( CMAKE_INSTALL_PREFIX 
-    ${fhicl-cpp_SOURCE_DIR}/install
+    ${fhiclcpp_SOURCE_DIR}/install
     )
 
 FILE (GLOB includeFiles
-    ${fhicl-cpp_SOURCE_DIR}/interface/*.h
+    ${fhiclcpp_SOURCE_DIR}/interface/*.h
     )
 
 LIST (APPEND srcFiles
@@ -68,7 +69,7 @@ LIST (APPEND srcFiles
     )
 
 FILE (GLOB cmakeFiles
-    ${fhicl-cpp_SOURCE_DIR}/CMakeLists.txt
+    ${fhiclcpp_SOURCE_DIR}/CMakeLists.txt
     )
 
 INSTALL (FILES ${includeFiles}
@@ -76,18 +77,18 @@ INSTALL (FILES ${includeFiles}
     )
 
 INSTALL (FILES ${includeFiles}
-    DESTINATION src/ParameterSet/interface
+    DESTINATION src/fhiclcpp/interface
     )
 
 INSTALL (FILES ${srcFiles}
-    DESTINATION src/ParameterSet/src
+    DESTINATION src/fhiclcpp/src
     )
 
 INSTALL (FILES ${cmakeFiles}
-    DESTINATION src/ParameterSet
+    DESTINATION src/fhiclcpp
     )
 
-INSTALL (TARGETS fhicl-cppD fhicl-cpp 
+INSTALL (TARGETS fhiclcppD fhiclcpp 
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

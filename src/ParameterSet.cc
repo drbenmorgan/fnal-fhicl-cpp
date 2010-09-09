@@ -5,11 +5,13 @@
 #include "ParameterSet.h"
 
 #include "boost/lexical_cast.hpp"
+#include "boost/numeric/conversion/cast.hpp"
 
 namespace fhicl {
 
 typedef std::map<std::string, boost::any>   valuemap;
 typedef std::vector<int>                    vint;
+typedef std::vector<unsigned int>           vuint;
 typedef std::vector<double>                 vdouble;
 typedef std::vector<std::string>            vstring;
 typedef std::vector<ParameterSet>           vParameterSet;
@@ -217,6 +219,81 @@ vint ParameterSet::getVInt(
 
   return def;
 }
+
+unsigned int ParameterSet::getUInt(
+    std::string const & name, 
+    unsigned int const def) const
+{
+  valuemap::const_iterator it = PSetMap.find(name);
+
+  if(it!=PSetMap.end())
+  {
+    try
+    {
+      std::string t = boost::any_cast<std::string>(it->second);
+      unsigned int v = boost::numeric_cast<unsigned int>(
+                         boost::lexical_cast<int>(t));
+      return v;
+    }
+    catch(const boost::bad_any_cast &)
+    {
+      return def;
+    }
+    catch(const boost::bad_lexical_cast &)
+    {
+      return def;
+    }
+    catch(...)
+    {
+      return def;
+    }
+  }
+
+  return def;
+}
+
+vuint ParameterSet::getVUInt(
+    std::string const & name, 
+    vuint const & def) const
+{
+  valuemap::const_iterator it = PSetMap.find(name);
+
+  if(it!=PSetMap.end())
+  {
+    try
+    {
+      std::vector<boost::any> va 
+          = boost::any_cast<std::vector<boost::any> >(it->second);
+
+      std::vector<unsigned int> vi;
+
+      for(std::vector<boost::any>::iterator it=va.begin(); it!=va.end(); ++it)
+      {
+        std::string t = boost::any_cast<std::string>(*it);
+        unsigned int v = boost::numeric_cast<unsigned int>(
+                           boost::lexical_cast<int>(t));
+        vi.push_back(v);
+      }
+
+      return vi;
+    }
+    catch(const boost::bad_any_cast &)
+    {
+      return def;
+    }
+    catch(const boost::bad_lexical_cast &)
+    {
+      return def;
+    }
+    catch(...)
+    {
+      return def;
+    }
+  }
+
+  return def;
+}
+
 
 double ParameterSet::getDouble(
     std::string const & name, 
@@ -426,6 +503,17 @@ bool ParameterSet::addInt (
   return insertEntryObj(std::make_pair(name, boost::any(ss.str())), overwrite); 
 }
 
+bool ParameterSet::addUInt ( 
+       std::string const & name
+     , unsigned int  val
+     , bool overwrite)
+{ 
+  std::stringstream ss;
+  ss << val;
+
+  return insertEntryObj(std::make_pair(name, boost::any(ss.str())), overwrite); 
+}
+
 bool ParameterSet::addDouble ( 
        std::string const & name
      , double val
@@ -452,6 +540,27 @@ bool ParameterSet::addVInt (
 { 
   std::vector<boost::any> v;
   vint::const_iterator it = val.begin();
+
+  std::stringstream ss;
+
+  while(it != val.end())
+  {
+    ss.str("");
+    ss << *it;
+    v.push_back(boost::any(ss.str()));
+    ++it;
+  }
+
+  return insertEntryObj(std::make_pair(name, boost::any(v)), overwrite); 
+}
+
+bool ParameterSet::addVUInt ( 
+       std::string const & name
+     , const vuint & val
+     , bool overwrite)
+{ 
+  std::vector<boost::any> v;
+  vuint::const_iterator it = val.begin();
 
   std::stringstream ss;
 

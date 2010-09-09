@@ -50,7 +50,7 @@ SET_TARGET_PROPERTIES (fhiclcpp
 # Check if the install prefix is set
 IF (NOT CMAKE_INSTALL_PREFIX)
     SET ( CMAKE_INSTALL_PREFIX
-        ${fhiclcpp_SOURCE_DIR}/install
+        ${fhiclcpp_BINARY_DIR}/install
         )
 ENDIF(NOT CMAKE_INSTALL_PREFIX)
 

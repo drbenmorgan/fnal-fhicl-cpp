@@ -38,6 +38,7 @@ private:
 public:
 
   typedef std::vector<int>          vint;
+  typedef std::vector<unsigned int> vuint;
   typedef std::vector<double>       vdouble;
   typedef std::vector<std::string>  vstring;
   typedef std::vector<ParameterSet> vParameterSet;
@@ -59,6 +60,12 @@ public:
 
   vint getVInt ( std::string const &
                , const vint & def=vint()) const;
+
+  unsigned int getUInt ( std::string const &
+             , const unsigned int  def=0) const;
+
+  vuint getVUInt ( std::string const &
+               , const vuint & def=vuint()) const;
 
   double getDouble ( std::string const &
                    , const double def=0.0) const;
@@ -92,6 +99,9 @@ public:
   bool addInt ( std::string const & name, int val
               , bool overwrite=true);
 
+  bool addUInt ( std::string const & name, unsigned int val
+              , bool overwrite=true);
+
   bool addDouble ( std::string const & name, double val
                  , bool overwrite=true);
 
@@ -99,6 +109,9 @@ public:
                  , bool overwrite=true);
 
   bool addVInt ( std::string const & name, const vint & val
+               , bool overwrite=true);
+
+  bool addVUInt ( std::string const & name, const vuint & val
                , bool overwrite=true);
 
   bool addVDouble ( std::string const & name, const vdouble & val

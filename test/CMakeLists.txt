@@ -33,11 +33,11 @@ ADD_TEST(PSetInsert PSetInsert)
 INSTALL (FILES
     PSetSample.cc
     Sample.cfg
-    DESTINATION example
+    DESTINATION ${version}/example
     )
 
 INSTALL (FILES
     CMakeLists.txt
     PSetSample.cc
-    DESTINATION src/test
+    DESTINATION ${version}/src/test
     )

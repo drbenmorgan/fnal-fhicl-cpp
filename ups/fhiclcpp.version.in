@@ -1,0 +1,13 @@
+FILE = version
+PRODUCT = fhiclcpp
+VERSION = @version@
+
+FLAVOR = @flavor@
+QUALIFIERS = @qualifier@
+  DECLARER = qlu
+  DECLARED = @datime@
+  MODIFIER = qlu
+  MODIFIED = @datime@
+  PROD_DIR = fhiclcpp/@version@
+  UPS_DIR = ups
+  TABLE_FILE = fhiclcpp.table

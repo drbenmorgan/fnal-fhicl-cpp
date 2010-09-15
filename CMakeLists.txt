@@ -4,17 +4,24 @@
 #
 #  CMake build file for library fhiclcpp and fhiclcppD
 #
+#   cmake [-DCMAKE_INSTALL_PREFIX=/install/path] /path/to/source/code
 
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
 PROJECT (fhiclcpp)
 SET (version v1_0_2)
+SET (qualifier a1)
+SET (flavorqual slf5.x86_64.a1)
+SET (flavorqual_dir ${version}/${flavorqual} )
 
 # Check if the boost library has been set
 SET (BOOST_VER $ENV{BOOST_VERSION})
 IF (NOT BOOST_VER)
     MESSAGE (FATAL_ERROR "Boost library has not been setup")
 ENDIF()
+SET ( BOOST_STRING $ENV{SETUP_BOOST} )
+STRING( REGEX REPLACE ".*(-q.*)" "\\1" BOOST_QUAL "${BOOST_STRING}" )
+message(STATUS "Boost version and qualifier are ${BOOST_VERSION} ${BOOST_QUAL}" )
 
 # Define the boost envrionment so we don't get system libraries
 set ( BOOST_ROOT       $ENV{BOOST_DIR} )
@@ -47,19 +54,6 @@ SET_TARGET_PROPERTIES (fhiclcpp
     PROPERTIES OUTPUT_NAME fhiclcpp
     )
 
-# Check if the install prefix is set
-#IF (NOT CMAKE_INSTALL_PREFIX)
-    SET ( CMAKE_INSTALL_PREFIX
-        ${fhiclcpp_BINARY_DIR}/install
-        )
-#ENDIF(NOT CMAKE_INSTALL_PREFIX)
-
-
-# Install files
-SET ( CMAKE_INSTALL_PREFIX 
-    ${fhiclcpp_SOURCE_DIR}/install
-    )
-
 FILE (GLOB includeFiles
     ${fhiclcpp_SOURCE_DIR}/interface/*.h
     )
@@ -73,25 +67,25 @@ FILE (GLOB cmakeFiles
     )
 
 INSTALL (FILES ${includeFiles}
-    DESTINATION include/fhiclcpp/
+    DESTINATION ${version}/include/fhiclcpp/
     )
 
 INSTALL (FILES ${includeFiles}
-    DESTINATION src/fhiclcpp/interface
+    DESTINATION ${version}/src/fhiclcpp/interface
     )
 
 INSTALL (FILES ${srcFiles}
-    DESTINATION src/fhiclcpp/src
+    DESTINATION ${version}/src/fhiclcpp/src
     )
 
 INSTALL (FILES ${cmakeFiles}
-    DESTINATION src/fhiclcpp
+    DESTINATION ${version}/src/fhiclcpp
     )
 
 INSTALL (TARGETS fhiclcppD fhiclcpp 
-    RUNTIME DESTINATION bin
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION ${flavorqual_dir}/bin
+    LIBRARY DESTINATION ${flavorqual_dir}/lib
+    ARCHIVE DESTINATION ${flavorqual_dir}/lib
     ) 
 
 # Add subdirectories

@@ -10,4 +10,5 @@ SET (FILES
 #    types.cc
 #    VParameterSetEntry.cc
     ParameterSetParser.cc
+    sha1.cpp
     )

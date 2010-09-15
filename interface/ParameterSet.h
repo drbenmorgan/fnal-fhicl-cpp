@@ -16,7 +16,10 @@
 
 namespace fhicl {
 
-typedef std::string ParameterSetID;
+struct ParameterSetID {
+private:
+  char id[41];
+};
 
 class ParameterSet
 {

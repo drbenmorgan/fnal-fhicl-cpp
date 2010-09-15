@@ -8,7 +8,7 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
 PROJECT (fhiclcpp)
-SET (version v1_0_0)
+SET (version v1_0_1)
 
 # Check if the boost library has been set
 SET ( BOOST_VERSION $ENV{BOOST_VERSION} )
@@ -48,11 +48,11 @@ SET_TARGET_PROPERTIES (fhiclcpp
     )
 
 # Check if the install prefix is set
-IF (NOT CMAKE_INSTALL_PREFIX)
+#IF (NOT CMAKE_INSTALL_PREFIX)
     SET ( CMAKE_INSTALL_PREFIX
         ${fhiclcpp_BINARY_DIR}/install
         )
-ENDIF(NOT CMAKE_INSTALL_PREFIX)
+#ENDIF(NOT CMAKE_INSTALL_PREFIX)
 
 
 # Install files

@@ -16,10 +16,12 @@
 
 namespace fhicl {
 
+typedef std::string ParameterSetID;
+
 class ParameterSet
 {
 public:
-  ParameterSet() : PSetMap() {}
+  ParameterSet() : PSetMap(), id_() {}
   ~ParameterSet() {}
 
 private:
@@ -43,6 +45,8 @@ public:
   typedef std::vector<std::string>  vstring;
   typedef std::vector<ParameterSet> vParameterSet;
 
+  // ID
+  ParameterSetID id() { return id_; }
 
   // Print out the ParameterSet object
   void print(int indent=0) const;
@@ -140,6 +144,7 @@ private:
   typedef std::map<const std::string, boost::any>   valuemap;
 
   valuemap  PSetMap;
+  ParameterSetID id_;
   static boost::any nil_obj;
 
   // Make the PSetParser class friend to allow the access of private members

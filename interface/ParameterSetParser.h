@@ -39,7 +39,6 @@ struct PSetParser
 
   ParameterSet getPSet(std::string const & name = "");
   std::vector<std::string> getErrorMsgs() { return errs; };
-  void print();
 
 private:
 

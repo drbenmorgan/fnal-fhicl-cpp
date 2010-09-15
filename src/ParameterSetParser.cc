@@ -364,25 +364,6 @@ boost::any * PSetParser<Iterator>::parseRef(
 }
 
 template<typename Iterator>
-void PSetParser<Iterator>::print()
-{
-  std::vector<std::pair<std::string, boost::any> >::const_iterator it
-       = PrimaryValues.begin();
-
-  for(; it!=PrimaryValues.end(); ++it)
-  {
-    std::string name = it->first;
-    boost::any  obj  = it->second;
-
-    std::cout<<name<<" : ";
-    ParameterSet::printElement(obj);
-    std::cout<<"\n";
-  }
-
-}
-
-
-template<typename Iterator>
 ParameterSet PSetParser<Iterator>::getPSet(std::string const & name)
 {
   boost::any * obj = findPrimaryPtr(name);

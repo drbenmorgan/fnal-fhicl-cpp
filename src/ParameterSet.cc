@@ -32,9 +32,72 @@ namespace {
   bool isVector(boost::any const & obj)
        { return obj.type() == typeid(std::vector<boost::any>); }
 
-  void tab(int indent) 
-       { for(int i=0;i<indent;++i) std::cout<<' ';}
+  void tab(std::string & out, int indent) 
+       { for(int i=0;i<indent;++i) out.append(" ");}
+
+
+  void printElement(boost::any const & obj, 
+                                std::string & out, 
+                                int indent=0)
+  {
+    if(obj.empty())
+      out.append("nil");
+
+    else if (isBool(obj))
+      out.append(boost::any_cast<bool>(obj) ? "true" : "false");
+
+    else if (isPrimitive(obj))
+      out.append(boost::any_cast<std::string>(obj));
+
+    else if (isVector(obj))
+    {
+      std::vector<boost::any> v = boost::any_cast<std::vector<boost::any> >(obj);
+      std::vector<boost::any>::const_iterator it = v.begin();
+
+      out.append("[");
+
+      for(; it!=v.end(); ++it)
+      {
+        printElement(*it, out);
+        if(it<v.end()-1)
+          out.append(", ");
+      }
+
+      out.append("]");
+    }
+    else if (isPSet(obj))
+    {
+      out.append("\n");
+      tab(out, indent);
+      out.append("{\n");
+      boost::any_cast<ParameterSet>(obj).print(out, indent+2);
+      tab(out, indent);
+      out.append("}");
+    }
+  }
+
+} // end of namespace
+
+
+// Print the ParameterSet Object
+void ParameterSet::print(std::string & out, int indent) const
+{
+  valuemap::const_iterator it = PSetMap.begin();
+
+  for(; it!=PSetMap.end(); ++it)
+  {
+    tab(out, indent);
+
+    out.append(it->first);
+    out.append(": ");
+
+    boost::any obj = it->second;
+    printElement(obj, out, indent);
+
+    out.append("\n");
+  }
 }
+
 
 bool ParameterSet::insertEntryObj( 
        std::pair<std::string, boost::any> const & pair
@@ -659,66 +722,6 @@ bool ParameterSet::addVParameterSet(
   }
 
   return insertEntryObj(std::make_pair(name, boost::any(v)), overwrite); 
-}
-
-
-// Print the ParameterSet Object
-void ParameterSet::print(int indent) const
-{
-  valuemap::const_iterator it = PSetMap.begin();
-
-  for(; it!=PSetMap.end(); ++it)
-  {
-    std::string name = it->first;
-    boost::any obj   = it->second;
-
-    tab(indent);
-    std::cout<<name<<" : ";
-    printElement(obj, indent);
-    std::cout<<"\n";
-  }
-
-}
-
-void ParameterSet::printElement(boost::any const & obj, int indent)
-{
-  if(obj.empty())
-  {
-    std::cout << "nil";
-  }
-  else if(isBool(obj))
-  {
-    std::cout << (boost::any_cast<bool>(obj) ? "true" : "false");
-  }
-  else if(isPrimitive(obj))
-  {
-    std::cout << boost::any_cast<std::string>(obj);
-  }
-  else if(isVector(obj))
-  {
-    std::vector<boost::any> v = boost::any_cast<std::vector<boost::any> >(obj);
-    std::vector<boost::any>::const_iterator it = v.begin();
-
-    std::cout << "[";
-
-    for(; it!=v.end(); ++it)
-    {
-      printElement(*it);
-      if(it<v.end()-1)
-        std::cout << ", ";
-    }
-
-    std::cout << "]";
-  }
-  else if(isPSet(obj))
-  {
-    std::cout << "\n";
-    tab(indent);
-    std::cout << "{\n";
-    boost::any_cast<ParameterSet>(obj).print(indent+4);
-    tab(indent);
-    std::cout << "}";
-  }
 }
 
 } // namespace

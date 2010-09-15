@@ -14,12 +14,10 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "ParameterSetID.h"
+
 namespace fhicl {
 
-struct ParameterSetID {
-private:
-  char id[41];
-};
 
 class ParameterSet
 {
@@ -38,7 +36,7 @@ private:
   boost::any * getParameterObjPtr(std::string const & name, bool bInsert);
   boost::any   getParameterObj(std::string const & name);
 
-  static void printElement(boost::any const &, int indent=0);
+  //static void printElement(boost::any const &, int indent=0);
 
 public:
 
@@ -52,7 +50,8 @@ public:
   ParameterSetID id() { return id_; }
 
   // Print out the ParameterSet object
-  void print(int indent=0) const;
+  //void print(int indent=0) const;
+  void print(std::string & out, int indent=0) const;
  
   // Check if empty
   bool empty() const { return PSetMap.empty(); }

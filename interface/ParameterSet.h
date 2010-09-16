@@ -43,8 +43,6 @@ private:
   boost::any * getParameterObjPtr(std::string const & name, bool bInsert);
   boost::any   getParameterObj(std::string const & name);
 
-  //static void printElement(boost::any const &, int indent=0);
-
 public:
   typedef std::vector<int>          vint;
   typedef std::vector<unsigned int> vuint;
@@ -56,15 +54,13 @@ public:
   ParameterSetID id() const { return id_; }
 
   // string representation
-  std::string toString() const { return std::string(); }  // FIXME
+  std::string toString() const { std::string out; print(out); return out; }  
 
-  // Print out the ParameterSet object
-  //void print(int indent=0) const;
+  // Recursively printing funciton for ParameterSet object
   void print(std::string & out, int indent=0) const;
 
   // Check if empty
   bool empty() const { return PSetMap.empty(); }
-
 
   // Get methods
   bool getBool ( std::string const &

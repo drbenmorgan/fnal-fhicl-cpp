@@ -43,9 +43,6 @@ namespace {
     if(obj.empty())
       out.append("nil");
 
-    else if (isBool(obj))
-      out.append(boost::any_cast<bool>(obj) ? "true" : "false");
-
     else if (isPrimitive(obj))
       out.append(boost::any_cast<std::string>(obj));
 
@@ -207,8 +204,11 @@ bool ParameterSet::getBool(
   {
     try
     {
-      bool t = boost::any_cast<bool>(it->second);
-      return t;
+      std::string t = boost::any_cast<std::string>(it->second);
+      std::transform(t.begin(), t.end(), t.begin(), ::tolower);
+      if(t=="true")  return true;
+      if(t=="false") return false;
+      return def;
     }
     catch(const boost::bad_any_cast &)
     {
@@ -552,7 +552,9 @@ bool ParameterSet::addBool (
      , bool val
      , bool overwrite)
 {
-  return insertEntryObj(std::make_pair(name, boost::any(val)), overwrite);
+  return insertEntryObj(
+             std::make_pair(name, boost::any(std::string(val ? "true" : "false"))),
+             overwrite);
 }
 
 bool ParameterSet::addInt (

@@ -65,7 +65,7 @@ PSetParser<Iterator>::PSetParser()
   expr   =  nil                          [_val = _1]
          |  double_literal               [_val = _1]
          |  int_literal                  [_val = _1]
-         |  qi::bool_                    [_val = _1]
+         |  bool_literal                 [_val = _1]
          |  str                          [_val = _1]    
          |  pset                         [_val = _1]
          |  array                        [_val = _1]
@@ -100,13 +100,14 @@ PSetParser<Iterator>::PSetParser()
 
   key   = qi::lexeme[ascii::char_("a-zA-Z_") >> *ascii::char_("a-zA-Z_0-9")];
   
-  keywords = ( lit("nil") | lit("null") | lit("true") | lit("false") ) 
+  keywords = ( lit("nil") | lit("null") | lit("true") | lit("false") | lit("inf") ) 
              >> !ascii::char_("a-zA-Z_0-9") ;
 
   str  %= qi::lexeme['"' >> +(ascii::char_ - '"') >> '"'];
 
   double_literal = boost::spirit::raw[qi::double_]; 
   int_literal    = boost::spirit::raw[qi::int_]; 
+  bool_literal   = boost::spirit::raw[qi::bool_]; 
   last_literal   = lit("last") [_val=-1];
   nil            = lit("nil")  [_val=phoenix::ref(nilObj)];
 

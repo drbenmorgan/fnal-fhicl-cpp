@@ -8,11 +8,11 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
 PROJECT (fhiclcpp)
-SET (version v1_0_1)
+SET (version v1_0_2)
 
 # Check if the boost library has been set
-SET ( BOOST_VERSION $ENV{BOOST_VERSION} )
-IF (NOT BOOST_VERSION)
+SET (BOOST_VER $ENV{BOOST_VERSION})
+IF (NOT BOOST_VER)
     MESSAGE (FATAL_ERROR "Boost library has not been setup")
 ENDIF()
 

@@ -74,6 +74,7 @@ private:
   qi::rule<Iterator, std::string() , skipper_type> primary_key;
   qi::rule<Iterator, std::string() , skipper_type> double_literal;
   qi::rule<Iterator, std::string() , skipper_type> int_literal;
+  qi::rule<Iterator, std::string() , skipper_type> bool_literal;
   qi::rule<Iterator, int() , skipper_type> last_literal;
   qi::rule<Iterator> space;
 

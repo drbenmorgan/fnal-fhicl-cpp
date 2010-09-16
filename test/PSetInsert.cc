@@ -21,7 +21,7 @@ int main()
   assert(pset.getDouble("c") == 2.3);
 
   pset.addBool("d", true);
-  assert(pset.getBool("d"));
+  assert(pset.getBool("d") == true);
 
   std::vector<int> vi;
   vi.push_back(-1);
@@ -62,6 +62,17 @@ int main()
   pset.addVUInt("vu", vui);
   assert(pset.getVInt("vu")[1] == 2);
   assert(pset.getVUInt("vu")[1] == 2);
+
+  pset.addBool("b1", true);
+  assert(pset.getBool("b1") == true);
+
+  pset.addBool("b2", false);
+  assert(pset.getBool("b2") == false);
+
+  pset.addString("b3", "true");
+  assert(pset.getBool("b3") == true);
+  pset.addString("b4", "false");
+  assert(pset.getBool("b4") == false);
 
   //pset.print();
 

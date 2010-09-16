@@ -1,5 +1,5 @@
-#ifndef MessageFacility_ParameterSet_ParameterSet_h
-#define MessageFacility_ParameterSet_ParameterSet_h
+#ifndef FHICL_CPP_PARAMETERSET_H
+#define FHICL_CPP_PARAMETERSET_H
 
 // ======================================================================
 //
@@ -34,7 +34,6 @@ public:
   ~ParameterSet() {}
 
 private:
-
   template <typename T>
   bool insertEntry(std::string const & name, T const & val, bool overwrite=true);
   bool insertEntryObj(
@@ -55,6 +54,9 @@ public:
 
   // ID
   ParameterSetID id() const { return id_; }
+
+  // string representation
+  std::string toString() const { return std::string(); }  // FIXME
 
   // Print out the ParameterSet object
   //void print(int indent=0) const;
@@ -165,4 +167,4 @@ private:
 // ======================================================================
 
 
-#endif  // MessageFacility_ParameterSet_ParameterSet_h
+#endif  // FHICL_CPP_PARAMETERSET_H

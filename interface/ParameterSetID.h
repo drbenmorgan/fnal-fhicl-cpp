@@ -1,13 +1,18 @@
+#ifndef FHICL_CPP_PARAMETERSETID_H
+#define FHICL_CPP_PARAMETERSETID_H
 
-#ifndef PARAMTERSETID_HEADER_
-#define PARAMTERSETID_HEADER_
+// ======================================================================
+//
+// ParameterSetID
+//
+// ======================================================================
+
 
 #include "boost/array.hpp"
 
+
 namespace fhicl {
-
-typedef boost::array<unsigned char, 40> ParameterSetID;
-
+  typedef  boost::array<unsigned char, 40>  ParameterSetID;
 }
 
-#endif
+#endif  // FHICL_CPP_PARAMETERSETID_H

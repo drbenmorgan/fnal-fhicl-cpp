@@ -1,37 +1,39 @@
-#ifndef MessageFacility_ParameterSet_ParameterSetParser_h
-#define MessageFacility_ParameterSet_ParameterSetParser_h
+#ifndef FHICL_CPP_PARAMETERSETPARSER_H
+#define FHICL_CPP_PARAMETERSETPARSER_H
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-//
+// ParameterSetParser
 //
 ///////////////////////////////////////////////////////////////////////////////
+
 
 #include "ParameterSet.h"
 
-#include <boost/config/warning_disable.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/fusion/include/std_pair.hpp>
 #include <boost/any.hpp>
+#include <boost/config/warning_disable.hpp>
+#include <boost/fusion/include/std_pair.hpp>
+#include <boost/spirit/include/qi.hpp>
 
 #include <string>
 #include <list>
 
-namespace fhicl 
+
+namespace fhicl
 {
 
 namespace qi = boost::spirit::qi;
 namespace ascii = boost::spirit::ascii;
 namespace phoenix = boost::phoenix;
 
-typedef BOOST_TYPEOF(ascii::space 
-    | qi::lit('#') >>*(qi::char_ - boost::spirit::eol) >> boost::spirit::eol 
+typedef BOOST_TYPEOF(ascii::space
+    | qi::lit('#') >>*(qi::char_ - boost::spirit::eol) >> boost::spirit::eol
     | qi::lit("//")>>*(qi::char_ - boost::spirit::eol) >> boost::spirit::eol
 ) skipper_type;
 
 
 template <typename Iterator>
-struct PSetParser 
+struct PSetParser
 : qi::grammar<Iterator, skipper_type>
 {
 
@@ -43,7 +45,7 @@ struct PSetParser
 private:
 
   boost::any * findPrimaryPtr(std::string const &, int ver=0, bool bInsert=false);
-  boost::any * findPrimaryPtr(std::pair<std::string, int> const &, bool Insert=false); 
+  boost::any * findPrimaryPtr(std::pair<std::string, int> const &, bool Insert=false);
   boost::any * findPSetPtr(boost::any *, std::string const &, bool);
   boost::any * findArrayElementPtr(boost::any *, int, bool);
 
@@ -100,6 +102,6 @@ private:
   static void TrimSpace(std::string &);
 };
 
-}// namespace fhicl 
+}// namespace fhicl
 
-#endif
+#endif  // FHICL_CPP_PARAMETERSETPARSER_H

@@ -1,32 +1,39 @@
-#ifndef MessageFacility_ParameterSet_NewParameterSet_h
-#define MessageFacility_ParameterSet_NewParameterSet_h
+#ifndef FHICL_CPP_PARAMETERSET_H
+#define FHICL_CPP_PARAMETERSET_H
 
+// ======================================================================
 //
-// New ParameterSet
+// ParameterSet
 //
+// ======================================================================
 
-#include "boost/any.hpp"
-
-#include <string>
-#include <vector>
-#include <map>
-
-#include <iostream>
-#include <stdexcept>
 
 #include "ParameterSetID.h"
 
+#include "boost/any.hpp"
+
+#include <iostream>
+#include <map>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+
 namespace fhicl {
+  class ParameterSet;
+}
 
 
-class ParameterSet
+// ======================================================================
+
+
+class fhicl::ParameterSet
 {
 public:
   ParameterSet() : PSetMap(), id_() {}
   ~ParameterSet() {}
 
 private:
-
   template <typename T>
   bool insertEntry(std::string const & name, T const & val, bool overwrite=true);
   bool insertEntryObj(
@@ -39,7 +46,6 @@ private:
   //static void printElement(boost::any const &, int indent=0);
 
 public:
-
   typedef std::vector<int>          vint;
   typedef std::vector<unsigned int> vuint;
   typedef std::vector<double>       vdouble;
@@ -47,16 +53,19 @@ public:
   typedef std::vector<ParameterSet> vParameterSet;
 
   // ID
-  ParameterSetID id() { return id_; }
+  ParameterSetID id() const { return id_; }
+
+  // string representation
+  std::string toString() const { return std::string(); }  // FIXME
 
   // Print out the ParameterSet object
   //void print(int indent=0) const;
   void print(std::string & out, int indent=0) const;
- 
+
   // Check if empty
   bool empty() const { return PSetMap.empty(); }
 
- 
+
   // Get methods
   bool getBool ( std::string const &
                , const bool def=false) const;
@@ -141,7 +150,7 @@ public:
   // returns the list of parameter names
   vstring getNameList     () const;
   vstring getPSetNameList () const;
-  
+
 private:
   typedef std::map<const std::string, boost::any>   valuemap;
 
@@ -152,9 +161,10 @@ private:
   // Make the PSetParser class friend to allow the access of private members
   template<typename Iterator> friend class PSetParser;
 
-};
-
-}
+};  // ParameterSet
 
 
-#endif
+// ======================================================================
+
+
+#endif  // FHICL_CPP_PARAMETERSET_H

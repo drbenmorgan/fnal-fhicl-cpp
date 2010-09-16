@@ -7,7 +7,6 @@
 //
 // ======================================================================
 
-
 #include "ParameterSetID.h"
 
 #include "boost/any.hpp"
@@ -25,7 +24,6 @@ namespace fhicl {
 
 
 // ======================================================================
-
 
 class fhicl::ParameterSet
 {
@@ -54,9 +52,9 @@ public:
   ParameterSetID id() const { return id_; }
 
   // string representation
-  std::string toString() const { std::string out; print(out); return out; }  
+  std::string toString() const { std::string out; print(out); return out; }
 
-  // Recursively printing funciton for ParameterSet object
+  // Recursively printing function for ParameterSet object
   void print(std::string & out, int indent=0) const;
 
   // Check if empty
@@ -161,6 +159,5 @@ private:
 
 
 // ======================================================================
-
 
 #endif  // FHICL_CPP_PARAMETERSET_H

@@ -40,7 +40,7 @@
 
 #include "sha1.h"
 
-namespace mf {
+namespace fhicl {
 
 /*  
  *  SHA1

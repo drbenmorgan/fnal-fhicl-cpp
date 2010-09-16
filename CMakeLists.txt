@@ -11,23 +11,29 @@ CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 PROJECT (fhiclcpp)
 SET (version v1_0_2)
 SET (qualifier a1)
-SET (flavorqual slf5.x86_64.a1)
+SET (flavorqual sl5.x86_64.${qualifier})
 SET (flavorqual_dir ${version}/${flavorqual} )
 
+# make sure gcc has been set
+SET ( GCC_VERSION $ENV{GCC_VERSION} )
+IF (NOT GCC_VERSION)
+    MESSAGE (FATAL_ERROR "GCC has not been setup")
+ENDIF()
+message(STATUS "GCC version is ${GCC_VERSION} " )
+
 # Check if the boost library has been set
-SET (BOOST_VER $ENV{BOOST_VERSION})
-IF (NOT BOOST_VER)
+SET ( BOOST_VERS $ENV{BOOST_VERSION} )
+IF (NOT BOOST_VERS)
     MESSAGE (FATAL_ERROR "Boost library has not been setup")
 ENDIF()
 SET ( BOOST_STRING $ENV{SETUP_BOOST} )
 STRING( REGEX REPLACE ".*(-q.*)" "\\1" BOOST_QUAL "${BOOST_STRING}" )
-message(STATUS "Boost version and qualifier are ${BOOST_VERSION} ${BOOST_QUAL}" )
+message(STATUS "Boost version and qualifier are ${BOOST_VERS} ${BOOST_QUAL}" )
 
 # Define the boost envrionment so we don't get system libraries
 set ( BOOST_ROOT       $ENV{BOOST_DIR} )
 set ( BOOST_INCLUDEDIR $ENV{BOOST_INC} )
 set ( BOOST_LIBRARYDIR $ENV{BOOST_LIB} )
-
 FIND_PACKAGE ( Boost 1.41 REQUIRED )
 
 # Project include directory

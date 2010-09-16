@@ -2,11 +2,41 @@ FILE = version
 PRODUCT = fhiclcpp
 VERSION = @version@
 
-FLAVOR = @flavor@
+FLAVOR = Linux64bit+2.6-2.5
 QUALIFIERS = @qualifier@
-  DECLARER = qlu
+  DECLARER = CET
   DECLARED = @datime@
-  MODIFIER = qlu
+  MODIFIER = CET
+  MODIFIED = @datime@
+  PROD_DIR = fhiclcpp/@version@
+  UPS_DIR = ups
+  TABLE_FILE = fhiclcpp.table
+
+FLAVOR = Linux+2.6-2.5
+QUALIFIERS = @qualifier@
+  DECLARER = CET
+  DECLARED = @datime@
+  MODIFIER = CET
+  MODIFIED = @datime@
+  PROD_DIR = fhiclcpp/@version@
+  UPS_DIR = ups
+  TABLE_FILE = fhiclcpp.table
+
+FLAVOR = Linux64bit+2.6-2.3.4
+QUALIFIERS = @qualifier@
+  DECLARER = CET
+  DECLARED = @datime@
+  MODIFIER = CET
+  MODIFIED = @datime@
+  PROD_DIR = fhiclcpp/@version@
+  UPS_DIR = ups
+  TABLE_FILE = fhiclcpp.table
+
+FLAVOR = Linux+2.6-2.3.4
+QUALIFIERS = @qualifier@
+  DECLARER = CET
+  DECLARED = @datime@
+  MODIFIER = CET
   MODIFIED = @datime@
   PROD_DIR = fhiclcpp/@version@
   UPS_DIR = ups

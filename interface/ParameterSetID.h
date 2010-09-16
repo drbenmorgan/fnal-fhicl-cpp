@@ -9,9 +9,13 @@
 
 #include "boost/array.hpp"
 
+#include <ostream>
+
 
 namespace fhicl {
   class ParameterSetID;
+  std::ostream &
+    operator << ( std::ostream &, ParameterSetID const & );
 }
 
 
@@ -32,6 +36,16 @@ private:
   boost::array<unsigned char, 40> id_;
   bool valid_;
 };
+
+
+std::ostream &
+  fhicl::operator << ( std::ostream         & os
+                     , ParameterSetID const & psid
+                     )
+{
+  // TODO: insert output logic
+  return os;
+}
 
 
 // ======================================================================

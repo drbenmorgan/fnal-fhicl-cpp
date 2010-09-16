@@ -9,7 +9,7 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
 PROJECT (fhiclcpp)
-SET (version v1_0_2)
+SET (version v1_0_3)
 SET (qualifier a1)
 SET (flavorqual sl5.x86_64.${qualifier})
 SET (flavorqual_dir ${version}/${flavorqual} )
@@ -42,59 +42,16 @@ INCLUDE_DIRECTORIES (
     ${Boost_INCLUDE_DIR}
     )
 
-# Add source files in the src/ diretory
-INCLUDE (src/CMakeLists.txt)
-
-FOREACH (FILE ${FILES})
-    SET (srcFiles ${srcFiles} src/${FILE})
-ENDFOREACH (FILE)
-
-ADD_LIBRARY (fhiclcppD SHARED ${srcFiles})  
-ADD_LIBRARY (fhiclcpp         ${srcFiles})  
-
-SET_TARGET_PROPERTIES (fhiclcppD
-    PROPERTIES OUTPUT_NAME fhiclcpp
-    )
-
-SET_TARGET_PROPERTIES (fhiclcpp
-    PROPERTIES OUTPUT_NAME fhiclcpp
-    )
-
-FILE (GLOB includeFiles
-    ${fhiclcpp_SOURCE_DIR}/interface/*.h
-    )
-
-LIST (APPEND srcFiles
-    src/CMakeLists.txt
-    )
-
-FILE (GLOB cmakeFiles
-    ${fhiclcpp_SOURCE_DIR}/CMakeLists.txt
-    )
-
-INSTALL (FILES ${includeFiles}
-    DESTINATION ${version}/include/fhiclcpp/
-    )
-
-INSTALL (FILES ${includeFiles}
-    DESTINATION ${version}/src/fhiclcpp/interface
-    )
-
-INSTALL (FILES ${srcFiles}
-    DESTINATION ${version}/src/fhiclcpp/src
-    )
-
-INSTALL (FILES ${cmakeFiles}
+# making a copy of the source code
+INSTALL (FILES CMakeLists.txt
     DESTINATION ${version}/src/fhiclcpp
     )
 
-INSTALL (TARGETS fhiclcppD fhiclcpp 
-    RUNTIME DESTINATION ${flavorqual_dir}/bin
-    LIBRARY DESTINATION ${flavorqual_dir}/lib
-    ARCHIVE DESTINATION ${flavorqual_dir}/lib
-    ) 
+# source code
+subdirs(interface)
+subdirs(src)
+subdirs(ups)
 
-# Add subdirectories
+# testing
 ENABLE_TESTING()
 ADD_SUBDIRECTORY (test)
-ADD_SUBDIRECTORY (ups)

@@ -1,8 +1,12 @@
+
+
+//----------------------------------------------------------------------
+// accept C-style key and forward as std::string
+
 template< class T >
   T
   get( char const * key ) const
 { return get<T>( std::string(key) ); }
-
 
 template< class T >
   T

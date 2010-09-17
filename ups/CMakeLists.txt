@@ -1,9 +1,9 @@
 
-execute_process( COMMAND date 
-                 OUTPUT_VARIABLE datime 
+execute_process( COMMAND date
+                 OUTPUT_VARIABLE datime
                  OUTPUT_STRIP_TRAILING_WHITESPACE )
 execute_process( COMMAND  ups flavor
-                 OUTPUT_VARIABLE flavor 
+                 OUTPUT_VARIABLE flavor
                  OUTPUT_STRIP_TRAILING_WHITESPACE )
 
 configure_file ( ${fhiclcpp_SOURCE_DIR}/ups/fhiclcpp-config.cmake.in

@@ -11,8 +11,8 @@ FOREACH (FILE ${FILES})
     SET (srcFiles ${srcFiles} ${FILE})
 ENDFOREACH (FILE)
 
-ADD_LIBRARY (fhiclcppD SHARED ${srcFiles})  
-ADD_LIBRARY (fhiclcpp         ${srcFiles})  
+ADD_LIBRARY (fhiclcppD SHARED ${srcFiles})
+ADD_LIBRARY (fhiclcpp         ${srcFiles})
 
 SET_TARGET_PROPERTIES (fhiclcppD
     PROPERTIES OUTPUT_NAME fhiclcpp
@@ -27,8 +27,8 @@ INSTALL (FILES ${srcFiles} CMakeLists.txt
     DESTINATION ${version}/src/fhiclcpp/src
     )
 
-INSTALL (TARGETS fhiclcppD fhiclcpp 
+INSTALL (TARGETS fhiclcppD fhiclcpp
     RUNTIME DESTINATION ${flavorqual_dir}/bin
     LIBRARY DESTINATION ${flavorqual_dir}/lib
     ARCHIVE DESTINATION ${flavorqual_dir}/lib
-    ) 
+    )

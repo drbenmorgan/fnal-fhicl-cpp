@@ -1,3 +1,4 @@
+#include <string>
 
 
 // ----------------------------------------------------------------------
@@ -16,10 +17,6 @@ template< class T >
 template< class T >
   T
   get( std::string const & key, T const default_value ) const
-try
-{
-  valuemap::const_iterator it = PSetMap.find(key);
-  return it == PSetMap.end() ?  default_value
-                             :  value_cast<T>(it->second);
-}
-catch( ... ) { return default_value; }
+try { return get<T>(key); }
+catch( NO_SUCH_ENTRY_EXCEPTION const & ) { return default_value; }
+catch( BAD_VALUE_EXCEPTION     const & ) { return default_value; }

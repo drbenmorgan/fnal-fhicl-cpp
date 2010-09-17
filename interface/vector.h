@@ -1,3 +1,9 @@
+#include <algorithm>
+#include <iterator>
+#include <string>
+#include <vector>
+
+
 // ----------------------------------------------------------------------
 // obtain a sequence of values
 

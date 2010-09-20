@@ -38,6 +38,7 @@ private:
 };
 
 
+inline
 std::ostream &
   fhicl::operator << ( std::ostream         & os
                      , ParameterSetID const & psid

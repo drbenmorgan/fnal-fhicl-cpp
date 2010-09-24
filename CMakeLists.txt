@@ -9,15 +9,21 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
 PROJECT (fhiclcpp)
-SET (version v1_0_3)
-SET (qualifier a1)
-SET (flavorqual sl5.x86_64.${qualifier})
+SET (version v1_1_0)
+SET (qualifier GCC_4_5_0)
+
+IF (CMAKE_CROSSCOMPILING)
+    SET (flavorqual sl5.${CMAKE_SYSTEM_PROCESSOR}.${qualifier})
+ELSE (CMAKE_CROSSCOMPILING)
+    SET (flavorqual sl5.${CMAKE_HOST_SYSTEM_PROCESSOR}.${qualifier})
+ENDIF (CMAKE_CROSSCOMPILING)
+
 SET (flavorqual_dir ${version}/${flavorqual} )
 
 # make sure gcc has been set
 SET ( GCC_VERSION $ENV{GCC_VERSION} )
 IF (NOT GCC_VERSION)
-    MESSAGE (FATAL_ERROR "GCC has not been setup")
+    MESSAGE ("GCC has not been setup")
 ENDIF()
 message(STATUS "GCC version is ${GCC_VERSION} " )
 

@@ -12,6 +12,26 @@ QUALIFIERS = @qualifier@
   UPS_DIR = ups
   TABLE_FILE = fhiclcpp.table
 
+FLAVOR = LinuxPPC
+QUALIFIERS = @qualifier@
+  DECLARER = qlu
+  DECLARED = @datime@
+  MODIFIER = qlu
+  MODIFIED = @datime@
+  PROD_DIR = fhiclcpp/@version@
+  UPS_DIR = ups
+  TABLE_FILE = fhiclcpp.table
+
+FLAVOR = Linuxppc
+QUALIFIERS = @qualifier@
+  DECLARER = qlu
+  DECLARED = @datime@
+  MODIFIER = qlu
+  MODIFIED = @datime@
+  PROD_DIR = fhiclcpp/@version@
+  UPS_DIR = ups
+  TABLE_FILE = fhiclcpp.table
+
 FLAVOR = Linux+2.6-2.5
 QUALIFIERS = @qualifier@
   DECLARER = CET

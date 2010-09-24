@@ -9,6 +9,8 @@ Qualifiers = ""
        prodDir()
        exeActionRequired("setup__")
 
+       setupRequired(boost @BOOST_VERS@)
+
 Flavor     = Linux64bit+2.6-2.5
 Qualifiers = "@qualifier@"
   Action = setup
@@ -16,6 +18,25 @@ Qualifiers = "@qualifier@"
        fileTest( ${UPS_PROD_DIR}/sl5.x86_64.@qualifier@, -d, "${UPS_PROD_DIR}/sl5.x86_64.@qualifier@ directory not found: SETUP ABORTED")
        envSet( ${UPS_PROD_NAME_UC}_FQ, sl5.x86_64.@qualifier@ )
        exeActionRequired("setup__")
+       setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@ -f Linux64bit+2.6-2.5)
+
+Flavor     = Linuxppc
+Qualifiers = "@qualifier@"
+  Action = setup
+       prodDir()
+       fileTest( ${UPS_PROD_DIR}/sl5.PPC.@qualifier@, -d, "${UPS_PROD_DIR}/sl5.PPC.@qualifier@ directory not found: SETUP ABORTED")
+       envSet( ${UPS_PROD_NAME_UC}_FQ, sl5.PPC.@qualifier@ )
+       exeActionRequired("setup__")
+       setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@ -f Linuxppc)
+
+Flavor     = LinuxPPC
+Qualifiers = "@qualifier@"
+  Action = setup
+       prodDir()
+       fileTest( ${UPS_PROD_DIR}/sl5.PPC.@qualifier@, -d, "${UPS_PROD_DIR}/sl5.PPC.@qualifier@ directory not found: SETUP ABORTED")
+       envSet( ${UPS_PROD_NAME_UC}_FQ, sl5.PPC.@qualifier@ )
+       exeActionRequired("setup__")
+       setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@ -f LinuxPPC)
 
 Flavor     = Linux+2.6-2.5
 Qualifiers = "@qualifier@"
@@ -24,6 +45,7 @@ Qualifiers = "@qualifier@"
        fileTest( ${UPS_PROD_DIR}/sl5.i686.@qualifier@, -d, "${UPS_PROD_DIR}/sl5.i686.@qualifier@ directory not found: SETUP ABORTED")
        envSet( ${UPS_PROD_NAME_UC}_FQ, sl5.i686.@qualifier@ )
        exeActionRequired("setup__")
+       setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@ -f Linux+2.6-2.5)
 
 Flavor     = Linux64bit+2.6-2.3.4
 Qualifiers = "@qualifier@"
@@ -32,6 +54,7 @@ Qualifiers = "@qualifier@"
        fileTest( ${UPS_PROD_DIR}/sl4.x86_64.@qualifier@, -d, "${UPS_PROD_DIR}/sl4.x86_64.@qualifier@ directory not found: SETUP ABORTED")
        envSet( ${UPS_PROD_NAME_UC}_FQ, sl4.x86_64.@qualifier@ )
        exeActionRequired("setup__")
+       setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@ -f Linux64bit+2.6-2.3.4)
 
 Flavor     = Linux+2.6-2.3.4
 Qualifiers = "@qualifier@"
@@ -40,6 +63,7 @@ Qualifiers = "@qualifier@"
       fileTest( ${UPS_PROD_DIR}/sl4.i686.@qualifier@, -d, "${UPS_PROD_DIR}/sl4.i686.@qualifier@ directory not found: SETUP ABORTED")
       envSet( ${UPS_PROD_NAME_UC}_FQ, sl4.i686.@qualifier@ )
       exeActionRequired("setup__")
+       setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@ -f Linux+2.6-2.3.4)
 
 Common:
   Action = setup__
@@ -72,8 +96,8 @@ Common:
     endif ( sh -c 'for dd in ${${UPS_PROD_NAME_UC}_FQ}/bin bin;do [ -d ${UPS_PROD_DIR}/$dd ] && exit;done;exit 1' )
 	    
     # uncomment or add to this list as relevant
-    setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@)
-    setupRequired(gcc @GCC_VERSION@ )
+    #setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@)
+    #setupRequired(gcc @GCC_VERSION@ )
 
 End:
 # End Group definition

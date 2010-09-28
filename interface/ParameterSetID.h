@@ -53,11 +53,7 @@ public:
   { valid_ = false; id_ = invalid_id_(); }
 
   void
-    reset( ps_t const & ps )
-  {
-    // TODO: id_ = sha1 obtained from ps
-    valid_ = true;
-  }
+    reset( ps_t const & ps );
 
   std::string
     to_string() const

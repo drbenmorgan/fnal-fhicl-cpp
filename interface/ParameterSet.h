@@ -57,8 +57,10 @@ public:
   // compiler generates default c'tor, d'tor, copy c'tor, copy assignment
 
   bool     empty() const  { return psetmap_.empty(); }
-  string_t toString() const { return string_t(""); }
   psid_t   id();
+
+  string_t toString() const;
+  string_t hashString() const;
 
   //----------------------------------------------------------------------
   // insert user's key-value pair

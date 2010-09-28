@@ -26,6 +26,8 @@ namespace phoenix = boost::phoenix;
 template<typename Iterator>  
 PSetParser<Iterator>::PSetParser() 
   : PSetParser::base_type(doc)
+  , PrimaryPSet(boost::any(PSet()))
+  , RefPool(boost::any(PSet()))
   , errs ()
 {
   using qi::_1;
@@ -96,7 +98,6 @@ PSetParser<Iterator>::PSetParser()
 template<typename Iterator>
 boost::any PSetParser<Iterator>::getObjFromName(std::string & name)
 {
-  //std::cout << "REF: " << name << "\n";
   boost::any * obj = parseRef(name, false);
   return *obj;
 }
@@ -104,7 +105,6 @@ boost::any PSetParser<Iterator>::getObjFromName(std::string & name)
 template<typename Iterator>
 void PSetParser<Iterator>::setObjFromName(std::string & name, boost::any & obj)
 {
-  //std::cout << "REASSIGN: " << name << "\n";
   boost::any * pobj = parseRef(name, true);
   pobj->swap(obj);
 }
@@ -113,7 +113,7 @@ template<typename Iterator>
 void PSetParser<Iterator>::insertPSetEntry(
      PSet & pset, std::pair<std::string, boost::any> const & pair)
 {
-  pset.insertEntryObj(pair);
+  pset.insertEntryObj(pair.first, pair.second);
 }
 
 
@@ -134,8 +134,7 @@ boost::any * PSetParser<Iterator>::parseRef(
   using qi::_b;
   using qi::lit;
 
-  boost::any   ori = boost::any(PrimaryPSet);
-  boost::any * obj = &ori;
+  boost::any * obj = &PrimaryPSet;
 
   typedef BOOST_TYPEOF(ascii::space 
       | qi::lit('#') >>*(qi::char_ - boost::spirit::eol) >> boost::spirit::eol 
@@ -187,7 +186,7 @@ PSetParser<Iterator>::findPSetPtr(
   try 
   {
     PSet & pset = boost::any_cast<PSet &>(*object);
-    boost::any * obj = pset.getParameterObjPtr(name, bInsert);
+    boost::any * obj = pset.getPSetObjPtr(name, bInsert);
     return obj;
   }
   catch(const boost::bad_any_cast &)
@@ -299,7 +298,7 @@ template<typename Iterator>
 ParameterSet PSetParser<Iterator>::getPSet()
 {
   ParameterSet pset;
-  MakePSet_(pset, PrimaryPSet);
+  MakePSet_(pset, boost::any_cast<PSet>(PrimaryPSet));
   return pset;
 }
 

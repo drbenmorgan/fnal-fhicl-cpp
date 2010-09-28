@@ -29,7 +29,7 @@ class fhicl::ParameterSetID
 
   typedef  ParameterSet    ps_t;
   typedef  ParameterSetID  psid_t;
-  typedef  boost::array<unsigned char, sha1_size>  array_t;
+  typedef  boost::array<unsigned int, sha1_size/8>  array_t;
 
 public:
   // compiler generates d'tor, copy c'tor, copy assignment
@@ -56,11 +56,7 @@ public:
     reset( ps_t const & ps );
 
   std::string
-    to_string() const
-  {
-    std::string str(id_.begin(), id_.end());
-    return cet::nybbler(str).as_hex();
-  }
+    to_string() const;
 
   bool  operator == ( psid_t const & that ) const { return id_ == that.id_; }
   bool  operator != ( psid_t const & that ) const { return id_ != that.id_; }
@@ -76,7 +72,7 @@ private:
   array_t
     invalid_id_() const
   {
-    static array_t INVALID_VALUE; //TODO: initialize this value
+    static array_t INVALID_VALUE = {0,0,0,0,0}; //TODO: initialize this value
     return INVALID_VALUE;
   }
 

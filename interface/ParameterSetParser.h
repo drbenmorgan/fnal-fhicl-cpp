@@ -79,8 +79,8 @@ private:
   qi::rule<Iterator> space;
 
   // data structure for primary entries
-  PSet PrimaryPSet;
-  PSet RefPool;
+  boost::any PrimaryPSet;
+  boost::any RefPool;
 
   // vector of string to hold parsing errors
   std::vector<std::string> errs;

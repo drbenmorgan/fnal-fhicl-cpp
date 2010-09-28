@@ -9,10 +9,13 @@ int main()
   // parse a configuration file
   fhicl::Parser::Parse("Sample.cfg", pset);
 
-  //std::string s;
-  //pset.print(s);
-  //std::cout << s;
+  std::string s;
+  s = pset.hashString();
+  std::cout << s << "\n";
 
+  std::cout << pset.get<fhicl::ParameterSet>("Lesson").get<int>("l2")<<"\n";
+
+#if 0
   // retrieve the parameter "partition", with the default value 0 if not found
   assert (pset.get<int>("partition",0) == 101);
 
@@ -21,6 +24,7 @@ int main()
   fhicl::Parser::ParseString(cnf, pset);
   // retrieve the parameter "partition", with the default value 0 if not found
   assert (pset.get<int>("partition",0) == 3);
+#endif
 
   return 0;
 }

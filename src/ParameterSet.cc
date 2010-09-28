@@ -50,13 +50,11 @@ psid_t
 }
 
 
-
-
 // ======================================================================
 
 string_t ps_t::toString() const
 {
-  return string_t("");
+  return hashString(); //TODO: implement pretty print
 }
 
 namespace {

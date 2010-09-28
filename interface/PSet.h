@@ -27,11 +27,11 @@ class fhicl::PSet
 
   typedef std::map<const std::string, boost::any> map_t;
 
-  bool insertEntryObj(std::pair<std::string, boost::any> const & pair)
-  { PSetMap.insert(pair); return true; }
+  void insertEntryObj(std::string const & key, boost::any const & value)
+  { PSetMap.insert(std::make_pair(key, value)); }
 
 
-  boost::any * getParameterObjPtr(std::string const & name, bool bInsert)
+  boost::any * getPSetObjPtr(std::string const & name, bool bInsert)
   {
     map_t::iterator it = PSetMap.find(name);
 
@@ -40,8 +40,8 @@ class fhicl::PSet
 
     if(bInsert)
     {
-      insertEntryObj(std::make_pair(name, boost::any()));
-      return getParameterObjPtr(name, false);
+      insertEntryObj(name, boost::any(std::string("nil")));
+      return getPSetObjPtr(name, false);
     }
     else
     {

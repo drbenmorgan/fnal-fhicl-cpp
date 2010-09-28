@@ -44,6 +44,9 @@ class fhicl::ParameterSet
 
   friend class ParameterSetID;
 
+  template< typename Iterator >
+    friend class PSetParser;
+
   static  void  cpp_to_atom_( string_t & str );
   static  void  atom_to_cpp_( string_t & str );
 
@@ -54,8 +57,9 @@ class fhicl::ParameterSet
 public:
   // compiler generates default c'tor, d'tor, copy c'tor, copy assignment
 
-  bool    empty() const  { return psetmap_.empty(); }
-  psid_t  id();
+  bool     empty() const  { return psetmap_.empty(); }
+  string_t toString() const { return string_t(""); }
+  psid_t   id();
 
   //----------------------------------------------------------------------
   // insert user's key-value pair

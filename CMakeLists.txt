@@ -9,8 +9,8 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
 
 PROJECT (fhiclcpp)
-SET (version v1_1_0)
-SET (qualifier GCC_4_5_0)
+SET (version v2_0_0)
+SET (qualifier a1)
 
 IF (CMAKE_CROSSCOMPILING)
     SET (flavorqual sl5.${CMAKE_SYSTEM_PROCESSOR}.${qualifier})

@@ -4,6 +4,7 @@
 SET (FILES
     ParameterSet.cc
     ParameterSetParser.cc
+    nybbler.cc
     sha1.cpp
     )
 

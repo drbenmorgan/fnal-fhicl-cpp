@@ -8,11 +8,13 @@
 // ======================================================================
 
 #include "boost/array.hpp"
+#include "nybbler.h"  // cetlib/
 
 #include <ostream>
 
 
 namespace fhicl {
+  class ParameterSet;
   class ParameterSetID;
   std::ostream &
     operator << ( std::ostream &, ParameterSetID const & );
@@ -23,30 +25,73 @@ namespace fhicl {
 
 class fhicl::ParameterSetID
 {
+  static  unsigned  const  sha1_size = 40u;  // TODO: get this value from elsewhere
+
+  typedef  ParameterSet    ps_t;
+  typedef  ParameterSetID  psid_t;
+  typedef  boost::array<unsigned char, sha1_size>  array_t;
+
 public:
-  ParameterSetID() : valid_(false), id_() { }
+  // compiler generates d'tor, copy c'tor, copy assignment
 
-  // Is an valid ID
-  bool isValid() const { return valid_; }
+  ParameterSetID( )
+  : valid_( false )
+  , id_   ( invalid_id_() )
+  { }
 
-  // A dummy set id function
-  void setID() {}
+  ParameterSetID( ps_t const & ps )
+  : valid_(false)
+  , id_( )
+  { reset(ps); }
+
+  bool
+    isValid( ) const
+  { return valid_; }
+
+  void
+    invalidate( )
+  { valid_ = false; id_ = invalid_id_(); }
+
+  void
+    reset( ps_t const & ps )
+  {
+    // TODO: id_ = sha1 obtained from ps
+    valid_ = true;
+  }
+
+  std::string
+    to_string() const
+  {
+    std::string str(id_.begin(), id_.end());
+    return cet::nybbler(str).as_hex();
+  }
+
+  bool  operator == ( psid_t const & that ) const { return id_ == that.id_; }
+  bool  operator != ( psid_t const & that ) const { return id_ != that.id_; }
+  bool  operator <  ( psid_t const & that ) const { return id_ <  that.id_; }
+  bool  operator >  ( psid_t const & that ) const { return id_ >  that.id_; }
+  bool  operator <= ( psid_t const & that ) const { return id_ <= that.id_; }
+  bool  operator >= ( psid_t const & that ) const { return id_ >= that.id_; }
 
 private:
-  boost::array<unsigned char, 40> id_;
-  bool valid_;
-};
+  bool     valid_;
+  array_t  id_;
 
+  array_t
+    invalid_id_() const
+  {
+    static array_t INVALID_VALUE; //TODO: initialize this value
+    return INVALID_VALUE;
+  }
 
-inline
-std::ostream &
-  fhicl::operator << ( std::ostream         & os
-                     , ParameterSetID const & psid
-                     )
-{
-  // TODO: insert output logic
-  return os;
-}
+};  // ParameterSetID
+
+  inline
+  std::ostream &
+    fhicl::operator << ( std::ostream         & os
+                       , ParameterSetID const & psid
+                       )
+  { return os << psid.to_string(); }
 
 
 // ======================================================================

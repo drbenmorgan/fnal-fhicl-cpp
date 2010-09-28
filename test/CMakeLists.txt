@@ -11,24 +11,24 @@ CONFIGURE_FILE (
     COPYONLY
     )
 
-ADD_EXECUTABLE (PSetTest
+ADD_EXECUTABLE (ParserTest
     PSetSample.cc
+    )
+
+TARGET_LINK_LIBRARIES (ParserTest
+    fhiclcppD
+    )
+
+ADD_EXECUTABLE (PSetTest
+    PSetTest.cc
     )
 
 TARGET_LINK_LIBRARIES (PSetTest
     fhiclcppD
     )
 
-ADD_EXECUTABLE (PSetInsert
-    PSetInsert.cc
-    )
-
-TARGET_LINK_LIBRARIES (PSetInsert
-    fhiclcppD
-    )
-
+ADD_TEST(ParserTest ParserTest)
 ADD_TEST(PSetTest PSetTest)
-ADD_TEST(PSetInsert PSetInsert)
 
 INSTALL (FILES
     PSetSample.cc

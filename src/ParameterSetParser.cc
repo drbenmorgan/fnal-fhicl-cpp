@@ -5,6 +5,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ParameterSetParser.h"
+#include "Parser.h"
 
 #include <boost/version.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>

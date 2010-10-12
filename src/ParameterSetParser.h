@@ -17,7 +17,6 @@
 #include <boost/spirit/include/qi.hpp>
 
 #include <string>
-#include <list>
 
 
 namespace fhicl
@@ -84,20 +83,6 @@ private:
 
   // vector of string to hold parsing errors
   std::vector<std::string> errs;
-};
-
-class Parser
-{
-private:
-  Parser() {}
-
-public:
-  static bool Parse(std::string const &, ParameterSet &);
-  static bool ParseString(std::string &, ParameterSet &);
-
-private:
-  static bool PreProcess(std::string const &, std::string &);
-  static void TrimSpace(std::string &);
 };
 
 }// namespace fhicl

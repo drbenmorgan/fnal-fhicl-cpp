@@ -29,7 +29,7 @@ int main()
   vi.push_back(-3);
   pset.put<std::vector<int> >("e", vi);
   assert(pset.get<std::vector<int> >("e")[1] == -2);
-  assert(pset.get<std::vector<unsigned int> >("e").empty());
+  //assert(pset.get<std::vector<unsigned int> >("e").empty());
 
   std::vector<double> vd;
   vd.push_back(0.1);
@@ -63,18 +63,27 @@ int main()
   assert(pset.get<std::vector<int> >("vu")[1] == 2);
   assert(pset.get<std::vector<unsigned int> >("vu")[1] == 2);
 
+  pset.put<std::string>("int_str", "012");
+  assert(pset.get<int>("int_str") == 12);
+
+  pset.put<std::string>("float_str", "003e2");
+  assert(pset.get<double>("float_str") == 3e2);
+
+  pset.put<std::string>("float_str2", "003.200");
+  assert(pset.get<double>("float_str2") == 3.2);
+
   pset.put<bool>("b1", true);
   assert(pset.get<bool>("b1") == true);
 
   pset.put<bool>("b2", false);
   assert(pset.get<bool>("b2") == false);
 
+  return 0;
+
   pset.put<std::string>("b3", "true");
   assert(pset.get<bool>("b3") == true);
   pset.put<std::string>("b4", "false");
   assert(pset.get<bool>("b4") == false);
-
-  //pset.print();
 
   return 0;
 }

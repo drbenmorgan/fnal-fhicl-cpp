@@ -72,7 +72,7 @@ private:
   array_t
     invalid_id_() const
   {
-    static array_t INVALID_VALUE = {0,0,0,0,0}; //TODO: initialize this value
+    static array_t INVALID_VALUE = {0,0,0,0,0}; 
     return INVALID_VALUE;
   }
 

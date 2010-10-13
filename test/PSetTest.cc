@@ -29,7 +29,9 @@ int main()
   vi.push_back(-3);
   pset.put<std::vector<int> >("e", vi);
   assert(pset.get<std::vector<int> >("e")[1] == -2);
-  //assert(pset.get<std::vector<unsigned int> >("e").empty());
+
+  std::vector<unsigned int> vui_def;
+  assert(pset.get<std::vector<unsigned int> >("e", vui_def).empty());
 
   std::vector<double> vd;
   vd.push_back(0.1);

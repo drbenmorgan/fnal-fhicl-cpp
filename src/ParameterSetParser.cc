@@ -42,10 +42,10 @@ PSetParser<Iterator>::PSetParser()
 
   doc = *( re_assign );
 
-  re_assign = ref_literal [_a=_1] 
-              >> ':'     
-              >> expr     [phoenix::bind(&PSetParser::setObjFromName,this,_a,_1)]
-              >> ','
+  re_assign = ( ref_literal [_a=_1] 
+                >> ':'     
+                >> expr  [phoenix::bind(&PSetParser::setObjFromName,this,_a,_1)]
+              ) % ','
               ;
 
   expr   =  nil                          [_val = _1]

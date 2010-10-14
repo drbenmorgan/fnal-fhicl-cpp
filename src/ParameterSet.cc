@@ -43,7 +43,7 @@ void
 
 
 psid_t
-  ps_t::id()
+  ps_t::id() const
 {
   if( ! id_.isValid() )
     id_.reset(*this);

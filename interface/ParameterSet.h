@@ -40,7 +40,8 @@ class fhicl::ParameterSet
   typedef  std::map<string_t, any_t>  entries_t;
 
   entries_t  psetmap_;
-  psid_t     id_;
+  
+  mutable psid_t  id_;
 
   friend class ParameterSetID;
 
@@ -57,7 +58,7 @@ public:
   // compiler generates default c'tor, d'tor, copy c'tor, copy assignment
 
   bool     empty() const  { return psetmap_.empty(); }
-  psid_t   id();
+  psid_t   id() const;
 
   string_t toString() const;
   string_t hashString() const;

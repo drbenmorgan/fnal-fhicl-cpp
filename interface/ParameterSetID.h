@@ -7,8 +7,7 @@
 //
 // ======================================================================
 
-#include "boost/array.hpp"
-#include "nybbler.h"  // cetlib/
+#include "cetlib/sha1.h"
 
 #include <ostream>
 
@@ -25,11 +24,9 @@ namespace fhicl {
 
 class fhicl::ParameterSetID
 {
-  static  unsigned  const  sha1_size = 40u;  // TODO: get this value from elsewhere
-
-  typedef  ParameterSet    ps_t;
-  typedef  ParameterSetID  psid_t;
-  typedef  boost::array<unsigned int, sha1_size/8>  array_t;
+  typedef  ParameterSet         ps_t;
+  typedef  ParameterSetID       psid_t;
+  typedef  cet::sha1::digest_t  array_t;
 
 public:
   // compiler generates d'tor, copy c'tor, copy assignment
@@ -43,6 +40,10 @@ public:
   : valid_(false)
   , id_( )
   { reset(ps); }
+
+  void
+    swap( ParameterSetID & other )
+  { id_.swap(other.id_); std::swap(valid_, other.valid_); }
 
   bool
     isValid( ) const
@@ -72,7 +73,7 @@ private:
   array_t
     invalid_id_() const
   {
-    static array_t INVALID_VALUE = {0,0,0,0,0}; 
+    static array_t INVALID_VALUE = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; 
     return INVALID_VALUE;
   }
 

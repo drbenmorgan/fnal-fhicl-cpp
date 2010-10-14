@@ -16,6 +16,7 @@ typedef  fhicl::ParameterSetID        psid_t;
 typedef  fhicl::ParameterSetRegistry  psreg_t;
 
 typedef  std::string                  string_t;
+typedef  std::vector<std::string>     vstring_t;
 typedef  boost::any                   any_t;
 typedef  std::map<string_t, any_t>    entries_t;
 
@@ -132,3 +133,30 @@ string_t ps_t::hashString() const
   return hash;
 }
 
+vstring_t ps_t::getNameList() const
+{
+  vstring_t names;
+  
+  entries_t::const_iterator it = psetmap_.begin();
+  while(it!=psetmap_.end()) {
+    names.push_back(it->first);
+    ++it;
+  }
+
+  return names;
+}
+
+vstring_t ps_t::getPSetNameList() const
+{
+  vstring_t names;
+
+  entries_t::const_iterator it = psetmap_.begin();
+  while (it!=psetmap_.end()) {
+    if (isParameterSet_(it->second)) {
+      names.push_back(it->first);
+    }
+    ++it;
+  }
+
+  return names;
+}

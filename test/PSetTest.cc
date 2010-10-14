@@ -80,6 +80,9 @@ int main()
   pset.put<bool>("b2", false);
   assert(pset.get<bool>("b2") == false);
 
+  std::vector<std::string> names = pset.getPSetNameList();
+  assert(names[0].compare("h") == 0);
+
   return 0;
 
   pset.put<std::string>("b3", "true");

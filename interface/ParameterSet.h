@@ -62,6 +62,9 @@ public:
   string_t toString() const;
   string_t hashString() const;
 
+  std::vector<std::string> getNameList() const;
+  std::vector<std::string> getPSetNameList() const;
+
   //----------------------------------------------------------------------
   // insert user's key-value pair
 

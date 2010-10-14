@@ -27,6 +27,14 @@ IF (NOT GCC_VERSION)
 ENDIF()
 message(STATUS "GCC version is ${GCC_VERSION} " )
 
+# Check if the cetlib library has been set
+SET ( CETLIB_VERS $ENV{CETLIB_VERSION} )
+IF (NOT CETLIB_VERS)
+    MESSAGE (FATAL_ERROR "cetlib library has not been setup")
+ENDIF()
+SET ( CETLIB_STRING $ENV{SETUP_CETLIB} )
+STRING( REGEX REPLACE ".*(-q.*)" "\\1" CETLIB_QUAL "${CETLIB_STRING}" )
+
 # Check if the boost library has been set
 SET ( BOOST_VERS $ENV{BOOST_VERSION} )
 IF (NOT BOOST_VERS)
@@ -46,6 +54,13 @@ FIND_PACKAGE ( Boost 1.41 REQUIRED )
 INCLUDE_DIRECTORIES (
     ${fhiclcpp_SOURCE_DIR}/interface
     ${Boost_INCLUDE_DIR}
+    $ENV{CETLIB_INC}
+    $ENV{CPP0X_INC}
+    )
+
+# Project library directory
+LINK_DIRECTORIES(
+    $ENV{CETLIB_LIB}
     )
 
 # making a copy of the source code

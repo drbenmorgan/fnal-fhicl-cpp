@@ -2,6 +2,8 @@
 #include "ParameterSet.h"
 #include "sha1.h"
 
+#include "cetlib/sha1.h"
+
 #include "boost/format.hpp"
 
 #include <string>

@@ -19,6 +19,7 @@ Qualifiers = "@qualifier@"
        envSet( ${UPS_PROD_NAME_UC}_FQ, sl5.x86_64.@qualifier@ )
        exeActionRequired("setup__")
        setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@ -f Linux64bit+2.6-2.5)
+       setupRequired(cetlib @CETLIB_VERS@ @CETLIB_QUAL@ -f Linux64bit+2.6-2.5)
 
 Flavor     = Linuxppc
 Qualifiers = "@qualifier@"
@@ -28,6 +29,7 @@ Qualifiers = "@qualifier@"
        envSet( ${UPS_PROD_NAME_UC}_FQ, sl5.PPC.@qualifier@ )
        exeActionRequired("setup__")
        setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@ -f Linuxppc)
+       setupRequired(cetlib @CETLIB_VERS@ @CETLIB_QUAL@ -f Linuxppc)
 
 Flavor     = LinuxPPC
 Qualifiers = "@qualifier@"
@@ -37,6 +39,7 @@ Qualifiers = "@qualifier@"
        envSet( ${UPS_PROD_NAME_UC}_FQ, sl5.PPC.@qualifier@ )
        exeActionRequired("setup__")
        setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@ -f LinuxPPC)
+       setupRequired(cetlib @CETLIB_VERS@ @CETLIB_QUAL@ -f LinuxPPC)
 
 Flavor     = Linux+2.6-2.5
 Qualifiers = "@qualifier@"
@@ -46,6 +49,7 @@ Qualifiers = "@qualifier@"
        envSet( ${UPS_PROD_NAME_UC}_FQ, sl5.i686.@qualifier@ )
        exeActionRequired("setup__")
        setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@ -f Linux+2.6-2.5)
+       setupRequired(cetlib @CETLIB_VERS@ @CETLIB_QUAL@ -f Linux+2.6-2.5)
 
 Flavor     = Linux64bit+2.6-2.3.4
 Qualifiers = "@qualifier@"
@@ -55,6 +59,7 @@ Qualifiers = "@qualifier@"
        envSet( ${UPS_PROD_NAME_UC}_FQ, sl4.x86_64.@qualifier@ )
        exeActionRequired("setup__")
        setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@ -f Linux64bit+2.6-2.3.4)
+       setupRequired(cetlib @CETLIB_VERS@ @CETLIB_QUAL@ -f Linux64bit+2.6-2.3.4)
 
 Flavor     = Linux+2.6-2.3.4
 Qualifiers = "@qualifier@"
@@ -64,6 +69,7 @@ Qualifiers = "@qualifier@"
       envSet( ${UPS_PROD_NAME_UC}_FQ, sl4.i686.@qualifier@ )
       exeActionRequired("setup__")
        setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@ -f Linux+2.6-2.3.4)
+       setupRequired(cetlib @CETLIB_VERS@ @CETLIB_QUAL@ -f Linux64bit+2.6-2.3.4)
 
 Common:
   Action = setup__

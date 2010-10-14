@@ -16,6 +16,14 @@ ENDFOREACH (FILE)
 ADD_LIBRARY (fhiclcppD SHARED ${srcFiles})
 ADD_LIBRARY (fhiclcpp         ${srcFiles})
 
+TARGET_LINK_LIBRARIES (fhiclcppD
+    cetlib
+    )
+
+TARGET_LINK_LIBRARIES (fhiclcpp
+    cetlib
+    )
+
 SET_TARGET_PROPERTIES (fhiclcppD
     PROPERTIES OUTPUT_NAME fhiclcpp
     )

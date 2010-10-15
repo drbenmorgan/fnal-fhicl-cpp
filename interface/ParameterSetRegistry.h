@@ -8,7 +8,7 @@
 // ======================================================================
 
 
-#include "registry.h"
+#include "cetlib/registry.h"
 #include "ParameterSet.h"
 #include "ParameterSetID.h"
 

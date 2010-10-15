@@ -5,8 +5,6 @@ SET (FILES
     ParameterSet.cc
     ParameterSetID.cc
     ParameterSetParser.cc
-    nybbler.cc
-    sha1.cpp
     )
 
 FOREACH (FILE ${FILES})

@@ -1,6 +1,7 @@
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/Parser.h"
 #include <iostream>
-#include "ParameterSet.h"
-#include "Parser.h"
+
 
 int main()
 {
@@ -28,7 +29,7 @@ int main()
   assert(pset.get<int>("f") == 32);
 
   assert(pset.get<std::vector<int> >("g")[2] == 3);
-  
+
   assert(pset.get<std::vector<fhicl::ParameterSet> >("h")[1]
              .get<std::string>("h2").compare("h2") == 0);
 

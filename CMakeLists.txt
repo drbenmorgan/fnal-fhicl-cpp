@@ -6,73 +6,68 @@
 #
 #   cmake [-DCMAKE_INSTALL_PREFIX=/install/path] /path/to/source/code
 
-CMAKE_MINIMUM_REQUIRED (VERSION 2.6)
+cmake_minimum_required (VERSION 2.6)
 
-PROJECT (fhiclcpp)
-SET (version v2_0_0)
-SET (qualifier a1)
+project (fhiclcpp)
+set (version v2_0_0)
+set (qualifier a1)
 
-IF (CMAKE_CROSSCOMPILING)
-    SET (flavorqual sl5.${CMAKE_SYSTEM_PROCESSOR}.${qualifier})
-ELSE (CMAKE_CROSSCOMPILING)
-    SET (flavorqual sl5.${CMAKE_HOST_SYSTEM_PROCESSOR}.${qualifier})
-ENDIF (CMAKE_CROSSCOMPILING)
+if (CMAKE_CROSSCOMPILING)
+    set (flavorqual sl5.${CMAKE_SYSTEM_PROCESSOR}.${qualifier})
+else (CMAKE_CROSSCOMPILING)
+    set (flavorqual sl5.${CMAKE_HOST_SYSTEM_PROCESSOR}.${qualifier})
+endif (CMAKE_CROSSCOMPILING)
 
-SET (flavorqual_dir ${version}/${flavorqual} )
+set (flavorqual_dir ${version}/${flavorqual} )
 
 # make sure gcc has been set
-SET ( GCC_VERSION $ENV{GCC_VERSION} )
-IF (NOT GCC_VERSION)
-    MESSAGE ("GCC has not been setup")
-ENDIF()
-message(STATUS "GCC version is ${GCC_VERSION} " )
+set ( GCC_VERSION $ENV{GCC_VERSION} )
+if (NOT GCC_VERSION)
+    message ("GCC has not been setup")
+endif()
+message(STATUS "Using GCC ${GCC_VERSION} " )
 
 # Check if the cetlib library has been set
-SET ( CETLIB_VERS $ENV{CETLIB_VERSION} )
-IF (NOT CETLIB_VERS)
-    MESSAGE (FATAL_ERROR "cetlib library has not been setup")
-ENDIF()
-SET ( CETLIB_STRING $ENV{SETUP_CETLIB} )
-STRING( REGEX REPLACE ".*(-q.*)" "\\1" CETLIB_QUAL "${CETLIB_STRING}" )
+set ( CETLIB_VERS $ENV{CETLIB_VERSION} )
+if (NOT CETLIB_VERS)
+    message (FATAL_ERROR "cetlib library has not been setup")
+endif()
+set ( CETLIB_STRING $ENV{SETUP_CETLIB} )
+string( REGEX REPLACE ".*(-q.*)" "\\1" CETLIB_QUAL "${CETLIB_STRING}" )
+message(STATUS "Using CETLIB ${GCC_VERSION} " )
 
 # Check if the boost library has been set
-SET ( BOOST_VERS $ENV{BOOST_VERSION} )
-IF (NOT BOOST_VERS)
-    MESSAGE (FATAL_ERROR "Boost library has not been setup")
-ENDIF()
-SET ( BOOST_STRING $ENV{SETUP_BOOST} )
-STRING( REGEX REPLACE ".*(-q.*)" "\\1" BOOST_QUAL "${BOOST_STRING}" )
-message(STATUS "Boost version and qualifier are ${BOOST_VERS} ${BOOST_QUAL}" )
+set ( BOOST_VERS $ENV{BOOST_VERSION} )
+if (NOT BOOST_VERS)
+    message (FATAL_ERROR "Boost library has not been setup")
+endif()
+set ( BOOST_STRING $ENV{SETUP_BOOST} )
+string( REGEX REPLACE ".*(-q.*)" "\\1" BOOST_QUAL "${BOOST_STRING}" )
+message(STATUS "Using Boost ${BOOST_VERS} ${BOOST_QUAL}" )
 
-# Define the boost envrionment so we don't get system libraries
+# Define the boost environment so we don't get system libraries
 set ( BOOST_ROOT       $ENV{BOOST_DIR} )
 set ( BOOST_INCLUDEDIR $ENV{BOOST_INC} )
 set ( BOOST_LIBRARYDIR $ENV{BOOST_LIB} )
-FIND_PACKAGE ( Boost 1.41 REQUIRED )
+find_package ( Boost 1.41 REQUIRED )
 
 # Project include directory
-INCLUDE_DIRECTORIES (
-    ${fhiclcpp_SOURCE_DIR}/interface
+include_directories (
+    ${PROJECT_SOURCE_DIR}
     ${Boost_INCLUDE_DIR}
     $ENV{CETLIB_INC}
     $ENV{CPP0X_INC}
     )
 
 # Project library directory
-LINK_DIRECTORIES(
+link_directories(
     $ENV{CETLIB_LIB}
     )
 
-# making a copy of the source code
-INSTALL (FILES CMakeLists.txt
-    DESTINATION ${version}/src/fhiclcpp
-    )
-
 # source code
-subdirs(interface)
-subdirs(src)
+subdirs(fhiclcpp)
 subdirs(ups)
 
 # testing
-ENABLE_TESTING()
-ADD_SUBDIRECTORY (test)
+enable_testing()
+add_subdirectory (test)

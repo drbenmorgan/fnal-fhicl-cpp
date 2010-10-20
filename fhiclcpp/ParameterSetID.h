@@ -1,5 +1,5 @@
-#ifndef FHICL_CPP_PARAMETERSETID_H
-#define FHICL_CPP_PARAMETERSETID_H
+#ifndef FHICLCPP__PARAMETERSETID_H
+#define FHICLCPP__PARAMETERSETID_H
 
 // ======================================================================
 //
@@ -7,8 +7,8 @@
 //
 // ======================================================================
 
-#include "cetlib/sha1.h"
 
+#include "cetlib/sha1.h"
 #include <ostream>
 
 
@@ -21,6 +21,7 @@ namespace fhicl {
 
 
 // ======================================================================
+
 
 class fhicl::ParameterSetID
 {
@@ -70,23 +71,24 @@ private:
   bool     valid_;
   array_t  id_;
 
-  array_t
+  array_t const &
     invalid_id_() const
   {
-    static array_t INVALID_VALUE = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; 
+    static array_t INVALID_VALUE = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     return INVALID_VALUE;
   }
 
 };  // ParameterSetID
 
-  inline
-  std::ostream &
-    fhicl::operator << ( std::ostream         & os
-                       , ParameterSetID const & psid
-                       )
-  { return os << psid.to_string(); }
+inline
+std::ostream &
+  fhicl::operator << ( std::ostream         & os
+                     , ParameterSetID const & psid
+                     )
+{ return os << psid.to_string(); }
 
 
 // ======================================================================
 
-#endif  // FHICL_CPP_PARAMETERSETID_H
+
+#endif  // FHICLCPP__PARAMETERSETID_H

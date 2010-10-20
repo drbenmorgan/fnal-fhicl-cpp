@@ -5,7 +5,7 @@
 // ======================================================================
 
 
-#include "ParameterSet.h"
+#include "fhiclcpp/ParameterSet.h"
 
 
 // ======================================================================
@@ -60,8 +60,8 @@ string_t ps_t::toString() const
 
 namespace {
 
-  bool isAtom_(boost::any const & val) 
-  { 
+  bool isAtom_(boost::any const & val)
+  {
     return val.type() == typeid(std::string);
   }
 
@@ -136,7 +136,7 @@ string_t ps_t::hashString() const
 vstring_t ps_t::getNameList() const
 {
   vstring_t names;
-  
+
   entries_t::const_iterator it = psetmap_.begin();
   while(it!=psetmap_.end()) {
     names.push_back(it->first);

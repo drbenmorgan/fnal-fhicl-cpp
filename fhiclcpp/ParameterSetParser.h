@@ -1,5 +1,5 @@
-#ifndef FHICL_CPP_PARAMETERSETPARSER_H
-#define FHICL_CPP_PARAMETERSETPARSER_H
+#ifndef FHICLCPP__PARAMETERSETPARSER_H
+#define FHICLCPP__PARAMETERSETPARSER_H
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -8,23 +8,23 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#include "ParameterSet.h"
-#include "PSet.h"
-
-#include <boost/any.hpp>
-#include <boost/config/warning_disable.hpp>
-#include <boost/fusion/include/std_pair.hpp>
-#include <boost/spirit/include/qi.hpp>
-
+#include "boost/any.hpp"
+#include "boost/config/warning_disable.hpp"
+#include "boost/fusion/include/std_pair.hpp"
+#include "boost/spirit/include/qi.hpp"
+#include "fhiclcpp/PSet.h"
+#include "fhiclcpp/ParameterSet.h"
 #include <string>
+#include <utility>  // pair
+#include <vector>
 
 
 namespace fhicl
 {
 
-namespace qi = boost::spirit::qi;
-namespace ascii = boost::spirit::ascii;
-namespace phoenix = boost::phoenix;
+namespace qi = ::boost::spirit::qi;
+namespace ascii = ::boost::spirit::ascii;
+namespace phoenix = ::boost::phoenix;
 
 typedef BOOST_TYPEOF(ascii::space
     | qi::lit('#') >>*(qi::char_ - boost::spirit::eol) >> boost::spirit::eol
@@ -85,6 +85,6 @@ private:
   std::vector<std::string> errs;
 };
 
-}// namespace fhicl
+}  // namespace fhicl
 
-#endif  // FHICL_CPP_PARAMETERSETPARSER_H
+#endif  // FHICLCPP__PARAMETERSETPARSER_H

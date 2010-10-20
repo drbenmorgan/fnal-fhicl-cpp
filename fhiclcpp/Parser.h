@@ -1,19 +1,21 @@
-#ifndef FHICL_CPP_PARSER_H
-#define FHICL_CPP_PARSER_H
+#ifndef FHICLCPP__PARSER_H
+#define FHICLCPP__PARSER_H
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// ParameterSetParser
+// Parser
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 
 #include <string>
 
+
 namespace fhicl {
   class ParameterSet;
   class Parser;
 }
+
 
 class fhicl::Parser
 {
@@ -29,4 +31,5 @@ private:
   static void TrimSpace(std::string &);
 };
 
-#endif  // FHICL_CPP_PARSER_H
+
+#endif  // FHICLCPP__PARSER_H

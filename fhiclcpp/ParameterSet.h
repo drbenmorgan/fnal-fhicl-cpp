@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_PARAMETERSET_H
-#define FHICLCPP_PARAMETERSET_H
+#ifndef FHICLCPP__PARAMETERSET_H
+#define FHICLCPP__PARAMETERSET_H
 
 // ======================================================================
 //
@@ -8,13 +8,12 @@
 // ======================================================================
 
 
-#include "ParameterSetID.h"             // fhicl/
-#include "ParameterSetRegistry.h"       // fhicl/
-#include "type_traits.h"                // fhicl/
 #include "boost/any.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/numeric/conversion/cast.hpp"
-
+#include "fhiclcpp/ParameterSetID.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
+#include "fhiclcpp/type_traits.h"
 #include <algorithm>
 #include <iterator>
 #include <map>
@@ -22,11 +21,13 @@
 #include <string>
 #include <vector>
 
+
 namespace fhicl {
   class ParameterSet;
 }
 
-// ======================================================================
+
+// ----------------------------------------------------------------------
 
 
 class fhicl::ParameterSet
@@ -40,7 +41,7 @@ class fhicl::ParameterSet
   typedef  std::map<string_t, any_t>  entries_t;
 
   entries_t  psetmap_;
-  
+
   mutable psid_t  id_;
 
   friend class ParameterSetID;
@@ -60,11 +61,11 @@ public:
   bool     empty() const  { return psetmap_.empty(); }
   psid_t   id() const;
 
-  string_t toString() const;
-  string_t hashString() const;
+  string_t  toString() const;
+  string_t  hashString() const;
 
-  std::vector<std::string> getNameList() const;
-  std::vector<std::string> getPSetNameList() const;
+  std::vector<std::string>  getNameList() const;
+  std::vector<std::string>  getPSetNameList() const;
 
   //----------------------------------------------------------------------
   // insert user's key-value pair
@@ -94,7 +95,7 @@ public:
 
   template< class T >
     T
-    get( std::string const & key ) const
+    get( string_t const & key ) const
   {
     entries_t::const_iterator it = psetmap_.find(key);
     if( it == psetmap_.end() )  throw std::domain_error("");
@@ -103,7 +104,7 @@ public:
 
   template< class T >
     T
-    get( std::string const & key, T const default_value ) const
+    get( string_t const & key, T const default_value ) const
   {
     try { return get<T>(key); }
     catch( std::domain_error const & ) { return default_value; }
@@ -322,7 +323,8 @@ namespace fhicl {  // complex
 
 }  // namespace fhicl
 
+
 // ======================================================================
 
 
-#endif  // FHICLCPP_PARAMETERSET_H
+#endif  // FHICLCPP__PARAMETERSET_H

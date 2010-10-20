@@ -1,31 +1,33 @@
-///////////////////////////////////////////////////////////////////////////////
+// ======================================================================
 //
+// ParameterSetParser
 //
-//
-///////////////////////////////////////////////////////////////////////////////
+// ======================================================================
 
-#include "ParameterSetParser.h"
-#include "Parser.h"
 
-#include <boost/version.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_bind.hpp>
-#include <boost/spirit/include/phoenix_container.hpp>
+#include "fhiclcpp/ParameterSetParser.h"
 
-#include <iostream>
+#include "boost/spirit/include/phoenix_bind.hpp"
+#include "boost/spirit/include/phoenix_container.hpp"
+#include "boost/spirit/include/phoenix_core.hpp"
+#include "boost/spirit/include/phoenix_operator.hpp"
+#include "boost/version.hpp"
+#include "fhiclcpp/Parser.h"
 #include <fstream>
+#include <iostream>
 #include <utility>
 
-namespace fhicl 
+
+namespace fhicl
 {
 
-namespace qi = boost::spirit::qi;
-namespace ascii = boost::spirit::ascii;
-namespace phoenix = boost::phoenix;
+namespace qi = ::boost::spirit::qi;
+namespace ascii = ::boost::spirit::ascii;
+namespace phoenix = ::boost::phoenix;
 
-template<typename Iterator>  
-PSetParser<Iterator>::PSetParser() 
+
+template<typename Iterator>
+PSetParser<Iterator>::PSetParser()
   : PSetParser::base_type(doc)
   , PrimaryPSet(boost::any(PSet()))
   , RefPool(boost::any(PSet()))
@@ -42,8 +44,8 @@ PSetParser<Iterator>::PSetParser()
 
   doc = *( re_assign );
 
-  re_assign = ( ref_literal [_a=_1] 
-                >> ':'     
+  re_assign = ( ref_literal [_a=_1]
+                >> ':'
                 >> expr  [phoenix::bind(&PSetParser::setObjFromName,this,_a,_1)]
               ) % ','
               ;
@@ -52,46 +54,46 @@ PSetParser<Iterator>::PSetParser()
          |  double_literal               [_val = _1]
          |  int_literal                  [_val = _1]
          |  bool_literal                 [_val = _1]
-         |  str                          [_val = _1]    
+         |  str                          [_val = _1]
          |  pset                         [_val = _1]
          |  array                        [_val = _1]
          |  reference                    [_val = _1]
         ;
 
 
-  pset   =   lit('{')  
+  pset   =   lit('{')
        >> -( assign [phoenix::bind(&PSetParser::insertPSetEntry,this,_val,_1)]
-                % ',' ) 
+                % ',' )
        >>    lit('}') ;
 
-  assign =  valid_key >> ':' >> expr ;  
+  assign =  valid_key >> ':' >> expr ;
 
   array %= lit('[') >> -( expr % ',') >> ']' ;
 
-  reference      = ref_literal [_a=_1] >> lit("@local") 
+  reference      = ref_literal [_a=_1] >> lit("@local")
                     [_val=phoenix::bind(&PSetParser::getObjFromName,this,_a)];
 
-  ref_literal    = raw[    valid_key 
-                        >> *( char_('.') >> valid_key ) 
+  ref_literal    = raw[    valid_key
+                        >> *( char_('.') >> valid_key )
                         >> *( char_('[') >> int_ >> char_(']') )
                       ];
 
   valid_key = !keywords >> key;
 
   key   = qi::lexeme[ascii::char_("a-zA-Z_") >> *ascii::char_("a-zA-Z_0-9")];
-  
-  keywords = ( lit("nil") | lit("null") | lit("true") | lit("false") | lit("inf") ) 
+
+  keywords = ( lit("nil") | lit("null") | lit("true") | lit("false") | lit("inf") )
              >> !ascii::char_("a-zA-Z_0-9") ;
 
   str  %= qi::lexeme['"' >> +(ascii::char_ - '"') >> '"'];
 
-  double_literal = raw[qi::double_]; 
-  int_literal    = raw[qi::int_]; 
-  bool_literal   = raw[ lit("true") | lit("false") ]; 
+  double_literal = raw[qi::double_];
+  int_literal    = raw[qi::int_];
+  bool_literal   = raw[ lit("true") | lit("false") ];
   nil            = raw[ lit("nil")  | lit("null")  ];
 
   space = lit(' ') | lit('\t') | lit('\n')
-        | lit("//")>> *( char_ - eol ) >> eol 
+        | lit("//")>> *( char_ - eol ) >> eol
         | lit('#') >> *( char_ - eol ) >> eol
         ;
 }
@@ -137,8 +139,8 @@ boost::any * PSetParser<Iterator>::parseRef(
 
   boost::any * obj = &PrimaryPSet;
 
-  typedef BOOST_TYPEOF(ascii::space 
-      | qi::lit('#') >>*(qi::char_ - boost::spirit::eol) >> boost::spirit::eol 
+  typedef BOOST_TYPEOF(ascii::space
+      | qi::lit('#') >>*(qi::char_ - boost::spirit::eol) >> boost::spirit::eol
       | qi::lit("//")>>*(qi::char_ - boost::spirit::eol) >> boost::spirit::eol
   ) skipper_type;
 
@@ -154,7 +156,7 @@ boost::any * PSetParser<Iterator>::parseRef(
    >> *(  lit('[') >> int_ [phoenix::ref(obj)=phoenix::bind(
                                &PSetParser::findArrayElementPtr, this,
                                phoenix::ref(obj), _1, phoenix::ref(bInsert))]
-                   >> lit(']') 
+                   >> lit(']')
        ) ;
 
 
@@ -162,8 +164,8 @@ boost::any * PSetParser<Iterator>::parseRef(
       first,
       last,
       ref,
-      ascii::space 
-      | lit('#') >>*(qi::char_ - boost::spirit::eol) >> boost::spirit::eol 
+      ascii::space
+      | lit('#') >>*(qi::char_ - boost::spirit::eol) >> boost::spirit::eol
       | lit("//")>>*(qi::char_ - boost::spirit::eol) >> boost::spirit::eol
   );
 
@@ -173,7 +175,7 @@ boost::any * PSetParser<Iterator>::parseRef(
   }
   else
   {
-    std::string err = "reference parse error when parsing \"" 
+    std::string err = "reference parse error when parsing \""
                       + str + "\"";
     throw std::runtime_error("reference parsing error: " + err);
   }
@@ -184,7 +186,7 @@ boost::any *
 PSetParser<Iterator>::findPSetPtr(
     boost::any * object, std::string const & name, bool bInsert)
 {
-  try 
+  try
   {
     PSet & pset = boost::any_cast<PSet &>(*object);
     boost::any * obj = pset.getPSetObjPtr(name, bInsert);
@@ -192,7 +194,7 @@ PSetParser<Iterator>::findPSetPtr(
   }
   catch(const boost::bad_any_cast &)
   {
-    std::string err = "The left to \"" + name 
+    std::string err = "The left to \"" + name
                       + "\" is not a ParameterSet entry";
     errs.push_back(err);
     throw std::runtime_error("parse error: " + err);
@@ -206,7 +208,7 @@ PSetParser<Iterator>::findArrayElementPtr(
 {
   try
   {
-    std::vector<boost::any> & array 
+    std::vector<boost::any> & array
         = boost::any_cast<std::vector<boost::any> & >(*object);
 
     // fill the missing elements with NIL object
@@ -238,8 +240,8 @@ PSetParser<Iterator>::findArrayElementPtr(
 // Helper functions for making a parameter set object from a PSet object
 namespace {
 
-  bool isAtom_(boost::any const & val) 
-  { 
+  bool isAtom_(boost::any const & val)
+  {
     return val.type() == typeid(std::string);
   }
 
@@ -272,7 +274,7 @@ namespace {
 
     if (isVector_(value))
     {
-      std::vector<boost::any> val = 
+      std::vector<boost::any> val =
           boost::any_cast<std::vector<boost::any> >(value);
       std::vector<boost::any> result;
       std::transform( val.begin(), val.end()
@@ -348,14 +350,14 @@ bool Parser::PreProcess(std::string const & fname, std::string & storage)
 
     std::string line;
 
-    while ( !in.eof() ) 
+    while ( !in.eof() )
     {
         std::getline(in, line);
         TrimSpace(line);
 
         size_t pos = line.find("#include");
 
-        if ( pos!=0 ) 
+        if ( pos!=0 )
         {
             storage += line;
             storage += "\n";
@@ -377,7 +379,7 @@ bool Parser::PreProcess(std::string const & fname, std::string & storage)
 
         if ( PreProcess(file, storage) == false )
             return false;
-        
+
     }
 
     in.close();
@@ -411,12 +413,12 @@ bool Parser::ParseString(std::string & str, ParameterSet & pset)
     std::string::iterator end  = str.end();
 
     bool r = qi::phrase_parse(
-                 iter, 
-                 end, 
-                 p, 
-                 ascii::space 
+                 iter,
+                 end,
+                 p,
+                 ascii::space
                    | qi::lit('#') >>*(qi::char_ - eol) >> eol
-                   | qi::lit("//")>>*(qi::char_ - eol) >> eol 
+                   | qi::lit("//")>>*(qi::char_ - eol) >> eol
              );
 
     if (r && (iter==end) )
@@ -436,6 +438,4 @@ bool Parser::ParseString(std::string & str, ParameterSet & pset)
     }
 }
 
-}//namespace fhicl 
-
-
+}  //namespace fhicl

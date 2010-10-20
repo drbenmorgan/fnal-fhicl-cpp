@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_PARAMETERSETREGISTRY_H
-#define FHICLCPP_PARAMETERSETREGISTRY_H
+#ifndef FHICLCPP__PARAMETERSETREGISTRY_H
+#define FHICLCPP__PARAMETERSETREGISTRY_H
 
 // ======================================================================
 //
@@ -9,14 +9,15 @@
 
 
 #include "cetlib/registry.h"
-#include "ParameterSet.h"
-#include "ParameterSetID.h"
-
+#include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/ParameterSetID.h"
 #include <map>
+
 
 namespace fhicl {
   class ParameterSetRegistry;
 }
+
 
 // ======================================================================
 
@@ -31,8 +32,7 @@ class fhicl::ParameterSetRegistry
 public:
   using base_t::put;
 
-  static
-  psid_t
+  static psid_t
     put( ps_t const &  value )
   {
     psid_t key(value);
@@ -42,7 +42,8 @@ public:
 
 };  // ParameterSetRegistry
 
+
 // ======================================================================
 
 
-#endif  // FHICLCPP_PARAMETERSETREGISTRY_H
+#endif  // FHICLCPP__PARAMETERSETREGISTRY_H

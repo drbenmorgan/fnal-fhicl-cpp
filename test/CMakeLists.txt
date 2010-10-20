@@ -5,39 +5,38 @@
 #  CMake build file for tests
 #
 
-CONFIGURE_FILE (
+configure_file (
     ${CMAKE_CURRENT_SOURCE_DIR}/Sample.cfg
     ${CMAKE_CURRENT_BINARY_DIR}/Sample.cfg
     COPYONLY
     )
 
-ADD_EXECUTABLE (ParserTest
+add_executable (ParserTest
     PSetSample.cc
     )
 
-TARGET_LINK_LIBRARIES (ParserTest
+target_link_libraries (ParserTest
     fhiclcppD
     )
 
-ADD_EXECUTABLE (PSetTest
+add_executable (PSetTest
     PSetTest.cc
     )
 
-TARGET_LINK_LIBRARIES (PSetTest
+target_link_libraries (PSetTest
     fhiclcppD
     )
 
-ADD_TEST(ParserTest ParserTest)
-ADD_TEST(PSetTest PSetTest)
+add_test(ParserTest ParserTest)
+add_test(PSetTest PSetTest)
 
-INSTALL (FILES
+install (FILES
     PSetSample.cc
     Sample.cfg
     DESTINATION ${version}/example
     )
 
-INSTALL (FILES
-    CMakeLists.txt
+install (FILES
     PSetSample.cc
-    DESTINATION ${version}/src/test
+    DESTINATION ${version}/source/test
     )

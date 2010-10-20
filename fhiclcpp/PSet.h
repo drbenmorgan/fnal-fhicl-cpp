@@ -1,14 +1,14 @@
-#ifndef FHICL_CPP_PSET_H
-#define FHICL_CPP_PSET_H
+#ifndef FHICLCPP__PSET_H
+#define FHICLCPP__PSET_H
 
 // ======================================================================
 //
-// PSet - the intermediate representation for ParameterSet Parser
+// PSet - the intermediate representation for ParameterSetParser
 //
 // ======================================================================
+
 
 #include "boost/any.hpp"
-
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -71,4 +71,4 @@ private:
 
 // ======================================================================
 
-#endif  // FHICL_CPP_PARAMETERSET_H
+#endif  // FHICLCPP__PSET_H

@@ -11,17 +11,17 @@ configure_file ( ${fhiclcpp_SOURCE_DIR}/ups/fhiclcpp-config.cmake.in
 configure_file ( ${fhiclcpp_SOURCE_DIR}/ups/fhiclcpp-config-version.cmake.in
                  ${fhiclcpp_BINARY_DIR}/ups/fhiclcpp-config-version.cmake @ONLY )
 
-CONFIGURE_FILE ( ${fhiclcpp_SOURCE_DIR}/ups/fhiclcpp.table.in
+configure_file ( ${fhiclcpp_SOURCE_DIR}/ups/fhiclcpp.table.in
                  ${fhiclcpp_BINARY_DIR}/ups/fhiclcpp.table @ONLY )
-CONFIGURE_FILE ( ${fhiclcpp_SOURCE_DIR}/ups/fhiclcpp.version.in
+configure_file ( ${fhiclcpp_SOURCE_DIR}/ups/fhiclcpp.version.in
                  ${fhiclcpp_BINARY_DIR}/ups/${version}.version @ONLY )
 
 install (FILES ${fhiclcpp_BINARY_DIR}/ups/fhiclcpp-config.cmake
                ${fhiclcpp_BINARY_DIR}/ups/fhiclcpp-config-version.cmake
          DESTINATION ${flavorqual_dir}/lib/fhiclcpp-${version} )
 
-INSTALL (FILES ${fhiclcpp_BINARY_DIR}/ups/fhiclcpp.table
+install (FILES ${fhiclcpp_BINARY_DIR}/ups/fhiclcpp.table
          DESTINATION ${version}/ups)
-INSTALL (FILES ${fhiclcpp_BINARY_DIR}/ups/${version}.version
+install (FILES ${fhiclcpp_BINARY_DIR}/ups/${version}.version
          DESTINATION ${CMAKE_INSTALL_PREFIX} )
 

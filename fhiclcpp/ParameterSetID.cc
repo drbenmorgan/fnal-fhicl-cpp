@@ -1,11 +1,12 @@
-#include "ParameterSetID.h"
-#include "ParameterSet.h"
+#include "fhiclcpp/ParameterSetID.h"
 
 #include "boost/format.hpp"
-
+#include "fhiclcpp/ParameterSet.h"
 #include <string>
 
-void fhicl::ParameterSetID::reset(fhicl::ParameterSet const & ps)
+
+void
+  fhicl::ParameterSetID::reset(fhicl::ParameterSet const & ps)
 {
   cet::sha1 sha;
   std::string hash = ps.hashString();
@@ -15,7 +16,9 @@ void fhicl::ParameterSetID::reset(fhicl::ParameterSet const & ps)
   valid_ = true;
 }
 
-std::string fhicl::ParameterSetID::to_string() const
+
+std::string
+  fhicl::ParameterSetID::to_string() const
 {
   std::string str;
   for(int i=0; i<id_.size(); ++i) {
@@ -23,4 +26,3 @@ std::string fhicl::ParameterSetID::to_string() const
   }
   return str;
 }
-

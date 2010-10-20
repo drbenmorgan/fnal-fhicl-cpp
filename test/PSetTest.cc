@@ -1,10 +1,9 @@
+#include "fhiclcpp/ParameterSet.h"
+#include <cassert>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
 
-#include <assert.h>
-
-#include "ParameterSet.h"
 
 int main()
 {

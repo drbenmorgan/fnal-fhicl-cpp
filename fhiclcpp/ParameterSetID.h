@@ -7,88 +7,51 @@
 //
 // ======================================================================
 
-
 #include "cetlib/sha1.h"
 #include <ostream>
-
+#include <string>
 
 namespace fhicl {
-  class ParameterSet;
   class ParameterSetID;
-  std::ostream &
-    operator << ( std::ostream &, ParameterSetID const & );
+  std::ostream &  operator << ( std::ostream &, ParameterSetID const & );
+
+  class ParameterSet;
 }
 
-
-// ======================================================================
-
+// ----------------------------------------------------------------------
 
 class fhicl::ParameterSetID
 {
-  typedef  ParameterSet         ps_t;
-  typedef  ParameterSetID       psid_t;
-  typedef  cet::sha1::digest_t  array_t;
-
 public:
   // compiler generates d'tor, copy c'tor, copy assignment
 
-  ParameterSetID( )
-  : valid_( false )
-  , id_   ( invalid_id_() )
-  { }
+  // c'tor's:
+  ParameterSetID( );
+  ParameterSetID( ParameterSet const & );
 
-  ParameterSetID( ps_t const & ps )
-  : valid_(false)
-  , id_( )
-  { reset(ps); }
+  // observers:
+  bool         is_valid ( ) const;
+  std::string  to_string( ) const;
 
-  void
-    swap( ParameterSetID & other )
-  { id_.swap(other.id_); std::swap(valid_, other.valid_); }
+  // mutators:
+  void  invalidate( );
+  void  reset( ParameterSet const & );
+  void  swap( ParameterSetID & );
 
-  bool
-    isValid( ) const
-  { return valid_; }
-
-  void
-    invalidate( )
-  { valid_ = false; id_ = invalid_id_(); }
-
-  void
-    reset( ps_t const & ps );
-
-  std::string
-    to_string() const;
-
-  bool  operator == ( psid_t const & that ) const { return id_ == that.id_; }
-  bool  operator != ( psid_t const & that ) const { return id_ != that.id_; }
-  bool  operator <  ( psid_t const & that ) const { return id_ <  that.id_; }
-  bool  operator >  ( psid_t const & that ) const { return id_ >  that.id_; }
-  bool  operator <= ( psid_t const & that ) const { return id_ <= that.id_; }
-  bool  operator >= ( psid_t const & that ) const { return id_ >= that.id_; }
+  // comparators:
+  bool  operator == ( ParameterSetID const & ) const;
+  bool  operator != ( ParameterSetID const & ) const;
+  bool  operator <  ( ParameterSetID const & ) const;
+  bool  operator >  ( ParameterSetID const & ) const;
+  bool  operator <= ( ParameterSetID const & ) const;
+  bool  operator >= ( ParameterSetID const & ) const;
 
 private:
-  bool     valid_;
-  array_t  id_;
-
-  array_t const &
-    invalid_id_() const
-  {
-    static array_t INVALID_VALUE = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    return INVALID_VALUE;
-  }
+  bool                 valid_;
+  cet::sha1::digest_t  id_;
 
 };  // ParameterSetID
 
-inline
-std::ostream &
-  fhicl::operator << ( std::ostream         & os
-                     , ParameterSetID const & psid
-                     )
-{ return os << psid.to_string(); }
-
-
 // ======================================================================
-
 
 #endif  // FHICLCPP__PARAMETERSETID_H

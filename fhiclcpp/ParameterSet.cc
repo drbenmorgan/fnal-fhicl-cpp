@@ -7,156 +7,179 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
+#include "fhiclcpp/ParameterSetRegistry.h"
+
+using namespace boost;
+using namespace fhicl;
+using namespace std;
 
 // ======================================================================
 
+static inline  bool
+  is_atom( any const & val )
+{ return val.type() == typeid(string); }
 
-typedef  fhicl::ParameterSet          ps_t;
-typedef  fhicl::ParameterSetID        psid_t;
-typedef  fhicl::ParameterSetRegistry  psreg_t;
+static inline  bool
+  is_parameterset( any const & val )
+{ return val.type() == typeid(ParameterSetID); }
 
-typedef  std::string                  string_t;
-typedef  std::vector<std::string>     vstring_t;
-typedef  boost::any                   any_t;
-typedef  std::map<string_t, any_t>    entries_t;
+static inline  bool
+  is_vector( any const & val )
+{ return val.type() == typeid(vector<any>); }
 
+static  string
+  do_hash( any const & val )
+{
+  if( is_atom(val) )
+    return '"' + any_cast<string>(val) + '"';
 
-// ======================================================================
+  else if( is_parameterset(val) )
+    return '{' + any_cast<ParameterSetID>(val).to_string() + '}';
 
+  else if( is_vector(val) ) {
+    vector<any> v = any_cast< vector<any> >(val);
+    if( v.empty() )
+      return "[]";
+    string result = do_hash(v[0]);
+    for( int k = 1; k != v.size(); ++k )
+      result.append( "," )
+            .append( do_hash(v[k]) );
+    return '[' + result + ']';
+  }
+
+  else
+    throw fhicl::exception(cant_happen, "fhicl::do_hash failure");
+}
+
+// ----------------------------------------------------------------------
+
+bool
+  ParameterSet::is_empty( ) const
+{ return mapping_.empty(); }
+
+ParameterSetID
+  ParameterSet::id( ) const
+{
+  if( ! id_.is_valid() )
+    id_.reset(*this);
+  return id_;
+}
+
+string
+  ParameterSet::to_string( ) const
+{
+  return hash_string(); //TODO: implement pretty print
+}
+
+string
+  ParameterSet::hash_string( ) const
+{
+  string result;
+
+  for( map_iter_t it = mapping_.begin(); it != mapping_.end(); ++it )
+    result.append( it->first )
+          .append( ":" )
+          .append( do_hash(it->second) )
+          ;
+
+  return result;
+}
+
+vector<string>
+  ParameterSet::get_keys( ) const
+{
+  vector<string> keys;  keys.reserve( mapping_.size() );
+  for( map_iter_t it = mapping_.begin()
+                , e  = mapping_.end(); it != e; ++it )
+    keys.push_back( it->first );
+  return keys;
+}
+
+vector<string>
+  ParameterSet::get_pset_keys( ) const
+{
+  vector<string> keys;
+  for( map_iter_t it = mapping_.begin()
+                , e  = mapping_.end(); it != e; ++it )
+    if( is_parameterset(it->second) )
+      keys.push_back( it->first );
+  return keys;
+}
+
+// ----------------------------------------------------------------------
 
 void
-  ps_t::cpp_to_atom_( string_t & str )
+  ParameterSet::cpp_to_atom_( string & str )
 {
   // TODO: transform C++ string to equivalent FHiCL atom
 }
 
 void
-  ps_t::atom_to_cpp_( std::string & str )
+  ParameterSet::atom_to_cpp_( string & str )
 {
   // TODO: if str holds a FHiCL string for infinity,
   // translate it into the C++ equivalent string;
   // do similarly for any other values needing special handling
 }
 
+// ----------------------------------------------------------------------
+
+void
+  ParameterSet::insert( string const & key, any const & value)
+{
+  mapping_.insert( make_pair(key, value) );
+  id_.invalidate();
+}
+
+// ----------------------------------------------------------------------
+
+any
+  ParameterSet::encode_( void * value ) const
+{
+  string str("nil");
+  cpp_to_atom_(str);
+  return str;
+}
+
+any
+  ParameterSet::encode_( bool value ) const
+{
+  string str = lexical_cast<string>(value);
+  cpp_to_atom_(str);
+  return str;
+}
+
+any
+  ParameterSet::encode_( ParameterSet const & value ) const
+{ return ParameterSetRegistry::put(value); }
+
+// ----------------------------------------------------------------------
+
+void
+  ParameterSet::decode_( any const & any_val
+                       , void *    & result
+                       ) const
+{
+  result = 0;
+}
+
+void
+  ParameterSet::decode_( any const & any_val
+                       , bool      & result
+                       ) const
+{
+  string str = any_cast<string>(any_val);
+  atom_to_cpp_(str);
+  result = lexical_cast<bool>(str);
+}
+
+void
+  ParameterSet::decode_( any const    & any_val
+                       , ParameterSet & result
+                       ) const
+{
+  ParameterSetID id = any_cast<ParameterSetID>(any_val);
+  result = ParameterSetRegistry::get(id);
+}
 
 // ======================================================================
-
-
-psid_t
-  ps_t::id() const
-{
-  if( ! id_.isValid() )
-    id_.reset(*this);
-  return id_;
-}
-
-
-// ======================================================================
-
-string_t ps_t::toString() const
-{
-  return hashString(); //TODO: implement pretty print
-}
-
-namespace {
-
-  bool isAtom_(boost::any const & val)
-  {
-    return val.type() == typeid(std::string);
-  }
-
-  bool isParameterSet_(boost::any const & val)
-  {
-    return val.type() == typeid(fhicl::ParameterSetID);
-  }
-
-  bool isVector_(boost::any const & val)
-  {
-    return val.type() == typeid(std::vector<boost::any>);
-  }
-
-  void hashStringEntry( string_t & dest
-                      , boost::any const & val
-                      , string_t const & mark)
-  {
-    if (isAtom_(val)) {
-      dest += "\"";
-      dest += boost::any_cast<string_t>(val);
-      dest += "\"";
-      dest += mark;
-      return;
-    }
-
-    if (isParameterSet_(val)) {
-      dest += boost::any_cast<fhicl::ParameterSetID>(val).to_string();
-      dest += mark;
-      return;
-    }
-
-    if (isVector_(val)) {
-      dest += "[";
-
-      std::vector<boost::any> v
-          = boost::any_cast<std::vector<boost::any> >(val);
-
-      if (v.empty())
-        return;
-
-      for(int i=0; i<v.size()-1; ++i)
-        hashStringEntry(dest, v[i], ",");
-
-      hashStringEntry(dest, v[v.size()-1], "");
-
-      dest += "]";
-      dest += mark;
-
-      return;
-    }
-  }
-
-} // end of annonymous namespace
-
-string_t ps_t::hashString() const
-{
-  string_t hash("{");
-
-  entries_t::const_iterator it = psetmap_.begin();
-  while(it!=psetmap_.end()) {
-    hash += it->first;
-    hash += ":";
-    hashStringEntry(hash, it->second, "");
-    ++it;
-  }
-
-  hash += "}";
-
-  return hash;
-}
-
-vstring_t ps_t::getNameList() const
-{
-  vstring_t names;
-
-  entries_t::const_iterator it = psetmap_.begin();
-  while(it!=psetmap_.end()) {
-    names.push_back(it->first);
-    ++it;
-  }
-
-  return names;
-}
-
-vstring_t ps_t::getPSetNameList() const
-{
-  vstring_t names;
-
-  entries_t::const_iterator it = psetmap_.begin();
-  while (it!=psetmap_.end()) {
-    if (isParameterSet_(it->second)) {
-      names.push_back(it->first);
-    }
-    ++it;
-  }
-
-  return names;
-}

@@ -12,6 +12,8 @@
 #include "boost/spirit/include/phoenix_core.hpp"
 #include "boost/spirit/include/phoenix_operator.hpp"
 #include "boost/version.hpp"
+#include "fhiclcpp/exception.h"
+#include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/Parser.h"
 #include <fstream>
 #include <iostream>
@@ -177,7 +179,7 @@ boost::any * PSetParser<Iterator>::parseRef(
   {
     std::string err = "reference parse error when parsing \""
                       + str + "\"";
-    throw std::runtime_error("reference parsing error: " + err);
+    throw fhicl::exception(parse_error, err);
   }
 }
 
@@ -197,7 +199,7 @@ PSetParser<Iterator>::findPSetPtr(
     std::string err = "The left to \"" + name
                       + "\" is not a ParameterSet entry";
     errs.push_back(err);
-    throw std::runtime_error("parse error: " + err);
+    throw fhicl::exception(parse_error, err);
   }
 }
 
@@ -223,7 +225,7 @@ PSetParser<Iterator>::findArrayElementPtr(
       {
         std::string err = "Invalid array index";
         errs.push_back(err);
-        throw std::runtime_error("parse error: " + err);
+        throw fhicl::exception(parse_error, err);
       }
     }
 
@@ -233,7 +235,7 @@ PSetParser<Iterator>::findArrayElementPtr(
   {
     std::string err = "The left to [] is not an array object";
     errs.push_back(err);
-    throw std::runtime_error("parse error: " + err);
+    throw fhicl::exception(parse_error, err);
   }
 }
 

@@ -48,10 +48,10 @@ namespace tt {
 // ----------------------------------------------------------------------
 
 namespace tt {
-  template< bool b, class C >
-    struct enable_if          { typedef  C  type; };
-  template< class C >
-    struct enable_if<false,C> { };
+  template< bool b, class T >
+    struct enable_if          { typedef  T  type; };
+  template< class T >
+    struct enable_if<false,T> { };
 }
 
 // ----------------------------------------------------------------------

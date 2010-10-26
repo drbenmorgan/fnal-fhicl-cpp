@@ -9,7 +9,7 @@
 cmake_minimum_required (VERSION 2.6)
 
 project (fhiclcpp)
-set (version v2_1_0)
+set (version v2_2_0)
 set (qualifier a1)
 
 if (CMAKE_CROSSCOMPILING)
@@ -34,7 +34,7 @@ if (NOT CETLIB_VERS)
 endif()
 set ( CETLIB_STRING $ENV{SETUP_CETLIB} )
 string( REGEX REPLACE ".*(-q.*)" "\\1" CETLIB_QUAL "${CETLIB_STRING}" )
-message(STATUS "Using CETLIB ${GCC_VERSION} " )
+message(STATUS "Using CETLIB ${CETLIB_VERS} ${CETLIB_QUAL}" )
 
 # Check if the boost library has been set
 set ( BOOST_VERS $ENV{BOOST_VERSION} )

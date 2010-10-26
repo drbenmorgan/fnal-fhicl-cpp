@@ -9,6 +9,7 @@
 
 
 #include "boost/any.hpp"
+#include "fhiclcpp/exception.h"
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -45,7 +46,7 @@ class fhicl::PSet
     }
     else
     {
-      throw std::runtime_error("Entry " + name + " not found!");
+      throw fhicl::exception(cant_find, name);
     }
   }
 
@@ -66,7 +67,7 @@ private:
   // Make the PSetParser class friend to allow the access of private members
   template<typename Iterator> friend class PSetParser;
 
-};  // ParameterSet
+};  // PSet
 
 
 // ======================================================================

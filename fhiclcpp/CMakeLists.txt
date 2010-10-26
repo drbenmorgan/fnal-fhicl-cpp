@@ -1,49 +1,54 @@
-set( includeFiles
-                  PSet.h
-                  ParameterSet.h
-                  ParameterSetID.h
-                  ParameterSetRegistry.h
-                  Parser.h
-                  type_traits.h
+# define contents of interest:
+set ( includeFiles
+    exception.h
+    type_traits.h
+    ParameterSet.h
+    ParameterSetID.h
+    ParameterSetParser.h
+    ParameterSetRegistry.h
+    Parser.h
+    PSet.h
     )
 
-# installing public headers for users
+set (srcFiles
+    exception.cc
+    ParameterSet.cc
+    ParameterSetID.cc
+    ParameterSetParser.cc
+    ParameterSetRegistry.cc
+    )
+
+# install public headers for users:
 install (FILES ${includeFiles}
     DESTINATION ${version}/include/fhiclcpp
     )
 
-# install a copy of all source code
+# install a copy of all source code:
 file (GLOB hFiles *.h)
 file (GLOB ccFiles *.cc)
 install (FILES ${hFiles} ${ccFiles}
     DESTINATION ${version}/source/fhiclcpp
     )
 
-set (srcFiles
-    ParameterSet.cc
-    ParameterSetID.cc
-    ParameterSetParser.cc
-    )
-
+# build shared library:
 add_library (fhiclcppD SHARED ${srcFiles})
-add_library (fhiclcpp         ${srcFiles})
-
 target_link_libraries (fhiclcppD
     cetlib
     )
-
-target_link_libraries (fhiclcpp
-    cetlib
-    )
-
 set_target_properties (fhiclcppD
     PROPERTIES OUTPUT_NAME fhiclcpp
     )
 
+# build static library:
+add_library (fhiclcpp         ${srcFiles})
+target_link_libraries (fhiclcpp
+    cetlib
+    )
 set_target_properties (fhiclcpp
     PROPERTIES OUTPUT_NAME fhiclcpp
     )
 
+# install libraries:
 install (TARGETS fhiclcppD fhiclcpp
     RUNTIME DESTINATION ${flavorqual_dir}/bin
     LIBRARY DESTINATION ${flavorqual_dir}/lib

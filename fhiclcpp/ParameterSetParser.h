@@ -12,8 +12,8 @@
 #include "boost/config/warning_disable.hpp"
 #include "boost/fusion/include/std_pair.hpp"
 #include "boost/spirit/include/qi.hpp"
-#include "fhiclcpp/PSet.h"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/PSet.h"
 #include <string>
 #include <utility>  // pair
 #include <vector>

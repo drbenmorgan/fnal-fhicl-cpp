@@ -9,7 +9,6 @@
 
 
 #include "cetlib/coded_exception.h"
-#include <ostream>
 #include <string>
 
 

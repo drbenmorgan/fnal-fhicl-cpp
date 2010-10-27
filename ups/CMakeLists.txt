@@ -2,26 +2,23 @@
 execute_process( COMMAND date
                  OUTPUT_VARIABLE datime
                  OUTPUT_STRIP_TRAILING_WHITESPACE )
-execute_process( COMMAND  ups flavor
-                 OUTPUT_VARIABLE flavor
-                 OUTPUT_STRIP_TRAILING_WHITESPACE )
 
-configure_file ( ${fhiclcpp_SOURCE_DIR}/ups/fhiclcpp-config.cmake.in
-                 ${fhiclcpp_BINARY_DIR}/ups/fhiclcpp-config.cmake @ONLY )
-configure_file ( ${fhiclcpp_SOURCE_DIR}/ups/fhiclcpp-config-version.cmake.in
-                 ${fhiclcpp_BINARY_DIR}/ups/fhiclcpp-config-version.cmake @ONLY )
+configure_file ( ${CMAKE_CURRENT_SOURCE_DIR}/fhiclcpp-config.cmake.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/fhiclcpp-config.cmake @ONLY )
+configure_file ( ${CMAKE_CURRENT_SOURCE_DIR}/fhiclcpp-config-version.cmake.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/fhiclcpp-config-version.cmake @ONLY )
 
-configure_file ( ${fhiclcpp_SOURCE_DIR}/ups/fhiclcpp.table.in
-                 ${fhiclcpp_BINARY_DIR}/ups/fhiclcpp.table @ONLY )
-configure_file ( ${fhiclcpp_SOURCE_DIR}/ups/fhiclcpp.version.in
-                 ${fhiclcpp_BINARY_DIR}/ups/${version}.version @ONLY )
+configure_file ( ${CMAKE_CURRENT_SOURCE_DIR}/fhiclcpp.table.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/fhiclcpp.table @ONLY )
+configure_file ( ${CMAKE_CURRENT_SOURCE_DIR}/fhiclcpp.version.in
+                 ${CMAKE_CURRENT_BINARY_DIR}/${version}.version @ONLY )
 
-install (FILES ${fhiclcpp_BINARY_DIR}/ups/fhiclcpp-config.cmake
-               ${fhiclcpp_BINARY_DIR}/ups/fhiclcpp-config-version.cmake
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/fhiclcpp-config.cmake
+               ${CMAKE_CURRENT_BINARY_DIR}/fhiclcpp-config-version.cmake
          DESTINATION ${flavorqual_dir}/lib/fhiclcpp-${version} )
 
-install (FILES ${fhiclcpp_BINARY_DIR}/ups/fhiclcpp.table
-         DESTINATION ${version}/ups)
-install (FILES ${fhiclcpp_BINARY_DIR}/ups/${version}.version
-         DESTINATION ${CMAKE_INSTALL_PREFIX} )
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/fhiclcpp.table
+         DESTINATION ${product}/${version}/ups)
+install (FILES ${CMAKE_CURRENT_BINARY_DIR}/${version}.version
+         DESTINATION ${product} )
 

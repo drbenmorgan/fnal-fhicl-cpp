@@ -20,14 +20,14 @@ set (srcFiles
 
 # install public headers for users:
 install (FILES ${includeFiles}
-    DESTINATION ${version}/include/fhiclcpp
+    DESTINATION ${product}/${version}/include/fhiclcpp
     )
 
 # install a copy of all source code:
 file (GLOB hFiles *.h)
 file (GLOB ccFiles *.cc)
 install (FILES ${hFiles} ${ccFiles}
-    DESTINATION ${version}/source/fhiclcpp
+    DESTINATION ${product}/${version}/source/fhiclcpp
     )
 
 # build shared library:

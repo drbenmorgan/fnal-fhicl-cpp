@@ -4,21 +4,44 @@
 #
 #  CMake build file for library fhiclcpp and fhiclcppD
 #
-#   cmake [-DCMAKE_INSTALL_PREFIX=/install/path] /path/to/source/code
+#  cd .../path/to/build/directory
+#  source .../path/to/source/code/setup_for_development
+#  cmake [-DCMAKE_INSTALL_PREFIX=/install/path] $FHICLCPP_SOURCE
+#  make
+#  make test
+#  make install
+#  make package
 
 cmake_minimum_required (VERSION 2.6)
 
 project (fhiclcpp)
-set (version v2_2_1)
+set (product fhiclcpp)
+set (version v2_2_2)
 set (qualifier a1)
 
-if (CMAKE_CROSSCOMPILING)
-    set (flavorqual sl5.${CMAKE_SYSTEM_PROCESSOR}.${qualifier})
-else (CMAKE_CROSSCOMPILING)
-    set (flavorqual sl5.${CMAKE_HOST_SYSTEM_PROCESSOR}.${qualifier})
-endif (CMAKE_CROSSCOMPILING)
+# because we want to move these libraries about,
+# do not embed full path in shared libraries or executables
+set (CMAKE_SKIP_RPATH)
 
-set (flavorqual_dir ${version}/${flavorqual} )
+# cetbuildtools contains our cmake modules
+SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
+IF (NOT CETBUILDTOOLS_VERSION)
+    MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
+ENDIF()
+set(CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules")
+set(CMAKE_MODULE_PATH $ENV{CETBUILDTOOLS_DIR}/Modules ${CMAKE_MODULE_PATH})
+message(STATUS "module path is ${CMAKE_MODULE_PATH}" )
+
+# define some necessary modules
+include(FindUpsPackage)
+include(FindUpsBoost)
+include(ParseUpsVersion)
+include(SetFlavorQual)
+
+#set package version from ups version
+set_version_from_ups( ${version} )
+#define flavorqual and flavorqual_dir
+set_flavor_qual()
 
 # make sure gcc has been set
 set ( GCC_VERSION $ENV{GCC_VERSION} )
@@ -27,37 +50,13 @@ if (NOT GCC_VERSION)
 endif()
 message(STATUS "Using GCC ${GCC_VERSION} " )
 
-# Check if the cetlib library has been set
-set ( CETLIB_VERS $ENV{CETLIB_VERSION} )
-if (NOT CETLIB_VERS)
-    message (FATAL_ERROR "cetlib library has not been setup")
-endif()
-set ( CETLIB_STRING $ENV{SETUP_CETLIB} )
-string( REGEX REPLACE ".*(-q.*)" "\\1" CETLIB_QUAL "${CETLIB_STRING}" )
-message(STATUS "Using CETLIB ${CETLIB_VERS} ${CETLIB_QUAL}" )
-
-# Check if the boost library has been set
-set ( BOOST_VERS $ENV{BOOST_VERSION} )
-if (NOT BOOST_VERS)
-    message (FATAL_ERROR "Boost library has not been setup")
-endif()
-set ( BOOST_STRING $ENV{SETUP_BOOST} )
-string( REGEX REPLACE ".*(-q.*)" "\\1" BOOST_QUAL "${BOOST_STRING}" )
-message(STATUS "Using Boost ${BOOST_VERS} ${BOOST_QUAL}" )
-
-# Define the boost environment so we don't get system libraries
-set ( BOOST_ROOT       $ENV{BOOST_DIR} )
-set ( BOOST_INCLUDEDIR $ENV{BOOST_INC} )
-set ( BOOST_LIBRARYDIR $ENV{BOOST_LIB} )
-find_package ( Boost 1.41 REQUIRED )
+# these are minimum required versions, not the actual product versions
+find_ups_product( cpp0x v0_0_0 )
+find_ups_product( cetlib v0_1_1 )
+find_ups_boost( v1_41_0 )
 
 # Project include directory
-include_directories (
-    ${PROJECT_SOURCE_DIR}
-    ${Boost_INCLUDE_DIR}
-    $ENV{CETLIB_INC}
-    $ENV{CPP0X_INC}
-    )
+include_directories (    ${PROJECT_SOURCE_DIR}    )
 
 # Project library directory
 link_directories(
@@ -71,3 +70,6 @@ subdirs(ups)
 # testing
 enable_testing()
 add_subdirectory (test)
+
+# packaging utility
+include(UseCPack)

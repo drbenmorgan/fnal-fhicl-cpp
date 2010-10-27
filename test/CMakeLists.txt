@@ -33,10 +33,10 @@ add_test(PSetTest PSetTest)
 install (FILES
     PSetSample.cc
     Sample.cfg
-    DESTINATION ${version}/example
+    DESTINATION ${product}/${version}/example
     )
 
 install (FILES
     PSetSample.cc
-    DESTINATION ${version}/source/test
+    DESTINATION ${product}/${version}/source/test
     )

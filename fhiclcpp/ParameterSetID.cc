@@ -62,7 +62,7 @@ void
 void
   ParameterSetID::reset( ParameterSet const & ps )
 {
-  string const & hash( ps.hash_string() );
+  string const & hash( ps.to_string() );
   sha1 sha( hash.c_str() );
 
   id_ = sha.digest(), valid_ = true;

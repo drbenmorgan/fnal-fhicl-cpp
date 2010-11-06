@@ -49,6 +49,10 @@ int main()
   pset2.put<int>("a2", 1);
   pset2.put<std::string>("b2", "bstring");
   pset.put<fhicl::ParameterSet>("h", pset2);
+  assert( pset.get<fhicl::ParameterSet>("h")
+              .get<std::string>("b2") == "bstring"
+        );
+  assert(pset2.to_string() == "a2:1 b2:bstring");
 
   pset.put<unsigned int>("u1", 12);
   assert (pset.get<unsigned int>("u1") == 12);
@@ -82,8 +86,6 @@ int main()
   std::vector<std::string> names = pset.get_pset_keys();
   assert(! names.empty());
   assert(names[0].compare("h") == 0);
-
-  return 0;
 
   pset.put<std::string>("b3", "true");
   assert(pset.get<bool>("b3") == true);

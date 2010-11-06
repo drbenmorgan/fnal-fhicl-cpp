@@ -9,7 +9,7 @@
 cmake_minimum_required (VERSION 2.6)
 
 project (fhiclcpp)
-set (version v2_2_1)
+set (version v2_2_3)
 set (qualifier a1)
 
 if (CMAKE_CROSSCOMPILING)

@@ -10,9 +10,11 @@
 #include "boost/any.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/numeric/conversion/cast.hpp"
-#include "fhiclcpp/exception.h"
 #include "fhiclcpp/ParameterSetID.h"
+#include "fhiclcpp/exception.h"
 #include "fhiclcpp/type_traits.h"
+#include "cpp0x/cstdint"
+#include <complex>
 #include <map>
 #include <string>
 #include <vector>
@@ -32,7 +34,6 @@ public:
   bool                      is_empty     ( ) const;
   ParameterSetID            id           ( ) const;
   std::string               to_string    ( ) const;
-  std::string               hash_string  ( ) const;
   std::vector<std::string>  get_keys     ( ) const;
   std::vector<std::string>  get_pset_keys( ) const;
 
@@ -54,32 +55,56 @@ private:
   map_t                    mapping_;
   mutable  ParameterSetID  id_;
 
-  static  void  cpp_to_atom_( std::string & );
-  static  void  atom_to_cpp_( std::string & );
+  std::string  stringify( boost::any const & ) const;
 
-  boost::any  encode_( void *               ) const;  // nil
-  boost::any  encode_( bool                 ) const;  // bool
-  boost::any  encode_( ParameterSet const & ) const;  // table
+  std::string    encode( std::string     const & ) const;  // string
+  std::string    encode( void *                  ) const;  // nil
+  std::string    encode( bool                    ) const;  // bool
+  ParameterSetID encode( ParameterSet    const & ) const;  // table
+  std::string    encode( std::uintmax_t          ) const;  // unsigned
   template< class T >
-    boost::any  encode_( std::complex<T> const & ) const;  // complex
+  typename tt::enable_if< tt::is_uint<T>::value, std::string >::type
+                 encode( T               const & ) const;  // unsigned
+  std::string    encode( std::intmax_t           ) const;  // signed
   template< class T >
-    boost::any  encode_( std::vector<T>  const & ) const;  // sequence
+  typename tt::enable_if< tt::is_int<T>::value, std::string >::type
+                 encode( T               const & ) const;  // signed
+  std::string    encode( long double             ) const;  // floating-point
   template< class T >
-    boost::any  encode_( T               const & ) const;  // atom
+  typename tt::enable_if< tt::is_floating_point<T>::value, std::string >::type
+                 encode( T               const & ) const;  // floating-point
+  template< class T >
+  std::string    encode( std::complex<T> const & ) const;  // complex
+  template< class T >
+  std::string    encode( std::vector<T>  const & ) const;  // sequence
+  template< class T >
+  typename tt::disable_if< tt::is_numeric<T>::value, std::string >::type
+                 encode( T               const & ) const;  // none of the above
 
-  void  decode_( boost::any const &, void *       & ) const;  // nil
-  void  decode_( boost::any const &, bool         & ) const;  // bool
-  void  decode_( boost::any const &, ParameterSet & ) const;  // table
+  void  decode( boost::any const &, std::string & ) const;  // string
+  void  decode( boost::any const &, void * & ) const;  // nil
+  void  decode( boost::any const &, bool & ) const;  // bool
+  void  decode( boost::any const &, ParameterSet & ) const;  // table
+  void  decode( boost::any const &, std::uintmax_t & ) const;  // unsigned
   template< class T >
-    void  decode_( boost::any const &, std::complex<T> & ) const;  // complex
+  typename tt::enable_if< tt::is_uint<T>::value, void >::type
+        decode( boost::any const &, T & ) const;  // unsigned
+  void  decode( boost::any const &, std::intmax_t & ) const;  // signed
   template< class T >
-    void  decode_( boost::any const &, std::vector<T>  & ) const;  // sequence
+  typename tt::enable_if< tt::is_int<T>::value, void >::type
+        decode( boost::any const &, T & ) const;  // signed
+  void  decode( boost::any const &, long double & ) const;  // floating-point
   template< class T >
-    typename tt::enable_if< tt::is_numeric<T>::value, void >::type
-    decode_( boost::any const &, T & ) const;  // numeric atom
+  typename tt::enable_if< tt::is_floating_point<T>::value, void >::type
+        decode( boost::any const &, T & ) const;  // floating-point
+  void  decode( boost::any const &, std::complex<long double> & ) const;  // complex
   template< class T >
-    typename tt::disable_if< tt::is_numeric<T>::value, void >::type
-    decode_( boost::any const &, T & ) const;  // nonnumeric atom
+  void  decode( boost::any const &, std::complex<T> & ) const;  // complex
+  template< class T >
+  void  decode( boost::any const &, std::vector<T> & ) const;  // sequence
+  template< class T >
+  typename tt::disable_if< tt::is_numeric<T>::value, void >::type
+        decode( boost::any const &, T & ) const;  // none of the above
 
 };  // ParameterSet
 
@@ -90,7 +115,7 @@ template< class T >
   fhicl::ParameterSet::put( std::string const & key, T const & value )
 try
 {
-  insert(key, encode_(value) );
+  insert(key, boost::any( encode(value) ) );
 }
 catch( boost::bad_lexical_cast const & )
 {
@@ -108,7 +133,7 @@ template< class T >
     throw fhicl::exception(cant_find, key);
 
   T  result;
-  decode_(it->second, result);
+  decode(it->second, result);
   return result;
 }
 
@@ -121,112 +146,142 @@ try
 {
   return get<T>(key);
 }
-catch( std::exception const & ) { return default_value; }
+catch( std::exception const & )
+{
+  return default_value;
+}
 
 // ----------------------------------------------------------------------
 
-template< class T >
-boost::any
-  fhicl::ParameterSet::encode_( T const & value ) const
+template< class T >  // unsigned
+typename tt::enable_if< tt::is_uint<T>::value, std::string >::type
+  fhicl::ParameterSet::encode( T const & value ) const
 {
-  std::string str = boost::lexical_cast<std::string>(value);
-  ParameterSet::cpp_to_atom_(str);
-  return str;
+  return encode( uintmax_t(value) );
 }
 
-template< class T >
-boost::any
-  fhicl::ParameterSet::encode_( std::complex<T> const & value ) const
+template< class T >  // signed
+typename tt::enable_if< tt::is_int<T>::value, std::string >::type
+  fhicl::ParameterSet::encode( T const & value ) const
 {
-  std::vector<T>  pair;
-  pair.push_back(value.real()), pair.push_back(value.imag());
-  return encode_(pair);
+  return encode( intmax_t(value) );
 }
 
-template< class T >
-boost::any
-  fhicl::ParameterSet::encode_( std::vector<T> const & value ) const
+template< class T >  // floating-point
+typename tt::enable_if< tt::is_floating_point<T>::value, std::string >::type
+  fhicl::ParameterSet::encode( T const & value ) const
 {
-  std::vector<boost::any>  result;
+  typedef  long double  ldbl;
+  return encode( ldbl(value) );
+}
+
+template< class T >  // complex
+std::string
+  fhicl::ParameterSet::encode( std::complex<T> const & value ) const
+{
+  return '('
+        + encode( value.real() )
+        + ','
+        + encode( value.imag() )
+        + ')';
+}
+
+template< class T >  // sequence
+std::string
+  fhicl::ParameterSet::encode( std::vector<T> const & value ) const
+{
+  if( value.empty() )
+    return "[]";
+
+  std::string result = encode(value[0]);
   for( typename std::vector<T>::const_iterator it = value.begin()
-                                             , e = value.end()
-     ; it != e; ++it )
-    result.push_back( encode_(*it) );
-  return result;
+                                             , e = value.end(); ++it != e; )
+    result += ',' + encode(*it);
+  return '[' + result + ']';
+}
+
+template< class T >  // none of the above
+typename tt::disable_if< tt::is_numeric<T>::value, std::string >::type
+  fhicl::ParameterSet::encode( T const & value ) const
+{
+  return boost::lexical_cast<std::string>(value);
 }
 
 // ----------------------------------------------------------------------
 
-template< class T >
-typename tt::enable_if< tt::is_numeric<T>::value, void >::type
-  fhicl::ParameterSet::decode_( boost::any const & any_val
-                              , T & result
-                              ) const
-try
+template< class T >  // unsigned
+typename tt::enable_if< tt::is_uint<T>::value, void >::type
+  fhicl::ParameterSet::decode( boost::any const & a, T & result ) const
 {
-  std::string str = boost::any_cast<std::string>(any_val);
-  atom_to_cpp_(str);
-
-  typedef  typename tt::largest_type<T>::type  via_t;
-  via_t v = boost::lexical_cast<via_t>(str);
-
-  result = boost::numeric_cast<T>(v);
-}
-catch( boost::bad_any_cast const & )
-{
-  throw fhicl::exception(type_mismatch, "Can't extract string");
-}
-catch( boost::bad_lexical_cast const & )
-{
-  throw fhicl::exception(type_mismatch, "Can't extract number");
-}
-catch( boost::bad_numeric_cast const & )
-{
-  throw fhicl::exception(number_is_too_large, "Value exceeds type's capacity");
+  std::uintmax_t via;
+  decode(a, via);
+  result = boost::numeric_cast<T>(via);
 }
 
-template< class T >
-typename tt::disable_if< tt::is_numeric<T>::value, void >::type
-  fhicl::ParameterSet::decode_( boost::any const & any_val
-                              , T & result
-                              ) const
-try
+template< class T >  // signed
+typename tt::enable_if< tt::is_int<T>::value, void >::type
+  fhicl::ParameterSet::decode( boost::any const & a, T & result ) const
 {
-  result = boost::any_cast<T>(any_val);
-}
-catch( boost::bad_any_cast const & )
-{
-  throw fhicl::exception(type_mismatch, "Can't extract non-numeric value");
+  std::intmax_t via;
+  decode(a, via);
+  result = boost::numeric_cast<T>(via);
 }
 
-template< class T >
-  void
-    fhicl::ParameterSet::decode_( boost::any const & any_val
-                                , std::complex<T>  & result
-                                ) const
+template< class T >  // floating-point
+typename tt::enable_if< tt::is_floating_point<T>::value, void >::type
+  fhicl::ParameterSet::decode( boost::any const & a, T & result ) const
 {
-  std::vector<T>  v;
-  decode_(any_val, v);
-  if( v.size() != 2 )
-    throw fhicl::exception(type_mismatch, "Not a complex number");
-  result = std::complex<T>(v[0], v[1]);
+  long double via;
+  decode(a, via);
+  result = via;  // boost::numeric_cast<T>(via);
 }
 
-template< class T >
-  void
-    fhicl::ParameterSet::decode_( boost::any const & any_val
-                                , std::vector<T>   & result
-                                ) const
+template< class T >  // complex
+void
+  fhicl::ParameterSet::decode( boost::any const & a, std::complex<T> & result ) const
 {
-  typedef  std::vector<boost::any>  vec_t;
-  vec_t va = boost::any_cast<vec_t>(any_val);
+  std::complex<long double> via;
+  decode(a, via);
+  result = std::complex<T>( boost::numeric_cast<T>(via.real())
+                          , boost::numeric_cast<T>(via.imag())
+                          );
+}
+
+template< class T >  // sequence
+void
+  fhicl::ParameterSet::decode( boost::any const & a, std::vector<T> & result ) const
+{
+  std::string str = boost::any_cast<std::string>(a);
+  if(  str.empty()
+    || str[0] != '['
+    || str.end()[-1] != ']'
+    )
+    throw fhicl::exception(type_mismatch, "invalid sequence string: ")
+      << str;
+
+  str = str.substr(1, str.size()-2);  // strip off brackets
   result.clear();
-  for( vec_t::const_iterator it = va.begin()
-                           , e  = va.end(); it != e; ++it ) {
-    T part;
-    decode_(*it, part );
-    result.push_back( part );
+  if( str.empty() )
+    return;
+
+  T via;
+  for( size_t comma = str.find(',')
+     ; comma != std::string::npos
+     ; str.erase(0,comma+1), comma = str.find(',')
+     )
+  {
+    decode( str.substr(0,comma), via );
+    result.push_back(via);
   }
+  decode( str, via );
+  result.push_back(via);
+}
+
+template< class T >  // none of the above
+typename tt::disable_if< tt::is_numeric<T>::value, void >::type
+  fhicl::ParameterSet::decode( boost::any const & a, T & result ) const
+{
+  result = boost::any_cast<T>(a);
 }
 
 // ======================================================================

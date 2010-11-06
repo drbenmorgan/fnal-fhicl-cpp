@@ -8,47 +8,107 @@
 #include "fhiclcpp/ParameterSet.h"
 
 #include "fhiclcpp/ParameterSetRegistry.h"
+#include <limits>
+#include <utility>  // pair
 
 using namespace boost;
 using namespace fhicl;
 using namespace std;
 
+typedef  long double  ldbl;
+
 // ======================================================================
 
 static inline  bool
-  is_atom( any const & val )
-{ return val.type() == typeid(string); }
-
-static inline  bool
-  is_parameterset( any const & val )
+  is_table( any const & val )
 { return val.type() == typeid(ParameterSetID); }
 
-static inline  bool
-  is_vector( any const & val )
-{ return val.type() == typeid(vector<any>); }
+static  string
+  escape( string const & str )
+{
+  string result;
+  for( string::const_iterator it = str.begin()
+                            , e  = str.end(); it != e; ++it ) {
+    switch( *it )  {
+    case '\"':  result.append("\\\"");  continue;
+    case '\'':  result.append("\\\'");  continue;
+    case '\\':  result.append("\\\\");  continue;
+    case '\n':  result.append("\\n" );  continue;
+    case '\t':  result.append("\\t" );  continue;
+    default  :  result.append(1, *it);  continue;
+    }
+  }
+  return result;
+}  // escape()
 
 static  string
-  do_hash( any const & val )
+  unescape( string const & str )
 {
-  if( is_atom(val) )
-    return '"' + any_cast<string>(val) + '"';
-
-  else if( is_parameterset(val) )
-    return '{' + any_cast<ParameterSetID>(val).to_string() + '}';
-
-  else if( is_vector(val) ) {
-    vector<any> v = any_cast< vector<any> >(val);
-    if( v.empty() )
-      return "[]";
-    string result = do_hash(v[0]);
-    for( int k = 1; k != v.size(); ++k )
-      result.append( "," )
-            .append( do_hash(v[k]) );
-    return '[' + result + ']';
+  string result;
+  for( string::const_iterator it = str.begin()
+                            , e  = str.end(); it != e; ++it ) {
+    char ch = *it;
+    if( ch == '\\' && it != e-1 ) {
+      switch( *++it ) {
+      case '"' :  ch = '"' ;  continue;
+      case '\'':  ch = '\'';  continue;
+      case '\\':  ch = '\\';  continue;
+      case 'n' :  ch = '\n';  continue;
+      case 't' :  ch = '\t';  continue;
+      default  :  throw fhicl::exception(type_mismatch, "unknown escape: ")
+                    << str;
+      }
+    }
+    result.append(1, ch);
   }
+  return result;
+}  // unescape()
 
-  else
-    throw fhicl::exception(cant_happen, "fhicl::do_hash failure");
+// ----------------------------------------------------------------------
+
+static inline  string
+  fhicl_nil( )
+{
+  static  string  fhicl_nil("nil");
+  return fhicl_nil;
+}
+
+static inline  string
+  fhicl_true( )
+{
+  static  string  fhicl_true("true");
+  return fhicl_true;
+}
+
+static inline  string
+  fhicl_false( )
+{
+  static  string  fhicl_false("false");
+  return fhicl_false;
+}
+
+static inline  string
+  fhicl_infinity( )
+{
+  static  string  fhicl_infinity("infinity");
+  return fhicl_infinity;
+}
+
+// ----------------------------------------------------------------------
+
+string
+  ParameterSet::stringify( any const & a ) const
+{
+  if( is_table(a) ) {
+    ParameterSetID psid = any_cast<ParameterSetID>(a);
+    return '{' + ParameterSetRegistry::get(psid).to_string() + '}';
+  }
+  else {
+    return any_cast<string>(a);
+    string str;
+    decode( a, str );
+    return str;
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -68,18 +128,20 @@ ParameterSetID
 string
   ParameterSet::to_string( ) const
 {
-  return hash_string(); //TODO: implement pretty print
-}
-
-string
-  ParameterSet::hash_string( ) const
-{
   string result;
+  if( mapping_.empty() )
+    return result;
 
-  for( map_iter_t it = mapping_.begin(); it != mapping_.end(); ++it )
-    result.append( it->first )
-          .append( ":" )
-          .append( do_hash(it->second) )
+  map_iter_t it = mapping_.begin();
+  result.append( it->first )
+        .append( 1, ':' )
+        .append( stringify(it->second) )
+        ;
+  for( map_iter_t const e = mapping_.end(); ++it != e; )
+    result.append( 1, ' ' )
+          .append( it->first )
+          .append( 1, ':' )
+          .append( stringify(it->second) )
           ;
 
   return result;
@@ -101,7 +163,7 @@ vector<string>
   vector<string> keys;
   for( map_iter_t it = mapping_.begin()
                 , e  = mapping_.end(); it != e; ++it )
-    if( is_parameterset(it->second) )
+    if( is_table(it->second) )
       keys.push_back( it->first );
   return keys;
 }
@@ -109,77 +171,188 @@ vector<string>
 // ----------------------------------------------------------------------
 
 void
-  ParameterSet::cpp_to_atom_( string & str )
-{
-  // TODO: transform C++ string to equivalent FHiCL atom
-}
-
-void
-  ParameterSet::atom_to_cpp_( string & str )
-{
-  // TODO: if str holds a FHiCL string for infinity,
-  // translate it into the C++ equivalent string;
-  // do similarly for any other values needing special handling
-}
-
-// ----------------------------------------------------------------------
-
-void
   ParameterSet::insert( string const & key, any const & value)
 {
-  mapping_.insert( make_pair(key, value) );
+  mapping_.insert( pair<string const,any>(key, value) );
   id_.invalidate();
 }
 
 // ----------------------------------------------------------------------
 
-any
-  ParameterSet::encode_( void * value ) const
+string  // string with quotes iff needed
+  ParameterSet::encode( string const & value ) const
 {
-  string str("nil");
-  cpp_to_atom_(str);
-  return str;
+  bool needquotes = false;
+  string result;
+
+  if( value.empty() )
+    needquotes = true;
+
+  else if( value[0] == '"' && value.end()[-1] == '"' ) {
+    result = unescape( value.substr(1, value.size()-2) );
+    needquotes = result.find_first_of("\"\'\\\n\t ") != string::npos;
+    result = escape(result);
+  }
+
+  else if( value[0] == '\'' && value.end()[-1] == '\'' ) {
+    result = escape( value.substr(1, value.size()-2) );
+    needquotes = value.find_first_of("\"\'\\\n\t ") != string::npos;
+  }
+
+  else {
+    result = escape( value );
+    needquotes = value.find_first_of("\"\'\\\n\t ") != string::npos;
+  }
+
+  return needquotes  ?  '"' + result + '"'
+                     :        result;
 }
 
-any
-  ParameterSet::encode_( bool value ) const
+string  // nil
+  ParameterSet::encode( void * ) const
 {
-  string str = lexical_cast<string>(value);
-  cpp_to_atom_(str);
-  return str;
+  return fhicl_nil();
 }
 
-any
-  ParameterSet::encode_( ParameterSet const & value ) const
-{ return ParameterSetRegistry::put(value); }
+string  // bool
+  ParameterSet::encode( bool value ) const
+{
+  return value ? fhicl_true() : fhicl_false();
+}
+
+ParameterSetID  // table
+  ParameterSet::encode( ParameterSet const & value ) const
+{
+  return ParameterSetRegistry::put(value);
+}
+
+string  // unsigned
+  ParameterSet::encode( uintmax_t value ) const
+{
+  string result = lexical_cast<string>(value);
+  if( result.size() > 6 ) {
+    size_t sz = result.size() - 1;
+    result.insert(1, ".");
+    result += "e+" + lexical_cast<string>(sz);
+  }
+  return result;
+}
+
+string  // signed
+  ParameterSet::encode( intmax_t value ) const
+{
+  string result = encode( uintmax_t(abs(value)) );
+  if( value < 0 )
+    result.insert(0, "-");
+  return result;
+}
+
+string  // floating-point
+  ParameterSet::encode( ldbl value ) const
+{
+  if( value == numeric_limits<ldbl>::infinity() )
+    return '+' + fhicl_infinity();
+  if( value == - numeric_limits<ldbl>::infinity() )
+    return '-' + fhicl_infinity();
+
+  intmax_t chopped = static_cast<intmax_t>( value );
+  if( static_cast<ldbl>(chopped) == value )
+    return encode(chopped);
+
+  return lexical_cast<string>(value);
+}
 
 // ----------------------------------------------------------------------
 
-void
-  ParameterSet::decode_( any const & any_val
-                       , void *    & result
-                       ) const
+void  // string without quotes
+  ParameterSet::decode( boost::any const & a, string & result ) const
 {
-  result = 0;
+  result = any_cast<string>(a);
+  if( result[0] == '"' || result.end()[-1] == '"' )
+    result = unescape( result.substr(1, result.size()-2) );
 }
 
-void
-  ParameterSet::decode_( any const & any_val
-                       , bool      & result
-                       ) const
+void  // nil
+  ParameterSet::decode( boost::any const & a, void * & result ) const
 {
-  string str = any_cast<string>(any_val);
-  atom_to_cpp_(str);
-  result = lexical_cast<bool>(str);
+  string str = any_cast<string>(a);
+  if( str == fhicl_nil() )
+    result = 0;
+  else
+    throw fhicl::exception(type_mismatch, "invalid nil string: ")
+      << str;
 }
 
-void
-  ParameterSet::decode_( any const    & any_val
-                       , ParameterSet & result
-                       ) const
+void  // bool
+  ParameterSet::decode( boost::any const & a, bool & result ) const
 {
-  ParameterSetID id = any_cast<ParameterSetID>(any_val);
+  string str = any_cast<string>(a);
+  if( str == fhicl_true() )
+    result = true;
+  else if( str == fhicl_false() )
+    result = false;
+  else
+    throw fhicl::exception(type_mismatch, "invalid bool string: ")
+      << str;
+}
+
+void  // table
+  ParameterSet::decode( boost::any const & a, ParameterSet & result ) const
+{
+  ParameterSetID id = any_cast<ParameterSetID>(a);
   result = ParameterSetRegistry::get(id);
+}
+
+void  // unsigned
+  ParameterSet::decode( boost::any const & a, uintmax_t & result ) const
+{
+  string str = any_cast<string>(a);
+  ldbl via = boost::lexical_cast<ldbl>(str);
+  result = boost::numeric_cast<uintmax_t>(via);
+}
+
+void  // signed
+  ParameterSet::decode( boost::any const & a, intmax_t & result ) const
+{
+  string str = any_cast<string>(a);
+  ldbl via = boost::lexical_cast<ldbl>(str);
+  result = boost::numeric_cast<intmax_t>(via);
+}
+
+void  // floating-point
+  ParameterSet::decode( boost::any const & a, ldbl & result ) const
+{
+  string str = any_cast<string>(a);
+  if( str.substr(1) == fhicl_infinity() )  {
+    switch( str[0] ) {
+    case '+': result = + numeric_limits<ldbl>::infinity(); return;
+    case '-': result = - numeric_limits<ldbl>::infinity(); return;
+    default : throw fhicl::exception(type_mismatch, "invalid float string: ")
+                << str;
+    }
+  }
+  else
+    result = boost::lexical_cast<ldbl>(str);
+}
+
+void  // complex
+  ParameterSet::decode( boost::any const & a, complex<ldbl> & result ) const
+{
+  string str = any_cast<string>(a);
+  size_t comma = str.find(',');
+  if(  str.empty()
+    || str[0] != '('
+    || str.end()[-1] != ')'
+    || comma == string::npos
+    )
+    throw fhicl::exception(type_mismatch, "invalid complex string: ")
+      << str;
+
+  size_t end = str.size() - 1 - comma - 1;
+  ldbl real, imag;
+  decode( str.substr(1,comma-1)  , real );
+  decode( str.substr(comma+1,end), imag );
+  result = complex<ldbl>(real,imag);
 }
 
 // ======================================================================

@@ -40,13 +40,16 @@ set_target_properties (fhiclcppD
     )
 
 # build static library:
-add_library (fhiclcpp         ${srcFiles})
+add_library (fhiclcpp  STATIC ${srcFiles})
 target_link_libraries (fhiclcpp
     cetlib
     )
 set_target_properties (fhiclcpp
     PROPERTIES OUTPUT_NAME fhiclcpp
     )
+
+SET_TARGET_PROPERTIES(fhiclcppD PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+SET_TARGET_PROPERTIES(fhiclcpp  PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 
 # install libraries:
 install (TARGETS fhiclcppD fhiclcpp

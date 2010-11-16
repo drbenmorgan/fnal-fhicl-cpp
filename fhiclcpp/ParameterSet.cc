@@ -8,6 +8,8 @@
 #include "fhiclcpp/ParameterSet.h"
 
 #include "fhiclcpp/ParameterSetRegistry.h"
+#include <cctype>   // isdigit
+#include <cstdlib>  // abs
 #include <limits>
 #include <utility>  // pair
 
@@ -64,34 +66,106 @@ static  string
   return result;
 }  // unescape()
 
+static  bool
+  is_number( string const & value, string & result )
+{
+  // ^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$
+  string::const_iterator       it = value.begin();
+  string::const_iterator const e  = value.end();
+
+  // optional sign
+  result.clear();
+  if     ( *it == '+' )  ++it;
+  else if( *it == '-' )  result = *it++;
+  if( it == e )
+    return false;
+
+  string whole;
+  for( ; it != e  &&  isdigit(*it); ++it )
+    whole.append(1, *it);
+
+  // fraction part
+  string fraction;
+  if( it != e  &&  *it == '.' ) {
+    while( ++it != e  &&  isdigit(*it) )
+      fraction.append(1, *it);
+  }
+
+  // exponent part
+  string exponent;
+  if( it != e  &&  (*it == 'E' || *it == 'e') ) {
+    if( ++it == e )
+      return false;
+    if( *it == '+' || *it == '-') {
+      exponent = *it;
+      if( ++it == e )
+        return false;
+    }
+    for( ; it != e  &&  isdigit(*it); ++it )
+      exponent.append(1, *it);
+  }
+
+  // consumed everything?
+  if( it != e )
+    return false;
+
+  // adjust for radix at left and insist on at least one digit
+  string digits = whole + fraction;
+  intmax_t exp = atoi(exponent.c_str()) + whole.size();
+  if( digits.empty() )
+    return false;
+
+  // discard leading zeroes
+  for( ; digits.size() > 1  &&  digits[0] == '0'; --exp )
+    digits.erase(0,1);
+
+  // produce result
+  if( digits.size() <= 6  &&  digits.size() <= exp  &&  exp <= 6 ) { // < 1e6?
+    digits.append(exp-digits.size(), '0');
+    result += digits;
+  }
+  else {
+    digits.insert(digits.begin()+1, '.'); --exp;
+    result.append(digits);
+    if( exp != 0 ) {
+      result.append(1, 'e')
+            .append(1, exp < 0 ? '-' : '+' );
+      result += lexical_cast<string>(abs(exp));
+    }
+  }
+
+  return true;
+
+}  // is_number()
+
 // ----------------------------------------------------------------------
 
 static inline  string
-  fhicl_nil( )
+  literal_nil( )
 {
-  static  string  fhicl_nil("nil");
-  return fhicl_nil;
+  static  string  literal_nil("nil");
+  return literal_nil;
 }
 
 static inline  string
-  fhicl_true( )
+  literal_true( )
 {
-  static  string  fhicl_true("true");
-  return fhicl_true;
+  static  string  literal_true("true");
+  return literal_true;
 }
 
 static inline  string
-  fhicl_false( )
+  literal_false( )
 {
-  static  string  fhicl_false("false");
-  return fhicl_false;
+  static  string  literal_false("false");
+  return literal_false;
 }
 
 static inline  string
-  fhicl_infinity( )
+  literal_infinity( )
 {
-  static  string  fhicl_infinity("infinity");
-  return fhicl_infinity;
+  static  string  literal_infinity("infinity");
+  return literal_infinity;
 }
 
 // ----------------------------------------------------------------------
@@ -199,6 +273,23 @@ string  // string with quotes iff needed
     needquotes = value.find_first_of("\"\'\\\n\t ") != string::npos;
   }
 
+  else if( value == literal_infinity() ) {
+    result = '+' + literal_infinity();
+    needquotes = false;
+  }
+
+  else if(    value.substr(1) == literal_infinity()
+           && (value[0] == '+' || value[0] == '-')
+         )  {
+    result = value;
+    needquotes = false;
+  }
+
+  // ^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$
+  else if( is_number(value, result) ) {
+    needquotes = false;
+  }
+
   else {
     result = escape( value );
     needquotes = value.find_first_of("\"\'\\\n\t ") != string::npos;
@@ -211,13 +302,13 @@ string  // string with quotes iff needed
 string  // nil
   ParameterSet::encode( void * ) const
 {
-  return fhicl_nil();
+  return literal_nil();
 }
 
 string  // bool
   ParameterSet::encode( bool value ) const
 {
-  return value ? fhicl_true() : fhicl_false();
+  return value ? literal_true() : literal_false();
 }
 
 ParameterSetID  // table
@@ -251,9 +342,9 @@ string  // floating-point
   ParameterSet::encode( ldbl value ) const
 {
   if( value == numeric_limits<ldbl>::infinity() )
-    return '+' + fhicl_infinity();
+    return '+' + literal_infinity();
   if( value == - numeric_limits<ldbl>::infinity() )
-    return '-' + fhicl_infinity();
+    return '-' + literal_infinity();
 
   intmax_t chopped = static_cast<intmax_t>( value );
   if( static_cast<ldbl>(chopped) == value )
@@ -275,25 +366,25 @@ void  // string without quotes
 void  // nil
   ParameterSet::decode( boost::any const & a, void * & result ) const
 {
-  string str = any_cast<string>(a);
-  if( str == fhicl_nil() )
+  string str;
+  decode(a, str);
+  if( str == literal_nil() )
     result = 0;
   else
-    throw fhicl::exception(type_mismatch, "invalid nil string: ")
-      << str;
+    throw fhicl::exception(type_mismatch, "invalid nil string: ") << str;
 }
 
 void  // bool
   ParameterSet::decode( boost::any const & a, bool & result ) const
 {
-  string str = any_cast<string>(a);
-  if( str == fhicl_true() )
+  string str;
+  decode(a, str);
+  if( str == literal_true() )
     result = true;
-  else if( str == fhicl_false() )
+  else if( str == literal_false() )
     result = false;
   else
-    throw fhicl::exception(type_mismatch, "invalid bool string: ")
-      << str;
+    throw fhicl::exception(type_mismatch, "invalid bool string: ") << str;
 }
 
 void  // table
@@ -306,7 +397,8 @@ void  // table
 void  // unsigned
   ParameterSet::decode( boost::any const & a, uintmax_t & result ) const
 {
-  string str = any_cast<string>(a);
+  string str;
+  decode(a, str);
   ldbl via = boost::lexical_cast<ldbl>(str);
   result = boost::numeric_cast<uintmax_t>(via);
 }
@@ -314,7 +406,8 @@ void  // unsigned
 void  // signed
   ParameterSet::decode( boost::any const & a, intmax_t & result ) const
 {
-  string str = any_cast<string>(a);
+  string str;
+  decode(a, str);
   ldbl via = boost::lexical_cast<ldbl>(str);
   result = boost::numeric_cast<intmax_t>(via);
 }
@@ -322,8 +415,9 @@ void  // signed
 void  // floating-point
   ParameterSet::decode( boost::any const & a, ldbl & result ) const
 {
-  string str = any_cast<string>(a);
-  if( str.substr(1) == fhicl_infinity() )  {
+  string str;
+  decode(a, str);
+  if( str.substr(1) == literal_infinity() )  {
     switch( str[0] ) {
     case '+': result = + numeric_limits<ldbl>::infinity(); return;
     case '-': result = - numeric_limits<ldbl>::infinity(); return;
@@ -338,7 +432,8 @@ void  // floating-point
 void  // complex
   ParameterSet::decode( boost::any const & a, complex<ldbl> & result ) const
 {
-  string str = any_cast<string>(a);
+  string str;
+  decode(a, str);
   size_t comma = str.find(',');
   if(  str.empty()
     || str[0] != '('

@@ -28,28 +28,28 @@ int
   main( )
 {
   ParameterSet pset;
-  svec  sv;
+  svec         sv;
 
   pset.put<string>( "f11", "[]" );
   ensure( 11, pset.get<string>("f11") == "[]" );
-  ensure( 13, pset.to_string() == "f11:[]" );
-  ensure( 14, pset.get<svec>("f11").empty() );
-  ensure( 15, pset.get<svec>("f11") == svec() );
-  ensure( 16, pset.get<svec>("f11") == sv );
-  pset.put<svec>( "f17", sv );
-  ensure( 17, pset.get<string>("f17") == "[]" );
-  ensure( 18, pset.to_string() == "f11:[] f17:[]" );
-  ensure( 19, pset.get<svec>("f17") == sv );
+  ensure( 12, pset.to_string() == "f11:[]" );
+  ensure( 13, pset.get<svec>("f11").empty() );
+  ensure( 14, pset.get<svec>("f11") == svec() );
+  ensure( 15, pset.get<svec>("f11") == sv );
+  pset.put<svec>( "f16", sv );
+  ensure( 16, pset.get<string>("f16") == "[]" );
+  ensure( 17, pset.to_string() == "f11:[] f16:[]" );
+  ensure( 18, pset.get<svec>("f16") == sv );
 
   sv.push_back("a");
   pset.put<string>( "f21", "[a]" );
   ensure( 21, pset.get<string>("f21") == "[a]" );
-  ensure( 22, pset.to_string() == "f11:[] f17:[] f21:[a]" );
+  ensure( 22, pset.to_string() == "f11:[] f16:[] f21:[a]" );
   ensure( 23, pset.get<svec>("f21").size() == 1 );
   ensure( 24, pset.get<svec>("f21") == sv );
   pset.put<svec>( "f25", sv );
   ensure( 25, pset.get<string>("f25") == "[a]" );
-  ensure( 26, pset.to_string() == "f11:[] f17:[] f21:[a] f25:[a]" );
+  ensure( 26, pset.to_string() == "f11:[] f16:[] f21:[a] f25:[a]" );
   ensure( 27, pset.get<svec>("f25").size() == 1 );
   ensure( 28, pset.get<svec>("f25") == sv );
 
@@ -61,8 +61,8 @@ int
   sv.push_back("c");
   pset.put<svec>( "f34", sv );
   ensure( 34, pset.get<string>("f34") == "[a,b,c]" );
-  ensure( 32, pset.get<svec>("f34").size() == 3 );
-  ensure( 33, pset.get<svec>("f34") == sv );
+  ensure( 35, pset.get<svec>("f34").size() == 3 );
+  ensure( 36, pset.get<svec>("f34") == sv );
 
   sv.push_back("d");
   pset.put<string>( "f41", "[a,b,c,d]" );

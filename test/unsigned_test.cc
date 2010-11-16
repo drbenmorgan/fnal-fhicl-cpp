@@ -37,18 +37,18 @@ int
   {
     ParameterSet pset;
     pset.put<string>( "u21", "000" );
-    ensure( 21, pset.to_string() == "u21:000" );
+    ensure( 21, pset.to_string() == "u21:0" );
     uint u21 = pset.get<uint>("u21");
     ensure( 22, u21 == 0u );
     pset.put<uint>( "u23", u21 );
     ensure( 23, pset.get<string>("u23") == "0" );
-    ensure( 24, pset.to_string() == "u21:000 u23:0" );
+    ensure( 24, pset.to_string() == "u21:0 u23:0" );
   }
 
   {
     ParameterSet pset;
     pset.put<string>( "u31", "1.2e+1" );
-    ensure( 31, pset.to_string() == "u31:1.2e+1" );
+    ensure( 31, pset.to_string() == "u31:12" );
     ensure( 32, pset.get<uint>("u31") == 12u );
   }
 

@@ -34,18 +34,18 @@ int
   {
     ParameterSet pset;
     pset.put<string>( "i21", "000" );
-    ensure( 21, pset.to_string() == "i21:000" );
+    ensure( 21, pset.to_string() == "i21:0" );
     int i21 = pset.get<int>("i21");
     ensure( 22, i21 == 0 );
     pset.put<int>( "i23", i21 );
     ensure( 23, pset.get<string>("i23") == "0" );
-    ensure( 24, pset.to_string() == "i21:000 i23:0" );
+    ensure( 24, pset.to_string() == "i21:0 i23:0" );
   }
 
   {
     ParameterSet pset;
     pset.put<string>( "i31", "-1.2e+1" );
-    ensure( 31, pset.to_string() == "i31:-1.2e+1" );
+    ensure( 31, pset.to_string() == "i31:-12" );
     ensure( 32, pset.get<int>("i31") == -12 );
   }
 

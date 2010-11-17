@@ -30,6 +30,16 @@ void
 int
   main( )
 {
+  ParameterSet p0;
+  ensure( 1, p0.to_string() == "" );
+  try {
+    p0.get<string>("a");
+    ensure( 2, false );
+  }
+  catch( ... ) {
+    ensure( 3, true );
+  }
+
   ParameterSet p1;
   p1.put<string>( "b", "B" );
   p1.put<string>( "a", "A" );

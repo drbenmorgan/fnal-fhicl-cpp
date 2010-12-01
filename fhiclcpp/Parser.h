@@ -23,8 +23,8 @@ private:
   Parser() {}
 
 public:
-  static bool Parse(std::string const &, ParameterSet &);
-  static bool ParseString(std::string &, ParameterSet &);
+  static bool ParseFile(std::string const &, ParameterSet &);
+  static bool ParseString(std::string const &, ParameterSet &);
 
 private:
   static bool PreProcess(std::string const &, std::string &);

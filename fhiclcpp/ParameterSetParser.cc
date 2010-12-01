@@ -311,7 +311,7 @@ ParameterSet PSetParser<Iterator>::getPSet()
 //---------------------------------------------------------------------------
 // Wrapper Parser methods
 
-bool Parser::Parse(std::string const & fname, ParameterSet & pset)
+bool Parser::ParseFile(std::string const & fname, ParameterSet & pset)
 {
     std::string storage;
 
@@ -400,9 +400,10 @@ void Parser::TrimSpace( std::string & str )
 }
 
 
-bool Parser::ParseString(std::string & str, ParameterSet & pset)
+bool Parser::ParseString(std::string const & pset_str, ParameterSet & pset)
 {
-    str += ' '; // make sure the string ends with a white space
+    // make sure the string ends with a white space 
+    std::string str = pset_str + ' '; 
 
     namespace qi = boost::spirit::qi;
     namespace ascii = boost::spirit::ascii;

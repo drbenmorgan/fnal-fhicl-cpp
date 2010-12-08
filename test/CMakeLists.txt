@@ -18,6 +18,7 @@ set( TEST_LIST
   sequence_test
   table_test
   PSetTest
+  parse_value_test
 )
 
 set( ALSO_BUILD

@@ -13,6 +13,7 @@
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/type_traits.h"
+#include "fhiclcpp/value_parser.h"
 #include "cpp0x/cstdint"
 #include <complex>
 #include <map>
@@ -28,6 +29,10 @@ namespace fhicl {
 class fhicl::ParameterSet
 {
 public:
+  typedef  std::string                        ps_atom_t;
+  typedef  std::vector<boost::any>            ps_sequence_t;
+  //typedef  std::map<std::string, boost::any>  ps_table_t;
+
   // compiler generates default c'tor, d'tor, copy c'tor, copy assignment
 
   // observers:
@@ -57,26 +62,26 @@ private:
 
   std::string  stringify( boost::any const & ) const;
 
-  std::string    encode( std::string     const & ) const;  // string
-  std::string    encode( void *                  ) const;  // nil
-  std::string    encode( bool                    ) const;  // bool
+  ps_atom_t      encode( std::string     const & ) const;  // string (w/ quotes)
+  ps_atom_t      encode( void *                  ) const;  // nil
+  ps_atom_t      encode( bool                    ) const;  // bool
   ParameterSetID encode( ParameterSet    const & ) const;  // table
-  std::string    encode( std::uintmax_t          ) const;  // unsigned
+  ps_atom_t      encode( std::uintmax_t          ) const;  // unsigned
   template< class T >
-  typename tt::enable_if< tt::is_uint<T>::value, std::string >::type
+  typename tt::enable_if< tt::is_uint<T>::value, ps_atom_t >::type
                  encode( T               const & ) const;  // unsigned
-  std::string    encode( std::intmax_t           ) const;  // signed
+  ps_atom_t      encode( std::intmax_t           ) const;  // signed
   template< class T >
-  typename tt::enable_if< tt::is_int<T>::value, std::string >::type
+  typename tt::enable_if< tt::is_int<T>::value, ps_atom_t >::type
                  encode( T               const & ) const;  // signed
-  std::string    encode( long double             ) const;  // floating-point
+  ps_atom_t      encode( long double             ) const;  // floating-point
   template< class T >
-  typename tt::enable_if< tt::is_floating_point<T>::value, std::string >::type
+  typename tt::enable_if< tt::is_floating_point<T>::value, ps_atom_t >::type
                  encode( T               const & ) const;  // floating-point
   template< class T >
-  std::string    encode( std::complex<T> const & ) const;  // complex
+  ps_atom_t      encode( std::complex<T> const & ) const;  // complex
   template< class T >
-  std::string    encode( std::vector<T>  const & ) const;  // sequence
+  ps_sequence_t  encode( std::vector<T>  const & ) const;  // sequence
   template< class T >
   typename tt::disable_if< tt::is_numeric<T>::value, std::string >::type
                  encode( T               const & ) const;  // none of the above
@@ -154,21 +159,27 @@ catch( std::exception const & )
 // ----------------------------------------------------------------------
 
 template< class T >  // unsigned
-typename tt::enable_if< tt::is_uint<T>::value, std::string >::type
+typename tt::enable_if< tt::is_uint<T>::value
+                      , fhicl::ParameterSet::ps_atom_t
+                      >::type
   fhicl::ParameterSet::encode( T const & value ) const
 {
   return encode( uintmax_t(value) );
 }
 
 template< class T >  // signed
-typename tt::enable_if< tt::is_int<T>::value, std::string >::type
+typename tt::enable_if< tt::is_int<T>::value
+                      , fhicl::ParameterSet::ps_atom_t
+                      >::type
   fhicl::ParameterSet::encode( T const & value ) const
 {
   return encode( intmax_t(value) );
 }
 
 template< class T >  // floating-point
-typename tt::enable_if< tt::is_floating_point<T>::value, std::string >::type
+typename tt::enable_if< tt::is_floating_point<T>::value
+                      , fhicl::ParameterSet::ps_atom_t
+                      >::type
   fhicl::ParameterSet::encode( T const & value ) const
 {
   typedef  long double  ldbl;
@@ -176,28 +187,25 @@ typename tt::enable_if< tt::is_floating_point<T>::value, std::string >::type
 }
 
 template< class T >  // complex
-std::string
+fhicl::ParameterSet::ps_atom_t
   fhicl::ParameterSet::encode( std::complex<T> const & value ) const
 {
-  return '('
-        + encode( value.real() )
-        + ','
-        + encode( value.imag() )
-        + ')';
+  return  '(' + encode(value.real())
+       +  ',' + encode(value.imag())
+       +  ')';
 }
 
 template< class T >  // sequence
-std::string
+fhicl::ParameterSet::ps_sequence_t
   fhicl::ParameterSet::encode( std::vector<T> const & value ) const
 {
-  if( value.empty() )
-    return "[]";
-
-  std::string result = encode(value[0]);
+  ps_sequence_t  result;
   for( typename std::vector<T>::const_iterator it = value.begin()
-                                             , e = value.end(); ++it != e; )
-    result += ',' + encode(*it);
-  return '[' + result + ']';
+                                             , e  = value.end()
+     ; it != e; ++it ) {
+    result.push_back(boost::any(encode(*it)));
+  }
+  return result;
 }
 
 template< class T >  // none of the above
@@ -251,30 +259,41 @@ template< class T >  // sequence
 void
   fhicl::ParameterSet::decode( boost::any const & a, std::vector<T> & result ) const
 {
-  std::string str = boost::any_cast<std::string>(a);
-  if(  str.empty()
-    || str[0] != '['
-    || str.end()[-1] != ']'
-    )
-    throw fhicl::exception(type_mismatch, "invalid sequence string: ")
-      << str;
+  if( a.type() == typeid(std::string) ) {
+    typedef  fhicl::extended_value       extended_value;
+    typedef  extended_value::sequence_t  sequence_t;
 
-  str = str.substr(1, str.size()-2);  // strip off brackets
-  result.clear();
-  if( str.empty() )
-    return;
+    std::string str;
+    decode(a, str);
 
-  T via;
-  for( size_t comma = str.find(',')
-     ; comma != std::string::npos
-     ; str.erase(0,comma+1), comma = str.find(',')
-     )
-  {
-    decode( str.substr(0,comma), via );
-    result.push_back(via);
+    extended_value xval;
+    if( ! parse_value(str, xval) || ! xval.is_a(SEQUENCE) )
+      throw fhicl::exception(type_mismatch, "invalid sequence string: ") << str;
+
+    sequence_t const & seq = sequence_t(xval);
+    result.clear();
+    T via;
+    for( sequence_t::const_iterator it = seq.begin()
+                                  , e  = seq.end(); it != e; ++it ) {
+      decode( it->to_string(), via );
+      result.push_back(via);
+    }
   }
-  decode( str, via );
-  result.push_back(via);
+
+  else if( a.type() == typeid(ps_sequence_t) ) {
+    ps_sequence_t const & seq = boost::any_cast<ps_sequence_t>(a);
+    result.clear();
+    T via;
+    for( ps_sequence_t::const_iterator it = seq.begin()
+                                     , e  = seq.end(); it != e; ++it ) {
+      decode( *it, via );
+      result.push_back(via);
+    }
+  }
+
+  else
+      throw fhicl::exception(type_mismatch, "invalid sequence");
+
 }
 
 template< class T >  // none of the above

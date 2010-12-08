@@ -34,10 +34,10 @@ int
 
   pset.put<string>( "n21", "nil" );
   ensure( 21, pset.get<void*>("n21") == 0 );
-  ensure( 22, pset.to_string() == "n11:nil n21:nil" );
+  ensure( 22, pset.to_string() == "n11:nil n21:\"nil\"" );
 
   pset.put<string>( "n31", "NIL" );
-  ensure( 31, pset.to_string() == "n11:nil n21:nil n31:NIL" );
+  ensure( 31, pset.to_string() == "n11:nil n21:\"nil\" n31:\"NIL\"" );
   try {
     pset.get<void*>("n31");
     ensure( 32, false );

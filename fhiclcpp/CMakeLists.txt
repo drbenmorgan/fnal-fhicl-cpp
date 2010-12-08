@@ -1,21 +1,32 @@
 # define contents of interest:
 set( includeFiles
-  exception.h
-  type_traits.h
+  PSet.h
   ParameterSet.h
   ParameterSetID.h
   ParameterSetParser.h
   ParameterSetRegistry.h
   Parser.h
-  PSet.h
+  document_parser.h
+  exception.h
+  extended_value.h
+  intermediate_table.h
+  make_ParameterSet.h
+  tokens.h
+  type_traits.h
+  value_parser.h
 )
 
 set( srcFiles
-  exception.cc
   ParameterSet.cc
   ParameterSetID.cc
   ParameterSetParser.cc
   ParameterSetRegistry.cc
+  document_parser.cc
+  exception.cc
+  extended_value.cc
+  intermediate_table.cc
+  make_ParameterSet.cc
+  value_parser.cc
 )
 
 # install public headers for users:
@@ -24,9 +35,9 @@ install( FILES ${includeFiles}
 )
 
 # install a copy of all source code:
-file( GLOB hFiles *.h )
-file( GLOB ccFiles *.cc )
-install( FILES ${hFiles} ${ccFiles}
+#file( GLOB hFiles *.h )
+#file( GLOB ccFiles *.cc )
+install( FILES ${includeFiles} ${srcFiles}
          DESTINATION ${product}/${version}/source/fhiclcpp
 )
 

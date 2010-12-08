@@ -9,7 +9,7 @@
 #    set fw_db=/some/path; source /some/path/this_file
 # or  fw_db=/some/path; . /some/path/this_file
 #
-# If FHICLCPP_BUILD is undefined, it is set to whatever directory 
+# If FHICLCPP_BUILD is undefined, it is set to whatever directory
 # you are in when this script is invoked.
 # $FHICLCPP_BUILD/lib is added to LD_LIBRARY_PATH
 
@@ -32,9 +32,9 @@ tnotnull UPS_DIR || echo "$msg2"
 # note that we do not test for them first...
 # use setup -j to avoid pulling dependencies
 setup cmake
-setup cetbuildtools v1_4_0
-setup -j cpp0x v0_0_1 -q a1
-setup -j cetlib v0_1_4 -q a1
+setup cetbuildtools v1_4_1
+setup -j cpp0x v0_0_2 -q a1
+setup -j cetlib v0_1_7 -q a1
 setup -j boost v1_44_0 -q a1
 setup gcc v4_5_1
 
@@ -74,6 +74,6 @@ echo
 echo LD_LIBRARY_PATH is now ${LD_LIBRARY_PATH}
 
 # cleanup before exiting
-test "$ss" = csh && unalias tnotnull nullout set_ vecho_ 
+test "$ss" = csh && unalias tnotnull nullout set_ vecho_
 unset ss msg db me thisdir py_ver
 unset set_ setenv unsetenv tnotnull source nullout vecho_

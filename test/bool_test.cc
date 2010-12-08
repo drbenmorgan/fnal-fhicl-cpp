@@ -26,10 +26,10 @@ int
   {
     ParameterSet pset;
     pset.put<string>( "b11", "true" );
-    ensure( 11, pset.to_string() == "b11:true" );
+    ensure( 11, pset.to_string() == "b11:\"true\"" );
     ensure( 12, pset.get<bool>("b11") );
-    pset.put<string>( "b13", "false" );
-    ensure( 13, pset.to_string() == "b11:true b13:false" );
+    pset.put<string>( "b13", "\"false\"" );
+    ensure( 13, pset.to_string() == "b11:\"true\" b13:\"false\"" );
     ensure( 14, ! pset.get<bool>("b13") );
   }
 
@@ -48,7 +48,7 @@ int
   {
     ParameterSet pset;
     pset.put<string>( "b31", "tru" );
-    ensure( 31, pset.to_string() == "b31:tru" );
+    ensure( 31, pset.to_string() == "b31:\"tru\"" );
     try {
       pset.get<bool>("b31");
       ensure( 32, false );

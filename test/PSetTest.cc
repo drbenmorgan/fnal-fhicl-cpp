@@ -52,7 +52,7 @@ int main()
   assert( pset.get<fhicl::ParameterSet>("h")
               .get<std::string>("b2") == "bstring"
         );
-  assert(pset2.to_string() == "a2:1 b2:bstring");
+  assert(pset2.to_string() == "a2:1 b2:\"bstring\"");
 
   pset.put<unsigned int>("u1", 12);
   assert (pset.get<unsigned int>("u1") == 12);

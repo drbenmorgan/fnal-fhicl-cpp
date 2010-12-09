@@ -8,7 +8,7 @@ int main()
   fhicl::ParameterSet pset;
 
   // parse a configuration file
-  fhicl::Parser::Parse("Sample.cfg", pset);
+  fhicl::Parser::ParseFile("Sample.cfg", pset);
 
 #if 0
   std::string s;

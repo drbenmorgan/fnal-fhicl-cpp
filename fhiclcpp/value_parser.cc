@@ -4,7 +4,6 @@
 //
 // ======================================================================
 
-
 #include "fhiclcpp/value_parser.h"
 
 #include "boost/spirit/include/phoenix_bind.hpp"
@@ -13,7 +12,6 @@
 #include "cetlib/canonical_string.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/tokens.h"
-#include <fstream>
 
 namespace qi    = ::boost::spirit::qi;
 namespace ascii = ::boost::spirit::ascii;

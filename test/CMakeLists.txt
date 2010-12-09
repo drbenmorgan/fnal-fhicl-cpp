@@ -8,17 +8,17 @@
 # Identify tests:
 
 set( TEST_LIST
-  nil_test
   bool_test
-  string_test
-  unsigned_test
-  int_test
-  float_test
   complex_test
+  float_test
+  int_test
+  nil_test
   sequence_test
+  string_test
   table_test
-  PSetTest
+  unsigned_test
   parse_value_test
+  PSetTest
 )
 
 set( ALSO_BUILD

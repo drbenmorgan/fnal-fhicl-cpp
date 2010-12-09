@@ -18,8 +18,7 @@
 //#include "cetlib/canonical_string.h"
 
 //namespace ascii = boost::spirit::ascii;
-//namespace phx   = boost::phoenix;
-//namespace qi    = boost::spirit::qi;
+namespace qi    = boost::spirit::qi;
 
 // ----------------------------------------------------------------------
 // utilities:

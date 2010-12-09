@@ -10,11 +10,12 @@
 #include "boost/any.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/numeric/conversion/cast.hpp"
+#include "cpp0x/cstdint"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/exception.h"
+#include "fhiclcpp/extended_value.h"
+#include "fhiclcpp/parse.h"
 #include "fhiclcpp/type_traits.h"
-#include "fhiclcpp/value_parser.h"
-#include "cpp0x/cstdint"
 #include <complex>
 #include <map>
 #include <string>

@@ -6,14 +6,13 @@ set( includeFiles
   ParameterSetParser.h
   ParameterSetRegistry.h
   Parser.h
-  document_parser.h
   exception.h
   extended_value.h
   intermediate_table.h
   make_ParameterSet.h
+  parse.h
   tokens.h
   type_traits.h
-  value_parser.h
 )
 
 set( srcFiles
@@ -21,12 +20,11 @@ set( srcFiles
   ParameterSetID.cc
   ParameterSetParser.cc
   ParameterSetRegistry.cc
-  document_parser.cc
   exception.cc
   extended_value.cc
   intermediate_table.cc
   make_ParameterSet.cc
-  value_parser.cc
+  parse.cc
 )
 
 # install public headers for users:

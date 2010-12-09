@@ -10,7 +10,7 @@
 #include "cetlib/canonical_number.h"
 #include "cetlib/canonical_string.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include "fhiclcpp/value_parser.h"
+#include "fhiclcpp/parse.h"
 #include <cctype>   // isdigit
 #include <cstddef>  // size_t
 #include <cstdlib>  // abs

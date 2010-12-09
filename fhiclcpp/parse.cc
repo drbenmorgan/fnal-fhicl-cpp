@@ -119,6 +119,38 @@ static  void
 
 // ----------------------------------------------------------------------
 
+static  bool
+  include( std::ifstream & in
+         , std::string   & result
+         )
+{
+  static std::string const include_lit("#include \"");
+
+  for( std::string line; std::getline(in, line);  ) {
+    if( line.find(include_lit) ) {
+      if( line.end()[-1] != '\"' )
+        return false;
+      std::ifstream f( line.erase(0, include_lit.size())
+                           .erase(line.size()-1, 1)
+                           .c_str()
+                     , std::ios_base::in
+                     );
+      if( ! f || ! include(f, result) )
+        return false;
+    }
+    else {
+      result.append(line)
+            .append(1, '\n');
+      continue;
+    }
+  }  // for
+
+  return true;
+
+}  // include()
+
+// ----------------------------------------------------------------------
+
 namespace fhicl
 {
   template< class FwdIter, class Skip >
@@ -210,16 +242,16 @@ template< class FwdIter, class Skip >
                    >> !(graph - char_(",]}"))
                    ];
 
-  number   = ( fhicl::uint [ _val = phx::bind(&canon_num, _1) ]
-             | inf         [ _val = phx::bind(&canon_inf, _1) ]
+  number   = ( fhicl::uint [ _val = bind(&canon_num, _1) ]
+             | inf         [ _val = bind(&canon_inf, _1) ]
              | fhicl::real [ _val = _1 ]
              );
   string   = ( fhicl::ass | fhicl::dss | squoted | dquoted )
-             [ _val = phx::bind(&canon_str, _1) ];
+             [ _val = bind(&canon_str, _1) ];
   name     = fhicl::ass [ _val = _1 ];
   complex  = (  lit('(') >> number
              >> lit(',') >> number >> lit(')')
-             ) [ _val = phx::bind( &std::make_pair<std::string,std::string>
+             ) [ _val = bind( &std::make_pair<std::string,std::string>
                                  , _1 , _2 )
                ];
 
@@ -358,6 +390,7 @@ bool
 
 // ----------------------------------------------------------------------
 
+#if 0
 bool
   fhicl::parse_document( std::ifstream      & in
                        , intermediate_table & result
@@ -385,6 +418,17 @@ bool
     result = p.tbl;
   return b;
 
+}  // parse_document()
+#endif // 0
+
+bool
+  fhicl::parse_document( std::ifstream      & in
+                       , intermediate_table & result
+                       )
+{
+  std::string str;
+  include(in, str);
+  return parse_document(str, result);
 }  // parse_document()
 
 // ======================================================================

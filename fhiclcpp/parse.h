@@ -26,7 +26,7 @@ namespace fhicl
                   );
 
   bool
-    parse_document( std::ifstream      & in
+    parse_document( std::istream       & in
                   , intermediate_table & result
                   );
 

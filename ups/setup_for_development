@@ -34,7 +34,7 @@ tnotnull UPS_DIR || echo "$msg2"
 setup cmake
 setup cetbuildtools v1_4_1
 setup -j cpp0x v0_0_2 -q a1
-setup -j cetlib v0_1_7 -q a1
+setup -j cetlib v0_1_8 -q a1
 setup -j boost v1_44_0 -q a1
 setup gcc v4_5_1
 

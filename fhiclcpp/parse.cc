@@ -13,6 +13,7 @@
 #include "boost/spirit/include/support_istream_iterator.hpp"
 #include "cetlib/canonical_number.h"
 #include "cetlib/canonical_string.h"
+#include "cetlib/include.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
@@ -119,98 +120,76 @@ static  void
 
 // ----------------------------------------------------------------------
 
-static  bool
-  include( std::ifstream & in
-         , std::string   & result
-         )
-{
-  static std::string const include_lit("#include \"");
-
-  for( std::string line; std::getline(in, line);  ) {
-    if( line.find(include_lit) ) {
-      if( line.end()[-1] != '\"' )
-        return false;
-      std::ifstream f( line.erase(0, include_lit.size())
-                           .erase(line.size()-1, 1)
-                           .c_str()
-                     , std::ios_base::in
-                     );
-      if( ! f || ! include(f, result) )
-        return false;
-    }
-    else {
-      result.append(line)
-            .append(1, '\n');
-      continue;
-    }
-  }  // for
-
-  return true;
-
-}  // include()
-
-// ----------------------------------------------------------------------
-
 namespace fhicl
 {
   template< class FwdIter, class Skip >
-  struct value_parser
-  : qi::grammar<FwdIter, extended_value(), Skip>
-  {
-    typedef  extended_value::atom_t      atom_t;
-    typedef  extended_value::complex_t   complex_t;
-    typedef  extended_value::sequence_t  sequence_t;
-    typedef  extended_value::table_t     table_t;
-
-    typedef  qi::rule<FwdIter, atom_t        (), Skip>  atom_token;
-    typedef  qi::rule<FwdIter, complex_t     (), Skip>  complex_token;
-    typedef  qi::rule<FwdIter, sequence_t    (), Skip>  sequence_token;
-    typedef  qi::rule<FwdIter, table_t       (), Skip>  table_token;
-    typedef  qi::rule<FwdIter, extended_value(), Skip>  value_token;
-
-    // default c'tor:
-    value_parser( );
-
-    // data member:
-    extended_value  v;
-    // parser rules:
-    atom_token   nil, boolean;
-    atom_token   inf;
-    atom_token   squoted, dquoted;
-    atom_token   number, string, name;
-    complex_token  complex;
-    sequence_token sequence;
-    table_token    table;
-    value_token    value;
-
-  };  // value_parser
+    struct value_parser;
 
   template< class FwdIter, class Skip >
-  struct document_parser
-  : qi::grammar<FwdIter, void(), Skip>
-  {
-    typedef  fhicl::value_parser<FwdIter,Skip>   value_parser;
-
-    typedef  typename value_parser::atom_token   atom_token;
-    typedef  typename value_parser::value_token  value_token;
-    typedef  qi::rule<FwdIter, void(), Skip>     nothing_token;
-
-    // default c'tor:
-    document_parser( );
-
-    // data members:
-    bool                in_prolog;
-    bool                prolog_allowed;
-    intermediate_table  tbl;
-    value_parser        vp;
-    // parser rules:
-    atom_token     name, ref;
-    value_token    value;
-    nothing_token  prolog, document;
-
-  };  // document_parser
+    struct document_parser;
 
 }  // namespace fhicl
+
+// ----------------------------------------------------------------------
+
+template< class FwdIter, class Skip >
+  struct fhicl::value_parser
+: qi::grammar<FwdIter, extended_value(), Skip>
+{
+  typedef  extended_value::atom_t      atom_t;
+  typedef  extended_value::complex_t   complex_t;
+  typedef  extended_value::sequence_t  sequence_t;
+  typedef  extended_value::table_t     table_t;
+
+  typedef  qi::rule<FwdIter, atom_t        (), Skip>  atom_token;
+  typedef  qi::rule<FwdIter, complex_t     (), Skip>  complex_token;
+  typedef  qi::rule<FwdIter, sequence_t    (), Skip>  sequence_token;
+  typedef  qi::rule<FwdIter, table_t       (), Skip>  table_token;
+  typedef  qi::rule<FwdIter, extended_value(), Skip>  value_token;
+
+  // default c'tor:
+  value_parser( );
+
+  // data member:
+  extended_value  v;
+  // parser rules:
+  atom_token   nil, boolean;
+  atom_token   inf;
+  atom_token   squoted, dquoted;
+  atom_token   number, string, name;
+  complex_token  complex;
+  sequence_token sequence;
+  table_token    table;
+  value_token    value;
+
+};  // value_parser
+
+// ----------------------------------------------------------------------
+
+template< class FwdIter, class Skip >
+  struct fhicl::document_parser
+: qi::grammar<FwdIter, void(), Skip>
+{
+  typedef  fhicl::value_parser<FwdIter,Skip>   value_parser;
+
+  typedef  typename value_parser::atom_token   atom_token;
+  typedef  typename value_parser::value_token  value_token;
+  typedef  qi::rule<FwdIter, void(), Skip>     nothing_token;
+
+  // default c'tor:
+  document_parser( );
+
+  // data members:
+  bool                in_prolog;
+  bool                prolog_allowed;
+  intermediate_table  tbl;
+  value_parser        vp;
+  // parser rules:
+  atom_token     name, ref;
+  value_token    value;
+  nothing_token  prolog, document;
+
+};  // document_parser
 
 // ----------------------------------------------------------------------
 
@@ -390,44 +369,13 @@ bool
 
 // ----------------------------------------------------------------------
 
-#if 0
 bool
-  fhicl::parse_document( std::ifstream      & in
-                       , intermediate_table & result
-                       )
-{
-  typedef  boost::spirit::istream_iterator  iter_t;
-
-  typedef  qi::rule<iter_t>  ws_t;
-  ws_t  whitespace = space
-                   | lit('#')  >> *(char_ - eol) >> eol
-                   | lit("//") >> *(char_ - eol) >> eol;
-
-  document_parser<iter_t, ws_t> p;
-  iter_t                        begin(in);
-  iter_t const                  end;
-  in.unsetf(std::ios::skipws);
-
-  bool b =  qi::phrase_parse( begin, end
-                            , p >> *whitespace
-                            , whitespace
-                            )
-           && begin == end;
-
-  if( b )
-    result = p.tbl;
-  return b;
-
-}  // parse_document()
-#endif // 0
-
-bool
-  fhicl::parse_document( std::ifstream      & in
+  fhicl::parse_document( std::istream       & in
                        , intermediate_table & result
                        )
 {
   std::string str;
-  include(in, str);
+  cet::include(in, str);
   return parse_document(str, result);
 }  // parse_document()
 

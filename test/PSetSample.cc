@@ -1,14 +1,24 @@
 #include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/Parser.h"
+#include "fhiclcpp/intermediate_table.h"
+#include "fhiclcpp/make_ParameterSet.h"
+#include "fhiclcpp/parse.h"
+
+#include <fstream>
 #include <iostream>
 
 
 int main()
 {
-  fhicl::ParameterSet pset;
+  // parse a configuration file; obtain intermediate form
+  fhicl::intermediate_table tbl;
+  std::fstream in("Sample.cfg");
+  if( ! fhicl::parse_document(in, tbl) )
+    throw "parse_document() failure!";
 
-  // parse a configuration file
-  fhicl::Parser::ParseFile("Sample.cfg", pset);
+  // convert to ParameterSet
+  fhicl::ParameterSet pset;
+  if( ! fhicl::make_ParameterSet(tbl, pset) )
+    throw "make_ParameterSet() failure!";
 
 #if 0
   std::string s;

@@ -39,11 +39,11 @@ endforeach( test ${TEST_LIST} ${ALSO_BUILD} )
 # ----------------------------------------------------------------------
 # Build tests with special requirements:
 
-configure_file (
-    ${CMAKE_CURRENT_SOURCE_DIR}/Sample.cfg
-    ${CMAKE_CURRENT_BINARY_DIR}/Sample.cfg
-    COPYONLY
-    )
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/Sample.cfg
+  ${CMAKE_CURRENT_BINARY_DIR}/Sample.cfg
+  COPYONLY
+)
 add_executable( ParserTest PSetSample.cc )
 target_link_libraries( ParserTest fhiclcppD )
 
@@ -57,14 +57,11 @@ endforeach( test ${TEST_LIST} )
 # ----------------------------------------------------------------------
 # Install example:
 
-install (FILES
-    PSetSample.cc
-    Sample.cfg
-    DESTINATION ${product}/${version}/example
-    )
-install (FILES
-    PSetSample.cc
-    DESTINATION ${product}/${version}/source/test
-    )
+install( FILES PSetSample.cc Sample.cfg
+         DESTINATION ${product}/${version}/example
+)
+install( FILES PSetSample.cc
+         DESTINATION ${product}/${version}/source/test
+)
 
 # ======================================================================

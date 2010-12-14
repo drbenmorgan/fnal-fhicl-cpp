@@ -8,10 +8,10 @@
 
 #include "boost/algorithm/string.hpp"  // is_any_of, split
 #include "boost/any.hpp"
+#include "cpp0x/utility"  // makepair
 #include "fhiclcpp/exception.h"
 #include <cctype>   // isdigit
 #include <cstdlib>  // atoi
-#include <utility>  // makepair
 
 using namespace fhicl;
 

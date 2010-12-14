@@ -54,6 +54,10 @@ public:
   template< class T >
     void  put( std::string const & key, T const & value );
 
+  // comparators:
+  bool  operator == ( ParameterSet const & other ) const;
+  bool  operator != ( ParameterSet const & other ) const;
+
 private:
   typedef  std::map<std::string,boost::any>  map_t;
   typedef  map_t::const_iterator             map_iter_t;
@@ -156,6 +160,16 @@ catch( std::exception const & )
 {
   return default_value;
 }
+
+// ----------------------------------------------------------------------
+
+inline  bool
+  fhicl::ParameterSet::operator == ( ParameterSet const & other ) const
+{ return id_ == other.id(); }
+
+inline  bool
+  fhicl::ParameterSet::operator != ( ParameterSet const & other ) const
+{ return ! operator==(other); }
 
 // ----------------------------------------------------------------------
 

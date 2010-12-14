@@ -9,7 +9,7 @@
 
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
-#include <fstream>
+#include <istream>
 #include <string>
 
 namespace fhicl

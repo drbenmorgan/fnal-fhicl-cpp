@@ -18,7 +18,6 @@
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/tokens.h"
-#include <fstream>
 #include <string>
 #include <vector>
 

@@ -9,13 +9,13 @@
 
 #include "cetlib/canonical_number.h"
 #include "cetlib/canonical_string.h"
+#include "cpp0x/utility"  // pair
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/parse.h"
 #include <cctype>   // isdigit
 #include <cstddef>  // size_t
 #include <cstdlib>  // abs
-#include <limits>
-#include <utility>  // pair
+#include <limits>   // infinity
 
 using namespace fhicl;
 using namespace std;

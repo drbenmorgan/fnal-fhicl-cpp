@@ -8,6 +8,7 @@
 
 #include "boost/any.hpp"
 #include "fhiclcpp/ParameterSetRegistry.h"
+#include "fhiclcpp/exception.h"
 
 using namespace fhicl;
 
@@ -69,6 +70,27 @@ bool
 {
   typedef  intermediate_table::const_iterator  const_iterator;
 
+  for( const_iterator it = tbl.begin()
+                    , e  = tbl.end(); it != e; ++it ) {
+    if( ! it->second.in_prolog )
+      ps.insert(it->first, encode(it->second));
+  }
+
+  return true;
+}
+
+// ----------------------------------------------------------------------
+
+bool
+  fhicl::make_ParameterSet( extended_value const & xval
+                          , ParameterSet         & ps
+                          )
+{
+  if( ! xval.is_a(TABLE) )
+    throw fhicl::exception(type_mismatch, "extended value not a table");
+  table_t const & tbl = table_t(xval);
+
+  typedef  table_t::const_iterator  const_iterator;
   for( const_iterator it = tbl.begin()
                     , e  = tbl.end(); it != e; ++it ) {
     if( ! it->second.in_prolog )

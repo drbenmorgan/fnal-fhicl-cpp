@@ -12,6 +12,8 @@ int main()
   // parse a configuration file; obtain intermediate form
   fhicl::intermediate_table tbl;
   std::fstream in("Sample.cfg");
+  if( ! in )
+    throw "input file not found!";
   if( ! fhicl::parse_document(in, tbl) )
     throw "parse_document() failure!";
 

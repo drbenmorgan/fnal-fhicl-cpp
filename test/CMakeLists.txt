@@ -18,6 +18,7 @@ set( TEST_LIST
   table_test
   unsigned_test
   parse_value_test
+  to_string_test
   PSetTest
 )
 

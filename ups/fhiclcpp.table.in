@@ -83,6 +83,7 @@ Common:
     setupRequired(cmake)
     setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
     setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_QUAL@)
+    setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_QUAL@)
     setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@)
     setupRequired(gcc @GCC_VERSION@ )
 

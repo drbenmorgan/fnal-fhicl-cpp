@@ -1,11 +1,8 @@
 # define contents of interest:
 set( includeFiles
-  PSet.h
   ParameterSet.h
   ParameterSetID.h
-  ParameterSetParser.h
   ParameterSetRegistry.h
-  Parser.h
   exception.h
   extended_value.h
   intermediate_table.h
@@ -18,7 +15,6 @@ set( includeFiles
 set( srcFiles
   ParameterSet.cc
   ParameterSetID.cc
-  ParameterSetParser.cc
   ParameterSetRegistry.cc
   exception.cc
   extended_value.cc

@@ -51,7 +51,7 @@ endif()
 message(STATUS "Using GCC ${GCC_VERSION} " )
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( cpp0x v0_0_0 )
+find_ups_product( cpp0x v1_0_0 )
 find_ups_product( cetlib v0_1_7 )
 find_ups_boost( v1_41_0 )
 

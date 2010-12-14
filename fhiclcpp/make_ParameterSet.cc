@@ -9,6 +9,7 @@
 #include "boost/any.hpp"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/exception.h"
+#include "fhiclcpp/parse.h"
 
 using namespace fhicl;
 
@@ -67,17 +68,19 @@ bool
   fhicl::make_ParameterSet( intermediate_table const & tbl
                           , ParameterSet             & ps
                           )
+try
 {
-  typedef  intermediate_table::const_iterator  const_iterator;
-
-  for( const_iterator it = tbl.begin()
-                    , e  = tbl.end(); it != e; ++it ) {
+  typedef  intermediate_table::const_iterator  c_iter_t;
+  for( c_iter_t it = tbl.begin(), e  = tbl.end(); it != e; ++it ) {
     if( ! it->second.in_prolog )
       ps.insert(it->first, encode(it->second));
   }
-
   return true;
 }
+catch( ... )
+{
+  return false;
+}  // make_ParameterSet()
 
 // ----------------------------------------------------------------------
 
@@ -85,19 +88,44 @@ bool
   fhicl::make_ParameterSet( extended_value const & xval
                           , ParameterSet         & ps
                           )
+try
 {
   if( ! xval.is_a(TABLE) )
     throw fhicl::exception(type_mismatch, "extended value not a table");
   table_t const & tbl = table_t(xval);
 
-  typedef  table_t::const_iterator  const_iterator;
-  for( const_iterator it = tbl.begin()
-                    , e  = tbl.end(); it != e; ++it ) {
+  typedef  table_t::const_iterator  c_iter_t;
+  for( c_iter_t it = tbl.begin(), e  = tbl.end(); it != e; ++it ) {
     if( ! it->second.in_prolog )
       ps.insert(it->first, encode(it->second));
   }
-
   return true;
 }
+catch( ... )
+{
+  return false;
+}  // make_ParameterSet()
+
+// ----------------------------------------------------------------------
+
+bool
+  fhicl::make_ParameterSet( std::string const & str
+                          , ParameterSet      & ps
+                          )
+{
+  intermediate_table tbl;
+  return parse_document(str, tbl) && make_ParameterSet(tbl, ps);
+}  // make_ParameterSet()
+
+// ----------------------------------------------------------------------
+
+bool
+  fhicl::make_ParameterSet( std::istream & in
+                          , ParameterSet & ps
+                          )
+{
+  intermediate_table tbl;
+  return parse_document(in, tbl) && make_ParameterSet(tbl, ps);
+}  // make_ParameterSet()
 
 // ======================================================================

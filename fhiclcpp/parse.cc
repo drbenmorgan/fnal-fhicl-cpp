@@ -51,6 +51,15 @@ typedef  extended_value::table_t     table_t;
 
 // ----------------------------------------------------------------------
 
+static  std::string const &
+  fhicl_env_var( )
+{
+  static  std::string const  fhicl_env_var("FHICL_FILE_PATH");
+  return fhicl_env_var;
+}
+
+// ----------------------------------------------------------------------
+
 static  std::string
   canon_inf( std::string const & inf )
 {
@@ -374,7 +383,7 @@ bool
                        )
 {
   std::string str;
-  cet::include(in, str);
+  cet::include(in, fhicl_env_var(), str);
   return parse_document(str, result);
 }  // parse_document()
 

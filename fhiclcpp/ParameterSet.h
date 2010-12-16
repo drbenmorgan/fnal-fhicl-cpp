@@ -165,7 +165,7 @@ catch( std::exception const & )
 
 inline  bool
   fhicl::ParameterSet::operator == ( ParameterSet const & other ) const
-{ return id_ == other.id(); }
+{ return id() == other.id(); }
 
 inline  bool
   fhicl::ParameterSet::operator != ( ParameterSet const & other ) const

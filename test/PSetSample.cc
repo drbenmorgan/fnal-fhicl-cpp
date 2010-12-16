@@ -3,30 +3,24 @@
 #include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
 
+#include <cassert>
+#include <cstdlib>  // putenv
 #include <fstream>
-#include <iostream>
 
 
 int main()
 {
+  putenv((char*)"FHICL_FILE_PATH=./test:.");
+
   // parse a configuration file; obtain intermediate form
   fhicl::intermediate_table tbl;
   std::fstream in("Sample.cfg");
-  if( ! in )
-    throw "input file not found!";
-  if( ! fhicl::parse_document(in, tbl) )
-    throw "parse_document() failure!";
+  assert(!!in);
+  assert(fhicl::parse_document(in, tbl));
 
   // convert to ParameterSet
   fhicl::ParameterSet pset;
-  if( ! fhicl::make_ParameterSet(tbl, pset) )
-    throw "make_ParameterSet() failure!";
-
-#if 0
-  std::string s;
-  s = pset.hashString();
-  std::cout << s << "\n";
-#endif
+  assert(fhicl::make_ParameterSet(tbl, pset));
 
   assert(pset.get<int>("a") == 1);
   assert(pset.get<unsigned int>("a") == 1);

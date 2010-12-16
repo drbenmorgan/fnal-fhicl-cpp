@@ -3,32 +3,31 @@
 #include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
 
+#include <cassert>
+#include <cstdlib>  // putenv
 #include <fstream>
-#include <iostream>
 
 
 int
   main()
 {
-  std::fstream in("Sample.cfg");
-  if( ! in )
-    throw "input file not found!";
+  putenv((char*)"FHICL_FILE_PATH=./test:.");
+
+  std::ifstream in("Sample.cfg");
+  assert(!!in);
   fhicl::intermediate_table tbl1;
-  if( ! fhicl::parse_document(in, tbl1) )
-    throw "parse_document() failure!";
+  assert(fhicl::parse_document(in, tbl1));
   fhicl::ParameterSet pset1;
-  if( ! fhicl::make_ParameterSet(tbl1, pset1) )
-    throw "make_ParameterSet() failure!";
+  assert(fhicl::make_ParameterSet(tbl1, pset1));
 
   std::string str;
   str = pset1.to_string();
-  std::cerr << str << "\n";
   fhicl::intermediate_table tbl2;
-  if( ! fhicl::parse_document(str, tbl2) )
-    throw "parse_document() failure!";
+  assert(fhicl::parse_document(str, tbl2));
   fhicl::ParameterSet pset2;
-  if( ! fhicl::make_ParameterSet(tbl2, pset2) )
-    throw "make_ParameterSet() failure!";
+  assert(fhicl::make_ParameterSet(tbl2, pset2));
+
+  assert(pset1 == pset2);
 
   assert(pset2.get<int>("a") == 1);
   assert(pset2.get<unsigned int>("a") == 1);

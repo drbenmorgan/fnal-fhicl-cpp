@@ -26,7 +26,7 @@ set( ALSO_BUILD
 )
 
 set( ALSO_RUN
-  ParserTest
+  PSetSample
 )
 
 # ----------------------------------------------------------------------
@@ -45,8 +45,8 @@ configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/Sample.cfg
   COPYONLY
 )
-add_executable( ParserTest PSetSample.cc )
-target_link_libraries( ParserTest fhiclcppD )
+add_executable( PSetSample PSetSample.cc )
+target_link_libraries( PSetSample fhiclcppD )
 
 # ----------------------------------------------------------------------
 # Run tests:

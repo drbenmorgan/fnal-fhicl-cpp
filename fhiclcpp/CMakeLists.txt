@@ -15,7 +15,6 @@ set( includeFiles
 set( srcFiles
   ParameterSet.cc
   ParameterSetID.cc
-  ParameterSetRegistry.cc
   exception.cc
   extended_value.cc
   intermediate_table.cc

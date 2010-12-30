@@ -1,5 +1,5 @@
-#ifndef FHICLCPP__MAKE_PARAMETERSET_H
-#define FHICLCPP__MAKE_PARAMETERSET_H
+#ifndef FHICLCPP_MAKE_PARAMETERSET_H
+#define FHICLCPP_MAKE_PARAMETERSET_H
 
 // ======================================================================
 //
@@ -41,4 +41,4 @@ namespace fhicl {
 
 // ======================================================================
 
-#endif  // FHICLCPP__MAKE_PARAMETERSET_H
+#endif

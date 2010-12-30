@@ -1,5 +1,5 @@
-#ifndef FHICLCPP__PARSE_H
-#define FHICLCPP__PARSE_H
+#ifndef FHICLCPP_PARSE_H
+#define FHICLCPP_PARSE_H
 
 // ======================================================================
 //
@@ -34,4 +34,4 @@ namespace fhicl
 
 // ======================================================================
 
-#endif  // FHICLCPP__PARSE_H
+#endif

@@ -1,5 +1,5 @@
-#ifndef FHICLCPP__EXTENDED_VALUE_H
-#define FHICLCPP__EXTENDED_VALUE_H
+#ifndef FHICLCPP_EXTENDED_VALUE_H
+#define FHICLCPP_EXTENDED_VALUE_H
 
 // ======================================================================
 //
@@ -79,4 +79,4 @@ public:
 
 // ======================================================================
 
-#endif  // FHICLCPP__EXTENDED_VALUE_H
+#endif

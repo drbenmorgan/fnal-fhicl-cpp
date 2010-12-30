@@ -1,5 +1,5 @@
-#ifndef FHICLCPP__PARAMETERSETREGISTRY_H
-#define FHICLCPP__PARAMETERSETREGISTRY_H
+#ifndef FHICLCPP_PARAMETERSETREGISTRY_H
+#define FHICLCPP_PARAMETERSETREGISTRY_H
 
 // ======================================================================
 //
@@ -20,4 +20,4 @@ namespace fhicl {
 
 // ======================================================================
 
-#endif  // FHICLCPP__PARAMETERSETREGISTRY_H
+#endif

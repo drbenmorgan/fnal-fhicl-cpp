@@ -1,5 +1,5 @@
-#ifndef FHICLCPP__PARAMETERSETID_H
-#define FHICLCPP__PARAMETERSETID_H
+#ifndef FHICLCPP_PARAMETERSETID_H
+#define FHICLCPP_PARAMETERSETID_H
 
 // ======================================================================
 //
@@ -54,4 +54,4 @@ private:
 
 // ======================================================================
 
-#endif  // FHICLCPP__PARAMETERSETID_H
+#endif

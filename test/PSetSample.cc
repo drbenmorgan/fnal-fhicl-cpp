@@ -4,7 +4,7 @@
 #include "fhiclcpp/parse.h"
 
 #include <cassert>
-#include <cstdlib>  // putenv
+#include <cstdlib>
 #include <fstream>
 
 

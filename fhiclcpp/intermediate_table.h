@@ -1,5 +1,5 @@
-#ifndef FHICLCPP__INTERMEDIATE_TABLE_H
-#define FHICLCPP__INTERMEDIATE_TABLE_H
+#ifndef FHICLCPP_INTERMEDIATE_TABLE_H
+#define FHICLCPP_INTERMEDIATE_TABLE_H
 
 // ======================================================================
 //
@@ -73,4 +73,4 @@ private:
 
 // ======================================================================
 
-#endif  // FHICLCPP__INTERMEDIATE_TABLE_H
+#endif

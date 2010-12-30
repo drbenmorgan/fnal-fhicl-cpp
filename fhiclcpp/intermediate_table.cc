@@ -6,12 +6,12 @@
 
 #include "fhiclcpp/intermediate_table.h"
 
-#include "boost/algorithm/string.hpp"  // is_any_of, split
+#include "boost/algorithm/string.hpp"
 #include "boost/any.hpp"
-#include "cpp0x/utility"  // makepair
+#include "cpp0x/utility"
 #include "fhiclcpp/exception.h"
-#include <cctype>   // isdigit
-#include <cstdlib>  // atoi
+#include <cctype>
+#include <cstdlib>
 
 using namespace fhicl;
 

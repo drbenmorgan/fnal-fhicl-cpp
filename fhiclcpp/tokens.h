@@ -1,3 +1,6 @@
+#ifndef  FHICLCPP_TOKENS_H
+#define  FHICLCPP_TOKENS_H
+
 // ======================================================================
 //
 // tokens
@@ -7,8 +10,8 @@
 #include "boost/spirit/home/support/terminal.hpp"
 #include "boost/spirit/include/qi.hpp"
 #include "cetlib/canonical_number.h"
-#include <cctype>   // isalnum, isdigit
-#include <cstddef>  // size_t
+#include <cctype>
+#include <cstddef>
 #include <string>
 //#include <iostream>
 
@@ -161,7 +164,7 @@ namespace fhicl {
 //      #if 0
 //      std::cerr << "Nil about to parse <"
 //                << std::string(first,last) << ">\n";
-//      #endif  // 0
+//      #endif
 
 //      qi::rule<Iterator, Attribute()>
 //        Nil_rule(  qi::raw[ qi::lit("nil" ) ]
@@ -216,7 +219,7 @@ namespace fhicl {
 //      #if 0
 //      std::cerr << "Boolean about to parse <"
 //                << std::string(first,last) << ">\n";
-//      #endif  // 0
+//      #endif
 
 //      qi::rule<Iterator, Attribute()>
 //        Boolean_rule(  qi::raw[ qi::lit("true") | qi::lit("false") ]
@@ -271,7 +274,7 @@ namespace fhicl {
       #if 0
       std::cerr << "real about to parse <"
                 << std::string(first,last) << ">\n";
-      #endif  // 0
+      #endif
 
       static  std::string const allowed("0123456789.-+eE");
       Iterator it = first;
@@ -328,7 +331,7 @@ namespace fhicl {
       #if 0
       std::cerr << "uint about to parse <"
                 << std::string(first,last) << ">\n";
-      #endif  // 0
+      #endif
 
       Iterator it = first;
       while( it != last  &&  std::isdigit(*it) )
@@ -384,7 +387,7 @@ namespace fhicl {
       #if 0
       std::cerr << "ass about to parse <"
                 << std::string(first,last) << ">\n";
-      #endif  // 0
+      #endif
 
       Iterator it = first;
       while( it != last  &&  (std::isalnum(*it) || *it == '_') )
@@ -436,7 +439,7 @@ namespace fhicl {
       #if 0
       std::cerr << "dss about to parse <"
                 << std::string(first,last) << ">\n";
-      #endif  // 0
+      #endif
 
       bool all_digits = true;
       Iterator it = first;
@@ -489,7 +492,7 @@ namespace fhicl {
 //      #if 0
 //      std::cerr << "Dquoted about to parse <"
 //                << std::string(first,last) << ">\n";
-//      #endif  // 0
+//      #endif
 
 //      if( first == last )
 //        return false;
@@ -556,7 +559,7 @@ namespace fhicl {
 //      #if 0
 //      std::cerr << "Squoted about to parse <"
 //                << std::string(first,last) << ">\n";
-//      #endif  // 0
+//      #endif
 
 //      if( first == last )
 //        return false;
@@ -611,7 +614,7 @@ namespace fhicl {
 //      #if 0
 //      std::cerr << "Target about to parse <"
 //                << std::string(first,last) << ">\n";
-//      #endif  // 0
+//      #endif
 
 //      Attribute result;
 //      if( ! qi::phrase_parse(first, last, ass, skipper, result) )
@@ -680,7 +683,7 @@ namespace fhicl {
 //      #if 0
 //      std::cerr << "Ref about to parse <"
 //                << std::string(first,last) << ">\n";
-//      #endif  // 0
+//      #endif
 
 //      Attribute raw, result;
 //      if( qi::phrase_parse( first, last, qi::lit("local") | qi::lit("db"), skipper, result )
@@ -824,3 +827,5 @@ namespace boost { namespace spirit { namespace qi {
 } } }  // boost::spirit::qi
 
 // ======================================================================
+
+#endif

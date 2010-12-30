@@ -1,5 +1,5 @@
-#ifndef FHICLCPP__EXCEPTION_H
-#define FHICLCPP__EXCEPTION_H
+#ifndef FHICLCPP_EXCEPTION_H
+#define FHICLCPP_EXCEPTION_H
 
 // ======================================================================
 //
@@ -31,4 +31,4 @@ namespace fhicl {
 
 // ======================================================================
 
-#endif  // FHICLCPP__EXCEPTION_H
+#endif

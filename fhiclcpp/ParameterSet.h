@@ -1,5 +1,5 @@
-#ifndef FHICLCPP__PARAMETERSET_H
-#define FHICLCPP__PARAMETERSET_H
+#ifndef FHICLCPP_PARAMETERSET_H
+#define FHICLCPP_PARAMETERSET_H
 
 // ======================================================================
 //
@@ -320,4 +320,4 @@ typename tt::disable_if< tt::is_numeric<T>::value, void >::type
 
 // ======================================================================
 
-#endif  // FHICLCPP__PARAMETERSET_H
+#endif

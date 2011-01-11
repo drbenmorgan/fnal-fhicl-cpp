@@ -22,11 +22,22 @@ set( TEST_LIST
   PSetTest
 )
 
+set( BOOST_TEST_LIST
+  ParameterSet_t
+)
+
 set( ALSO_BUILD
+)
+
+set( BOOST_ALSO_BUILD
 )
 
 set( ALSO_RUN
   PSetSample
+)
+
+set( INPUT_FILES
+  Sample.cfg
 )
 
 # ----------------------------------------------------------------------
@@ -38,22 +49,38 @@ foreach( test ${TEST_LIST} ${ALSO_BUILD} )
 endforeach( test ${TEST_LIST} ${ALSO_BUILD} )
 
 # ----------------------------------------------------------------------
+# Build BOOST tests
+
+foreach( test ${BOOST_TEST_LIST} ${BOOST_ALSO_BUILD} )
+  add_executable( ${test} ${test}.cc )
+  # Save having to put these in all tests.
+  set_target_properties ( ${test} PROPERTIES
+    COMPILE_DEFINITIONS BOOST_TEST_MAIN
+    COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
+    )
+  target_link_libraries( ${test} fhiclcppD ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
+endforeach( test ${BOOST_TEST_LIST} )
+
+# ----------------------------------------------------------------------
 # Build tests with special requirements:
 
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/Sample.cfg
-  ${CMAKE_CURRENT_BINARY_DIR}/Sample.cfg
-  COPYONLY
-)
 add_executable( PSetSample PSetSample.cc )
 target_link_libraries( PSetSample fhiclcppD )
 
 # ----------------------------------------------------------------------
 # Run tests:
 
-foreach( test ${TEST_LIST} ${ALSO_RUN} )
+foreach( test ${TEST_LIST} ${BOOST_TEST_LIST} ${ALSO_RUN} )
   add_test( ${test} ${EXECUTABLE_OUTPUT_PATH}/${test} )
 endforeach( test ${TEST_LIST} )
+
+# ----------------------------------------------------------------------
+# Copy Configuration and other input files to the correct location
+foreach (input ${INPUT_FILES} )
+  CONFIGURE_FILE ( ${input} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY )
+endforeach (input ${INPUT_FILES} )
+
+# ======================================================================
 
 # ----------------------------------------------------------------------
 # Install example:

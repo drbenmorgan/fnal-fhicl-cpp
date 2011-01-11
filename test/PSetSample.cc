@@ -25,7 +25,7 @@ int main()
   assert(pset.get<int>("a") == 1);
   assert(pset.get<unsigned int>("a") == 1);
   assert(pset.get<int>("b") == -1);
-  assert(pset.get<unsigned int>("b", 0) == 0);
+  //  assert(pset.get<unsigned int>("b", 0) == 0);
 
   assert(pset.get<double>("c") == 0.0);
   assert(pset.get<double>("d") == 0.5);

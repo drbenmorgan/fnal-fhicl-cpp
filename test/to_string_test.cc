@@ -32,7 +32,7 @@ int
   assert(pset2.get<int>("a") == 1);
   assert(pset2.get<unsigned int>("a") == 1);
   assert(pset2.get<int>("b") == -1);
-  assert(pset2.get<unsigned int>("b", 0) == 0);
+  //  assert(pset2.get<unsigned int>("b", 0) == 0);
 
   assert(pset2.get<double>("c") == 0.0);
   assert(pset2.get<double>("d") == 0.5);

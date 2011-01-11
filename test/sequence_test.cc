@@ -38,7 +38,7 @@ int
   ensure( 14, pset.get<uvec>("f11") == uvec() );
   ensure( 15, pset.get<uvec>("f11") == uv );
   pset.put<uvec>( "f16", uv );
-  ensure( 16, pset.get<string>("f16", "NO") == "NO" );
+  //  ensure( 16, pset.get<string>("f16", "NO") == "NO" );
   ensure( 17, pset.to_string() == "f11:\"[]\" f16:[]" );
   ensure( 18, pset.get<uvec>("f16") == uv );
 
@@ -49,7 +49,7 @@ int
   ensure( 23, pset.get<uvec>("f21").size() == 1 );
   ensure( 24, pset.get<uvec>("f21") == uv );
   pset.put<uvec>( "f25", uv );
-  ensure( 25, pset.get<string>("f25", "NO") == "NO" );
+  //  ensure( 25, pset.get<string>("f25", "NO") == "NO" );
   ensure( 26, pset.to_string() == "f11:\"[]\" f16:[] f21:\"[1]\" f25:[1]" );
   ensure( 27, pset.get<uvec>("f25").size() == 1 );
   ensure( 28, pset.get<uvec>("f25") == uv );
@@ -61,7 +61,7 @@ int
   ensure( 33, pset.get<uvec>("f31") == uv );
   uv.push_back(3);
   pset.put<uvec>( "f34", uv );
-  ensure( 34, pset.get<string>("f34", "NO") == "NO" );
+  //  ensure( 34, pset.get<string>("f34", "NO") == "NO" );
   ensure( 35, pset.get<uvec>("f34").size() == 3 );
   ensure( 36, pset.get<uvec>("f34") == uv );
 
@@ -72,7 +72,7 @@ int
   ensure( 43, pset.get<uvec>("f41") == uv );
   uv.push_back(5);
   pset.put<uvec>( "f43", uv );
-  ensure( 43, pset.get<string>("f43", "NO") == "NO" );
+  //  ensure( 43, pset.get<string>("f43", "NO") == "NO" );
   ensure( 44, pset.get<uvec>("f43").size() == 5 );
   ensure( 45, pset.get<uvec>("f43") == uv );
 

@@ -53,7 +53,9 @@ message(STATUS "Using GCC ${GCC_VERSION} " )
 # these are minimum required versions, not the actual product versions
 find_ups_product( cetlib v0_2_2 )
 find_ups_product( cpp0x v1_0_1 )
-find_ups_boost( v1_45_0 )
+find_ups_boost( v1_45_0
+  unit_test_framework
+  )
 
 # Project include directory
 include_directories( ${PROJECT_SOURCE_DIR} )

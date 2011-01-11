@@ -45,6 +45,8 @@ public:
 
   // retrievers:
   template< class T >
+    bool getIfPresent( std::string const & key, T & value ) const;
+  template< class T >
     T  get( std::string const & key ) const;
   template< class T >
     T  get( std::string const & key, T const & default_value ) const;
@@ -135,15 +137,26 @@ catch( boost::bad_lexical_cast const & )
 // ----------------------------------------------------------------------
 
 template< class T >
+bool
+fhicl::ParameterSet::getIfPresent( std::string const &key,
+                                   T &value) const {
+  map_iter_t it = mapping_.find(key);
+  if( it == mapping_.end() ) {
+     return false;
+  } else {
+     decode(it->second, value);
+     return true;
+  }
+}
+
+template< class T >
   T
   fhicl::ParameterSet::get( std::string const & key ) const
 {
-  map_iter_t it = mapping_.find(key);
-  if( it == mapping_.end() )
-    throw fhicl::exception(cant_find, key);
-
   T  result;
-  decode(it->second, result);
+  if (!getIfPresent(key, result)) {
+     throw fhicl::exception(cant_find, key);
+  }  
   return result;
 }
 
@@ -151,14 +164,12 @@ template< class T >
   T
   fhicl::ParameterSet::get( std::string const & key
                           , T           const & default_value
-                          ) const
-try
-{
-  return get<T>(key);
-}
-catch( std::exception const & )
-{
-  return default_value;
+                            ) const {
+  T  result;
+  if (!getIfPresent(key, result)) {
+     return default_value;
+  }  
+  return result;
 }
 
 // ----------------------------------------------------------------------

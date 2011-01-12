@@ -7,18 +7,16 @@
 //
 // ======================================================================
 
-
 #include "cetlib/coded_exception.h"
 #include <string>
 
-
 namespace fhicl {
   enum error { cant_find
-             , cant_insert
              , cant_happen
+             , cant_insert
              , number_is_too_large
-             , type_mismatch
              , parse_error
+             , type_mismatch
              };
 
   namespace detail {

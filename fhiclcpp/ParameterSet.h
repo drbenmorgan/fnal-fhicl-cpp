@@ -32,7 +32,6 @@ class fhicl::ParameterSet
 public:
   typedef  std::string                        ps_atom_t;
   typedef  std::vector<boost::any>            ps_sequence_t;
-  //typedef  std::map<std::string, boost::any>  ps_table_t;
 
   // compiler generates default c'tor, d'tor, copy c'tor, copy assignment
 
@@ -45,7 +44,7 @@ public:
 
   // retrievers:
   template< class T >
-    bool getIfPresent( std::string const & key, T & value ) const;
+    bool get_if_present( std::string const & key, T & value ) const;
   template< class T >
     T  get( std::string const & key ) const;
   template< class T >
@@ -127,26 +126,50 @@ template< class T >
   fhicl::ParameterSet::put( std::string const & key, T const & value )
 try
 {
-  insert(key, boost::any( encode(value) ) );
+  insert(key, boost::any(encode(value)) );
 }
-catch( boost::bad_lexical_cast const & )
+catch( boost::bad_lexical_cast const & e )
 {
-  throw fhicl::exception(cant_insert, key);
+  throw fhicl::exception(cant_insert, key) << e.what();
+}
+catch( boost::bad_numeric_cast const & e )
+{
+  throw fhicl::exception(cant_insert, key) << e.what();
+}
+catch( fhicl::exception const & e )
+{
+  throw fhicl::exception(cant_insert, key, e);
+}
+catch( std::exception const & e )
+{
+  throw fhicl::exception(cant_insert, key) << e.what();
 }
 
 // ----------------------------------------------------------------------
 
 template< class T >
-bool
-fhicl::ParameterSet::getIfPresent( std::string const &key,
-                                   T &value) const {
+  bool
+  fhicl::ParameterSet::get_if_present( std::string const & key
+                                     , T                 & value
+                                     ) const
+try
+{
   map_iter_t it = mapping_.find(key);
   if( it == mapping_.end() ) {
-     return false;
-  } else {
-     decode(it->second, value);
-     return true;
+    return false;
   }
+  else {
+    decode(it->second, value);
+    return true;
+  }
+}
+catch( fhicl::exception const & e )
+{
+  throw fhicl::exception(type_mismatch, key, e);
+}
+catch( std::exception const & e )
+{
+  throw fhicl::exception(type_mismatch, e.what() );
 }
 
 template< class T >
@@ -154,33 +177,33 @@ template< class T >
   fhicl::ParameterSet::get( std::string const & key ) const
 {
   T  result;
-  if (!getIfPresent(key, result)) {
-     throw fhicl::exception(cant_find, key);
-  }  
-  return result;
+  return get_if_present(key, result) ? result
+                                     : throw fhicl::exception(cant_find, key);
 }
 
 template< class T >
   T
   fhicl::ParameterSet::get( std::string const & key
                           , T           const & default_value
-                            ) const {
+                          ) const {
   T  result;
-  if (!getIfPresent(key, result)) {
-     return default_value;
-  }  
-  return result;
+  return get_if_present(key, result) ? result
+                                     : default_value;
 }
 
 // ----------------------------------------------------------------------
 
 inline  bool
   fhicl::ParameterSet::operator == ( ParameterSet const & other ) const
-{ return id() == other.id(); }
+{
+  return id() == other.id();
+}
 
 inline  bool
   fhicl::ParameterSet::operator != ( ParameterSet const & other ) const
-{ return ! operator==(other); }
+{
+  return ! operator==(other);
+}
 
 // ----------------------------------------------------------------------
 
@@ -229,7 +252,7 @@ fhicl::ParameterSet::ps_sequence_t
   for( typename std::vector<T>::const_iterator it = value.begin()
                                              , e  = value.end()
      ; it != e; ++it ) {
-    result.push_back(boost::any(encode(*it)));
+    result.push_back( boost::any(encode(*it)) );
   }
   return result;
 }
@@ -294,7 +317,8 @@ void
 
     extended_value xval;
     if( ! parse_value(str, xval) || ! xval.is_a(SEQUENCE) )
-      throw fhicl::exception(type_mismatch, "invalid sequence string: ") << str;
+      throw fhicl::exception(type_mismatch, "invalid sequence string: ")
+        << str;
 
     sequence_t const & seq = sequence_t(xval);
     result.clear();

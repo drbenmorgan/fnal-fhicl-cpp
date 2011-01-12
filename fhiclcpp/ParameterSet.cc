@@ -23,10 +23,10 @@ using namespace std;
 using boost::any;
 using boost::any_cast;
 using boost::lexical_cast;
+using boost::numeric_cast;
 
 typedef  ParameterSet::ps_atom_t      ps_atom_t;
 typedef  ParameterSet::ps_sequence_t  ps_sequence_t;
-//typedef  ParameterSet::ps_table_t     ps_table_t;
 
 typedef  long double  ldbl;
 
@@ -81,7 +81,7 @@ string
   }
 
   else if( is_sequence(a) ) {
-    ps_sequence_t const & seq = boost::any_cast<ps_sequence_t>(a);
+    ps_sequence_t const & seq = any_cast<ps_sequence_t>(a);
     string str;
     if( ! seq.empty() ) {
       str = stringify(*seq.begin());
@@ -240,7 +240,7 @@ ps_atom_t  // floating-point
 // ----------------------------------------------------------------------
 
 void  // string without delimiting quotes
-  ParameterSet::decode( boost::any const & a, string & result ) const
+  ParameterSet::decode( any const & a, string & result ) const
 {
   if( is_table(a) )
     throw fhicl::exception(type_mismatch, "can't obtain string from table");
@@ -253,7 +253,7 @@ void  // string without delimiting quotes
 }
 
 void  // nil
-  ParameterSet::decode( boost::any const & a, void * & result ) const
+  ParameterSet::decode( any const & a, void * & result ) const
 {
   string str;
   decode(a, str);
@@ -266,7 +266,7 @@ void  // nil
 }
 
 void  // bool
-  ParameterSet::decode( boost::any const & a, bool & result ) const
+  ParameterSet::decode( any const & a, bool & result ) const
 {
   string str;
   decode(a, str);
@@ -281,14 +281,14 @@ void  // bool
 }
 
 void  // table
-  ParameterSet::decode( boost::any const & a, ParameterSet & result ) const
+  ParameterSet::decode( any const & a, ParameterSet & result ) const
 {
   ParameterSetID id = any_cast<ParameterSetID>(a);
   result = ParameterSetRegistry::get(id);
 }
 
 void  // unsigned
-  ParameterSet::decode( boost::any const & a, uintmax_t & result ) const
+  ParameterSet::decode( any const & a, uintmax_t & result ) const
 {
   string str;
   decode(a, str);
@@ -299,12 +299,12 @@ void  // unsigned
 
   typedef  extended_value::atom_t  atom_t;
   atom_t const & atom = atom_t(xval);
-  ldbl via = boost::lexical_cast<ldbl>(atom);
-  result = boost::numeric_cast<uintmax_t>(via);
+  ldbl via = lexical_cast<ldbl>(atom);
+  result = numeric_cast<uintmax_t>(via);
 }
 
 void  // signed
-  ParameterSet::decode( boost::any const & a, intmax_t & result ) const
+  ParameterSet::decode( any const & a, intmax_t & result ) const
 {
   string str;
   decode(a, str);
@@ -315,12 +315,12 @@ void  // signed
 
   typedef  extended_value::atom_t  atom_t;
   atom_t const & atom = atom_t(xval);
-  ldbl via = boost::lexical_cast<ldbl>(atom);
-  result = boost::numeric_cast<intmax_t>(via);
+  ldbl via = lexical_cast<ldbl>(atom);
+  result = numeric_cast<intmax_t>(via);
 }
 
 void  // floating-point
-  ParameterSet::decode( boost::any const & a, ldbl & result ) const
+  ParameterSet::decode( any const & a, ldbl & result ) const
 {
   string str;
   decode(a, str);
@@ -338,11 +338,11 @@ void  // floating-point
     }
   }
   else
-    result = boost::lexical_cast<ldbl>(atom);
+    result = lexical_cast<ldbl>(atom);
 }
 
 void  // complex
-  ParameterSet::decode( boost::any const & a, complex<ldbl> & result ) const
+  ParameterSet::decode( any const & a, complex<ldbl> & result ) const
 {
   string str;
   decode(a, str);

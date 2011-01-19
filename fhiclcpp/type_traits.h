@@ -1,15 +1,16 @@
+#ifndef FHICLCPP_TYPE_TRAITS_H
+#define FHICLCPP_TYPE_TRAITS_H
+
 // ======================================================================
 //
 // type traits
 //
 // ======================================================================
 
-
 #include "boost/type_traits/integral_constant.hpp"
 #include "boost/type_traits/is_floating_point.hpp"
 #include "boost/type_traits/remove_cv.hpp"
 #include <complex>
-
 
 // ======================================================================
 
@@ -34,7 +35,6 @@ namespace tt {
           >
     struct largest_type;
 }
-
 
 // ======================================================================
 
@@ -125,4 +125,6 @@ namespace tt {
   { typedef  long double  type; };
 }
 
-// ----------------------------------------------------------------------
+// ======================================================================
+
+#endif

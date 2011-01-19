@@ -3,6 +3,7 @@ set( includeFiles
   ParameterSet.h
   ParameterSetID.h
   ParameterSetRegistry.h
+  coding.h
   exception.h
   extended_value.h
   intermediate_table.h
@@ -15,6 +16,7 @@ set( includeFiles
 set( srcFiles
   ParameterSet.cc
   ParameterSetID.cc
+  coding.cc
   exception.cc
   extended_value.cc
   intermediate_table.cc

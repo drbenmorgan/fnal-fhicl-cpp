@@ -23,16 +23,6 @@ using boost::numeric_cast;
 
 // ======================================================================
 
-static inline  bool
-  is_sequence( any const & val )
-{ return val.type() == typeid(ps_sequence_t); }
-
-static inline  bool
-  is_table( any const & val )
-{ return val.type() == typeid(ParameterSetID); }
-
-// ----------------------------------------------------------------------
-
 static inline  ps_atom_t
   literal_nil( )
 {

@@ -29,6 +29,16 @@ namespace fhicl {  namespace detail {
   typedef  std::vector<boost::any>    ps_sequence_t;
   typedef  long double                ldbl;
 
+  inline  bool
+    is_sequence( boost::any const & val )
+  { return val.type() == typeid(ps_sequence_t); }
+
+  inline  bool
+    is_table( boost::any const & val )
+  { return val.type() == typeid(ParameterSetID); }
+
+// ----------------------------------------------------------------------
+
   ps_atom_t      encode( std::string     const & );  // string (w/ quotes)
   ps_atom_t      encode( void *                  );  // nil
   ps_atom_t      encode( bool                    );  // bool
@@ -52,6 +62,8 @@ namespace fhicl {  namespace detail {
   template< class T >
   typename tt::disable_if< tt::is_numeric<T>::value, std::string >::type
                  encode( T               const & );  // none of the above
+
+// ----------------------------------------------------------------------
 
   void  decode( boost::any const &, std::string        & );  // string
   void  decode( boost::any const &, void *             & );  // nil

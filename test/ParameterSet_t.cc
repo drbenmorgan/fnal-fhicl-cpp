@@ -1,10 +1,11 @@
 #define BOOST_TEST_MODULE ( ParameterSet test)
 #include "boost/test/auto_unit_test.hpp"
 
-#include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/ParameterSet.h"
-#include <string>
+#include "fhiclcpp/make_ParameterSet.h"
 #include <fstream>
+#include <string>
+#include <vector>
 
 using namespace fhicl;
 
@@ -22,6 +23,18 @@ SampleConfigFixture::SampleConfigFixture() {
 }
 
 BOOST_FIXTURE_TEST_SUITE ( sampleConfig, SampleConfigFixture )
+
+BOOST_AUTO_TEST_CASE ( Local ) {
+   fhicl::ParameterSet j;
+   j.put<int>("y", -1);
+   fhicl::ParameterSet orig(pset.get<fhicl::ParameterSet>("j"));
+   BOOST_CHECK ( j == orig );
+   BOOST_CHECK ( orig.get<int>("y") == -1 );
+
+   std::vector<std::string> const names = pset.get_keys();
+   for( int k = 0; k != names.size(); ++k )
+      BOOST_CHECK ( "x" != names[k] );
+}
 
 BOOST_AUTO_TEST_CASE ( DoubleStringMismatchDefaulted ) {
    try {

@@ -100,12 +100,18 @@ static  extended_value
 static  extended_value
   lookup( std::string               const & name
         , fhicl::intermediate_table const & tbl
+        , bool                              in_prolog
         )
 {
-  if( name.substr(0,4) == "db::" )
+  static std::string local = std::string("@local::");
+  static unsigned    sz    = local.size();
+
+  if( name.substr(0,sz) != local )
     throw fhicl::exception(fhicl::cant_find, name);
 
-  return tbl.find(name.substr(7));
+  extended_value result = tbl.find(name.substr(sz));
+  result.in_prolog = in_prolog;
+  return result;
 }
 
 static  void
@@ -244,7 +250,7 @@ template< class FwdIter, class Skip >
 
   sequence = lit('[') >> -(value % ',') >> lit(']');
   table    = lit('{')
-           >> *((name >> lit(':') >> value) [ bind(map_insert, _1, _2, _val) ]
+           >> *((name >> lit(':') >> value) [ bind(&map_insert, _1, _2, _val) ]
                )
            >> lit('}');
 
@@ -286,28 +292,33 @@ template< class FwdIter, class Skip >
            >> *( (char_('.') >> fhicl::ass)                [ _val += _1 + _2 ]
                | (char_('[') >> fhicl::uint >> char_(']')) [ _val += _1 + _2 + _3]
                );  // TODO: only some whitespace permitted
-  ref      = ((qi::string("local::") | qi::string("db::"))
-             >> name
+
+  ref      = (( qi::string("@local::") | qi::string("@db::") ) >> name
              ) [ _val = _1 + _2 ];  // TODO: no whitespace permitted
 
-  value    = ( vp.nil      [ _val = bind(xvalue, in_prolog, NIL     , _1) ]
-             | vp.boolean  [ _val = bind(xvalue, in_prolog, BOOL    , _1) ]
-             | vp.number   [ _val = bind(xvalue, in_prolog, NUMBER  , _1) ]
-             | vp.complex  [ _val = bind(xvalue, in_prolog, COMPLEX , _1) ]
-             | vp.string   [ _val = bind(xvalue, in_prolog, STRING  , _1) ]
-             | ref         [ _val = bind(lookup, _1, tbl) ]
-             | vp.sequence [ _val = bind(xvalue, in_prolog, SEQUENCE, _1) ]
-             | vp.table    [ _val = bind(xvalue, in_prolog, TABLE   , _1) ]
+
+  value    = ( vp.nil      [ _val = bind(xvalue, phx::ref(in_prolog), NIL     , _1) ]
+             | vp.boolean  [ _val = bind(xvalue, phx::ref(in_prolog), BOOL    , _1) ]
+             | vp.number   [ _val = bind(xvalue, phx::ref(in_prolog), NUMBER  , _1) ]
+             | vp.complex  [ _val = bind(xvalue, phx::ref(in_prolog), COMPLEX , _1) ]
+             | vp.string   [ _val = bind(xvalue, phx::ref(in_prolog), STRING  , _1) ]
+             | ref         [ _val = bind( &lookup
+                                        , _1
+                                        , phx::ref(tbl)
+                                        , phx::ref(in_prolog)
+                                        ) ]
+             | vp.sequence [ _val = bind(xvalue, phx::ref(in_prolog), SEQUENCE, _1) ]
+             | vp.table    [ _val = bind(xvalue, phx::ref(in_prolog), TABLE   , _1) ]
              );
 
-  prolog   = lit("BEGIN_PROLOG") [ bind(rebool, phx::ref(in_prolog), true) ]
+  prolog   = lit("BEGIN_PROLOG") [ bind(&rebool, phx::ref(in_prolog), true) ]
            >> *((name >> lit(':') >> value)
-                                 [ bind(tbl_insert, _1, _2, phx::ref(tbl)) ]
+                                 [ bind(&tbl_insert, _1, _2, phx::ref(tbl)) ]
                )
-           >> lit("END_PROLOG")  [ bind(rebool, phx::ref(in_prolog), false) ];
-  document = (*prolog)    [ bind(rebool, phx::ref(prolog_allowed), false) ]
+           >> lit("END_PROLOG")  [ bind(&rebool, phx::ref(in_prolog), false) ];
+  document = (*prolog)    [ bind(&rebool, phx::ref(prolog_allowed), false) ]
            >> *((name >> lit(':') >> value)
-                          [ bind(tbl_insert, _1, _2, phx::ref(tbl)) ]
+                          [ bind(&tbl_insert, _1, _2, phx::ref(tbl)) ]
                );
 
   name    .name("name atom");
@@ -367,7 +378,7 @@ bool
                             , p >> *whitespace
                             , whitespace
                             )
-           && begin == end;
+         && begin == end;
 
   if( b )
     result = p.tbl;

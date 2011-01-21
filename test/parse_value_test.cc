@@ -80,6 +80,7 @@ int
   ensure( 26, parse_as("-000", "0") );
   ensure( 27, parse_as("-123456" , "-123456") );
   ensure( 28, parse_as("-1234567", "-1.234567e6") );
+  ensure( 29, parse_as("1.23e-4" , "1.23e-4") );
 
   ensure( 31, parse_as("+0.0E0", "0") );
   ensure( 32, parse_as("+00.", "0") );

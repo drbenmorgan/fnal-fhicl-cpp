@@ -66,6 +66,9 @@ int
     ensure( 34, pset.get<string>("f34") == "-1.234567e+6" );
     ensure( 35, pset.to_string() == "f31:-123456 f34:-1.234567e+6" );
     ensure( 36, pset.get<dbl>("f34") == -1234567.0 );
+    pset.put<dbl>( "f37", -12.34567e-5 );
+    //ensure( 37, pset.get<string>("f37") == "-1.234567e-4" );
+    //ensure( 38, pset.to_string() == "f31:-123456 f34:-1.234567e+6 f37:-1.234567e-4" );
   }
 
   {

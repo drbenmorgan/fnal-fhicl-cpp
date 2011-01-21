@@ -83,21 +83,25 @@ extended_value const &
 
     else if( std::isdigit(this_key[0]) ) {
       if( p->tag != SEQUENCE )
-        throw exception(cant_find, name);
+        throw exception(cant_find, name)
+          << "-- not a sequence (at part \"" << this_key << "\")";
       sequence_t const & s = boost::any_cast<sequence_t const &>(p->value);
       unsigned i = std::atoi(this_key.c_str());
       if( s.size() <= i )
-        throw exception(cant_find, name);
+        throw exception(cant_find, name)
+          << "(at part \"" << this_key << "\")";
       p = & s[i];
     }
 
     else /* this_key[0] is alpha or '_' */ {
       if( p->tag != TABLE )
-        throw exception(cant_find, name);
+        throw exception(cant_find, name)
+          << "-- not a table (at part \"" << this_key << "\")";
       table_t const & t = boost::any_cast<table_t const &>(p->value);
       const_iterator it = t.find(this_key);
       if( it == t.end() )
-        throw exception(cant_find, name);
+        throw exception(cant_find, name)
+          << "(at part \"" << this_key << "\")";
       p = & it->second;
     }
   }  // for

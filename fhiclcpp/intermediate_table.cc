@@ -28,10 +28,20 @@ typedef  intermediate_table::const_iterator  const_iterator;
 extended_value &
   intermediate_table::operator [] ( std::string const & name )
 {
-  static extended_value const dummy ( true
-                                    , NIL
-                                    , std::string("nil")
-                                    );
+  static extended_value const nil_item( true
+                                       , NIL
+                                       , std::string("nil")
+                                       );
+  #if 0
+  static extended_value const empty_seq( true
+                                       , SEQUENCE
+                                       , sequence_t()
+                                       );
+  static extended_value const empty_tbl( true
+                                       , SEQUENCE
+                                       , table_t()
+                                       );
+  #endif
 
   std::vector<std::string> const & key = split(name);
   extended_value * p = & ex_val;
@@ -42,22 +52,30 @@ extended_value &
       ;
 
     else if( std::isdigit(this_key[0]) ) {
-      if( p->tag != SEQUENCE )
+      #if 0
+      if( p->is_a(NIL) )
+        *p = empty_seq;
+      #endif
+      if( ! p->is_a(SEQUENCE) )
         throw exception(cant_find, name);
       sequence_t & s = boost::any_cast<sequence_t &>(p->value);
       unsigned i = std::atoi(this_key.c_str());
       while( s.size() <= i )
-        s.push_back( dummy );
+        s.push_back( nil_item );
       p = & s[i];
     }
 
     else /* this_key[0] is alpha or '_' */ {
-      if( p->tag != TABLE )
+      #if 0
+      if( p->is_a(NIL) )
+        *p = empty_tbl;
+      #endif
+      if( ! p->is_a(TABLE) )
         throw exception(cant_find, name);
       table_t & t = boost::any_cast<table_t &>(p->value);
       iterator it = t.find(this_key);
       if( it == t.end() ) {
-        t.insert( std::make_pair(this_key, dummy) );
+        t.insert( std::make_pair(this_key, nil_item) );
         it = t.find(this_key);
       }
       p = & it->second;

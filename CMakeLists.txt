@@ -63,6 +63,11 @@ include_directories( ${PROJECT_SOURCE_DIR} )
 # Project library directory
 link_directories( $ENV{CETLIB_LIB} )
 
+#build all libraries in a single directory to enable testing
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+#build all executables in a single directory
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+
 # source code
 add_subdirectory( fhiclcpp )
 add_subdirectory( ups )

@@ -32,16 +32,23 @@ bool
   typedef  pair<string,string>  string_pair;
 
   extended_value result;
-  if( ! parse_value(input, result) )
+  string unparsed;
+  if( ! parse_value(input, result, unparsed) ) {
+    std::cerr << "Input:    " << input    << '\n'
+              << "Wanted:   " << wanted   << '\n'
+              << "Unparsed: " << unparsed << '\n'
+              ;
     return false;
+  }
 
   std::string got = result.to_string();
   if( got == wanted )
     return true;
 
-  std::cerr << "Input:  " << input  << '\n'
-            << "Wanted: " << wanted << '\n'
-            << "Got:    " << got    << '\n'
+  std::cerr << "Input:    " << input    << '\n'
+            << "Wanted:   " << wanted   << '\n'
+            << "Got:      " << got      << '\n'
+            << "Unparsed: " << unparsed << '\n'
             ;
   return false;
 }

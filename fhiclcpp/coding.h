@@ -202,9 +202,11 @@ void
     decode(a, str);
 
     extended_value xval;
-    if( ! parse_value(str, xval) || ! xval.is_a(SEQUENCE) )
-      throw fhicl::exception(type_mismatch, "invalid sequence string: ")
-        << str;
+    std::string unparsed;
+    if( ! parse_value(str, xval, unparsed) || ! xval.is_a(SEQUENCE) )
+      throw fhicl::exception(type_mismatch, "error in sequence string:\n")
+        << str
+        << "\nat or before:\n" << unparsed;
 
     sequence_t const & seq = sequence_t(xval);
     result.clear();

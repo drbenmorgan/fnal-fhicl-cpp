@@ -17,8 +17,9 @@ struct SampleConfigFixture {
 
 SampleConfigFixture::SampleConfigFixture() {
    intermediate_table tbl;
+   std::string unprocessed;
    std::ifstream cfg_in("Sample.cfg");
-   parse_document(cfg_in, tbl);
+   parse_document(cfg_in, tbl, unprocessed);
    make_ParameterSet(tbl, pset);
 }
 

@@ -6,6 +6,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <fstream>
+#include <string>
 
 
 int main()
@@ -14,9 +15,11 @@ int main()
 
   // parse a configuration file; obtain intermediate form
   fhicl::intermediate_table tbl;
+  std::string unprocessed;
   std::fstream in("Sample.cfg");
   assert(!!in);
-  assert(fhicl::parse_document(in, tbl));
+  assert(fhicl::parse_document(in, tbl, unprocessed));
+  assert(unprocessed.empty());
 
   // convert to ParameterSet
   fhicl::ParameterSet pset;

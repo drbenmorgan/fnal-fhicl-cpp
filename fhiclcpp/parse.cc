@@ -334,6 +334,7 @@ template< class FwdIter, class Skip >
 bool
   fhicl::parse_value( std::string const & s
                     , extended_value    & result
+                    , std::string       & unparsed
                     )
 {
   typedef  std::string::const_iterator  iter_t;
@@ -347,12 +348,15 @@ bool
   iter_t                     begin = s.begin();
   iter_t const               end   = s.end();
 
-  return qi::phrase_parse( begin, end
-                         , p >> *whitespace
-                         , whitespace
-                         , result
-                         )
+  bool b =  qi::phrase_parse( begin, end
+                            , p >> *whitespace
+                            , whitespace
+                            , result
+                            )
          && begin == end;
+
+  unparsed = std::string(begin,end);
+  return b;
 
 }  // parse_value()
 
@@ -361,6 +365,7 @@ bool
 bool
   fhicl::parse_document( std::string const  & s
                        , intermediate_table & result
+                       , std::string        & unparsed
                        )
 {
   typedef  std::string::const_iterator  iter_t;
@@ -377,10 +382,10 @@ bool
   bool b =  qi::phrase_parse( begin, end
                             , p >> *whitespace
                             , whitespace
-                            )
-         && begin == end;
+                            );
 
-  if( b )
+  unparsed = std::string(begin,end);
+  if( b && unparsed.empty() )
     result = p.tbl;
   return b;
 
@@ -391,11 +396,12 @@ bool
 bool
   fhicl::parse_document( std::istream       & in
                        , intermediate_table & result
+                       , std::string        & unparsed
                        )
 {
   std::string str;
   cet::include(in, fhicl_env_var(), str);
-  return parse_document(str, result);
+  return parse_document(str, result, unparsed);
 }  // parse_document()
 
 // ======================================================================

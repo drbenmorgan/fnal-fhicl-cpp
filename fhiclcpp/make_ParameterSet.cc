@@ -114,7 +114,9 @@ bool
                           )
 {
   intermediate_table tbl;
-  return parse_document(str, tbl) && make_ParameterSet(tbl, ps);
+  std::string unprocessed;
+  return parse_document(str, tbl, unprocessed)
+      && make_ParameterSet(tbl, ps);
 }  // make_ParameterSet()
 
 // ----------------------------------------------------------------------
@@ -125,7 +127,9 @@ bool
                           )
 {
   intermediate_table tbl;
-  return parse_document(in, tbl) && make_ParameterSet(tbl, ps);
+  std::string unprocessed;
+  return parse_document(in, tbl, unprocessed)
+      && make_ParameterSet(tbl, ps);
 }  // make_ParameterSet()
 
 // ======================================================================

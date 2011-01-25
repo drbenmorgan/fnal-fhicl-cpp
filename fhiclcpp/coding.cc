@@ -63,8 +63,11 @@ ps_atom_t  // string (with quotes)
                                   :  '\'' + value + '\'';
 
   extended_value xval;
-  if( ! parse_value(str, xval) || ! xval.is_a(STRING) )
-    throw fhicl::exception(type_mismatch, "invalid input string: ") << value;
+  std::string unparsed;
+  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(STRING) )
+    throw fhicl::exception(type_mismatch, "error in input string:\n")
+      << str
+      << "\nat or before:\n" << unparsed;
 
   return extended_value::atom_t(xval);
 }
@@ -145,8 +148,11 @@ void  // nil
   decode(a, str);
 
   extended_value xval;
-  if( ! parse_value(str, xval) || ! xval.is_a(NIL) )
-    throw fhicl::exception(type_mismatch, "invalid nil string: ") << str;
+  std::string unparsed;
+  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(NIL) )
+    throw fhicl::exception(type_mismatch, "error in nil string:\n")
+      << str
+      << "\nat or before:\n" << unparsed;
 
   result = 0;
 }
@@ -158,8 +164,11 @@ void  // bool
   decode(a, str);
 
   extended_value xval;
-  if( ! parse_value(str, xval) || ! xval.is_a(BOOL) )
-    throw fhicl::exception(type_mismatch, "invalid bool string: ") << str;
+  std::string unparsed;
+  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(BOOL) )
+    throw fhicl::exception(type_mismatch, "error in bool string:\n")
+      << str
+      << "\nat or before:\n" << unparsed;
 
   typedef  extended_value::atom_t  atom_t;
   atom_t const & atom = atom_t(xval);
@@ -180,8 +189,11 @@ void  // unsigned
   decode(a, str);
 
   extended_value xval;
-  if( ! parse_value(str, xval) || ! xval.is_a(NUMBER) )
-    throw fhicl::exception(type_mismatch, "invalid unsigned string: ") << str;
+  std::string unparsed;
+  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(NUMBER) )
+    throw fhicl::exception(type_mismatch, "error in unsigned string:\n")
+      << str
+      << "\nat or before:\n" << unparsed;
 
   typedef  extended_value::atom_t  atom_t;
   atom_t const & atom = atom_t(xval);
@@ -196,8 +208,11 @@ void  // signed
   decode(a, str);
 
   extended_value xval;
-  if( ! parse_value(str, xval) || ! xval.is_a(NUMBER) )
-    throw fhicl::exception(type_mismatch, "invalid signed string: ") << str;
+  std::string unparsed;
+  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(NUMBER) )
+    throw fhicl::exception(type_mismatch, "error in signed string:\n")
+      << str
+      << "\nat or before:\n" << unparsed;
 
   typedef  extended_value::atom_t  atom_t;
   atom_t const & atom = atom_t(xval);
@@ -212,8 +227,11 @@ void  // floating-point
   decode(a, str);
 
   extended_value xval;
-  if( ! parse_value(str, xval) || ! xval.is_a(NUMBER) )
-    throw fhicl::exception(type_mismatch, "invalid float string: ") << str;
+  std::string unparsed;
+  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(NUMBER) )
+    throw fhicl::exception(type_mismatch, "error in float string:\n")
+      << str
+      << "\nat or before:\n" << unparsed;
 
   typedef  extended_value::atom_t  atom_t;
   atom_t const & atom = atom_t(xval);
@@ -234,8 +252,11 @@ void  // complex
   decode(a, str);
 
   extended_value xval;
-  if( ! parse_value(str, xval) || ! xval.is_a(COMPLEX) )
-    throw fhicl::exception(type_mismatch, "invalid complex string: ") << str;
+  std::string unparsed;
+  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(COMPLEX) )
+    throw fhicl::exception(type_mismatch, "error in complex string:\n")
+      << str
+      << "\nat or before:\n" << unparsed;
 
   typedef  extended_value::complex_t  complex_t;
   complex_t const & cmplx = complex_t(xval);

@@ -18,16 +18,19 @@ namespace fhicl
   bool
     parse_value( std::string const & s
                , extended_value    & v
+               , std::string       & unparsed
                );
 
   bool
     parse_document( std::string const  & s
                   , intermediate_table & result
+                  , std::string        & unparsed
                   );
 
   bool
     parse_document( std::istream       & in
                   , intermediate_table & result
+                  , std::string        & unparsed
                   );
 
 }  // namespace fhicl

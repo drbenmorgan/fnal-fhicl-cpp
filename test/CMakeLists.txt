@@ -1,13 +1,22 @@
 # ======================================================================
 #
-# Testing script
+# Testing
 #
 # ======================================================================
 
-# ----------------------------------------------------------------------
-# Identify tests:
+# ======================================================================
+# Part 1: Categorize each source or data file
+# ======================================================================
 
-set( TEST_LIST
+# ----------------------------------------------------------------------
+# Identify libraries to be linked:
+
+link_libraries( fhiclcppD )
+
+# ----------------------------------------------------------------------
+# Identify each test's build requirements:
+
+set( BUILD              # compile and link with above
   bool_test
   complex_test
   float_test
@@ -22,64 +31,106 @@ set( TEST_LIST
   PSetTest
 )
 
-set( BOOST_TEST_LIST
+set( BUILD_BOOST        # compile and link with BOOST_TEST library, too
   ParameterSet_t
 )
 
-set( ALSO_BUILD
-)
-
-set( BOOST_ALSO_BUILD
-)
-
-set( ALSO_RUN
+set( HANDBUILT          # use target-specific build rules, found below
   PSetSample
 )
 
-set( INPUT_FILES
+set( PREBUILT           # no build required
+  fhicl-expand_test.sh
+)
+
+# ----------------------------------------------------------------------
+# Identify data files needed to run the above tests:
+
+set( DATAFILE           # install only
   Sample.cfg
 )
 
 # ----------------------------------------------------------------------
-# Build most tests:
+# Identify tests not to be run automatically:
 
-foreach( test ${TEST_LIST} ${ALSO_BUILD} )
-  add_executable( ${test} ${test}.cc )
-  target_link_libraries( ${test} fhiclcppD )
-endforeach( test ${TEST_LIST} ${ALSO_BUILD} )
+set( HANDRUN            # use target-specific run rules, found below
+)
+
+# ======================================================================
+# Part 2: Provide build instructions
+# ======================================================================
 
 # ----------------------------------------------------------------------
-# Build BOOST tests
+# BUILD:
 
-foreach( test ${BOOST_TEST_LIST} ${BOOST_ALSO_BUILD} )
+foreach( test ${BUILD} )
   add_executable( ${test} ${test}.cc )
-  # Save having to put these in all tests.
+endforeach( test )
+
+# ----------------------------------------------------------------------
+# BUILD_BOOST:
+
+foreach( test ${BUILD_BOOST} )
+  add_executable( ${test} ${test}.cc )
   set_target_properties ( ${test} PROPERTIES
     COMPILE_DEFINITIONS BOOST_TEST_MAIN
     COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
-    )
-  target_link_libraries( ${test} fhiclcppD ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
-endforeach( test ${BOOST_TEST_LIST} )
+  )
+  target_link_libraries( ${test} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
+endforeach( test )
 
 # ----------------------------------------------------------------------
-# Build tests with special requirements:
+# HANDBUILT:
 
+# add_executable( ... )
+# target_link_libraries( ... )
 add_executable( PSetSample PSetSample.cc )
 target_link_libraries( PSetSample fhiclcppD )
 
 # ----------------------------------------------------------------------
-# Run tests:
+# PREBUILT:
 
-foreach( test ${TEST_LIST} ${BOOST_TEST_LIST} ${ALSO_RUN} )
-  add_test( ${test} ${EXECUTABLE_OUTPUT_PATH}/${test} )
-endforeach( test ${TEST_LIST} )
+foreach( test ${PREBUILT} )
+  add_custom_target( ${test}_copy ALL
+    COMMAND ${CMAKE_COMMAND} -E
+      copy ${CMAKE_CURRENT_SOURCE_DIR}/${test}
+           ${EXECUTABLE_OUTPUT_PATH}/
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${test}
+  )
+endforeach( test )
 
 # ----------------------------------------------------------------------
-# Copy Configuration and other input files to the correct location
-foreach (input ${INPUT_FILES} )
-  CONFIGURE_FILE ( ${input} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY )
-endforeach (input ${INPUT_FILES} )
+# DATAFILE:
 
+foreach( input ${DATAFILE} )
+  add_custom_target( ${input}_copy ALL
+    COMMAND ${CMAKE_COMMAND} -E
+      copy ${CMAKE_CURRENT_SOURCE_DIR}/${input}
+           ${CMAKE_CURRENT_BINARY_DIR}/
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${input}
+  )
+endforeach( input )
+
+# ======================================================================
+# Part 3: Run tests
+# ======================================================================
+
+# ----------------------------------------------------------------------
+# Run each test not excepted in Part 1:
+
+set( TESTS_TO_RUN ${BUILD} ${BUILD_BOOST} ${HANDBUILT} ${PREBUILT} )
+list( REMOVE_ITEM TESTS_TO_RUN {$HANDRUN} )
+foreach( test ${TESTS_TO_RUN} )
+  add_test( ${test} ${EXECUTABLE_OUTPUT_PATH}/${test} )
+endforeach( test )
+
+# ----------------------------------------------------------------------
+# HANDRUN:
+
+# ...
+
+# ======================================================================
+# Part 4: Other custom commands
 # ======================================================================
 
 # ----------------------------------------------------------------------

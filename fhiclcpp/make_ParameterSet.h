@@ -17,22 +17,22 @@
 
 namespace fhicl {
 
-  bool
+  void
     make_ParameterSet( intermediate_table const & tbl
                      , ParameterSet             & ps
                      );
 
-  bool
+  void
     make_ParameterSet( extended_value const & xval
                      , ParameterSet         & ps
                      );
 
-  bool
+  void
     make_ParameterSet( std::string const & str
                      , ParameterSet      & ps
                      );
 
-  bool
+  void
     make_ParameterSet( std::istream & str
                      , ParameterSet & ps
                      );

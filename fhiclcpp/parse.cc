@@ -31,6 +31,7 @@ using ascii::graph;
 using ascii::space;
 
 using phx::bind;
+using phx::ref;
 
 using qi::_1;
 using qi::_2;
@@ -98,20 +99,24 @@ static  extended_value
 }
 
 static  extended_value
-  lookup( std::string               const & name
-        , fhicl::intermediate_table const & tbl
-        , bool                              in_prolog
-        )
+  local_lookup( std::string               const & name
+              , fhicl::intermediate_table const & tbl
+              , bool                              in_prolog
+              )
 {
-  static std::string local = std::string("@local::");
-  static unsigned    sz    = local.size();
-
-  if( name.substr(0,sz) != local )
-    throw fhicl::exception(fhicl::cant_find, name);
-
-  extended_value result = tbl.find(name.substr(sz));
+  extended_value result = tbl.find(name);
   result.in_prolog = in_prolog;
   return result;
+}
+
+static  extended_value
+  database_lookup( std::string               const & name
+                 , fhicl::intermediate_table const & tbl
+                 , bool                              in_prolog
+                 )
+{
+  throw fhicl::exception(fhicl::unimplemented, name)
+    << "@db:: database lookup not yet available; sorry.";
 }
 
 static  void
@@ -199,7 +204,7 @@ template< class FwdIter, class Skip >
   intermediate_table  tbl;
   value_parser        vp;
   // parser rules:
-  atom_token     name, ref;
+  atom_token     name, localref, dbref;
   value_token    value;
   nothing_token  prolog, document;
 
@@ -293,36 +298,39 @@ template< class FwdIter, class Skip >
                | (char_('[') >> fhicl::uint >> char_(']')) [ _val += _1 + _2 + _3]
                );  // TODO: only some whitespace permitted
 
-  ref      = (( qi::string("@local::") | qi::string("@db::") ) >> name
-             ) [ _val = _1 + _2 ];  // TODO: no whitespace permitted
+  // TODO: no whitespace permitted
+  localref = lit("@local::") >> name [ _val = _1 ];
+  dbref    = lit("@db::"   ) >> name [ _val = _1 ];
 
 
-  value    = ( vp.nil      [ _val = bind(xvalue, phx::ref(in_prolog), NIL     , _1) ]
-             | vp.boolean  [ _val = bind(xvalue, phx::ref(in_prolog), BOOL    , _1) ]
-             | vp.number   [ _val = bind(xvalue, phx::ref(in_prolog), NUMBER  , _1) ]
-             | vp.complex  [ _val = bind(xvalue, phx::ref(in_prolog), COMPLEX , _1) ]
-             | vp.string   [ _val = bind(xvalue, phx::ref(in_prolog), STRING  , _1) ]
-             | ref         [ _val = bind( &lookup
-                                        , _1
-                                        , phx::ref(tbl)
-                                        , phx::ref(in_prolog)
+  value    = ( vp.nil      [ _val = bind(xvalue, ref(in_prolog), NIL     , _1) ]
+             | vp.boolean  [ _val = bind(xvalue, ref(in_prolog), BOOL    , _1) ]
+             | vp.number   [ _val = bind(xvalue, ref(in_prolog), NUMBER  , _1) ]
+             | vp.complex  [ _val = bind(xvalue, ref(in_prolog), COMPLEX , _1) ]
+             | vp.string   [ _val = bind(xvalue, ref(in_prolog), STRING  , _1) ]
+             | localref    [ _val = bind( &local_lookup
+                                        , _1, ref(tbl), ref(in_prolog)
                                         ) ]
-             | vp.sequence [ _val = bind(xvalue, phx::ref(in_prolog), SEQUENCE, _1) ]
-             | vp.table    [ _val = bind(xvalue, phx::ref(in_prolog), TABLE   , _1) ]
+             | dbref       [ _val = bind( &database_lookup
+                                        , _1, ref(tbl), ref(in_prolog)
+                                        ) ]
+             | vp.sequence [ _val = bind(xvalue, ref(in_prolog), SEQUENCE, _1) ]
+             | vp.table    [ _val = bind(xvalue, ref(in_prolog), TABLE   , _1) ]
              );
 
-  prolog   = lit("BEGIN_PROLOG") [ bind(&rebool, phx::ref(in_prolog), true) ]
+  prolog   = lit("BEGIN_PROLOG") [ bind(&rebool, ref(in_prolog), true) ]
            >> *((name >> lit(':') >> value)
-                                 [ bind(&tbl_insert, _1, _2, phx::ref(tbl)) ]
+                                 [ bind(&tbl_insert, _1, _2, ref(tbl)) ]
                )
-           >> lit("END_PROLOG")  [ bind(&rebool, phx::ref(in_prolog), false) ];
-  document = (*prolog)    [ bind(&rebool, phx::ref(prolog_allowed), false) ]
+           >> lit("END_PROLOG")  [ bind(&rebool, ref(in_prolog), false) ];
+  document = (*prolog)    [ bind(&rebool, ref(prolog_allowed), false) ]
            >> *((name >> lit(':') >> value)
-                          [ bind(&tbl_insert, _1, _2, phx::ref(tbl)) ]
+                          [ bind(&tbl_insert, _1, _2, ref(tbl)) ]
                );
 
   name    .name("name atom");
-  ref     .name("ref atom");
+  localref.name("localref atom");
+  dbref   .name("dbref atom");
   value   .name("value");
   prolog  .name("prolog");
   document.name("document");
@@ -362,10 +370,9 @@ bool
 
 // ----------------------------------------------------------------------
 
-bool
+void
   fhicl::parse_document( std::string const  & s
                        , intermediate_table & result
-                       , std::string        & unparsed
                        )
 {
   typedef  std::string::const_iterator  iter_t;
@@ -384,24 +391,25 @@ bool
                             , whitespace
                             );
 
-  unparsed = std::string(begin,end);
+  std::string unparsed(begin, end);
   if( b && unparsed.empty() )
     result = p.tbl;
-  return b;
+  else
+    throw fhicl::exception(fhicl::parse_error, "in document")
+      << "\nat or before:\n" << unparsed;
 
 }  // parse_document()
 
 // ----------------------------------------------------------------------
 
-bool
+void
   fhicl::parse_document( std::istream       & in
                        , intermediate_table & result
-                       , std::string        & unparsed
                        )
 {
   std::string str;
   cet::include(in, fhicl_env_var(), str);
-  return parse_document(str, result, unparsed);
+  parse_document(str, result);
 }  // parse_document()
 
 // ======================================================================

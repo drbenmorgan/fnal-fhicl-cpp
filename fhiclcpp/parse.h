@@ -21,16 +21,14 @@ namespace fhicl
                , std::string       & unparsed
                );
 
-  bool
+  void
     parse_document( std::string const  & s
                   , intermediate_table & result
-                  , std::string        & unparsed
                   );
 
-  bool
+  void
     parse_document( std::istream       & in
                   , intermediate_table & result
-                  , std::string        & unparsed
                   );
 
 }  // namespace fhicl

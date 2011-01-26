@@ -30,8 +30,6 @@ install( FILES ${includeFiles}
 )
 
 # install a copy of all source code:
-#file( GLOB hFiles *.h )
-#file( GLOB ccFiles *.cc )
 install( FILES ${includeFiles} ${srcFiles}
          DESTINATION ${product}/${version}/source/fhiclcpp
 )
@@ -54,4 +52,11 @@ install( TARGETS fhiclcppD fhiclcpp
          RUNTIME DESTINATION ${flavorqual_dir}/bin
          LIBRARY DESTINATION ${flavorqual_dir}/lib
          ARCHIVE DESTINATION ${flavorqual_dir}/lib
+)
+
+# Build and install executables:
+add_executable( fhicl-expand fhicl-expand.cc )
+target_link_libraries( fhicl-expand cetlib )
+install( TARGETS fhicl-expand
+         DESTINATION ${flavorqual_dir}/bin
 )

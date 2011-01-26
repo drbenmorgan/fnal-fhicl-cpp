@@ -64,31 +64,24 @@ static  boost::any
 
 // ----------------------------------------------------------------------
 
-bool
+void
   fhicl::make_ParameterSet( intermediate_table const & tbl
                           , ParameterSet             & ps
                           )
-try
 {
   typedef  intermediate_table::const_iterator  c_iter_t;
   for( c_iter_t it = tbl.begin(), e  = tbl.end(); it != e; ++it ) {
     if( ! it->second.in_prolog )
       ps.insert(it->first, encode(it->second));
   }
-  return true;
-}
-catch( ... )
-{
-  return false;
 }  // make_ParameterSet()
 
 // ----------------------------------------------------------------------
 
-bool
+void
   fhicl::make_ParameterSet( extended_value const & xval
                           , ParameterSet         & ps
                           )
-try
 {
   if( ! xval.is_a(TABLE) )
     throw fhicl::exception(type_mismatch, "extended value not a table");
@@ -99,37 +92,28 @@ try
     if( ! it->second.in_prolog )
       ps.insert(it->first, encode(it->second));
   }
-  return true;
-}
-catch( ... )
-{
-  return false;
 }  // make_ParameterSet()
 
 // ----------------------------------------------------------------------
 
-bool
+void
   fhicl::make_ParameterSet( std::string const & str
                           , ParameterSet      & ps
                           )
 {
   intermediate_table tbl;
-  std::string unprocessed;
-  return parse_document(str, tbl, unprocessed)
-      && make_ParameterSet(tbl, ps);
+  parse_document(str, tbl), make_ParameterSet(tbl, ps);
 }  // make_ParameterSet()
 
 // ----------------------------------------------------------------------
 
-bool
+void
   fhicl::make_ParameterSet( std::istream & in
                           , ParameterSet & ps
                           )
 {
   intermediate_table tbl;
-  std::string unprocessed;
-  return parse_document(in, tbl, unprocessed)
-      && make_ParameterSet(tbl, ps);
+  parse_document(in, tbl), make_ParameterSet(tbl, ps);
 }  // make_ParameterSet()
 
 // ======================================================================

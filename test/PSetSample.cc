@@ -15,15 +15,13 @@ int main()
 
   // parse a configuration file; obtain intermediate form
   fhicl::intermediate_table tbl;
-  std::string unprocessed;
   std::fstream in("Sample.cfg");
   assert(!!in);
-  assert(fhicl::parse_document(in, tbl, unprocessed));
-  assert(unprocessed.empty());
+  fhicl::parse_document(in, tbl);
 
   // convert to ParameterSet
   fhicl::ParameterSet pset;
-  assert(fhicl::make_ParameterSet(tbl, pset));
+  fhicl::make_ParameterSet(tbl, pset);
 
   assert(pset.get<int>("a") == 1);
   assert(pset.get<unsigned int>("a") == 1);

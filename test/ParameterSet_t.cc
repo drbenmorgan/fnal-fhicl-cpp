@@ -36,6 +36,15 @@ BOOST_AUTO_TEST_CASE ( Local ) {
       BOOST_CHECK ( "x" != names[k] );
 }
 
+BOOST_AUTO_TEST_CASE ( DeepInjection ) {
+   fhicl::ParameterSet l; l.put<int>("zz", -2);
+   fhicl::ParameterSet k; k.put<fhicl::ParameterSet>("l", l);
+   fhicl::ParameterSet orig(pset.get<fhicl::ParameterSet>("k"));
+   BOOST_CHECK ( k == orig );
+   BOOST_CHECK ( orig.get<fhicl::ParameterSet>("l")
+                     .get<int>("zz") == -2 );
+}
+
 BOOST_AUTO_TEST_CASE ( DoubleStringMismatchDefaulted ) {
    try {
       pset.get<double>("e", 2.0);

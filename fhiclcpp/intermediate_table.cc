@@ -25,24 +25,32 @@ typedef  intermediate_table::const_iterator  const_iterator;
 
 // ----------------------------------------------------------------------
 
+static extended_value const &
+  nil_item( )
+{
+  static extended_value const nil_item(false, NIL, std::string("nil"));
+  return nil_item;
+}
+
+static extended_value const &
+  empty_seq( )
+{
+  static extended_value const empty_seq(false, SEQUENCE, sequence_t());
+  return empty_seq;
+}
+
+static extended_value const &
+  empty_tbl( )
+{
+  static extended_value const empty_tbl(false, TABLE, table_t());
+  return empty_tbl;
+}
+
+// ----------------------------------------------------------------------
+
 extended_value &
   intermediate_table::operator [] ( std::string const & name )
 {
-  static extended_value const nil_item( true
-                                       , NIL
-                                       , std::string("nil")
-                                       );
-  #if 0
-  static extended_value const empty_seq( true
-                                       , SEQUENCE
-                                       , sequence_t()
-                                       );
-  static extended_value const empty_tbl( true
-                                       , SEQUENCE
-                                       , table_t()
-                                       );
-  #endif
-
   std::vector<std::string> const & key = split(name);
   extended_value * p = & ex_val;
 
@@ -52,30 +60,28 @@ extended_value &
       ;
 
     else if( std::isdigit(this_key[0]) ) {
-      #if 0
       if( p->is_a(NIL) )
-        *p = empty_seq;
-      #endif
+        *p = empty_seq();
       if( ! p->is_a(SEQUENCE) )
-        throw exception(cant_find, name);
+        throw exception(cant_find, name)
+          << "-- not a sequence (at part \"" << this_key << "\")";
       sequence_t & s = boost::any_cast<sequence_t &>(p->value);
       unsigned i = std::atoi(this_key.c_str());
       while( s.size() <= i )
-        s.push_back( nil_item );
+        s.push_back( nil_item() );
       p = & s[i];
     }
 
     else /* this_key[0] is alpha or '_' */ {
-      #if 0
       if( p->is_a(NIL) )
-        *p = empty_tbl;
-      #endif
+        *p = empty_tbl();
       if( ! p->is_a(TABLE) )
-        throw exception(cant_find, name);
+        throw exception(cant_find, name)
+          << "-- not a table (at part \"" << this_key << "\")";
       table_t & t = boost::any_cast<table_t &>(p->value);
       iterator it = t.find(this_key);
       if( it == t.end() ) {
-        t.insert( std::make_pair(this_key, nil_item) );
+        t.insert( std::make_pair(this_key, nil_item()) );
         it = t.find(this_key);
       }
       p = & it->second;

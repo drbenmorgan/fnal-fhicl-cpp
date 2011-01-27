@@ -27,10 +27,8 @@ namespace fhicl {
 
 // ----------------------------------------------------------------------
 
-struct fhicl::extended_value
+class fhicl::extended_value
 {
-  friend  class fhicl::intermediate_table;
-
 public:
   typedef  std::string                            atom_t;
   typedef  std::pair<std::string, std::string>    complex_t;

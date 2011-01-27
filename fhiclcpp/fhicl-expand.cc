@@ -5,6 +5,7 @@
 //
 // ======================================================================
 
+#include "cetlib/exception.h"
 #include "cetlib/include.h"
 #include <fstream>
 #include <iostream>
@@ -28,14 +29,16 @@ bool
 
 int
   do_including( std::istream & from, std::ostream & to )
+try
 {
   std::string result;
-  if( ! cet::include(from, fhicl_env_var(), result) )
-    return 1;
-
+  cet::include(from, fhicl_env_var(), result);
   to << result;
   return 0;
-
+}
+catch( cet::exception const & e )
+{
+  return 1;
 }  // do_including()
 
 // ----------------------------------------------------------------------

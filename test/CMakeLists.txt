@@ -54,6 +54,7 @@ set( DATAFILE           # install only
 # Identify tests not to be run automatically:
 
 set( HANDRUN            # use target-specific run rules, found below
+  fhicl-expand_test.sh
 )
 
 # ======================================================================
@@ -127,7 +128,10 @@ endforeach( test )
 # ----------------------------------------------------------------------
 # HANDRUN:
 
-# ...
+add_test( fhicl-expand_test.sh
+          ${EXECUTABLE_OUTPUT_PATH}/fhicl-expand_test.sh
+          ${EXECUTABLE_OUTPUT_PATH}
+)
 
 # ======================================================================
 # Part 4: Other custom commands

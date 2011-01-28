@@ -1,9 +1,11 @@
 #!/bin/bash
 
+EXEC_DIR=${1:-.}
+
 OUTPUT_FILE=/tmp/out.txt
 
 rm -rf ${OUTPUT_FILE}
-fhicl-expand > ${OUTPUT_FILE} <<EOF
+${EXEC_DIR}/fhicl-expand > ${OUTPUT_FILE} <<EOF
 EOF
 STATUS=$?
 [[ ${STATUS}           ]] || exit ${STATUS}
@@ -11,7 +13,7 @@ STATUS=$?
 [[ ! -s ${OUTPUT_FILE} ]] || exit 12
 
 rm -rf ${OUTPUT_FILE}
-fhicl-expand - > ${OUTPUT_FILE} <<EOF
+${EXEC_DIR}/fhicl-expand - > ${OUTPUT_FILE} <<EOF
 hello
 EOF
 STATUS=$?
@@ -20,7 +22,7 @@ STATUS=$?
 [[ -s ${OUTPUT_FILE} ]] || exit 22
 
 rm -rf ${OUTPUT_FILE}
-fhicl-expand a b c > ${OUTPUT_FILE}
+${EXEC_DIR}/fhicl-expand a b c > ${OUTPUT_FILE}
 STATUS=$?
 [[ ${STATUS} == 3 ]] || exit ${STATUS}
 
@@ -39,7 +41,7 @@ cat - > ${F3} <<EOF
 hello
 there
 EOF
-fhicl-expand ${F2} > ${OUTPUT_FILE}
+${EXEC_DIR}/fhicl-expand ${F2} > ${OUTPUT_FILE}
 STATUS=$?
 [[ ${STATUS}          ]] || exit ${STATUS}
 cmp ${F3} ${OUTPUT_FILE} || exit 31

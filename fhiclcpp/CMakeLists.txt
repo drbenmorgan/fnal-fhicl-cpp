@@ -56,7 +56,7 @@ install( TARGETS fhiclcppD fhiclcpp
 
 # Build and install executables:
 add_executable( fhicl-expand fhicl-expand.cc )
-target_link_libraries( fhicl-expand cetlib )
+target_link_libraries( fhicl-expand cetlib ${Boost_PROGRAM_OPTIONS_LIBRARY} )
 install( TARGETS fhicl-expand
          DESTINATION ${flavorqual_dir}/bin
 )

@@ -56,6 +56,7 @@ find_ups_product( cetlib v0_3_0 )
 find_ups_product( cpp0x v1_0_1 )
 find_ups_boost( v1_45_0
   unit_test_framework
+  program_options
   )
 
 # Project include directory

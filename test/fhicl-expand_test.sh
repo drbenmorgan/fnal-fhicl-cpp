@@ -1,11 +1,15 @@
 #!/bin/bash
 
-EXEC_DIR=${1:-.}
+WORKDIR=`mktemp -d ${TMPDIR:-/tmp}/fhicl-expand_test.XXXXXXXXXX`
+[[ -n "$WORKDIR" ]] && [[ -d "$WORKDIR" ]] || [[ -w "$WORKDIR" ]] || exit 1
 
-OUTPUT_FILE=/tmp/out.txt
+# Clean up if we're not debugging.
+[[ -z "$DEBUG" ]] && trap "[[ -d \"$WORKDIR\" ]] && rm -rf \"$WORKDIR\"" EXIT
+
+OUTPUT_FILE=${WORKDIR}/out.txt
 
 rm -rf ${OUTPUT_FILE}
-${EXEC_DIR}/fhicl-expand > ${OUTPUT_FILE} <<EOF
+fhicl-expand > ${OUTPUT_FILE} <<EOF
 EOF
 STATUS=$?
 [[ ${STATUS}           ]] || exit ${STATUS}
@@ -13,7 +17,7 @@ STATUS=$?
 [[ ! -s ${OUTPUT_FILE} ]] || exit 12
 
 rm -rf ${OUTPUT_FILE}
-${EXEC_DIR}/fhicl-expand - > ${OUTPUT_FILE} <<EOF
+fhicl-expand - > ${OUTPUT_FILE} <<EOF
 hello
 EOF
 STATUS=$?
@@ -22,14 +26,15 @@ STATUS=$?
 [[ -s ${OUTPUT_FILE} ]] || exit 22
 
 rm -rf ${OUTPUT_FILE}
-${EXEC_DIR}/fhicl-expand a b c > ${OUTPUT_FILE}
+fhicl-expand a b c > ${OUTPUT_FILE}
 STATUS=$?
 [[ ${STATUS} == 3 ]] || exit ${STATUS}
 
 rm -rf ${OUTPUT_FILE}
-F1=/tmp/F1.txt
-F2=/tmp/F2.txt
-F3=/tmp/F3.txt
+F1=${WORKDIR}/F1.txt
+F2=${WORKDIR}/F2.txt
+F3=${WORKDIR}/F3.txt
+FEXPECTED=${WORKDIR}/expected.txt
 cat - > ${F1} <<EOF
 hello
 EOF
@@ -38,13 +43,19 @@ cat - > ${F2} <<EOF
 there
 EOF
 cat - > ${F3} <<EOF
+#include "${F2}"
+moo
+oink
+EOF
+cat - > ${FEXPECTED} <<EOF
 hello
 there
+moo
+oink
 EOF
-${EXEC_DIR}/fhicl-expand ${F2} > ${OUTPUT_FILE}
+fhicl-expand ${F3} > ${OUTPUT_FILE}
 STATUS=$?
 [[ ${STATUS}          ]] || exit ${STATUS}
-cmp ${F3} ${OUTPUT_FILE} || exit 31
+cmp ${FEXPECTED} ${OUTPUT_FILE} || exit 31
 
-rm -fr ${OUTPUT_FILE} ${F1} ${F2} ${F3}
 exit 0

@@ -64,14 +64,22 @@ test -n "$thisdir" && setenv FHICLCPP_BUILD $thisdir
 test -d "$thisdir/lib" || mkdir -p $thisdir/lib
 echo The workng build directory is $thisdir
 
-tnotnull FHICLCPP_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${FHICLCPP_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`; setenv LD_LIBRARY_PATH ${FHICLCPP_BUILD}/lib:${LD_LIBRARY_PATH}
+tnotnull FHICLCPP_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${FHICLCPP_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`
+tnotnull FHICLCPP_BUILD && setenv LD_LIBRARY_PATH ${FHICLCPP_BUILD}/lib:${LD_LIBRARY_PATH}
+setenv LD_LIBRARY_PATH `dropit -D -p "$LD_LIBRARY_PATH"`
+
+tnotnull FHICLCPP_BUILD && setenv PATH `echo :${PATH}: | sed -e "s|:${FHICLCPP_BUILD}/lbin:|:|" -e 's|^:||;s|:$||'`
+tnotnull FHICLCPP_BUILD && setenv PATH ${FHICLCPP_BUILD}/bin:${PATH}
+setenv PATH `dropit -D`
 
 echo
 echo FHICLCPP_SOURCE=$FHICLCPP_SOURCE
 echo FHICLCPP_BUILD=$FHICLCPP_BUILD
 echo $thisdir/lib has been added to LD_LIBRARY_PATH
+echo $thisdir/bin has been added to PATH
 echo
 echo LD_LIBRARY_PATH is now ${LD_LIBRARY_PATH}
+echo PATH is now ${PATH}
 
 # cleanup before exiting
 test "$ss" = csh && unalias tnotnull nullout set_ vecho_

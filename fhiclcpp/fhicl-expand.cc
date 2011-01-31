@@ -5,7 +5,9 @@
 //
 //  If called with no arguments, fhicl-expand reads from standard in.
 //  If called with one or more arguments, each argument is
-//  interepreted as the name of a file to be processed.
+//  interepreted as the name of a file to be processed. If '-' (a
+//  single hyphen) is passed as a filename, this is interpreted as
+//  instruction to read from standard input.
 //
 //  By default, the expanded inputs are all written to standard
 //  output, and any errors during processing are written to standard
@@ -42,6 +44,12 @@ fhicl_env_var( )
 {
   static  string const  fhicl_env_var("FHICL_FILE_PATH");
   return fhicl_env_var;
+}
+
+bool
+is_single_hyphen(const char* s)
+{
+  return s != 0 && s[0] == '-' && s[1] == '\0';
 }
 
 
@@ -128,8 +136,15 @@ main( int argc, char* argv[] )
       for (size_t k = 0; k != input_filenames.size(); ++k)
 	{
 	  const char* this_filename = input_filenames[k].c_str();
-	  ifstream  input(this_filename);
-	  nfailures += do_including(input, out, err, this_filename);
+	  if (is_single_hyphen(this_filename))
+	    {
+	      nfailures += do_including(cin, out, err, "<stdin>");
+	    }
+	  else
+	    {
+	      ifstream  input(this_filename);
+	      nfailures += do_including(input, out, err, this_filename);
+	    }
 	}
     };
 

@@ -1,8 +1,9 @@
 #define BOOST_TEST_MODULE ( ParameterSet test)
-#include "boost/test/auto_unit_test.hpp"
 
+#include "boost/test/auto_unit_test.hpp"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/make_ParameterSet.h"
+#include <cstdlib>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -16,6 +17,7 @@ struct SampleConfigFixture {
 };
 
 SampleConfigFixture::SampleConfigFixture() {
+   putenv((char*)"FHICL_FILE_PATH=./test:.");
    intermediate_table tbl;
    std::ifstream cfg_in("Sample.cfg");
    parse_document(cfg_in, tbl);

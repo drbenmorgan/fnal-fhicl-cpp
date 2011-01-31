@@ -5,6 +5,8 @@
 WORKDIR=`mktemp -d ${TMPDIR:-/tmp}/fhicl-expand_test_path.XXXXXXXXXX`
 [[ -n "$WORKDIR" ]] && [[ -d "$WORKDIR" ]] || [[ -w "$WORKDIR" ]] || exit 1
 
+export FHICL_FILE_PATH="$WORKDIR"
+
 # Clean up if we're not debugging.
 trap "if [[ -n \"$DEBUG\" ]]; then echo \"$WORKDIR\"; else [[ -d \"$WORKDIR\" ]] && rm -rf \"$WORKDIR\"; fi" EXIT
 

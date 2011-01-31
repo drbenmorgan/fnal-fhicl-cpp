@@ -8,6 +8,8 @@ WORKDIR=`mktemp -d ${TMPDIR:-/tmp}/fhicl-expand_test.XXXXXXXXXX`
 
 OUTPUT_FILE=${WORKDIR}/out.txt
 
+export FHICL_FILE_PATH="$WORKDIR"
+
 rm -rf ${OUTPUT_FILE}
 fhicl-expand > ${OUTPUT_FILE} <<EOF
 EOF

@@ -2,7 +2,7 @@
 
 [[ -n "$DEBUG" ]] && set -x
 
-WORKDIR=`mktemp -d ${TMPDIR:-/tmp}/fhicl-expand_test.XXXXXXXXXX`
+WORKDIR=`mktemp -d ${TMPDIR:-/tmp}/fhicl-expand_test_path.XXXXXXXXXX`
 [[ -n "$WORKDIR" ]] && [[ -d "$WORKDIR" ]] || [[ -w "$WORKDIR" ]] || exit 1
 
 # Clean up if we're not debugging.
@@ -34,11 +34,15 @@ STATUS=$?
 
 rm -rf ${OUTPUT_FILE}
 F1=${WORKDIR}/F1.txt
+F1A=${WORKDIR}/F1A.txt
 F2=${WORKDIR}/F2/F2.txt
 F3=${WORKDIR}/F3.txt
 FEXPECTED=${WORKDIR}/expected.txt
 cat - > ${F1} <<EOF
 hello
+EOF
+cat - > ${F1A} <<EOF
+Hi
 EOF
 mkdir -p `dirname "${F2}"`
 cat - > ${F2} <<EOF
@@ -46,26 +50,22 @@ cat - > ${F2} <<EOF
 there
 EOF
 cat - > ${F3} <<EOF
+#include "${F1A##*/}"
 #include "${F2##*/}"
 moo
 oink
 EOF
 cat - > ${FEXPECTED} <<EOF
+Hi
 hello
 there
 moo
 oink
 EOF
-export FHICL_FILE_PATH="$WORKDIR:$WORKDIR/F2"
+export FHICL_FILE_PATH="$WORKDIR/F2:$WORKDIR"
 fhicl-expand ${F3} > ${OUTPUT_FILE}
 STATUS=$?
 [[ ${STATUS}          ]] || exit ${STATUS}
 cmp ${FEXPECTED} ${OUTPUT_FILE} || exit 31
-
-exit 0
-fhicl-expand ${F3} > ${OUTPUT_FILE}.2
-STATUS=$?
-[[ ${STATUS}          ]] || exit ${STATUS}
-cmp ${FEXPECTED} ${OUTPUT_FILE} || exit 32
 
 exit 0

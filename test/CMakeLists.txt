@@ -41,6 +41,7 @@ set( HANDBUILT          # use target-specific build rules, found below
 
 set( PREBUILT           # no build required
   fhicl-expand_test.sh
+  fhicl-expand_test_path.sh
 )
 
 # ----------------------------------------------------------------------

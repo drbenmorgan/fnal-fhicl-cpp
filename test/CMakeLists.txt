@@ -43,6 +43,7 @@ set( HANDBUILT          # use target-specific build rules, found below
 set( PREBUILT           # no build required
   fhicl-expand_test.sh
   fhicl-expand_test_path.sh
+  issue_0923_t.sh
 )
 
 # ----------------------------------------------------------------------
@@ -50,6 +51,9 @@ set( PREBUILT           # no build required
 
 set( DATAFILE           # install only
   Sample.cfg
+  issue_0923a.fcl
+  issue_0923b.fcl
+  issue_0923_ref.txt
 )
 
 # ----------------------------------------------------------------------

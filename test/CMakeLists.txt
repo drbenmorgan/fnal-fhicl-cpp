@@ -19,6 +19,7 @@ link_libraries( fhiclcppD )
 set( BUILD              # compile and link with above
   bool_test
   complex_test
+  fhicl-config_t
   float_test
   int_test
   nil_test
@@ -55,6 +56,7 @@ set( DATAFILE           # install only
 # Identify tests not to be run automatically:
 
 set( HANDRUN            # use target-specific run rules, found below
+  fhicl-config_t
 )
 
 # ======================================================================
@@ -120,7 +122,7 @@ endforeach( input )
 # Run each test not excepted in Part 1:
 
 set( TESTS_TO_RUN ${BUILD} ${BUILD_BOOST} ${HANDBUILT} ${PREBUILT} )
-list( REMOVE_ITEM TESTS_TO_RUN {$HANDRUN} )
+list( REMOVE_ITEM TESTS_TO_RUN ${HANDRUN} )
 foreach( test ${TESTS_TO_RUN} )
   add_test( ${test} ${EXECUTABLE_OUTPUT_PATH}/${test} )
 endforeach( test )

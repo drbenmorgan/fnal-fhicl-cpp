@@ -57,6 +57,9 @@ public:
   std::string
     to_string( ) const;
 
+  void
+    set_prolog( bool new_prolog_state );
+
   operator atom_t( ) const
   { return boost::any_cast<atom_t>(value); }
 

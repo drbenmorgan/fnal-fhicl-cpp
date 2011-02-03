@@ -105,7 +105,7 @@ static  extended_value
               )
 {
   extended_value result = tbl.find(name);
-  result.in_prolog = in_prolog;
+  result.set_prolog(in_prolog);
   return result;
 }
 
@@ -320,7 +320,7 @@ template< class FwdIter, class Skip >
 
   prolog   = lit("BEGIN_PROLOG") [ bind(&rebool, ref(in_prolog), true) ]
            >> *((name >> lit(':') >> value)
-                                 [ bind(&tbl_insert, _1, _2, ref(tbl)) ]
+                          [ bind(&tbl_insert, _1, _2, ref(tbl)) ]
                )
            >> lit("END_PROLOG")  [ bind(&rebool, ref(in_prolog), false) ];
   document = (*prolog)    [ bind(&rebool, ref(prolog_allowed), false) ]

@@ -6,14 +6,14 @@
 
 #include "fhiclcpp/extended_value.h"
 
+using std::string;
+using boost::any_cast;
+
 // ----------------------------------------------------------------------
 
 std::string
   fhicl::extended_value::to_string( ) const
 {
-  using std::string;
-  using boost::any_cast;
-
   if( in_prolog )
     return "";
 
@@ -63,5 +63,44 @@ std::string
   };  // switch
 
 }  // to_string()
+
+// ----------------------------------------------------------------------
+
+void
+  fhicl::extended_value::set_prolog( bool new_prolog_state )
+{
+  in_prolog = new_prolog_state;
+
+  switch( tag )  {
+
+    case NIL: case BOOL: case NUMBER: case STRING: case COMPLEX: {
+      break;
+    }
+
+    case SEQUENCE: {
+      sequence_t & q = any_cast<sequence_t &>(value);
+      for( sequence_t::iterator it = q.begin()
+                              , e  = q.end(); it != e; ++it ) {
+        it->set_prolog(new_prolog_state);
+      }
+      break;
+    }
+
+    case TABLE: {
+      table_t & t = any_cast<table_t &>(value);
+      for( table_t::iterator it = t.begin()
+                           , e  = t.end(); it != e; ++it ) {
+        it->second.set_prolog(new_prolog_state);
+      }
+      break;
+    }
+
+    case UNKNOWN: default: {
+      break;
+    }
+
+  };  // switch
+
+}  // set_prolog()
 
 // ======================================================================

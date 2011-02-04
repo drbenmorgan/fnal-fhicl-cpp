@@ -16,7 +16,7 @@ cmake_minimum_required( VERSION 2.6 )
 
 project( fhiclcpp )
 set( product fhiclcpp )
-set( version v2_10_3 )
+set( version v2_10_4 )
 set( qualifier a1 )
 
 # because we want to move these libraries about,

@@ -67,6 +67,9 @@ public:
   extended_value const &
     find( std::string const & name ) const;
 
+  bool
+    exists( std::string const & name ) const;
+
 private:
   extended_value  ex_val;
 

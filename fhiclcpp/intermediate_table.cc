@@ -106,7 +106,7 @@ extended_value const &
       ;
 
     else if( std::isdigit(this_key[0]) ) {
-      if( p->tag != SEQUENCE )
+      if( ! p->is_a(SEQUENCE) )
         throw exception(cant_find, name)
           << "-- not a sequence (at part \"" << this_key << "\")";
       sequence_t const & s = boost::any_cast<sequence_t const &>(p->value);
@@ -118,7 +118,7 @@ extended_value const &
     }
 
     else /* this_key[0] is alpha or '_' */ {
-      if( p->tag != TABLE )
+      if( ! p->is_a(TABLE) )
         throw exception(cant_find, name)
           << "-- not a table (at part \"" << this_key << "\")";
       table_t const & t = boost::any_cast<table_t const &>(p->value);
@@ -133,6 +133,44 @@ extended_value const &
   return *p;
 
 }  // find()
+
+// ----------------------------------------------------------------------
+
+bool
+  intermediate_table::exists( std::string const & name ) const
+{
+  std::vector<std::string> const & key = split(name);
+  extended_value const * p = & ex_val;
+
+  for( unsigned k = 0, sz = key.size(); k != sz; ++k ) {
+    std::string const & this_key = key[k];
+    if( this_key.empty() )
+      ;
+
+    else if( std::isdigit(this_key[0]) ) {
+      if( ! p->is_a(SEQUENCE) )
+        return false;
+      sequence_t const & s = boost::any_cast<sequence_t const &>(p->value);
+      unsigned i = std::atoi(this_key.c_str());
+      if( s.size() <= i )
+        return false;
+      p = & s[i];
+    }
+
+    else /* this_key[0] is alpha or '_' */ {
+      if( ! p->is_a(TABLE) )
+        return false;
+      table_t const & t = boost::any_cast<table_t const &>(p->value);
+      const_iterator it = t.find(this_key);
+      if( it == t.end() )
+        return false;
+      p = & it->second;
+    }
+  }  // for
+
+  return true;
+
+}  // exists()
 
 // ----------------------------------------------------------------------
 

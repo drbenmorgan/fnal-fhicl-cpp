@@ -44,7 +44,7 @@ public:
   { return boost::any_cast<table_t const &>(ex_val.value).end(); }
 
   bool
-     empty ( ) const
+    empty( ) const
   { return boost::any_cast<table_t const &>(ex_val.value).empty(); }
 
   void

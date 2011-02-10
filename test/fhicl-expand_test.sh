@@ -1,6 +1,8 @@
 #!/bin/bash
 
-WORKDIR=`mktemp -d ${TMPDIR:-/tmp}/fhicl-expand_test.XXXXXXXXXX`
+TEST_PGM=fhicl-expand
+TEST_ARGS=-l2
+WORKDIR=`mktemp -d ${TMPDIR:-/tmp}/${TEST_PGM}.XXXXXXXXXX`
 [[ -n "$WORKDIR" ]] && [[ -d "$WORKDIR" ]] || [[ -w "$WORKDIR" ]] || exit 1
 
 # Clean up if we're not debugging.
@@ -11,7 +13,7 @@ OUTPUT_FILE=${WORKDIR}/out.txt
 export FHICL_FILE_PATH="$WORKDIR"
 
 rm -rf ${OUTPUT_FILE}
-fhicl-expand > ${OUTPUT_FILE} <<EOF
+${TEST_PGM} ${TEST_ARGS} > ${OUTPUT_FILE} <<EOF
 EOF
 STATUS=$?
 [[ ${STATUS}           ]] || exit ${STATUS}
@@ -19,7 +21,7 @@ STATUS=$?
 [[ ! -s ${OUTPUT_FILE} ]] || exit 12
 
 rm -rf ${OUTPUT_FILE}
-fhicl-expand - > ${OUTPUT_FILE} <<EOF
+${TEST_PGM} ${TEST_ARGS} - > ${OUTPUT_FILE} <<EOF
 hello
 EOF
 STATUS=$?
@@ -28,7 +30,7 @@ STATUS=$?
 [[ -s ${OUTPUT_FILE} ]] || exit 22
 
 rm -rf ${OUTPUT_FILE}
-fhicl-expand a b c > ${OUTPUT_FILE}
+${TEST_PGM} ${TEST_ARGS} a b c > ${OUTPUT_FILE}
 STATUS=$?
 [[ ${STATUS} == 3 ]] || exit ${STATUS}
 
@@ -55,7 +57,7 @@ there
 moo
 oink
 EOF
-fhicl-expand ${F3} > ${OUTPUT_FILE}
+${TEST_PGM} ${TEST_ARGS} ${F3} > ${OUTPUT_FILE}
 STATUS=$?
 [[ ${STATUS}          ]] || exit ${STATUS}
 cmp ${FEXPECTED} ${OUTPUT_FILE} || exit 31

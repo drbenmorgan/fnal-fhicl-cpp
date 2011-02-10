@@ -17,137 +17,152 @@
 
 #include "boost/program_options.hpp"
 #include "cetlib/exception.h"
-#include "cetlib/include.h"
+#include "cetlib/filepath_maker.h"
+#include "cetlib/includer.h"
 #include <fstream>
 #include <iostream>
 #include <istream>
+#include <memory>
 #include <string>
 #include <vector>
 
-namespace bpo = boost::program_options;
-using std::cerr;
-using std::cin;
-using std::cout;
-using std::ifstream;
-using std::istream;
-using std::ofstream;
-using std::ostream;
-using std::string;
-using std::vector;
-
-typedef vector<string> strings;
-
 // ----------------------------------------------------------------------
 
-static  string const &
-fhicl_env_var( )
+static  std::string const &
+  fhicl_env_var( )
 {
-  static  string const  fhicl_env_var("FHICL_FILE_PATH");
+  static  std::string const  fhicl_env_var("FHICL_FILE_PATH");
   return fhicl_env_var;
 }
 
-bool
-is_single_hyphen(const char* s)
+// ----------------------------------------------------------------------
+
+int
+  do_including( std::string const   & starting_filename
+              , cet::filepath_maker & lookup_policy
+              , std::ostream        & to
+              , std::ostream        & err
+              )
+try
 {
-  return s != 0 && s[0] == '-' && s[1] == '\0';
+  cet::includer inc(starting_filename, lookup_policy);
+  cet::includer::const_iterator it  = inc.begin()
+                              , end = inc.end();
+  std::ostream_iterator<char> out(to);
+
+  std::copy(it, end, out);
+  return 0;
 }
-
-
-// ----------------------------------------------------------------------
-
-int
-do_including( istream & from, ostream & to, ostream& err, 
-	      const char* this_filename )
-  try
-    {
-      string result;
-      cet::include(from, fhicl_env_var(), result);
-      to << result;
-      return 0;
-    }
-  catch( cet::exception const & e )
-    {
-      err << "Error for file: " << this_filename
-	  << "\n" << e.what() << '\n';
-      return 1;
-    }  // do_including()
-
-// ----------------------------------------------------------------------
-int
-main( int argc, char* argv[] )
+catch( cet::exception const & e )
 {
-  //
-  // Use the Boost program options library to deal with parsing the
-  // command line
-  //
+  err << "Error for file: " << starting_filename
+      << '\n' << e.what() << '\n';
+  return 1;
+}  // do_including()
+
+// ----------------------------------------------------------------------
+
+int
+  main( int argc, char* argv[] )
+{
+  using namespace std;
+  namespace bpo = boost::program_options;
+
+  typedef vector<string> strings;
+
+  // Parse the command line:
+
   bpo::options_description desc("fhicl-expand <options> [files]\nOptions");
   string  error_filename;
   string  output_filename;
   strings input_filenames;
+  int     lookup_policy;
+  string  lookup_path;
 
   desc.add_options()
-    ("help,h",                          "produce help message")
-    ("error,e",  bpo::value<string>(&error_filename),  "error file")
-    ("output,o", bpo::value<string>(&output_filename),  "output file")
-    ("inputs,i", bpo::value<strings>(&input_filenames), "input files");
+    ( "help,h"  , "produce help message"
+                )
+    ( "inputs,i", bpo::value<strings>(&input_filenames)
+                , "input files"
+                )
+    ( "output,o", bpo::value<string >(&output_filename)
+                , "output file"
+                )
+    ( "error,e" , bpo::value<string >(&error_filename)
+                , "error file"
+                )
+    ( "lookup-policy,l"
+                , bpo::value<int>(&lookup_policy)
+                  ->default_value(1)
+                , "lookup policy code:"
+                  "\n  0 => cet::filepath_maker"
+                  "\n  1 => cet::filepath_lookup"
+                  "\n  2 => cet::filepath_lookup_nonabsolute"
+                  "\n  3 => cet::filepath_lookup_after1"
+                )
+    ( "path,p"  , bpo::value<string>(&lookup_path)
+                  ->default_value(fhicl_env_var())
+                , "path or environment variable to be used by lookup-policy"
+                )
+    ;
 
   bpo::positional_options_description pd;
   pd.add("inputs", -1);
- 
+
   bpo::variables_map varmap;
-  try
-    {
-      bpo::store(bpo::command_line_parser(argc, argv)
-		 .options(desc)
-		 .positional(pd)
-		 .run(),
-		 varmap);
-      bpo::notify(varmap);
-    }
-  catch (bpo::error& err)
-    {
-      cerr << "Error processing command line in " 
-		<< argv[0]
-		<< ": " << err.what() << '\n';
-      return 1;
-    };
+  try {
+    bpo::store( bpo::command_line_parser(argc, argv).options(desc)
+                                                    .positional(pd)
+                                                    .run()
+              , varmap
+              );
+    bpo::notify(varmap);
+  }
+  catch (bpo::error& err) {
+    cerr << "Error processing command line in " << argv[0]
+         << ": " << err.what() << '\n';
+    return 1;
+  };
 
-  if (varmap.count("help"))
-    {
-      cout << desc << "\n";
-      return 0;
-    }
+  // Interpret options:
 
-  //
-  // Now we have the arguments dealt with, do the real work
-  //
+  if( varmap.count("help") ) {
+    cout << desc << "\n";
+    return 0;
+  }
+
+  if( input_filenames.empty() )
+    input_filenames.push_back("-");
+
+  ofstream  outfile(output_filename.c_str());
+  ostream & out = output_filename.empty() ? cout : outfile;
+
+  ofstream  errfile(error_filename.c_str());
+  ostream & err = error_filename.empty() ? cerr : errfile;
+
+  std::auto_ptr<cet::filepath_maker> policy;
+
+cerr << "Policy is " << lookup_policy
+     << "; path is \"" << lookup_path << "\"\n";
+  switch( lookup_policy ) {
+    case 0:   policy.reset( new cet::filepath_maker );
+              break;
+    case 1:   policy.reset( new cet::filepath_lookup(lookup_path) );
+              break;
+    case 2:   policy.reset( new cet::filepath_lookup_nonabsolute(lookup_path) );
+              break;
+    case 3:   policy.reset( new cet::filepath_lookup_after1(lookup_path) );
+              break;
+    default:  cerr << "Error: command line lookup-policy "
+              << lookup_policy << " is unknown; choose 0, 1, 2, or 3\n";
+              return 1;
+  }
+
+  // Do the real work:
 
   int nfailures = 0;
-
-  ofstream errfile(error_filename.c_str());
-  ostream& err = error_filename.empty() ? cerr : errfile;
-  ofstream outfile(output_filename.c_str());
-  ostream& out = output_filename.empty() ? cout : outfile;
-
-  if (input_filenames.empty())
-    nfailures += do_including(cin, out, err, "<cin>");
-  else
-    {
-      for (size_t k = 0; k != input_filenames.size(); ++k)
-	{
-	  const char* this_filename = input_filenames[k].c_str();
-	  if (is_single_hyphen(this_filename))
-	    {
-	      nfailures += do_including(cin, out, err, "<stdin>");
-	    }
-	  else
-	    {
-	      ifstream  input(this_filename);
-	      nfailures += do_including(input, out, err, this_filename);
-	    }
-	}
-    };
-
+  for( size_t k = 0; k != input_filenames.size(); ++k )
+    nfailures += do_including(input_filenames[k], *policy, out, err);
   return nfailures;
 
 }  // main()

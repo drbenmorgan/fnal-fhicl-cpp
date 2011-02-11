@@ -14,6 +14,7 @@
 #include "cetlib/canonical_number.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/include.h"
+#include "cetlib/includer.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
@@ -399,13 +400,35 @@ void
 // ----------------------------------------------------------------------
 
 void
-  fhicl::parse_document( std::istream       & in
-                       , intermediate_table & result
+  fhicl::parse_document( std::string const   & filename
+                       , cet::filepath_maker & maker
+                       , intermediate_table  & result
                        )
 {
-  std::string str;
-  cet::include(in, fhicl_env_var(), str);
-  parse_document(str, result);
+  cet::includer s(filename, maker);
+  typedef  cet::includer::const_iterator  iter_t;
+
+  typedef  qi::rule<iter_t>  ws_t;
+  ws_t  whitespace = space
+                   | lit('#')  >> *(char_ - eol) >> eol
+                   | lit("//") >> *(char_ - eol) >> eol;
+
+  document_parser<iter_t, ws_t> p;
+  iter_t                        begin = s.begin();
+  iter_t const                  end  =  s.end();
+
+  bool b =  qi::phrase_parse( begin, end
+                            , p >> *whitespace
+                            , whitespace
+                            );
+
+  std::string unparsed(begin, end);
+  if( b && unparsed.empty() )
+    result = p.tbl;
+  else
+    throw fhicl::exception(fhicl::parse_error, "in document")
+      << "\nat or before " << s.whereis(begin);
+
 }  // parse_document()
 
 // ======================================================================

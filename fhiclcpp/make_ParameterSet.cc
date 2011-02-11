@@ -7,6 +7,7 @@
 #include "fhiclcpp/make_ParameterSet.h"
 
 #include "boost/any.hpp"
+#include "cetlib/includer.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/parse.h"
@@ -108,12 +109,13 @@ void
 // ----------------------------------------------------------------------
 
 void
-  fhicl::make_ParameterSet( std::istream & in
-                          , ParameterSet & ps
+  fhicl::make_ParameterSet( std::string const   & filename
+                          , cet::filepath_maker & maker
+                          , ParameterSet        & ps
                           )
 {
   intermediate_table tbl;
-  parse_document(in, tbl), make_ParameterSet(tbl, ps);
+  parse_document(filename, maker, tbl), make_ParameterSet(tbl, ps);
 }  // make_ParameterSet()
 
 // ======================================================================

@@ -7,13 +7,12 @@
 //
 // ======================================================================
 
+#include "cetlib/filepath_maker.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
-#include <istream>
 #include <string>
 
-namespace fhicl
-{
+namespace fhicl {
 
   bool
     parse_value( std::string const & s
@@ -27,8 +26,9 @@ namespace fhicl
                   );
 
   void
-    parse_document( std::istream       & in
-                  , intermediate_table & result
+    parse_document( std::string const   & filename
+                  , cet::filepath_maker & maker
+                  , intermediate_table  & result
                   );
 
 }  // namespace fhicl

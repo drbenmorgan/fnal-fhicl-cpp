@@ -4,7 +4,6 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include <cstdlib>
-#include <fstream>
 #include <string>
 #include <vector>
 
@@ -18,9 +17,10 @@ struct SampleConfigFixture {
 
 SampleConfigFixture::SampleConfigFixture() {
    putenv((char*)"FHICL_FILE_PATH=./test:.");
+   cet::filepath_lookup policy("FHICL_FILE_PATH");
    intermediate_table tbl;
-   std::ifstream cfg_in("Sample.cfg");
-   parse_document(cfg_in, tbl);
+   std::string cfg_in("Sample.cfg");
+   parse_document(cfg_in, policy, tbl);
    make_ParameterSet(tbl, pset);
 }
 

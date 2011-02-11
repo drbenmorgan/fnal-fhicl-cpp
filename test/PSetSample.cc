@@ -12,12 +12,12 @@
 int main()
 {
   putenv((char*)"FHICL_FILE_PATH=./test:.");
+  cet::filepath_lookup policy("FHICL_FILE_PATH");
 
   // parse a configuration file; obtain intermediate form
   fhicl::intermediate_table tbl;
-  std::fstream in("Sample.cfg");
-  assert(!!in);
-  fhicl::parse_document(in, tbl);
+  std::string in("Sample.cfg");
+  fhicl::parse_document(in, policy, tbl);
 
   // convert to ParameterSet
   fhicl::ParameterSet pset;

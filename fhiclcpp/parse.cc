@@ -244,17 +244,17 @@ template< class FwdIter, class Skip >
   string   = ( fhicl::ass | fhicl::dss | squoted | dquoted )
              [ _val = phx::bind(&canon_str, qi::_1) ];
   name     = fhicl::ass [ _val = qi::_1 ];
-  complex  = (  lit('(') >> number
-             >> lit(',') >> number >> lit(')')
+  complex  = (  lit('(') > number
+             > lit(',') > number > lit(')')
              ) [ _val = phx::bind( &std::make_pair<std::string,std::string>
                                  , qi::_1 , qi::_2 )
                ];
 
-  sequence = lit('[') >> -(value % ',') >> lit(']');
+  sequence = lit('[') > -(value % ',') > lit(']');
   table    = lit('{')
-           >> *((name >> lit(':') >> value) [ phx::bind(&map_insert, qi::_1, qi::_2, _val) ]
+           > *((name > lit(':') > value) [ phx::bind(&map_insert, qi::_1, qi::_2, _val) ]
                )
-           >> lit('}');
+           > lit('}');
 
   value    = ( nil      [ _val = phx::bind(xvalue, false, NIL     , qi::_1) ]
              | boolean  [ _val = phx::bind(xvalue, false, BOOL    , qi::_1) ]
@@ -290,14 +290,14 @@ template< class FwdIter, class Skip >
 , tbl                 ( )
 , vp                  ( )
 {
-  name     = fhicl::ass                                    [ _val = qi::_1 ]
-           >> *( (char_('.') >> fhicl::ass)                [ _val += qi::_1 + qi::_2 ]
-               | (char_('[') >> fhicl::uint >> char_(']')) [ _val += qi::_1 + qi::_2 + qi::_3]
+  name     = fhicl::ass                                  [ _val = qi::_1 ]
+           >> *( (char_('.') > fhicl::ass)               [ _val += qi::_1 + qi::_2 ]
+               | (char_('[') > fhicl::uint > char_(']')) [ _val += qi::_1 + qi::_2 + qi::_3]
                );  // TODO: only some whitespace permitted
 
   // TODO: no whitespace permitted
-  localref = lit("@local::") >> name [ _val = qi::_1 ];
-  dbref    = lit("@db::"   ) >> name [ _val = qi::_1 ];
+  localref = lit("@local::") > name [ _val = qi::_1 ];
+  dbref    = lit("@db::"   ) > name [ _val = qi::_1 ];
 
 
   value    = ( vp.nil      [ _val = phx::bind(xvalue, ref(in_prolog), NIL     , qi::_1) ]
@@ -316,12 +316,12 @@ template< class FwdIter, class Skip >
              );
 
   prolog   = lit("BEGIN_PROLOG") [ phx::bind(&rebool, ref(in_prolog), true) ]
-           >> *((name >> lit(':') >> value)
+           >> *((name >> lit(':') > value)
                           [ phx::bind(&tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
                )
            >> lit("END_PROLOG")  [ phx::bind(&rebool, ref(in_prolog), false) ];
   document = (*prolog)    [ phx::bind(&rebool, ref(prolog_allowed), false) ]
-           >> *((name >> lit(':') >> value)
+           >> *((name >> lit(':') > value)
                           [ phx::bind(&tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
                );
 
@@ -383,17 +383,23 @@ void
   iter_t                        begin = s.begin();
   iter_t const                  end  =  s.end();
 
-  bool b =  qi::phrase_parse( begin, end
-                            , p >> *whitespace
-                            , whitespace
-                            );
+  bool b = false;
+  try {
+    b =  qi::phrase_parse( begin, end
+                         , p >> *whitespace
+                         , whitespace
+                         );
+  }
+  catch( qi::expectation_failure<iter_t> const & e ) {
+    begin = e.first;
+  }
 
   std::string unparsed(begin, end);
   if( b && unparsed.empty() )
     result = p.tbl;
   else
-    throw fhicl::exception(fhicl::parse_error, "in document")
-      << "\nat or before:\n" << unparsed;
+    throw fhicl::exception(fhicl::parse_error, "detected in string at or near:")
+      << unparsed;
 
 }  // parse_document()
 
@@ -417,17 +423,23 @@ void
   iter_t                        begin = s.begin();
   iter_t const                  end  =  s.end();
 
-  bool b =  qi::phrase_parse( begin, end
-                            , p >> *whitespace
-                            , whitespace
-                            );
+  bool b = false;
+  try {
+    b =  qi::phrase_parse( begin, end
+                         , p >> *whitespace
+                         , whitespace
+                         );
+  }
+  catch( qi::expectation_failure<iter_t> const & e ) {
+    begin = e.first;
+  }
 
   std::string unparsed(begin, end);
   if( b && unparsed.empty() )
     result = p.tbl;
   else
-    throw fhicl::exception(fhicl::parse_error, "in document")
-      << "\nat or before " << s.whereis(begin);
+    throw fhicl::exception(fhicl::parse_error, "detected at or near")
+      << s.whereis(begin);
 
 }  // parse_document()
 

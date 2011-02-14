@@ -17,19 +17,20 @@ link_libraries( fhiclcppD )
 # Identify each test's build requirements:
 
 set( BUILD              # compile and link with above
+  PSetTest
   bool_test
   complex_test
+  failer
   fhicl-config_t
   float_test
   int_test
   nil_test
+  parse_value_test
   sequence_test
   string_test
   table_test
-  unsigned_test
-  parse_value_test
   to_string_test
-  PSetTest
+  unsigned_test
 )
 
 set( BUILD_BOOST        # compile and link with BOOST_TEST library, too
@@ -51,9 +52,10 @@ set( PREBUILT           # no build required
 
 set( DATAFILE           # install only
   Sample.cfg
+  issue_0923_ref.txt
   issue_0923a.fcl
   issue_0923b.fcl
-  issue_0923_ref.txt
+  test_config_fail.fcl
 )
 
 # ----------------------------------------------------------------------

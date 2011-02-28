@@ -188,9 +188,11 @@ template< class FwdIter, class Skip >
 {
   typedef  fhicl::value_parser<FwdIter,Skip>   value_parser;
 
-  typedef  typename value_parser::atom_token   atom_token;
-  typedef  typename value_parser::value_token  value_token;
-  typedef  qi::rule<FwdIter, void(), Skip>     nothing_token;
+  typedef  typename value_parser::atom_token      atom_token;
+  typedef  typename value_parser::sequence_token  sequence_token;
+  typedef  typename value_parser::table_token     table_token;
+  typedef  typename value_parser::value_token     value_token;
+  typedef  qi::rule<FwdIter, void(), Skip>        nothing_token;
 
   // default c'tor:
   document_parser( );
@@ -202,6 +204,8 @@ template< class FwdIter, class Skip >
   value_parser        vp;
   // parser rules:
   atom_token     name, localref, dbref;
+  sequence_token sequence;
+  table_token    table;
   value_token    value;
   nothing_token  prolog, document;
 
@@ -244,7 +248,7 @@ template< class FwdIter, class Skip >
   string   = ( fhicl::ass | fhicl::dss | squoted | dquoted )
              [ _val = phx::bind(&canon_str, qi::_1) ];
   name     = fhicl::ass [ _val = qi::_1 ];
-  complex  = (  lit('(') > number
+  complex  = ( lit('(') > number
              > lit(',') > number > lit(')')
              ) [ _val = phx::bind( &std::make_pair<std::string,std::string>
                                  , qi::_1 , qi::_2 )
@@ -299,6 +303,11 @@ template< class FwdIter, class Skip >
   localref = lit("@local::") > name [ _val = qi::_1 ];
   dbref    = lit("@db::"   ) > name [ _val = qi::_1 ];
 
+  sequence = lit('[') > -(value % ',') > lit(']');
+  table    = lit('{')
+           > *((name > lit(':') > value) [ phx::bind(&map_insert, qi::_1, qi::_2, _val) ]
+               )
+           > lit('}');
 
   value    = ( vp.nil      [ _val = phx::bind(xvalue, ref(in_prolog), NIL     , qi::_1) ]
              | vp.boolean  [ _val = phx::bind(xvalue, ref(in_prolog), BOOL    , qi::_1) ]
@@ -311,8 +320,8 @@ template< class FwdIter, class Skip >
              | dbref       [ _val = phx::bind( &database_lookup
                                         , qi::_1, ref(tbl), ref(in_prolog)
                                         ) ]
-             | vp.sequence [ _val = phx::bind(xvalue, ref(in_prolog), SEQUENCE, qi::_1) ]
-             | vp.table    [ _val = phx::bind(xvalue, ref(in_prolog), TABLE   , qi::_1) ]
+             | sequence    [ _val = phx::bind(xvalue, ref(in_prolog), SEQUENCE, qi::_1) ]
+             | table       [ _val = phx::bind(xvalue, ref(in_prolog), TABLE   , qi::_1) ]
              );
 
   prolog   = lit("BEGIN_PROLOG") [ phx::bind(&rebool, ref(in_prolog), true) ]
@@ -328,6 +337,8 @@ template< class FwdIter, class Skip >
   name    .name("name atom");
   localref.name("localref atom");
   dbref   .name("dbref atom");
+  sequence.name("sequence");
+  table   .name("table");
   value   .name("value");
   prolog  .name("prolog");
   document.name("document");

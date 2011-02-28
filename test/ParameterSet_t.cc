@@ -32,6 +32,7 @@ BOOST_AUTO_TEST_CASE ( Local ) {
    fhicl::ParameterSet orig(pset.get<fhicl::ParameterSet>("j"));
    BOOST_CHECK ( j == orig );
    BOOST_CHECK ( orig.get<int>("y") == -1 );
+   BOOST_CHECK ( pset.get<std::vector<int> >("m")[0] == -1 );
 
    std::vector<std::string> const names = pset.get_keys();
    for( int k = 0; k != names.size(); ++k )

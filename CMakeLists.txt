@@ -16,7 +16,7 @@ cmake_minimum_required( VERSION 2.6 )
 
 project( fhiclcpp )
 set( product fhiclcpp )
-set( version v2_11_4 )
+set( version v2_11_5 )
 set( qualifier a1 )
 
 # because we want to move these libraries about,
@@ -63,7 +63,8 @@ find_ups_boost( v1_45_0
 include_directories( ${PROJECT_SOURCE_DIR} )
 
 # Project library directory
-link_directories( $ENV{CETLIB_LIB} )
+link_directories( $ENV{CETLIB_LIB}
+                  $ENV{BOOST_LIB}  )
 
 #build all libraries in a single directory to enable testing
 SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)

@@ -13,7 +13,9 @@ cet_test(PSetSample INSTALL_EXAMPLE INSTALL_SOURCE
   DATAFILES Sample.cfg
 )
 cet_test(PSetTest)
-cet_test(ParameterSet_t USE_BOOST_UNIT)
+cet_test(ParameterSet_t USE_BOOST_UNIT
+  DATAFILES Sample.cfg
+)
 cet_test(bool_test)
 cet_test(complex_test)
 cet_test(failer DATAFILES test_config_fail.fcl)
@@ -34,5 +36,7 @@ cet_test(parse_value_test)
 cet_test(sequence_test)
 cet_test(string_test)
 cet_test(table_test)
-cet_test(to_string_test)
+cet_test(to_string_test
+  DATAFILES Sample.cfg
+)
 cet_test(unsigned_test)

@@ -94,5 +94,13 @@ BOOST_AUTO_TEST_CASE ( NotFound ) {
    }
 }
 
+BOOST_AUTO_TEST_CASE (DeepVector) {
+   typedef std::vector<std::vector<uint32_t> > vv_t;
+   vv_t vv;
+   BOOST_CHECK_NO_THROW( vv = pset.get<vv_t>("vv") );
+   BOOST_CHECK( vv.front().back() == 3 );
+   BOOST_CHECK( vv.back().front() == 2 );
+   BOOST_CHECK( vv.back().back() == 4 );
+}
 
 BOOST_AUTO_TEST_SUITE_END()

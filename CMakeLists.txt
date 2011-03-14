@@ -32,6 +32,10 @@ set( CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules" )
 set( CMAKE_MODULE_PATH $ENV{CETBUILDTOOLS_DIR}/Modules ${CMAKE_MODULE_PATH} )
 message( STATUS "module path is ${CMAKE_MODULE_PATH}" )
 
+# make sure someone isn't typing cmake in the source code tree
+include(EnsureOutOfSourceBuild)
+cet_ensure_out_of_source_build()
+
 # define some necessary modules
 include( FindUpsPackage )
 include( FindUpsBoost )
@@ -51,7 +55,7 @@ endif()
 message(STATUS "Using GCC ${GCC_VERSION} " )
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( cetbuildtools v1_7_4 )
+find_ups_product( cetbuildtools v1_08_00 )
 find_ups_product( cetlib v0_3_2 )
 find_ups_product( cpp0x v1_0_1 )
 find_ups_boost( v1_45_0

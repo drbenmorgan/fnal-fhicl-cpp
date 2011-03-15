@@ -49,15 +49,6 @@ typedef  extended_value::table_t     table_t;
 
 // ----------------------------------------------------------------------
 
-static  std::string const &
-  fhicl_env_var( )
-{
-  static  std::string const  fhicl_env_var("FHICL_FILE_PATH");
-  return fhicl_env_var;
-}
-
-// ----------------------------------------------------------------------
-
 static  std::string
   canon_inf( std::string const & inf )
 {

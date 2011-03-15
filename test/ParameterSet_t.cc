@@ -3,6 +3,7 @@
 #include "boost/test/auto_unit_test.hpp"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/make_ParameterSet.h"
+#include <cstddef>
 #include <cstdlib>
 #include <string>
 #include <vector>
@@ -35,7 +36,7 @@ BOOST_AUTO_TEST_CASE ( Local ) {
    BOOST_CHECK ( pset.get<std::vector<int> >("m")[0] == -1 );
 
    std::vector<std::string> const names = pset.get_keys();
-   for( int k = 0; k != names.size(); ++k )
+   for( std::size_t k = 0; k != names.size(); ++k )
       BOOST_CHECK ( "x" != names[k] );
 }
 

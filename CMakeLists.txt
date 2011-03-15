@@ -52,7 +52,8 @@ set( GCC_VERSION $ENV{GCC_VERSION} )
 if( NOT GCC_VERSION )
   message( "GCC has not been setup" )
 endif()
-message(STATUS "Using GCC ${GCC_VERSION} " )
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall" )
+message( STATUS "Using GCC ${GCC_VERSION} with ${CMAKE_CXX_FLAGS}" )
 
 # these are minimum required versions, not the actual product versions
 find_ups_product( cetbuildtools v1_08_00 )

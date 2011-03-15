@@ -22,7 +22,7 @@ static  digest_t const &
   invalid_id_()
 {
   static  digest_t
-    invalid_value = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    invalid_value = {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}};
   return invalid_value;
 }
 
@@ -48,7 +48,7 @@ string
   ParameterSetID::to_string( ) const
 {
   string s;
-  for( int i = 0; i !=id_.size(); ++i )
+  for( std::size_t i = 0; i !=id_.size(); ++i )
     s += str( format("%02x") % (unsigned int)id_[i] );
   return s;
 }

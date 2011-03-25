@@ -56,7 +56,7 @@ set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall" )
 message( STATUS "Using GCC ${GCC_VERSION} with ${CMAKE_CXX_FLAGS}" )
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( cetbuildtools v1_08_00 )
+find_ups_product( cetbuildtools v1_10_00 )
 find_ups_product( cetlib v0_3_2 )
 find_ups_product( cpp0x v1_0_1 )
 find_ups_boost( v1_45_0

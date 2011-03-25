@@ -1,13 +1,13 @@
 FILE = version
-PRODUCT = fhiclcpp
+PRODUCT = @product@
 VERSION = @version@
 
 FLAVOR = @UPSFLAVOR@
-QUALIFIERS = @qualifier@
+QUALIFIERS = @full_qualifier@
   DECLARER = CET
   DECLARED = @datime@
   MODIFIER = CET
   MODIFIED = @datime@
-  PROD_DIR = fhiclcpp/@version@
+  PROD_DIR = @product@/@version@
   UPS_DIR = ups
-  TABLE_FILE = fhiclcpp.table
+  TABLE_FILE = @product@.table

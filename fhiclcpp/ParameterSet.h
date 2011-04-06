@@ -7,12 +7,14 @@
 //
 // ======================================================================
 
+#include "boost/algorithm/string.hpp"
 #include "boost/any.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/numeric/conversion/cast.hpp"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/exception.h"
+#include <cctype>
 #include <map>
 #include <string>
 #include <vector>
@@ -41,6 +43,8 @@ public:
   // retrievers:
   template< class T >
     bool get_if_present( std::string const & key, T & value ) const;
+  template< class T >
+    bool get_deep( std::string const & key, T & value ) const;
   template< class T >
     T  get( std::string const & key ) const;
   template< class T >
@@ -119,13 +123,52 @@ catch( std::exception const & e )
   throw fhicl::exception(type_mismatch, e.what() );
 }
 
+// ----------------------------------------------------------------------
+
+template< class T >
+  bool
+  fhicl::ParameterSet::get_deep( std::string const & key
+                               , T                 & value
+                               ) const
+{
+  typedef  std::vector<std::string>  Keys;
+  Keys  keys;
+  boost::algorithm::split( keys
+                         , key
+                         , boost::algorithm::is_any_of(".")
+                         );
+  Keys::iterator  b = keys.begin()
+               ,  e = keys.end()
+               ,  r = b;
+  for( ; b != e; ++b )
+    if( ! b->empty() )
+      *r++ = *b;
+  keys.erase(r, e);
+
+  if( keys.empty() )
+    throw fhicl::exception(cant_find, "vacuous key");
+
+  ParameterSet const * p = this;
+  ParameterSet pset;
+  for( b = keys.begin(), e = keys.end() - 1; b != e; ++b ) {
+    std::string const & this_key = *b;
+    if( std::isdigit(this_key[0]) )
+      throw fhicl::exception(unimplemented, "lookup in a sequence");
+    if( ! p->get_if_present(this_key, pset) )
+      return false;
+    p = & pset;
+  }
+
+  return p->get_if_present(keys.back(), value);
+}  // get_deep<>()
+
 template< class T >
   T
   fhicl::ParameterSet::get( std::string const & key ) const
 {
   T  result;
-  return get_if_present(key, result) ? result
-                                     : throw fhicl::exception(cant_find, key);
+  return get_deep(key, result) ? result
+                               : throw fhicl::exception(cant_find, key);
 }
 
 template< class T >
@@ -134,8 +177,8 @@ template< class T >
                           , T           const & default_value
                           ) const {
   T  result;
-  return get_if_present(key, result) ? result
-                                     : default_value;
+  return get_deep(key, result) ? result
+                               : default_value;
 }
 
 // ----------------------------------------------------------------------

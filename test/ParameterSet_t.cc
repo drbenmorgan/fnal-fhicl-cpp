@@ -47,9 +47,14 @@ BOOST_AUTO_TEST_CASE ( DeepInjection ) {
    BOOST_CHECK ( k == orig );
    BOOST_CHECK ( orig.get<fhicl::ParameterSet>("l")
                      .get<int>("zz") == -2 );
+   BOOST_CHECK ( orig.get<int>("l.zz") == -2 );
 }
 
 BOOST_AUTO_TEST_CASE ( DoubleStringMismatchDefaulted ) {
+   std::string s;
+   BOOST_CHECK_MESSAGE ( pset.get_if_present("e", s), "Failed to get string" );
+   BOOST_CHECK_MESSAGE ( s == "rain", "Wrong string value" );
+
    try {
       pset.get<double>("e", 2.0);
       BOOST_FAIL ("Failed to throw an exception as expected");

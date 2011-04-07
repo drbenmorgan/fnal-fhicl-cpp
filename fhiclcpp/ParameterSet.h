@@ -44,8 +44,6 @@ public:
   template< class T >
     bool get_if_present( std::string const & key, T & value ) const;
   template< class T >
-    bool get_deep( std::string const & key, T & value ) const;
-  template< class T >
     T  get( std::string const & key ) const;
   template< class T >
     T  get( std::string const & key, T const & default_value ) const;
@@ -67,6 +65,8 @@ private:
   mutable  ParameterSetID  id_;
 
   std::string  stringify( boost::any const & ) const;
+  template< class T >
+    bool get_one( std::string const & key, T & value ) const;
 
 };  // ParameterSet
 
@@ -103,33 +103,6 @@ template< class T >
   fhicl::ParameterSet::get_if_present( std::string const & key
                                      , T                 & value
                                      ) const
-try
-{
-  map_iter_t it = mapping_.find(key);
-  if( it == mapping_.end() ) {
-    return false;
-  }
-  else {
-    detail::decode(it->second, value);
-    return true;
-  }
-}
-catch( fhicl::exception const & e )
-{
-  throw fhicl::exception(type_mismatch, key, e);
-}
-catch( std::exception const & e )
-{
-  throw fhicl::exception(type_mismatch, e.what() );
-}
-
-// ----------------------------------------------------------------------
-
-template< class T >
-  bool
-  fhicl::ParameterSet::get_deep( std::string const & key
-                               , T                 & value
-                               ) const
 {
   typedef  std::vector<std::string>  Keys;
   Keys  keys;
@@ -154,21 +127,21 @@ template< class T >
     std::string const & this_key = *b;
     if( std::isdigit(this_key[0]) )
       throw fhicl::exception(unimplemented, "lookup in a sequence");
-    if( ! p->get_if_present(this_key, pset) )
+    if( ! p->get_one(this_key, pset) )
       return false;
     p = & pset;
   }
 
-  return p->get_if_present(keys.back(), value);
-}  // get_deep<>()
+  return p->get_one(keys.back(), value);
+}  // get_if_present<>()
 
 template< class T >
   T
   fhicl::ParameterSet::get( std::string const & key ) const
 {
   T  result;
-  return get_deep(key, result) ? result
-                               : throw fhicl::exception(cant_find, key);
+  return get_if_present(key, result) ? result
+                                     : throw fhicl::exception(cant_find, key);
 }
 
 template< class T >
@@ -177,8 +150,8 @@ template< class T >
                           , T           const & default_value
                           ) const {
   T  result;
-  return get_deep(key, result) ? result
-                               : default_value;
+  return get_if_present(key, result) ? result
+                                     : default_value;
 }
 
 // ----------------------------------------------------------------------
@@ -193,6 +166,33 @@ inline  bool
   fhicl::ParameterSet::operator != ( ParameterSet const & other ) const
 {
   return ! operator==(other);
+}
+
+// ----------------------------------------------------------------------
+
+template< class T >
+  bool
+  fhicl::ParameterSet::get_one( std::string const & key
+                                     , T                 & value
+                                     ) const
+try
+{
+  map_iter_t it = mapping_.find(key);
+  if( it == mapping_.end() ) {
+    return false;
+  }
+  else {
+    detail::decode(it->second, value);
+    return true;
+  }
+}
+catch( fhicl::exception const & e )
+{
+  throw fhicl::exception(type_mismatch, key, e);
+}
+catch( std::exception const & e )
+{
+  throw fhicl::exception(type_mismatch, e.what() );
 }
 
 // ======================================================================

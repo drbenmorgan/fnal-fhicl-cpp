@@ -43,10 +43,19 @@ public:
   // retrievers:
   template< class T >
     bool get_if_present( std::string const & key, T & value ) const;
+  template< class T, class Via >
+    bool get_if_present( std::string const & key, T & value
+                       , T convert(Via const &) ) const;
   template< class T >
     T  get( std::string const & key ) const;
+  template< class T, class Via >
+    T  get( std::string const & key
+          , T convert(Via const &) ) const;
   template< class T >
     T  get( std::string const & key, T const & default_value ) const;
+  template< class T, class Via >
+    T  get( std::string const & key, T const & default_value
+          , T convert(Via const &) ) const;
 
   // inserters:
   void  insert( std::string const & key, boost::any const & value );
@@ -65,6 +74,7 @@ private:
   mutable  ParameterSetID  id_;
 
   std::string  stringify( boost::any const & ) const;
+
   template< class T >
     bool get_one( std::string const & key, T & value ) const;
 
@@ -135,6 +145,20 @@ template< class T >
   return p->get_one(keys.back(), value);
 }  // get_if_present<>()
 
+template< class T, class Via >
+  bool
+  fhicl::ParameterSet::get_if_present( std::string const & key
+                                     , T                 & value
+                                     , T convert(Via const &)
+                                     ) const
+{
+  Via go_between;
+  if( ! get_if_present(key, go_between) )
+    return false;
+  value = convert(go_between);
+  return true;
+}  // get_if_present<>()
+
 template< class T >
   T
   fhicl::ParameterSet::get( std::string const & key ) const
@@ -142,6 +166,18 @@ template< class T >
   T  result;
   return get_if_present(key, result) ? result
                                      : throw fhicl::exception(cant_find, key);
+}
+
+template< class T, class Via >
+  T
+  fhicl::ParameterSet::get( std::string const & key
+                          , T convert(Via const &)
+                          ) const
+{
+  T  result;
+  return get_if_present(key, result, convert)
+       ? result
+       : throw fhicl::exception(cant_find, key);
 }
 
 template< class T >
@@ -152,6 +188,18 @@ template< class T >
   T  result;
   return get_if_present(key, result) ? result
                                      : default_value;
+}
+
+template< class T, class Via >
+  T
+  fhicl::ParameterSet::get( std::string const & key
+                          , T           const & default_value
+                          , T convert(Via const &)
+                          ) const {
+  T  result;
+  return get_if_present(key, result, convert)
+       ? result
+       : default_value;
 }
 
 // ----------------------------------------------------------------------
@@ -173,18 +221,16 @@ inline  bool
 template< class T >
   bool
   fhicl::ParameterSet::get_one( std::string const & key
-                                     , T                 & value
-                                     ) const
+                              , T                 & value
+                              ) const
 try
 {
   map_iter_t it = mapping_.find(key);
-  if( it == mapping_.end() ) {
+  if( it == mapping_.end() )
     return false;
-  }
-  else {
-    detail::decode(it->second, value);
-    return true;
-  }
+
+  detail::decode(it->second, value);
+  return true;
 }
 catch( fhicl::exception const & e )
 {

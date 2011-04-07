@@ -107,4 +107,44 @@ BOOST_AUTO_TEST_CASE (DeepVector) {
    BOOST_CHECK_EQUAL( vv.back().back() , 4u );
 }
 
+unsigned
+  hex( std::string const & from )
+{
+  if( from.size() < 3 )  throw std::string("too short");
+  if( from[0] != '0'  )  throw std::string("missing 0 in prefix");
+  if( from[1] != 'x'  )  throw std::string("missing x in prefix");
+
+  unsigned result = 0u;
+  for( std::string::const_iterator it = from.begin() + 2
+                                 , e  = from.end(); it != e; ++it ) {
+    switch( *it ) {
+    default:
+      throw std::string("unknown character in putative hex string");
+    case '0': case '1': case '2': case '3': case '4':
+    case '5': case '6': case '7': case '8': case '9':
+      result = 16 * result + (*it - '0');
+      break;
+    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+      result = 16 * result + (*it - 'a');
+      break;
+    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+      result = 16 * result + (*it - 'A');
+      break;
+    }
+  }
+  return result;
+}
+
+BOOST_AUTO_TEST_CASE( Custom ) {
+   BOOST_CHECK_EQUAL( pset.get<std::string>("n"), "0x123" );
+   unsigned u;
+   BOOST_CHECK( pset.get_if_present("n", u, hex) );
+   BOOST_CHECK_EQUAL( pset.get<unsigned>("n", hex)
+                    , u );
+   BOOST_CHECK_EQUAL( pset.get<unsigned>("n", hex)
+                    , (((1u) * 16u + 2u) * 16u + 3u)
+                    );
+   BOOST_CHECK_THROW( pset.get_if_present("e", u, hex), std::string );
+}
+
 BOOST_AUTO_TEST_SUITE_END()

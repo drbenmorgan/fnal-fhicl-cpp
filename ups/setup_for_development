@@ -34,9 +34,9 @@ tnotnull UPS_DIR || echo "$msg2"
 # note that we do not test for them first...
 # use setup -j to avoid pulling dependencies
 setup cmake
-setup cetbuildtools v1_10_02
-setup -j cetlib v0_05_05 -q a2$extraqual
-setup -j cpp0x v1_01_04 -q a2$extraqual
+setup cetbuildtools v1_11_04
+setup -j cetlib v0_06_08 -q a2$extraqual
+setup -j cpp0x v1_01_08 -q a2$extraqual
 setup -j boost v1_45_0 -q gcc45
 setup gcc v4_5_1
 
@@ -64,6 +64,7 @@ test -n "$db" && setenv FHICLCPP_SOURCE `dirname $db`
 tnotnull FHICLCPP_BUILD && set_ thisdir=$FHICLCPP_BUILD || set_ thisdir=`pwd`
 test -n "$thisdir" && setenv FHICLCPP_BUILD $thisdir
 test -d "$thisdir/lib" || mkdir -p $thisdir/lib
+test -d "$thisdir/bin" || mkdir -p $thisdir/bin
 echo The workng build directory is $thisdir
 
 tnotnull FHICLCPP_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${FHICLCPP_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`

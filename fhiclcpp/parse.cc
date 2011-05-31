@@ -194,7 +194,7 @@ template< class FwdIter, class Skip >
   intermediate_table  tbl;
   value_parser        vp;
   // parser rules:
-  atom_token     name, localref, dbref;
+  atom_token     name, qualname, localref, dbref;
   sequence_token sequence;
   table_token    table;
   value_token    value;
@@ -285,14 +285,15 @@ template< class FwdIter, class Skip >
 , tbl                 ( )
 , vp                  ( )
 {
-  name     = fhicl::ass                                  [ _val = qi::_1 ]
+  name     = fhicl::ass [ _val = qi::_1 ];
+  qualname = fhicl::ass                                  [ _val = qi::_1 ]
            >> *( (char_('.') > fhicl::ass)               [ _val += qi::_1 + qi::_2 ]
                | (char_('[') > fhicl::uint > char_(']')) [ _val += qi::_1 + qi::_2 + qi::_3]
                );  // TODO: only some whitespace permitted
 
   // TODO: no whitespace permitted
-  localref = lit("@local::") > name [ _val = qi::_1 ];
-  dbref    = lit("@db::"   ) > name [ _val = qi::_1 ];
+  localref = lit("@local::") > qualname [ _val = qi::_1 ];
+  dbref    = lit("@db::"   ) > qualname [ _val = qi::_1 ];
 
   sequence = lit('[') > -(value % ',') > lit(']');
   table    = lit('{')
@@ -316,18 +317,19 @@ template< class FwdIter, class Skip >
              );
 
   prolog   = lit("BEGIN_PROLOG") [ phx::bind(&rebool, ref(in_prolog), true) ]
-           >> *((name >> lit(':') > value)
+           >> *((qualname >> lit(':') > value)
                           [ phx::bind(&tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
                )
            >> lit("END_PROLOG")  [ phx::bind(&rebool, ref(in_prolog), false) ];
   document = (*prolog)    [ phx::bind(&rebool, ref(prolog_allowed), false) ]
-           >> *((name >> lit(':') > value)
+           >> *((qualname >> lit(':') > value)
                           [ phx::bind(&tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
                );
 
   name    .name("name atom");
   localref.name("localref atom");
   dbref   .name("dbref atom");
+  qualname.name("qualified name");
   sequence.name("sequence");
   table   .name("table");
   value   .name("value");

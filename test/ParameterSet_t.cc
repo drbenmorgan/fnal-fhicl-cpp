@@ -58,26 +58,26 @@ BOOST_AUTO_TEST_CASE ( DoubleStringMismatchDefaulted ) {
 
    try {
       pset.get<double>("e", 2.0);
-      BOOST_FAIL ("Failed to throw an exception as expected");
+      BOOST_FAIL("Failed to throw an exception as expected");
    }
    catch (fhicl::exception &e) {
       BOOST_CHECK_EQUAL( e.categoryCode(), type_mismatch );
    }
    catch (...) {
-      BOOST_FAIL ("Wrong exception type thrown");
+      BOOST_FAIL("Wrong exception type thrown");
    }
 }
 
 BOOST_AUTO_TEST_CASE ( DoubleStringMismatchNoDefault ) {
    try {
       pset.get<double>("e");
-      BOOST_FAIL ("Failed to throw an exception as expected");
+      BOOST_FAIL("Failed to throw an exception as expected");
    }
    catch (fhicl::exception &e) {
       BOOST_CHECK_EQUAL( e.categoryCode(), type_mismatch );
    }
    catch (...) {
-      BOOST_FAIL ("Wrong exception type thrown");
+      BOOST_FAIL("Wrong exception type thrown");
    }
 }
 
@@ -88,13 +88,13 @@ BOOST_AUTO_TEST_CASE ( StringSuccess ) {
 BOOST_AUTO_TEST_CASE ( NotFound ) {
    try {
       pset.get<double>("zz");
-      BOOST_FAIL ("Failed to throw an exception as expected");
+      BOOST_FAIL("Failed to throw an exception as expected");
    }
    catch (fhicl::exception &e) {
       BOOST_CHECK_EQUAL( e.categoryCode(), cant_find );
    }
    catch (...) {
-      BOOST_FAIL ("Wrong exception type thrown");
+      BOOST_FAIL("Wrong exception type thrown");
    }
 }
 

@@ -29,6 +29,7 @@ cet_test(issue_0923_t.sh PREBUILT
 )
 cet_test(parse_document_test USE_BOOST_UNIT)
 cet_test(parse_value_test)
+cet_test(to_indented_string_test USE_BOOST_UNIT)
 cet_test(to_string_test
   DATAFILES Sample.cfg
 )

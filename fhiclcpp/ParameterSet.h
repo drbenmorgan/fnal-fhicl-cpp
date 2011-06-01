@@ -34,11 +34,12 @@ public:
   // compiler generates default c'tor, d'tor, copy c'tor, copy assignment
 
   // observers:
-  bool                      is_empty     ( ) const;
-  ParameterSetID            id           ( ) const;
-  std::string               to_string    ( ) const;
-  std::vector<std::string>  get_keys     ( ) const;
-  std::vector<std::string>  get_pset_keys( ) const;
+  bool                      is_empty          ( ) const;
+  ParameterSetID            id                ( ) const;
+  std::string               to_string         ( ) const;
+  std::string               to_indented_string( ) const;
+  std::vector<std::string>  get_keys          ( ) const;
+  std::vector<std::string>  get_pset_keys     ( ) const;
 
   // retrievers:
   template< class T >
@@ -77,6 +78,8 @@ private:
 
   template< class T >
     bool get_one( std::string const & key, T & value ) const;
+
+  class Prettifier;
 
 };  // ParameterSet
 

@@ -63,6 +63,9 @@ public:
   template< class T >
     void  put( std::string const & key, T const & value );
 
+  // deleters:
+  bool  erase( std::string const & key );
+
   // comparators:
   bool  operator == ( ParameterSet const & other ) const;
   bool  operator != ( ParameterSet const & other ) const;

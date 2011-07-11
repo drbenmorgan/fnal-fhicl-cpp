@@ -112,10 +112,18 @@ vector<string>
 // ----------------------------------------------------------------------
 
 void
-  ParameterSet::insert( string const & key, any const & value)
+  ParameterSet::insert( string const & key, any const & value )
 {
   mapping_.insert( pair<string const,any>(key, value) );
   id_.invalidate();
+}
+
+bool
+  ParameterSet::erase( string const & key )
+{
+  bool const did_erase = (1u == mapping_.erase(key));
+  id_.invalidate();
+  return did_erase;
 }
 
 // ======================================================================

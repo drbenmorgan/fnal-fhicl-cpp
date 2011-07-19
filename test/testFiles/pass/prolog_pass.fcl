@@ -1,4 +1,4 @@
-PROLOG
+BEGIN_PROLOG
 x : 5
 y : @local::x
-ENDPROLOG
+END_PROLOG

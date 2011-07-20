@@ -6,5 +6,3 @@
 #===========================================
 
 #include"filename.ext"
-#include filename.ext
-#include "filename.ext"

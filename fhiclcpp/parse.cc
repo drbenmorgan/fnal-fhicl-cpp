@@ -104,7 +104,7 @@ static  extended_value
                  )
 {
   throw fhicl::exception(fhicl::unimplemented, name)
-    << "@db:: database lookup not yet available; sorry.";
+    << "@db:: FHiCL-cpp database lookup not yet available; sorry.";
 }
 
 static  void

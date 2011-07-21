@@ -402,8 +402,9 @@ void
   if( b && unparsed.empty() )
     result = p.tbl;
   else
-    throw fhicl::exception(fhicl::parse_error, "detected in string at or near:")
-      << unparsed;
+    throw fhicl::exception( fhicl::parse_error
+                          , "detected in string at or near:"
+                          ) << unparsed;
 
 }  // parse_document()
 

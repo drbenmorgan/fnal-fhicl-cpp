@@ -83,7 +83,7 @@ static  void
 static  extended_value
   xvalue( bool b, fhicl::value_tag t, boost::any v )
 {
-  return fhicl::extended_value(b, t, v );
+  return fhicl::extended_value(b, t, v);
 }
 
 static  extended_value
@@ -159,15 +159,16 @@ template< class FwdIter, class Skip >
 
   // data member:
   extended_value  v;
+
   // parser rules:
-  atom_token   nil, boolean;
-  atom_token   inf;
-  atom_token   squoted, dquoted;
-  atom_token   number, string, name;
-  complex_token  complex;
-  sequence_token sequence;
-  table_token    table;
-  value_token    value;
+  atom_token      nil, boolean;
+  atom_token      inf;
+  atom_token      squoted, dquoted;
+  atom_token      number, string, name;
+  complex_token   complex;
+  sequence_token  sequence;
+  table_token     table;
+  value_token     value;
 
 };  // value_parser
 
@@ -193,12 +194,13 @@ template< class FwdIter, class Skip >
   bool                prolog_allowed;
   intermediate_table  tbl;
   value_parser        vp;
+  //
   // parser rules:
-  atom_token     name, qualname, localref, dbref;
-  sequence_token sequence;
-  table_token    table;
-  value_token    value;
-  nothing_token  prolog, document;
+  atom_token      name, qualname, localref, dbref;
+  sequence_token  sequence;
+  table_token     table;
+  value_token     value;
+  nothing_token   prolog, document;
 
 };  // document_parser
 
@@ -357,12 +359,12 @@ bool
   iter_t                     begin = s.begin();
   iter_t const               end   = s.end();
 
-  bool b =  qi::phrase_parse( begin, end
-                            , p >> *whitespace
-                            , whitespace
-                            , result
-                            )
-         && begin == end;
+  bool const b =  qi::phrase_parse( begin, end
+                                  , p >> *whitespace
+                                  , whitespace
+                                  , result
+                                  )
+               && begin == end;
 
   unparsed = std::string(begin,end);
   return b;

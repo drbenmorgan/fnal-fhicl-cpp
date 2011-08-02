@@ -32,49 +32,31 @@ public:
   typedef  table_t::iterator           iterator;
   typedef  table_t::const_iterator     const_iterator;
 
-  intermediate_table( )
-  : ex_val(false, TABLE, table_t() )
-  { }
+  intermediate_table( );
 
-  const_iterator
-    begin( ) const
-  { return boost::any_cast<table_t const &>(ex_val.value).begin(); }
-  const_iterator
-    end  ( ) const
-  { return boost::any_cast<table_t const &>(ex_val.value).end(); }
+  const_iterator  begin( ) const;
+  const_iterator  end  ( ) const;
 
-  bool
-    empty( ) const
-  { return boost::any_cast<table_t const &>(ex_val.value).empty(); }
+  bool  empty( ) const;
 
-  void
-    insert( std::string const & name
-          , bool                in_prolog
-          , value_tag           tag
-          , boost::any const &  value
-          )
-  { insert(name, extended_value(in_prolog, tag, value)); }
+  void  insert( std::string const & name
+              , bool                in_prolog
+              , value_tag           tag
+              , boost::any const &  value
+              );
+  void  insert( std::string    const & name
+              , extended_value const & value
+              );
 
-  void
-    insert( std::string    const & name
-          , extended_value const & value
-          )
-  { this->operator[](name)  = value; }
+  extended_value &  operator [] ( std::string const & name );
+  extended_value const &  find( std::string const & name ) const;
 
-  extended_value &
-    operator [] ( std::string const & name );
-
-  extended_value const &
-    find( std::string const & name ) const;
-
-  bool
-    exists( std::string const & name ) const;
+  bool  exists( std::string const & name ) const;
 
 private:
   extended_value  ex_val;
 
-  std::vector<std::string>
-    split( std::string const & name ) const;
+  std::vector<std::string>  split( std::string const & name ) const;
 
 };  // intermediate_table
 

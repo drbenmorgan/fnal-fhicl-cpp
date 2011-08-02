@@ -8,8 +8,11 @@
 
 #include "boost/any.hpp"
 #include "cetlib/includer.h"
+#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/exception.h"
+#include "fhiclcpp/extended_value.h"
+#include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/parse.h"
 
 using namespace fhicl;

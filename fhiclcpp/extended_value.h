@@ -8,6 +8,7 @@
 // ======================================================================
 
 #include "boost/any.hpp"
+#include "fhiclcpp/fwd.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -15,15 +16,10 @@
 // ----------------------------------------------------------------------
 
 namespace fhicl {
-
-  class intermediate_table;
-  class extended_value;
-
   enum value_tag { UNKNOWN
                  , NIL, BOOL, NUMBER, COMPLEX, STRING, SEQUENCE, TABLE
                  };
-
-}  // fhicl
+}
 
 // ----------------------------------------------------------------------
 

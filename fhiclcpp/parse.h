@@ -8,8 +8,7 @@
 // ======================================================================
 
 #include "cetlib/filepath_maker.h"
-#include "fhiclcpp/extended_value.h"
-#include "fhiclcpp/intermediate_table.h"
+#include "fhiclcpp/fwd.h"
 #include <string>
 
 namespace fhicl {

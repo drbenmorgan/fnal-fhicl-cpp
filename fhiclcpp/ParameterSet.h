@@ -14,14 +14,11 @@
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/exception.h"
+#include "fhiclcpp/fwd.h"
 #include <cctype>
 #include <map>
 #include <string>
 #include <vector>
-
-namespace fhicl {
-  class ParameterSet;
-}
 
 // ----------------------------------------------------------------------
 

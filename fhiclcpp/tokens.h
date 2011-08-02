@@ -13,14 +13,7 @@
 #include <cctype>
 #include <cstddef>
 #include <string>
-//#include <iostream>
 
-//#include "boost/spirit/include/phoenix_core.hpp"
-//#include "boost/spirit/include/phoenix_operator.hpp"
-//#include "boost/spirit/include/qi_parse.hpp"
-//#include "cetlib/canonical_string.h"
-
-//namespace ascii = boost::spirit::ascii;
 namespace qi    = boost::spirit::qi;
 
 // ----------------------------------------------------------------------

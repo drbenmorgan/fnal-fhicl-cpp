@@ -5,6 +5,7 @@
 // ======================================================================
 
 
+#include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/parse.h"
 #include <cstdlib>
 #include <iostream>

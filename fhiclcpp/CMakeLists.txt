@@ -6,6 +6,7 @@ set( includeFiles
   coding.h
   exception.h
   extended_value.h
+  fwd.h
   intermediate_table.h
   make_ParameterSet.h
   parse.h

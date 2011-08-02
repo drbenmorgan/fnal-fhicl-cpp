@@ -9,15 +9,10 @@
 
 #include "boost/any.hpp"
 #include "fhiclcpp/extended_value.h"
+#include "fhiclcpp/fwd.h"
 #include <map>
 #include <string>
 #include <vector>
-
-// ----------------------------------------------------------------------
-
-namespace fhicl {
-  class intermediate_table;
-}
 
 // ----------------------------------------------------------------------
 

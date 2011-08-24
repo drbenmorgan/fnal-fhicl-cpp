@@ -1,2 +1,2 @@
-#include "table_pass.fcl"
-#include "comments_pass.fcl"    	
+#include "testFiles/pass/table_pass.fcl"
+#include "testFiles/pass/comments_pass.fcl"    	

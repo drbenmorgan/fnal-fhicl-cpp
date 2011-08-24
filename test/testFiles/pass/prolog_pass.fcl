@@ -6,5 +6,4 @@ END_PROLOG
 BEGIN_PROLOG
 z : @local::x
 END_PROLOG
-
 q : @local::z

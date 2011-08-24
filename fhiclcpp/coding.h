@@ -14,15 +14,12 @@
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"
+#include "fhiclcpp/fwd.h"
 #include "fhiclcpp/parse.h"
 #include "fhiclcpp/type_traits.h"
 #include <complex>
 #include <string>
 #include <vector>
-
-namespace fhicl {
-  class ParameterSet;
-}
 
 namespace fhicl {  namespace detail {
   typedef  std::string                ps_atom_t;

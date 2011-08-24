@@ -8,14 +8,13 @@
 // ======================================================================
 
 #include "cetlib/sha1.h"
+#include "fhiclcpp/fwd.h"
 #include <ostream>
 #include <string>
 
 namespace fhicl {
-  class ParameterSetID;
-  std::ostream &  operator << ( std::ostream &, ParameterSetID const & );
-
-  class ParameterSet;
+  std::ostream &
+    operator << ( std::ostream &, ParameterSetID const & );
 }
 
 // ----------------------------------------------------------------------

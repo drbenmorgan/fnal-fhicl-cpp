@@ -8,10 +8,8 @@
 // ======================================================================
 
 #include "cetlib/filepath_maker.h"
-#include "fhiclcpp/ParameterSet.h"
-#include "fhiclcpp/extended_value.h"
-#include "fhiclcpp/intermediate_table.h"
-#include <istream>
+#include "fhiclcpp/fwd.h"
+#include <string>
 
 // ----------------------------------------------------------------------
 

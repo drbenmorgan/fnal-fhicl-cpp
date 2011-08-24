@@ -48,8 +48,63 @@ static extended_value const &
 
 // ----------------------------------------------------------------------
 
+  intermediate_table::
+  intermediate_table( )
+: ex_val(false, TABLE, table_t() )
+{ }
+
+// ----------------------------------------------------------------------
+
+const_iterator
+  intermediate_table::
+  begin( ) const
+{ return boost::any_cast<table_t const &>(ex_val.value).begin(); }
+
+const_iterator
+  intermediate_table::
+  end  ( ) const
+{ return boost::any_cast<table_t const &>(ex_val.value).end(); }
+
+// ----------------------------------------------------------------------
+
+bool
+  intermediate_table::
+  empty( ) const
+{ return boost::any_cast<table_t const &>(ex_val.value).empty(); }
+
+// ----------------------------------------------------------------------
+
+void
+  intermediate_table::
+  insert( std::string const & name
+        , bool                in_prolog
+        , value_tag           tag
+        , boost::any const &  value
+        )
+{ insert(name, extended_value(in_prolog, tag, value)); }
+
+void
+  intermediate_table::
+  insert( std::string    const & name
+        , extended_value const & value
+        )
+{
+  if( ! value.in_prolog )  {
+    table_t & t = boost::any_cast<table_t &>(ex_val.value);
+    std::vector<std::string> const & key = split(name);
+    iterator it = t.find(key[0]);
+    if( it != t.end() && it->second.in_prolog )
+      t.erase(it);
+  }
+
+  this->operator[](name)  = value;
+}
+
+// ----------------------------------------------------------------------
+
 extended_value &
-  intermediate_table::operator [] ( std::string const & name )
+  intermediate_table::
+  operator [] ( std::string const & name )
 {
   std::vector<std::string> const & key = split(name);
   extended_value * p = & ex_val;
@@ -95,7 +150,8 @@ extended_value &
 // ----------------------------------------------------------------------
 
 extended_value const &
-  intermediate_table::find( std::string const & name ) const
+  intermediate_table::
+  find( std::string const & name ) const
 {
   std::vector<std::string> const & key = split(name);
   extended_value const * p = & ex_val;
@@ -137,7 +193,8 @@ extended_value const &
 // ----------------------------------------------------------------------
 
 bool
-  intermediate_table::exists( std::string const & name ) const
+  intermediate_table::
+  exists( std::string const & name ) const
 {
   std::vector<std::string> const & key = split(name);
   extended_value const * p = & ex_val;
@@ -175,7 +232,8 @@ bool
 // ----------------------------------------------------------------------
 
 std::vector<std::string>
-  intermediate_table::split( std::string const & name ) const
+  intermediate_table::
+  split( std::string const & name ) const
 {
   std::vector<std::string> result;
   boost::algorithm::split( result

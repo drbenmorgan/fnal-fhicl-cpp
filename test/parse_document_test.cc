@@ -56,6 +56,8 @@ BOOST_AUTO_TEST_CASE( nested_document )
   ParameterSet pset;
   make_ParameterSet(tbl, pset);
   BOOST_CHECK( ! pset.is_empty() );
+  BOOST_REQUIRE_NO_THROW( pset.get<ParameterSet>("x") );
+  BOOST_REQUIRE( ! pset.get<ParameterSet>("x").is_empty() );
   BOOST_CHECK_EQUAL( pset.get<int>("x.a"), 1 );
   BOOST_CHECK_EQUAL( pset.get<int>("x.b"), 2 );
   BOOST_CHECK_EQUAL( pset.get<unsigned>("x.a"), 1u );
@@ -72,6 +74,28 @@ BOOST_AUTO_TEST_CASE( badly_nested_document )
                          ;
   intermediate_table tbl;
   BOOST_CHECK_THROW( parse_document(document, tbl), cet::exception );
+}
+
+BOOST_AUTO_TEST_CASE( overridden_prolog_document )
+{
+  std::string document = "BEGIN_PROLOG\n"
+                         "  a: 1\n"
+                         "  t: { a : 11\n"
+                         "       b : 12\n"
+                         "     }\n"
+                         "END_PROLOG\n"
+                         "a   : 2\n"
+                         "t.a : @local::t.b\n"
+                         ;
+  intermediate_table tbl;
+  BOOST_CHECK_NO_THROW( parse_document(document, tbl) );
+  ParameterSet pset;
+  make_ParameterSet(tbl, pset);
+  BOOST_CHECK_EQUAL( pset.get<int>("a"), 2 );
+  BOOST_REQUIRE_NO_THROW( pset.get<ParameterSet>("t") );
+  BOOST_REQUIRE( ! pset.get<ParameterSet>("t").is_empty() );
+  BOOST_CHECK_EQUAL( pset.get<int>("t.a"), 12 );
+  BOOST_CHECK_THROW( pset.get<int>("t.b"), cet::exception );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -2,6 +2,7 @@
 
 #include "boost/test/auto_unit_test.hpp"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include <cstddef>
 #include <cstdlib>

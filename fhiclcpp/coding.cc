@@ -64,7 +64,7 @@ ps_atom_t  // string (with quotes)
 
   extended_value xval;
   std::string unparsed;
-  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(STRING) )
+  if( ! parse_value_string(str, xval, unparsed) || ! xval.is_a(STRING) )
     throw fhicl::exception(type_mismatch, "error in input string:\n")
       << str
       << "\nat or before:\n" << unparsed;
@@ -149,7 +149,7 @@ void  // nil
 
   extended_value xval;
   std::string unparsed;
-  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(NIL) )
+  if( ! parse_value_string(str, xval, unparsed) || ! xval.is_a(NIL) )
     throw fhicl::exception(type_mismatch, "error in nil string:\n")
       << str
       << "\nat or before:\n" << unparsed;
@@ -165,7 +165,7 @@ void  // bool
 
   extended_value xval;
   std::string unparsed;
-  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(BOOL) )
+  if( ! parse_value_string(str, xval, unparsed) || ! xval.is_a(BOOL) )
     throw fhicl::exception(type_mismatch, "error in bool string:\n")
       << str
       << "\nat or before:\n" << unparsed;
@@ -190,7 +190,7 @@ void  // unsigned
 
   extended_value xval;
   std::string unparsed;
-  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(NUMBER) )
+  if( ! parse_value_string(str, xval, unparsed) || ! xval.is_a(NUMBER) )
     throw fhicl::exception(type_mismatch, "error in unsigned string:\n")
       << str
       << "\nat or before:\n" << unparsed;
@@ -209,7 +209,7 @@ void  // signed
 
   extended_value xval;
   std::string unparsed;
-  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(NUMBER) )
+  if( ! parse_value_string(str, xval, unparsed) || ! xval.is_a(NUMBER) )
     throw fhicl::exception(type_mismatch, "error in signed string:\n")
       << str
       << "\nat or before:\n" << unparsed;
@@ -228,7 +228,7 @@ void  // floating-point
 
   extended_value xval;
   std::string unparsed;
-  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(NUMBER) )
+  if( ! parse_value_string(str, xval, unparsed) || ! xval.is_a(NUMBER) )
     throw fhicl::exception(type_mismatch, "error in float string:\n")
       << str
       << "\nat or before:\n" << unparsed;
@@ -253,7 +253,7 @@ void  // complex
 
   extended_value xval;
   std::string unparsed;
-  if( ! parse_value(str, xval, unparsed) || ! xval.is_a(COMPLEX) )
+  if( ! parse_value_string(str, xval, unparsed) || ! xval.is_a(COMPLEX) )
     throw fhicl::exception(type_mismatch, "error in complex string:\n")
       << str
       << "\nat or before:\n" << unparsed;

@@ -7,12 +7,7 @@
 include(CetTest)
 
 # Identify libraries to be linked:
-link_libraries( fhiclcppD )
-
-#File globs
-FILE(GLOB testPass "testFiles/pass/*_pass.fcl")
-FILE(GLOB testFail "testFiles/fail/*_fail.fcl")
-FILE(GLOB test_cases "${testPass}" "${testFail}")
+link_libraries(fhiclcppD)
 
 cet_test(PSetSample INSTALL_EXAMPLE INSTALL_SOURCE
   DATAFILES Sample.cfg
@@ -21,6 +16,7 @@ cet_test(PSetTest)
 cet_test(ParameterSet_t USE_BOOST_UNIT
   DATAFILES Sample.cfg
 )
+cet_test(equalTest USE_BOOST_UNIT)
 cet_test(failer DATAFILES test_config_fail.fcl)
 cet_test(fhicl-config_t NO_AUTO)
 cet_test(fhicl-expand_test.sh PREBUILT)
@@ -33,33 +29,34 @@ cet_test(issue_0923_t.sh PREBUILT
   DEPENDENCIES fhicl-config_t
 )
 cet_test(parse_document_test USE_BOOST_UNIT)
-cet_test(parse_value_test)
+cet_test(parse_value_string_test)
 cet_test(to_indented_string_test USE_BOOST_UNIT)
 cet_test(to_string_test
   DATAFILES Sample.cfg
 )
-
 cet_test(values_test USE_BOOST_UNIT)
 
-cet_test(equalTest USE_BOOST_UNIT)
-
 cet_test(test_suite USE_BOOST_UNIT NO_AUTO)
-
+FILE(GLOB testPass RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "testFiles/pass/*_pass.fcl")
+#message("${testPass}")
+FILE(GLOB testFail RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "testFiles/fail/*_fail.fcl")
+#message("${testFail}")
 FOREACH(test_file ${testPass})
-        GET_FILENAME_COMPONENT( test_file_stem ${test_file} NAME_WE)
-        cet_test(${test_file_stem} HANDBUILT
-                TEST_EXEC test_suite
-                TEST_ARGS ${test_file}
-                DATAFILES ${test_file}
-)
-ENDFOREACH()
-
-FOREACH(test_file ${testFail})
-  GET_FILENAME_COMPONENT( test_file_stem ${test_file} NAME_WE)
+  GET_FILENAME_COMPONENT(test_file_stem ${test_file} NAME_WE)
   cet_test(${test_file_stem} HANDBUILT
            TEST_EXEC test_suite
            TEST_ARGS ${test_file}
-           DATAFILES ${test_file}
+           #DATAFILES ${test_file}
+           TEST_PROPERTIES ENVIRONMENT FHICL_FILE_PATH=${CMAKE_CURRENT_SOURCE_DIR}
+  )
+ENDFOREACH()
+FOREACH(test_file ${testFail})
+  GET_FILENAME_COMPONENT(test_file_stem ${test_file} NAME_WE)
+  cet_test(${test_file_stem} HANDBUILT
+           TEST_EXEC test_suite
+           TEST_ARGS ${test_file}
+           #DATAFILES ${test_file}
            TEST_PROPERTIES WILL_FAIL true
-)
+                           ENVIRONMENT FHICL_FILE_PATH=${CMAKE_CURRENT_SOURCE_DIR}
+  )
 ENDFOREACH()

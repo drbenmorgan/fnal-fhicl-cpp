@@ -200,7 +200,7 @@ void
 
     extended_value xval;
     std::string unparsed;
-    if( ! parse_value(str, xval, unparsed) || ! xval.is_a(SEQUENCE) )
+    if( ! parse_value_string(str, xval, unparsed) || ! xval.is_a(SEQUENCE) )
       throw fhicl::exception(type_mismatch, "error in sequence string:\n")
         << str
         << "\nat or before:\n" << unparsed;

@@ -28,10 +28,12 @@ BOOST_AUTO_TEST_CASE( doc )
 {
   ParameterSet ps1;
   {
-    string content;
-    readFile(boost::unit_test::framework::master_test_suite().argv[1], content);
     intermediate_table table;
-    parse_document(content, table);
+    cet::filepath_lookup_nonabsolute policy("FHICL_FILE_PATH");
+    parse_document( boost::unit_test::framework::master_test_suite().argv[1]
+                  , policy
+                  , table
+                  );
     make_ParameterSet(table, ps1);
   }
   cout << "==========  Parsed parameter set ==========\n"

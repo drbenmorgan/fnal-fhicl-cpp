@@ -194,7 +194,7 @@ template< class FwdIter, class Skip >
   bool                prolog_allowed;
   intermediate_table  tbl;
   value_parser        vp;
-  //
+
   // parser rules:
   atom_token      name, qualname, localref, dbref;
   sequence_token  sequence;
@@ -319,12 +319,12 @@ template< class FwdIter, class Skip >
              );
 
   prolog   = lit("BEGIN_PROLOG") [ phx::bind(&rebool, ref(in_prolog), true) ]
-           >> *((qualname >> lit(':') > value)
+           >> *((qualname >> (lit(':') > value))
                           [ phx::bind(&tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
                )
            >> lit("END_PROLOG")  [ phx::bind(&rebool, ref(in_prolog), false) ];
   document = (*prolog)    [ phx::bind(&rebool, ref(prolog_allowed), false) ]
-           >> *((qualname >> lit(':') > value)
+           >> *((qualname >> (lit(':') > value))
                           [ phx::bind(&tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
                );
 
@@ -343,10 +343,10 @@ template< class FwdIter, class Skip >
 // ----------------------------------------------------------------------
 
 bool
-  fhicl::parse_value( std::string const & s
-                    , extended_value    & result
-                    , std::string       & unparsed
-                    )
+  fhicl::parse_value_string( std::string const & s
+                           , extended_value    & result
+                           , std::string       & unparsed
+                           )
 {
   typedef  std::string::const_iterator  iter_t;
 
@@ -369,16 +369,18 @@ bool
   unparsed = std::string(begin,end);
   return b;
 
-}  // parse_value()
+}  // parse_value_string()
 
 // ----------------------------------------------------------------------
 
 void
-  fhicl::parse_document( std::string const  & s
-                       , intermediate_table & result
+  fhicl::parse_document( std::string const   & filename
+                       , cet::filepath_maker & maker
+                       , intermediate_table  & result
                        )
 {
-  typedef  std::string::const_iterator  iter_t;
+  cet::includer s(filename, maker);
+  typedef  cet::includer::const_iterator  iter_t;
 
   typedef  qi::rule<iter_t>  ws_t;
   ws_t  whitespace = space
@@ -404,21 +406,20 @@ void
   if( b && unparsed.empty() )
     result = p.tbl;
   else
-    throw fhicl::exception( fhicl::parse_error
-                          , "detected in string at or near:"
-                          ) << unparsed;
+    throw fhicl::exception(fhicl::parse_error, "detected at or near")
+      << s.whereis(begin);
 
 }  // parse_document()
 
 // ----------------------------------------------------------------------
 
 void
-  fhicl::parse_document( std::string const   & filename
+  fhicl::parse_document( std::istream        & is
                        , cet::filepath_maker & maker
                        , intermediate_table  & result
                        )
 {
-  cet::includer s(filename, maker);
+  cet::includer s(is, maker);
   typedef  cet::includer::const_iterator  iter_t;
 
   typedef  qi::rule<iter_t>  ws_t;

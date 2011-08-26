@@ -1,6 +1,6 @@
 // ======================================================================
 //
-// test parse_value()
+// test parse_value_string()
 //
 // ======================================================================
 
@@ -13,7 +13,7 @@
 #include <utility>
 
 using fhicl::extended_value;
-using fhicl::parse_value;
+using fhicl::parse_value_string;
 using std::pair;
 using std::string;
 
@@ -34,7 +34,7 @@ bool
 
   extended_value result;
   string unparsed;
-  if( ! parse_value(input, result, unparsed) ) {
+  if( ! parse_value_string(input, result, unparsed) ) {
     std::cerr << "Input:    " << input    << '\n'
               << "Wanted:   " << wanted   << '\n'
               << "Unparsed: " << unparsed << '\n'

@@ -40,8 +40,8 @@ setup gcc v4_5_1
 setup -j boost v1_45_0 -q gcc45
 # set up CET products
 setup cetbuildtools v1_11_09
-setup -j cpp0x v1_01_14 -q a2$extraqual
-setup -j cetlib v1_01_00 -q a2$extraqual
+setup -j cpp0x v1_02_00 -q a2$extraqual
+setup -j cetlib v1_02_00 -q a2$extraqual
 
 test $?shell = 1 && set ss=csh || ss=sh
 test "$ss" = csh && alias set_ set && alias vecho_ 'if ($?vv == 1) echo \!*' || eval 'vecho_() { test -n "${vv-}" && echo "$@";}'
@@ -68,7 +68,7 @@ tnotnull FHICLCPP_BUILD && set_ thisdir=$FHICLCPP_BUILD || set_ thisdir=`pwd`
 test -n "$thisdir" && setenv FHICLCPP_BUILD $thisdir
 test -d "$thisdir/lib" || mkdir -p $thisdir/lib
 test -d "$thisdir/bin" || mkdir -p $thisdir/bin
-echo The workng build directory is $thisdir
+echo The working build directory is $thisdir
 
 tnotnull FHICLCPP_BUILD && setenv LD_LIBRARY_PATH `echo :${LD_LIBRARY_PATH}: | sed -e "s|:${FHICLCPP_BUILD}/lib:|:|" -e 's|^:||;s|:$||'`
 tnotnull FHICLCPP_BUILD && setenv LD_LIBRARY_PATH ${FHICLCPP_BUILD}/lib:${LD_LIBRARY_PATH}

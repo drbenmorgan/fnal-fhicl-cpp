@@ -227,7 +227,7 @@ void
   }
 
   else
-      throw fhicl::exception(type_mismatch, "invalid sequence");
+    throw fhicl::exception(type_mismatch, "invalid sequence");
 
 }
 

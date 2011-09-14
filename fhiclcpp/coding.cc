@@ -23,6 +23,13 @@ using boost::numeric_cast;
 
 // ======================================================================
 
+static inline  std::string
+  canon_nil( )
+{
+  static  std::string const  canon_nil(9, '\0');
+  return canon_nil;
+}
+
 static inline  ps_atom_t
   literal_nil( )
 {
@@ -51,6 +58,21 @@ static inline  ps_atom_t
   return literal_infinity;
 }
 
+static  void
+  atom_rep( any const & a, std::string & result )
+{
+  if( is_table(a) )
+    throw fhicl::exception(type_mismatch, "can't obtain atom from table");
+  if( is_sequence(a) )
+    throw fhicl::exception(type_mismatch, "can't obtain atom from sequence");
+
+  result = any_cast<std::string>(a);
+  #if 0
+  if( result.size() >= 2 && result[0] == '\"' && result.end()[-1] == '\"' )
+    result = cet::unescape( result.substr(1, result.size()-2) );
+  #endif // 0
+}
+
 // ----------------------------------------------------------------------
 
 ps_atom_t  // string (with quotes)
@@ -75,7 +97,7 @@ ps_atom_t  // string (with quotes)
 ps_atom_t  // nil
   fhicl::detail::encode( void * )
 {
-  return literal_nil();
+  return canon_nil();
 }
 
 ps_atom_t  // bool
@@ -131,12 +153,10 @@ ps_atom_t  // floating-point
 void  // string without delimiting quotes
   fhicl::detail::decode( any const & a, std::string & result )
 {
-  if( is_table(a) )
-    throw fhicl::exception(type_mismatch, "can't obtain string from table");
-  if( is_sequence(a) )
-    throw fhicl::exception(type_mismatch, "can't obtain string from sequence");
+  atom_rep(a, result);
+  if( result == canon_nil() )
+    throw fhicl::exception(type_mismatch, "can't obtain string from nil");
 
-  result = any_cast<std::string>(a);
   if( result.size() >= 2 && result[0] == '\"' && result.end()[-1] == '\"' )
     result = cet::unescape( result.substr(1, result.size()-2) );
 }
@@ -145,14 +165,11 @@ void  // nil
   fhicl::detail::decode( any const & a, void * & result )
 {
   std::string str;
-  decode(a, str);
+  atom_rep(a, str);
 
-  extended_value xval;
-  std::string unparsed;
-  if( ! parse_value_string(str, xval, unparsed) || ! xval.is_a(NIL) )
+  if( str != canon_nil() )
     throw fhicl::exception(type_mismatch, "error in nil string:\n")
-      << str
-      << "\nat or before:\n" << unparsed;
+      << str;
 
   result = 0;
 }

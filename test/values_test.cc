@@ -17,8 +17,9 @@
 using namespace fhicl;
 using namespace std;
 
-typedef  double       dbl;
-typedef  long double  ldbl;
+typedef  unsigned int  uint;
+typedef  double        dbl;
+typedef  long double   ldbl;
 
 typedef  complex<dbl>   cdbl;
 typedef  complex<ldbl>  cldbl;
@@ -61,22 +62,31 @@ BOOST_AUTO_TEST_CASE( bool_values )  // test atoms "true" and "false"
 
 BOOST_AUTO_TEST_CASE( nil_value )  // test atom "nil"
 {
+  typedef  void *  nil_t;
+  nil_t  nil_value = 0;
+
   ParameterSet pset;
   BOOST_CHECK( pset.is_empty() );
   BOOST_CHECK_EQUAL( pset.to_string(), "" );
 
-  pset.put<void*>( "n11", 0 );
-  BOOST_CHECK_EQUAL( pset.get<string>("n11"), "nil" );
-  BOOST_CHECK_EQUAL( pset.get<void*>("n11"), (void*)0 );
+  pset.put<nil_t>( "n11", 0 );
+  BOOST_CHECK_EQUAL( pset.get<nil_t>("n11"), nil_value );
   BOOST_CHECK_EQUAL( pset.to_string(), "n11:nil" );
+  BOOST_CHECK_THROW( pset.get<bool        >("n11"), fhicl::exception );
+  BOOST_CHECK_THROW( pset.get<uint        >("n11"), fhicl::exception );
+  BOOST_CHECK_THROW( pset.get<int         >("n11"), fhicl::exception );
+  BOOST_CHECK_THROW( pset.get<double      >("n11"), fhicl::exception );
+  BOOST_CHECK_THROW( pset.get<string      >("n11"), fhicl::exception );
+  BOOST_CHECK_THROW( pset.get<uvec        >("n11"), fhicl::exception );
+  BOOST_CHECK_THROW( pset.get<ParameterSet>("n11"), fhicl::exception );
 
   pset.put<string>( "n21", "nil" );
-  BOOST_CHECK_EQUAL( pset.get<void*>("n21"), (void*)0 );
+  BOOST_CHECK_THROW( pset.get<nil_t>("n21"), fhicl::exception );
   BOOST_CHECK_EQUAL( pset.to_string(), "n11:nil n21:\"nil\"" );
 
   pset.put<string>( "n31", "NIL" );
   BOOST_CHECK_EQUAL( pset.to_string(), "n11:nil n21:\"nil\" n31:\"NIL\"" );
-  BOOST_CHECK_THROW( pset.get<void*>("n31"), fhicl::exception );
+  BOOST_CHECK_THROW( pset.get<nil_t>("n31"), fhicl::exception );
 }
 
 BOOST_AUTO_TEST_CASE( string_values )  // test string atoms

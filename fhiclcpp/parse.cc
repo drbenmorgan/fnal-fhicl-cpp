@@ -50,6 +50,13 @@ typedef  extended_value::table_t     table_t;
 // ----------------------------------------------------------------------
 
 static  std::string
+  canon_nil( std::string const & )
+{
+  static std::string const canon_nil(9, '\0');
+  return canon_nil;
+}
+
+static  std::string
   canon_inf( std::string const & inf )
 {
   return inf[0] == 'i'  ?  ('+' + inf)
@@ -211,8 +218,9 @@ template< class FwdIter, class Skip >
 : value_parser::base_type( value )
 , v                      ( )
 {
-  nil      = qi::string("nil")
-           >> !(graph - char_(",]}"));
+  nil      = (qi::string("nil")
+             >> !(graph - char_(",]}"))
+             ) [ _val = phx::bind(canon_nil, qi::_1) ];
   boolean  = (qi::string("true") | qi::string("false"))
            >> !(graph - char_(",]}"));
 
@@ -234,23 +242,24 @@ template< class FwdIter, class Skip >
                    >> !(graph - char_(",]}"))
                    ];
 
-  number   = ( fhicl::uint [ _val = phx::bind(&canon_num, qi::_1) ]
-             | inf         [ _val = phx::bind(&canon_inf, qi::_1) ]
+  number   = ( fhicl::uint [ _val = phx::bind(canon_num, qi::_1) ]
+             | inf         [ _val = phx::bind(canon_inf, qi::_1) ]
              | fhicl::real [ _val = qi::_1 ]
              );
   string   = ( fhicl::ass | fhicl::dss | squoted | dquoted )
-             [ _val = phx::bind(&canon_str, qi::_1) ];
+             [ _val = phx::bind(canon_str, qi::_1) ];
   name     = fhicl::ass [ _val = qi::_1 ];
   complex  = ( lit('(') > number
              > lit(',') > number > lit(')')
-             ) [ _val = phx::bind( &std::make_pair<std::string,std::string>
+             ) [ _val = phx::bind( std::make_pair<std::string,std::string>
                                  , qi::_1 , qi::_2 )
                ];
 
   sequence = lit('[') > -(value % ',') > lit(']');
   table    = lit('{')
-           > *((name > lit(':') > value) [ phx::bind(&map_insert, qi::_1, qi::_2, _val) ]
-               )
+           > *((name >> (lit(':') > value)
+               ) [ phx::bind(map_insert, qi::_1, qi::_2, _val) ]
+              )
            > lit('}');
 
   value    = ( nil      [ _val = phx::bind(xvalue, false, NIL     , qi::_1) ]
@@ -299,8 +308,9 @@ template< class FwdIter, class Skip >
 
   sequence = lit('[') > -(value % ',') > lit(']');
   table    = lit('{')
-           > *((name > lit(':') > value) [ phx::bind(&map_insert, qi::_1, qi::_2, _val) ]
-               )
+           > *((name >> (lit(':') > value)
+               ) [ phx::bind(map_insert, qi::_1, qi::_2, _val) ]
+              )
            > lit('}');
 
   value    = ( vp.nil      [ _val = phx::bind(xvalue, ref(in_prolog), NIL     , qi::_1) ]
@@ -308,24 +318,25 @@ template< class FwdIter, class Skip >
              | vp.number   [ _val = phx::bind(xvalue, ref(in_prolog), NUMBER  , qi::_1) ]
              | vp.complex  [ _val = phx::bind(xvalue, ref(in_prolog), COMPLEX , qi::_1) ]
              | vp.string   [ _val = phx::bind(xvalue, ref(in_prolog), STRING  , qi::_1) ]
-             | localref    [ _val = phx::bind( &local_lookup
-                                        , qi::_1, ref(tbl), ref(in_prolog)
-                                        ) ]
-             | dbref       [ _val = phx::bind( &database_lookup
-                                        , qi::_1, ref(tbl), ref(in_prolog)
-                                        ) ]
+             | localref    [ _val = phx::bind( local_lookup
+                                             , qi::_1, ref(tbl), ref(in_prolog)
+                                             ) ]
+             | dbref       [ _val = phx::bind( database_lookup
+                                             , qi::_1, ref(tbl), ref(in_prolog)
+                                             ) ]
              | sequence    [ _val = phx::bind(xvalue, ref(in_prolog), SEQUENCE, qi::_1) ]
              | table       [ _val = phx::bind(xvalue, ref(in_prolog), TABLE   , qi::_1) ]
              );
 
-  prolog   = lit("BEGIN_PROLOG") [ phx::bind(&rebool, ref(in_prolog), true) ]
-           >> *((qualname >> (lit(':') > value))
-                          [ phx::bind(&tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
+  prolog   = lit("BEGIN_PROLOG") [ phx::bind(rebool, ref(in_prolog), true) ]
+           >> *((qualname
+                >> (lit(':') > value)
+                ) [ phx::bind(tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
                )
-           >> lit("END_PROLOG")  [ phx::bind(&rebool, ref(in_prolog), false) ];
-  document = (*prolog)    [ phx::bind(&rebool, ref(prolog_allowed), false) ]
-           >> *((qualname >> (lit(':') > value))
-                          [ phx::bind(&tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
+           >> lit("END_PROLOG")  [ phx::bind(rebool, ref(in_prolog), false) ];
+  document = (*prolog)    [ phx::bind(rebool, ref(prolog_allowed), false) ]
+           >> *((qualname >> (lit(':') > value)
+                ) [ phx::bind(tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
                );
 
   name    .name("name atom");

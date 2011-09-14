@@ -35,9 +35,9 @@ bool
   extended_value result;
   string unparsed;
   if( ! parse_value_string(input, result, unparsed) ) {
-    std::cerr << "Input:    " << input    << '\n'
-              << "Wanted:   " << wanted   << '\n'
-              << "Unparsed: " << unparsed << '\n'
+    std::cerr << "Input:    \"" << input    << "\"\n"
+              << "Wanted:   \"" << wanted   << "\"\n"
+              << "Unparsed: \"" << unparsed << "\"\n"
               ;
     return false;
   }
@@ -46,10 +46,10 @@ bool
   if( got == wanted )
     return true;
 
-  std::cerr << "Input:    " << input    << '\n'
-            << "Wanted:   " << wanted   << '\n'
-            << "Got:      " << got      << '\n'
-            << "Unparsed: " << unparsed << '\n'
+  std::cerr << "Input:    \"" << input    << "\"\n"
+            << "Wanted:   \"" << wanted   << "\"\n"
+            << "Got:      \"" << got      << "\"\n"
+            << "Unparsed: \"" << unparsed << "\"\n"
             ;
   return false;
 }
@@ -60,12 +60,15 @@ string
 string
   squoted( string s )  { return '\'' + s + '\''; }
 
+string
+  nil( )  { return string(9, '\0'); }
+
 int
   main( )
 {
-  ensure( 1, parse_as("nil"  , "nil") );
-  ensure( 2, parse_as(" nil" , "nil") );
-  ensure( 3, parse_as(" nil ", "nil") );
+  ensure( 1, parse_as("nil"  , nil()) );
+  ensure( 2, parse_as(" nil" , nil()) );
+  ensure( 3, parse_as(" nil ", nil()) );
   ensure( 4, ! parse_as(" true or false ", "true") );
   ensure( 5, ! parse_as(" TRUE or FALSE ", dquoted("TRUE")) );
   ensure( 6, parse_as("infinity", "+infinity") );

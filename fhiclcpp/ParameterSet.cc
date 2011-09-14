@@ -47,8 +47,10 @@ string
     return '[' + str + ']';
   }
 
-  else  // is_atom(a)
-    return any_cast<ps_atom_t>(a);
+  else  {  // is_atom(a)
+    ps_atom_t str = any_cast<ps_atom_t>(a);
+    return str == string(9, '\0')  ? "nil" : str;
+  }
 
 }  // stringify()
 

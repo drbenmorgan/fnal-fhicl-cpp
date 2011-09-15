@@ -98,4 +98,41 @@ BOOST_AUTO_TEST_CASE( overridden_prolog_document )
   BOOST_CHECK_THROW( pset.get<int>("t.b"), cet::exception );
 }
 
+BOOST_AUTO_TEST_CASE( overridden_toplevel_document )
+{
+  std::string document = "a : 1\n"
+                         "b : 2\n"
+                         "a : 3\n"
+                         "c : 4\n"
+                         "b : 5\n"
+                         "a : 6\n"
+                         ;
+  intermediate_table tbl;
+  BOOST_CHECK_NO_THROW( parse_document(document, tbl) );
+  ParameterSet pset;
+  make_ParameterSet(tbl, pset);
+  BOOST_CHECK_EQUAL( pset.get<int>("a"), 6 );
+  BOOST_CHECK_EQUAL( pset.get<int>("b"), 5 );
+  BOOST_CHECK_EQUAL( pset.get<int>("c"), 4 );
+}
+
+BOOST_AUTO_TEST_CASE( overridden_nested_document )
+{
+  std::string document = "t : { a : 1\n"
+                         "      b : 2\n"
+                         "      a : 3\n"
+                         "      c : 4\n"
+                         "      b : 5\n"
+                         "      a : 6\n"
+                         "    }\n"
+                         ;
+  intermediate_table tbl;
+  BOOST_CHECK_NO_THROW( parse_document(document, tbl) );
+  ParameterSet pset;
+  make_ParameterSet(tbl, pset);
+  BOOST_CHECK_EQUAL( pset.get<int>("t.a"), 6 );
+  BOOST_CHECK_EQUAL( pset.get<int>("t.b"), 5 );
+  BOOST_CHECK_EQUAL( pset.get<int>("t.c"), 4 );
+}
+
 BOOST_AUTO_TEST_SUITE_END()

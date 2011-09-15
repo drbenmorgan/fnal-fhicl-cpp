@@ -129,7 +129,7 @@ static  void
             , table_t              & t
             )
 {
-  t.insert( std::make_pair(name, value) );
+  t[name] = value;
 }
 
 // ----------------------------------------------------------------------
@@ -150,11 +150,6 @@ template< class FwdIter, class Skip >
   struct fhicl::value_parser
 : qi::grammar<FwdIter, extended_value(), Skip>
 {
-  typedef  extended_value::atom_t      atom_t;
-  typedef  extended_value::complex_t   complex_t;
-  typedef  extended_value::sequence_t  sequence_t;
-  typedef  extended_value::table_t     table_t;
-
   typedef  qi::rule<FwdIter, atom_t        (), Skip>  atom_token;
   typedef  qi::rule<FwdIter, complex_t     (), Skip>  complex_token;
   typedef  qi::rule<FwdIter, sequence_t    (), Skip>  sequence_token;

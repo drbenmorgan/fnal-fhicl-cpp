@@ -18,6 +18,7 @@ using namespace fhicl;
 using namespace std;
 
 typedef  unsigned int  uint;
+
 typedef  double        dbl;
 typedef  long double   ldbl;
 
@@ -210,14 +211,20 @@ BOOST_AUTO_TEST_CASE( float_values )  // test floating-point atoms
     BOOST_CHECK_EQUAL( pset.get<string>("f11"), "0" );
     BOOST_CHECK_EQUAL( pset.to_string(), "f11:0" );
     BOOST_CHECK_EQUAL( pset.get<dbl>("f11"), 0.0 );
+    BOOST_CHECK_EQUAL( pset.get<int>("f11"), 0 );
+    BOOST_CHECK_EQUAL( pset.get<uint>("f11"), 0u );
     pset.put<dbl>( "f14", 12.0 );
     BOOST_CHECK_EQUAL( pset.get<string>("f14"), "12" );
     BOOST_CHECK_EQUAL( pset.to_string(), "f11:0 f14:12" );
     BOOST_CHECK_EQUAL( pset.get<dbl>("f14"), 12.0 );
+    BOOST_CHECK_EQUAL( pset.get<int>("f14"), 12 );
+    BOOST_CHECK_EQUAL( pset.get<uint>("f14"), 12u );
     pset.put<dbl>( "f17", 12.3e1 );
     BOOST_CHECK_EQUAL( pset.get<string>("f17"), "123" );
     BOOST_CHECK_EQUAL( pset.to_string(), "f11:0 f14:12 f17:123" );
     BOOST_CHECK_EQUAL( pset.get<dbl>("f17"), 123.0 );
+    BOOST_CHECK_EQUAL( pset.get<int>("f17"), 123 );
+    BOOST_CHECK_EQUAL( pset.get<uint>("f17"), 123u );
   }
 
   {
@@ -226,10 +233,20 @@ BOOST_AUTO_TEST_CASE( float_values )  // test floating-point atoms
     BOOST_CHECK_EQUAL( pset.get<string>("f21"), "123456" );
     BOOST_CHECK_EQUAL( pset.to_string(), "f21:123456" );
     BOOST_CHECK_EQUAL( pset.get<dbl>("f21"), 123456.0 );
+    BOOST_CHECK_EQUAL( pset.get<int>("f21"), 123456 );
+    BOOST_CHECK_EQUAL( pset.get<uint>("f21"), 123456u );
     pset.put<dbl>( "f24", 12.34567e5 );
     BOOST_CHECK_EQUAL( pset.get<string>("f24"), "1.234567e+6" );
     BOOST_CHECK_EQUAL( pset.to_string(), "f21:123456 f24:1.234567e+6" );
     BOOST_CHECK_EQUAL( pset.get<dbl>("f24"), 1234567.0 );
+    BOOST_CHECK_EQUAL( pset.get<int>("f24"), 1234567L );
+    BOOST_CHECK_EQUAL( pset.get<uint>("f24"), 1234567uL );
+    pset.put<dbl>( "f27", 3.5 );
+    BOOST_CHECK_EQUAL( pset.get<string>("f27"), "3.5" );
+    BOOST_CHECK_EQUAL( pset.to_string(), "f21:123456 f24:1.234567e+6 f27:3.5" );
+    BOOST_CHECK_EQUAL( pset.get<dbl>("f27"), 3.5 );
+    BOOST_CHECK_THROW( pset.get<int>("f27"), fhicl::exception );
+    BOOST_CHECK_THROW( pset.get<uint>("f27"), fhicl::exception );
   }
 
   {

@@ -7,11 +7,12 @@
 #include "fhiclcpp/coding.h"
 
 #include "cetlib/canonical_string.h"
+#include "cpp0x/cstddef"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include <cstddef>
 #include <cstdlib>
 #include <limits>
+#include <stdexcept>
 
 using namespace fhicl;
 using namespace fhicl::detail;
@@ -216,6 +217,8 @@ void  // unsigned
   atom_t const & atom = atom_t(xval);
   ldbl via = lexical_cast<ldbl>(atom);
   result = numeric_cast<std::uintmax_t>(via);
+  if( via != ldbl(result) )
+    throw std::range_error("narrowing conversion");
 }
 
 void  // signed
@@ -235,6 +238,8 @@ void  // signed
   atom_t const & atom = atom_t(xval);
   ldbl via = lexical_cast<ldbl>(atom);
   result = numeric_cast<std::intmax_t>(via);
+  if( via != ldbl(result) )
+    throw std::range_error("narrowing conversion");
 }
 
 void  // floating-point

@@ -109,30 +109,31 @@ BOOST_AUTO_TEST_CASE (DeepVector) {
 }
 
 unsigned
+  ctox( char c )
+{
+  switch( c ) {
+  case '0': case '1': case '2': case '3': case '4':
+  case '5': case '6': case '7': case '8': case '9':
+    return c - '0';
+  case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+    return 10 + c - 'a';
+  case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+    return 10 + c - 'A';
+  default:
+    throw std::string("ctox(): invalid hex character");
+  }
+}
+
+unsigned
   hex( std::string const & from )
 {
-  if( from.size() < 3 )  throw std::string("too short");
-  if( from[0] != '0'  )  throw std::string("missing 0 in prefix");
-  if( from[1] != 'x'  )  throw std::string("missing x in prefix");
+  if( from.size() < 3 || from[0] != '0' || from[1] != 'x' || from[1] != 'X' )
+    throw std::string("hex(): invalid argument");
 
   unsigned result = 0u;
   for( std::string::const_iterator it = from.begin() + 2
-                                 , e  = from.end(); it != e; ++it ) {
-    switch( *it ) {
-    default:
-      throw std::string("unknown character in putative hex string");
-    case '0': case '1': case '2': case '3': case '4':
-    case '5': case '6': case '7': case '8': case '9':
-      result = 16 * result + (*it - '0');
-      break;
-    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
-      result = 16 * result + (*it - 'a');
-      break;
-    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
-      result = 16 * result + (*it - 'A');
-      break;
-    }
-  }
+                                 , e  = from.end(); it != e; ++it )
+    result = 16u * result + ctox(*it);
   return result;
 }
 

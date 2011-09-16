@@ -4,12 +4,11 @@
 //
 // ======================================================================
 
-
 #include "fhiclcpp/ParameterSet.h"
 
+#include "cpp0x/cstddef"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include <cassert>
-#include <cstddef>
 
 using namespace fhicl;
 using namespace fhicl::detail;
@@ -109,6 +108,15 @@ vector<string>
     if( is_table(it->second) )
       keys.push_back( it->first );
   return keys;
+}
+
+// ----------------------------------------------------------------------
+
+void
+  ParameterSet::put( std::string const & key )
+{
+  void * const value = nullptr;
+  put(key, value );
 }
 
 // ----------------------------------------------------------------------

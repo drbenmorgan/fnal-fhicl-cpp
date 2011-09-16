@@ -11,13 +11,13 @@
 #include "boost/any.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/numeric/conversion/cast.hpp"
+#include "cpp0x/string"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/fwd.h"
 #include <cctype>
 #include <map>
-#include <string>
 #include <vector>
 
 // ----------------------------------------------------------------------
@@ -57,6 +57,7 @@ public:
 
   // inserters:
   void  insert( std::string const & key, boost::any const & value );
+  void  put( std::string const & key );  // implicit nil value
   template< class T >
     void  put( std::string const & key, T const & value );
 
@@ -151,14 +152,14 @@ template< class T >
 template< class T, class Via >
   bool
   fhicl::ParameterSet::get_if_present( std::string const & key
-                                     , T                 & value
+                                     , T                 & result
                                      , T convert(Via const &)
                                      ) const
 {
   Via go_between;
   if( ! get_if_present(key, go_between) )
     return false;
-  value = convert(go_between);
+  result = convert(go_between);
   return true;
 }  // get_if_present<>()
 

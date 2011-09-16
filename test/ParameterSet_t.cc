@@ -127,7 +127,7 @@ unsigned
 unsigned
   hex( std::string const & from )
 {
-  if( from.size() < 3 || from[0] != '0' || from[1] != 'x' || from[1] != 'X' )
+  if( from.size() < 3 || from[0] != '0' || (from[1] != 'x' && from[1] != 'X') )
     throw std::string("hex(): invalid argument");
 
   unsigned result = 0u;

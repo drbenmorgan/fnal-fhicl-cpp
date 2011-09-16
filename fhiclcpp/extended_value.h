@@ -8,9 +8,9 @@
 // ======================================================================
 
 #include "boost/any.hpp"
+#include "cpp0x/string"
 #include "fhiclcpp/fwd.h"
 #include <map>
-#include <string>
 #include <vector>
 
 // ----------------------------------------------------------------------

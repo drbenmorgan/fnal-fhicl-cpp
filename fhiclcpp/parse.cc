@@ -15,11 +15,11 @@
 #include "cetlib/canonical_string.h"
 #include "cetlib/include.h"
 #include "cetlib/includer.h"
+#include "cpp0x/string"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/tokens.h"
-#include <string>
 #include <vector>
 
 namespace ascii = ::boost::spirit::ascii;

@@ -8,10 +8,10 @@
 // ======================================================================
 
 #include "boost/any.hpp"
+#include "cpp0x/string"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/fwd.h"
 #include <map>
-#include <string>
 #include <vector>
 
 // ----------------------------------------------------------------------

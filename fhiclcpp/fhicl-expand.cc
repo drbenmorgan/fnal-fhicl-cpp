@@ -19,11 +19,11 @@
 #include "cetlib/exception.h"
 #include "cetlib/filepath_maker.h"
 #include "cetlib/includer.h"
+#include "cpp0x/memory"
+#include "cpp0x/string"
 #include <fstream>
 #include <iostream>
 #include <istream>
-#include <memory>
-#include <string>
 #include <vector>
 
 // ----------------------------------------------------------------------

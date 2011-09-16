@@ -8,9 +8,9 @@
 // ======================================================================
 
 #include "cetlib/sha1.h"
+#include "cpp0x/string"
 #include "fhiclcpp/fwd.h"
 #include <ostream>
-#include <string>
 
 namespace fhicl {
   std::ostream &

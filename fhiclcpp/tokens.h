@@ -10,11 +10,11 @@
 #include "boost/spirit/home/support/terminal.hpp"
 #include "boost/spirit/include/qi.hpp"
 #include "cetlib/canonical_number.h"
+#include "cpp0x/cstddef"
+#include "cpp0x/string"
 #include <cctype>
-#include <cstddef>
-#include <string>
 
-namespace qi    = boost::spirit::qi;
+namespace qi = boost::spirit::qi;
 
 // ----------------------------------------------------------------------
 // utilities:

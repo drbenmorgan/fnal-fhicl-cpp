@@ -8,10 +8,10 @@
 // ======================================================================
 
 #include "cetlib/filepath_maker.h"
+#include "cpp0x/string"
 #include "fhiclcpp/fwd.h"
 #include <istream>
 #include <sstream>
-#include <string>
 
 namespace fhicl {
 

@@ -17,7 +17,7 @@ cmake_minimum_required( VERSION 2.6 )
 project( fhiclcpp )
 set( product fhiclcpp )
 set( version v2_15_01 )
-set( qualifier a2 )
+set( qualifier a3 )
 
 # because we want to move these libraries about,
 # do not embed full path in shared libraries or executables

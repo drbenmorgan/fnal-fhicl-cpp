@@ -16,7 +16,7 @@ cmake_minimum_required( VERSION 2.6 )
 
 project( fhiclcpp )
 set( product fhiclcpp )
-set( version v2_15_00 )
+set( version v2_15_01 )
 set( qualifier a2 )
 
 # because we want to move these libraries about,
@@ -57,9 +57,9 @@ message( STATUS "Using GCC ${GCC_VERSION} with ${CMAKE_CXX_FLAGS}" )
 
 # these are minimum required versions, not the actual product versions
 find_ups_product( cetbuildtools v1_11_00 )
-find_ups_product( cetlib v0_06_00 )
-find_ups_product( cpp0x v1_01_06 )
-find_ups_boost( v1_45_0
+find_ups_product( cetlib v1_02_01 )
+find_ups_product( cpp0x v1_02_01 )
+find_ups_boost( v1_46_1
   unit_test_framework
   program_options
   )

@@ -10,7 +10,7 @@
 int
   main( )
 {
-  putenv((char*)"FHICL_FILE_PATH=./test:.");
+  putenv(const_cast<char*>("FHICL_FILE_PATH=./test:."));
 
   std::string in("test_config_fail.fcl");
   cet::filepath_lookup policy("FHICL_FILE_PATH");

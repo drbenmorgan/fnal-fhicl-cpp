@@ -4,6 +4,10 @@
 //
 // ======================================================================
 
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 #include "fhiclcpp/parse.h"
 
 #include "boost/any.hpp"
@@ -106,8 +110,8 @@ static  extended_value
 
 static  extended_value
   database_lookup( std::string               const & name
-                 , fhicl::intermediate_table const & tbl
-                 , bool                              in_prolog
+                 , fhicl::intermediate_table const & /*tbl*/
+                 , bool                              /*in_prolog*/
                  )
 {
   throw fhicl::exception(fhicl::unimplemented, name)

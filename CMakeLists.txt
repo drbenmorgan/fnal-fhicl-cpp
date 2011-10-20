@@ -16,7 +16,7 @@ cmake_minimum_required( VERSION 2.6 )
 
 project( fhiclcpp )
 set( product fhiclcpp )
-set( version v2_15_02 )
+set( version v2_15_03 )
 set( qualifier a4 )
 
 # because we want to move these libraries about,
@@ -52,7 +52,7 @@ set( GCC_VERSION $ENV{GCC_VERSION} )
 if( NOT GCC_VERSION )
   message( "GCC has not been setup" )
 endif()
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall" )
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98 -g -O3  -Wall -Werror=return-type -Wextra -Wno-long-long -Winit-self -Wcast-qual -Woverloaded-virtual")
 message( STATUS "Using GCC ${GCC_VERSION} with ${CMAKE_CXX_FLAGS}" )
 
 # these are minimum required versions, not the actual product versions

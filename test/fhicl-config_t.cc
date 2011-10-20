@@ -15,7 +15,7 @@ int
     exit(1);
   }
 
-  putenv((char*)"FHICL_FILE_PATH=./test:.");
+  putenv(const_cast<char*>("FHICL_FILE_PATH=./test:."));
   cet::filepath_lookup policy("FHICL_FILE_PATH");
 
   std::string cfg_in(argv[1]);

@@ -36,6 +36,9 @@ message( STATUS "module path is ${CMAKE_MODULE_PATH}" )
 include(EnsureOutOfSourceBuild)
 cet_ensure_out_of_source_build()
 
+include(SetCompilerFlags)
+cet_set_compiler_flags(DIAGS VIGILANT)
+
 # define some necessary modules
 include( FindUpsPackage )
 include( FindUpsBoost )
@@ -52,13 +55,11 @@ set( GCC_VERSION $ENV{GCC_VERSION} )
 if( NOT GCC_VERSION )
   message( "GCC has not been setup" )
 endif()
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98 -g -O3  -Wall -Werror=return-type -Wextra -Wno-long-long -Winit-self -Wcast-qual -Woverloaded-virtual")
-message( STATUS "Using GCC ${GCC_VERSION} with ${CMAKE_CXX_FLAGS}" )
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( cetbuildtools v1_12_00 )
-find_ups_product( cetlib v1_02_02 )
-find_ups_product( cpp0x v1_02_02 )
+find_ups_product( cetbuildtools v1_13_02)
+find_ups_product( cetlib v1_02_03 )
+find_ups_product( cpp0x v1_02_03 )
 find_ups_boost( v1_46_1
   unit_test_framework
   program_options

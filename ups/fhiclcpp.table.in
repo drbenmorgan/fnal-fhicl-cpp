@@ -4,44 +4,83 @@ Product = fhiclcpp
 # Starting Group definition
 Group:
 
+
 Flavor     = ANY
 Qualifiers = ""
-  Action = setup
-       prodDir()
-       setupEnv()
-       setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
+
+  Action = GetFQDir
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
        execute( "get-directory-name subdir '' ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
-       exeActionRequired("setup__")
+
+  Action = GetExtraProducts
+    setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@)
+    setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@)
+    setupRequired(boost @BOOST_VERS@ @BOOST_BASE_QUAL@)
 
 Flavor     = ANY
 Qualifiers = "@qualifier@"
-  Action = setup
-       prodDir()
-       setupEnv()
-       setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
+
+  Action = GetFQDir
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
        execute( "get-directory-name subdir @qualifier@ ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
-       exeActionRequired("setup__")
+
+  Action = GetExtraProducts
+    setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@)
+    setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@)
+    setupRequired(boost @BOOST_VERS@ @BOOST_BASE_QUAL@)
 
 Flavor     = ANY
 Qualifiers = "@qualifier@:debug"
-  Action = setup
-       prodDir()
-       setupEnv()
-       setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
+
+  Action = GetFQDir
        # faking out unsetup
        envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
        execute( "get-directory-name subdir @qualifier@.debug ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
        fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
-       exeActionRequired("setup__")
+
+  Action = GetExtraProducts
+    setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@:debug)
+    setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@:debug)
+    setupRequired(boost @BOOST_VERS@ @BOOST_BASE_QUAL@:debug)
+
+Flavor     = ANY
+Qualifiers = "@qualifier@:opt"
+
+  Action = GetFQDir
+       # faking out unsetup
+       envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
+       execute( "get-directory-name subdir @qualifier@.opt ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
+
+  Action = GetExtraProducts
+    setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@:opt)
+    setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@:opt)
+    setupRequired(boost @BOOST_VERS@ @BOOST_BASE_QUAL@:opt)
+
+Flavor     = ANY
+Qualifiers = "@qualifier@:prof"
+
+  Action = GetFQDir
+       # faking out unsetup
+       envSet( ${UPS_PROD_NAME_UC}_FQ, "" )
+       execute( "get-directory-name subdir @qualifier@.prof ${UPS_PROD_FLAVOR}", UPS_ENV, ${UPS_PROD_NAME_UC}_FQ )
+       fileTest( ${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ}, -d, "${UPS_PROD_DIR}/${${UPS_PROD_NAME_UC}_FQ} directory not found: SETUP ABORTED")
+
+  Action = GetExtraProducts
+    setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_BASE_QUAL@:prof)
+    setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_BASE_QUAL@:prof)
+    setupRequired(boost @BOOST_VERS@ @BOOST_BASE_QUAL@:prof)
 
 Common:
-  Action = setup__
+  Action = setup
+    prodDir()
+    setupEnv()
+    setupRequired(cetbuildtools @CETBUILDTOOLS_VERSION@ @CETBUILDTOOLS_QUAL@)
+    exeActionRequired(GetFQDir)
     envSet(${UPS_PROD_NAME_UC}_VERSION, @version@)
     prodDir( _FQ_DIR, ${${UPS_PROD_NAME_UC}_FQ} )
 
@@ -61,9 +100,7 @@ Common:
 
     # uncomment or add to this list as relevant
     setupRequired(cmake)
-    setupRequired(cetlib @CETLIB_VERSION@ @CETLIB_QUAL@)
-    setupRequired(cpp0x @CPP0X_VERSION@ @CPP0X_QUAL@)
-    setupRequired(boost @BOOST_VERS@ @BOOST_QUAL@)
+    exeActionRequired(GetExtraProducts)
     setupRequired(gcc @GCC_VERSION@ )
 
 End:

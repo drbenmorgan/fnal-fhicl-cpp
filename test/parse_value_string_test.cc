@@ -115,6 +115,7 @@ int
   ensure( 55, parse_as( squoted("Hi, there!"), dquoted("Hi, there!")) );
   ensure( 56, parse_as( squoted("\\t\\n"), dquoted("\\\\t\\\\n")) );
   ensure( 57, parse_as( "infinityx", dquoted("infinityx")) );
+  ensure( 58, parse_as( dquoted("Hi, \\\"Tom\\\""), dquoted("Hi, \\\"Tom\\\"") ) );
 
   ensure( 61, parse_as(" [1,2.3] ", "[1,2.3]") );
   ensure( 62, parse_as(" [ 1 , 2.3 ] ", "[1,2.3]") );

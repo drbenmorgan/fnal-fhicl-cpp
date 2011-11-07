@@ -236,13 +236,13 @@ template< class FwdIter, class Skip >
                    >> char_('\'')
                    >> !(graph - char_(",]}"))
                    ];
-  dquoted  = lexeme[ char_('\"')
-                   >> *( (char_ - char_('\"'))
-                       | qi::string("\\\"")
-                       )
-                   >> char_('\"')
-                   >> !(graph - char_(",]}"))
-                   ];
+  dquoted  = lexeme[ raw [ char_('\"')
+                         >> *( qi::string("\\\"")
+                             | (char_ - char_('\"'))
+                             )
+                         >> char_('\"')
+                         >> !(graph - char_(",]}"))
+                   ] ];
 
   number   = ( fhicl::uint [ _val = phx::bind(canon_num, qi::_1) ]
              | inf         [ _val = phx::bind(canon_inf, qi::_1) ]

@@ -4,9 +4,12 @@
 //
 // ======================================================================
 
-#pragma GCC diagnostic ignored "-Wshadow"
-#pragma GCC diagnostic ignored "-Wstrict-aliasing"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+#include "cpp0x/detail/config"
+#if GCC_IS_AT_LEAST(4, 6, 0)
+  #pragma GCC diagnostic ignored "-Wshadow"
+  #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+  #pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 
 #include "fhiclcpp/parse.h"
 

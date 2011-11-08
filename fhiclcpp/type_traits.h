@@ -35,8 +35,6 @@ namespace tt {
 
 namespace tt {
   template< class T > struct is_complex : public std::false_type { };
-  template< class T >
-    struct is_complex<T const> : public is_complex<T> { };
 
   template< class T >
     struct is_complex< std::complex<T> > : public is_floating_point<T> { };

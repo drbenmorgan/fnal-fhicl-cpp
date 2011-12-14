@@ -5,7 +5,7 @@
 # ======================================================================
 
 include(CetTest)
-cet_set_compiler_flags(ENABLE_ASSERTS DIAGS VIGILANT)
+cet_enable_asserts()
 
 # Identify libraries to be linked:
 link_libraries(fhiclcppD)

@@ -25,6 +25,10 @@ set( srcFiles
   parse.cc
 )
 
+if (qualifier STREQUAL "e1")
+  set_source_files_properties(parse.cc PROPERTIES COMPILE_FLAGS -std=c++98)
+endif()
+
 # install public headers for users:
 install( FILES ${includeFiles}
          DESTINATION ${product}/${version}/include/fhiclcpp

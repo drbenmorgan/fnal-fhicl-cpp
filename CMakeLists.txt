@@ -29,7 +29,7 @@ include(CetCMakeEnv)
 if ( NOT qualifier )
     message (FATAL_ERROR "ERROR: please call cmake with -Dqualifier:STRING=qualifier")
 endif ( NOT qualifier )
-cet_cmake_env( fhiclcpp v2_16_01 ${qualifier} )
+cet_cmake_env( fhiclcpp v2_16_02 ${qualifier} )
 
 cet_set_compiler_flags(DIAGS VIGILANT)
 if ("${qualifier}" STREQUAL "e1")
@@ -40,10 +40,10 @@ cet_report_compiler_flags()
 cet_check_gcc()
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( cetbuildtools v1_14_02)
-find_ups_product( cpp0x v1_03_00 )
-find_ups_product( cetlib v1_03_00 )
-find_ups_boost( v1_47_0
+find_ups_product( cetbuildtools v1_15_00 )
+find_ups_product( cpp0x v1_03_02 )
+find_ups_product( cetlib v1_03_02 )
+find_ups_boost( v1_48_0
   unit_test_framework
   program_options
   )

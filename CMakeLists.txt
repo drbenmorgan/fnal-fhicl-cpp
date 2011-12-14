@@ -6,55 +6,38 @@
 #
 #  cd .../path/to/build/directory
 #  source .../path/to/source/code/setup_for_development
-#  cmake [-DCMAKE_INSTALL_PREFIX=/install/path] $FHICLCPP_SOURCE
+#  cmake [-DCMAKE_INSTALL_PREFIX=/install/path]
+#        -Dqualifier:STRING=$CETPKG_QUAL
+#        -DCMAKE_BUILD_TYPE=$CETPKG_TYPE
+#        $CETPKG_SOURCE
 #  make
 #  make test
 #  make install
 #  make package
 
-cmake_minimum_required( VERSION 2.6 )
-
-project( fhiclcpp )
-set( product fhiclcpp )
-set( version v2_16_01 )
-set( qualifier a4 )
-
-# because we want to move these libraries about,
-# do not embed full path in shared libraries or executables
-set( CMAKE_SKIP_RPATH )
+cmake_minimum_required( VERSION 2.8 )
 
 # cetbuildtools contains our cmake modules
 set( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
 if( NOT CETBUILDTOOLS_VERSION )
   message( FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules" )
 endif()
-set( CMAKE_MODULE_PATH "${CMAKE_ROOT}/Modules" )
 set( CMAKE_MODULE_PATH $ENV{CETBUILDTOOLS_DIR}/Modules ${CMAKE_MODULE_PATH} )
-message( STATUS "module path is ${CMAKE_MODULE_PATH}" )
 
-# make sure someone isn't typing cmake in the source code tree
-include(EnsureOutOfSourceBuild)
-cet_ensure_out_of_source_build()
+include(CetCMakeEnv)
 
-include(SetCompilerFlags)
+if ( NOT qualifier )
+    message (FATAL_ERROR "ERROR: please call cmake with -Dqualifier:STRING=qualifier")
+endif ( NOT qualifier )
+cet_cmake_env( fhiclcpp v2_16_01 ${qualifier} )
+
 cet_set_compiler_flags(DIAGS VIGILANT)
-
-# define some necessary modules
-include( FindUpsPackage )
-include( FindUpsBoost )
-include( ParseUpsVersion )
-include( SetFlavorQual )
-
-#set package version from ups version
-set_version_from_ups( ${version} )
-#define flavorqual and flavorqual_dir
-set_flavor_qual()
-
-# ensure gcc has been set
-set( GCC_VERSION $ENV{GCC_VERSION} )
-if( NOT GCC_VERSION )
-  message( "GCC has not been setup" )
+if ("${qualifier}" STREQUAL "e1")
+  cet_add_compiler_flags(CXX -std=c++0x;-Wno-deprecated-declarations)
 endif()
+cet_report_compiler_flags()
+
+cet_check_gcc()
 
 # these are minimum required versions, not the actual product versions
 find_ups_product( cetbuildtools v1_14_02)

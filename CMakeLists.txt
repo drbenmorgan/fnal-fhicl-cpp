@@ -17,6 +17,8 @@
 
 cmake_minimum_required( VERSION 2.8 )
 
+project(fhiclcpp)
+
 # cetbuildtools contains our cmake modules
 set( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
 if( NOT CETBUILDTOOLS_VERSION )

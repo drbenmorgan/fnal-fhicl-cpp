@@ -16,8 +16,6 @@ Qualifiers = ""
 
   Action = GetExtraProducts
     setupRequired(cetlib @CETLIB_VERSION@ -q @CETLIB_BASE_QUAL@)
-    setupRequired(cpp0x @CPP0X_VERSION@ -q @CPP0X_BASE_QUAL@)
-    setupRequired(boost @BOOST_VERS@ -q @BOOST_BASE_QUAL@)
 
 Flavor     = ANY
 Qualifiers = "@qualifier@"
@@ -30,8 +28,6 @@ Qualifiers = "@qualifier@"
 
   Action = GetExtraProducts
     setupRequired(cetlib @CETLIB_VERSION@ -q @CETLIB_BASE_QUAL@)
-    setupRequired(cpp0x @CPP0X_VERSION@ -q @CPP0X_BASE_QUAL@)
-    setupRequired(boost @BOOST_VERS@ -q @BOOST_BASE_QUAL@)
 
 Flavor     = ANY
 Qualifiers = "@qualifier@:debug"
@@ -44,8 +40,6 @@ Qualifiers = "@qualifier@:debug"
 
   Action = GetExtraProducts
     setupRequired(cetlib @CETLIB_VERSION@ -q @CETLIB_BASE_QUAL@:debug)
-    setupRequired(cpp0x @CPP0X_VERSION@ -q @CPP0X_BASE_QUAL@:debug)
-    setupRequired(boost @BOOST_VERS@ -q @BOOST_BASE_QUAL@:debug)
 
 Flavor     = ANY
 Qualifiers = "@qualifier@:opt"
@@ -58,8 +52,6 @@ Qualifiers = "@qualifier@:opt"
 
   Action = GetExtraProducts
     setupRequired(cetlib @CETLIB_VERSION@ -q @CETLIB_BASE_QUAL@:opt)
-    setupRequired(cpp0x @CPP0X_VERSION@ -q @CPP0X_BASE_QUAL@:opt)
-    setupRequired(boost @BOOST_VERS@ -q @BOOST_BASE_QUAL@:opt)
 
 Flavor     = ANY
 Qualifiers = "@qualifier@:prof"
@@ -72,8 +64,6 @@ Qualifiers = "@qualifier@:prof"
 
   Action = GetExtraProducts
     setupRequired(cetlib @CETLIB_VERSION@ -q @CETLIB_BASE_QUAL@:prof)
-    setupRequired(cpp0x @CPP0X_VERSION@ -q @CPP0X_BASE_QUAL@:prof)
-    setupRequired(boost @BOOST_VERS@ -q @BOOST_BASE_QUAL@:prof)
 
 Common:
   Action = setup
@@ -99,7 +89,6 @@ Common:
     Execute(dropit -E, NO_UPS_ENV, PATH)
 
     # uncomment or add to this list as relevant
-    setupRequired(cmake)
     exeActionRequired(GetExtraProducts)
     setupRequired(gcc @GCC_VERSION@ )
 

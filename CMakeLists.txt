@@ -31,7 +31,7 @@ include(CetCMakeEnv)
 if ( NOT qualifier )
     message (FATAL_ERROR "ERROR: please call cmake with -Dqualifier:STRING=qualifier")
 endif ( NOT qualifier )
-cet_cmake_env( fhiclcpp v2_16_03 ${qualifier} )
+cet_cmake_env( fhiclcpp v2_16_04 ${qualifier} )
 
 cet_set_compiler_flags(DIAGS VIGILANT WERROR)
 if ("${qualifier}" STREQUAL "e1")

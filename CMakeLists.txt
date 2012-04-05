@@ -42,7 +42,7 @@ cet_report_compiler_flags()
 cet_check_gcc()
 
 # these are minimum required versions, not the actual product versions
-find_ups_product( cetbuildtools v1_15_00 )
+find_ups_product( cetbuildtools v1_16_00 )
 find_ups_product( cpp0x v1_03_02 )
 find_ups_product( cetlib v1_03_02 )
 find_ups_boost( v1_48_0
@@ -50,17 +50,9 @@ find_ups_boost( v1_48_0
   program_options
   )
 
-# Project include directory
-include_directories( ${PROJECT_SOURCE_DIR} )
-
 # Project library directory
 link_directories( $ENV{CETLIB_LIB}
                   $ENV{BOOST_LIB}  )
-
-#build all libraries in a single directory to enable testing
-SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-#build all executables in a single directory
-SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 # source code
 add_subdirectory( fhiclcpp )

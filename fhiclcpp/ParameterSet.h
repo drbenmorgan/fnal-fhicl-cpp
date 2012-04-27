@@ -242,7 +242,7 @@ catch( fhicl::exception const & e )
 }
 catch( std::exception const & e )
 {
-  throw fhicl::exception(type_mismatch, e.what() );
+  throw fhicl::exception(type_mismatch, key + "\n" + e.what());
 }
 
 // ======================================================================

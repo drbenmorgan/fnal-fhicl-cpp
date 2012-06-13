@@ -61,3 +61,17 @@ FOREACH(test_file ${testFail})
                            ENVIRONMENT FHICL_FILE_PATH=${CMAKE_CURRENT_SOURCE_DIR}
   )
 ENDFOREACH()
+
+cet_test(save-restore_t NO_AUTO)
+
+cet_test(save-restore-ab HANDBUILT
+  TEST_EXEC save-restore_t
+  TEST_ARGS ab.fcl
+  DATAFILES issue-2737-fcl/ab.fcl
+)
+
+cet_test(save-restore-ba HANDBUILT
+  TEST_EXEC save-restore_t
+  TEST_ARGS ba.fcl
+  DATAFILES issue-2737-fcl/ba.fcl
+)

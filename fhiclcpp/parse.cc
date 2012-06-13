@@ -220,11 +220,13 @@ template< class FwdIter, class Skip >
 : value_parser::base_type( value )
 , v                      ( )
 {
-  nil      = (qi::string("nil")
-             >> !(graph - char_(",]}"))
-             ) [ _val = phx::bind(canon_nil, qi::_1) ];
-  boolean  = (qi::string("true") | qi::string("false"))
-           >> !(graph - char_(",]}"));
+  nil      = lexeme[ (qi::string("nil")
+                     >> !(graph - char_(",]}"))
+                     ) [ _val = phx::bind(canon_nil, qi::_1) ]
+                   ];
+  boolean  = lexeme[ (qi::string("true") | qi::string("false"))
+                   >> !(graph - char_(",]}"))
+                   ];
 
   inf      = lexeme[ -(qi::string("+") | qi::string("-"))
                    >> qi::string("infinity")

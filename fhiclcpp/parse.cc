@@ -100,6 +100,12 @@ static  extended_value
   return fhicl::extended_value(b, t, v);
 }
 
+static complex_t
+  cplx( atom_t const & c1, atom_t const & c2 )
+{
+  return std::make_pair(c1, c2);
+}
+
 static  extended_value
   local_lookup( std::string               const & name
               , fhicl::intermediate_table const & tbl
@@ -255,9 +261,7 @@ template< class FwdIter, class Skip >
   name     = fhicl::ass [ _val = qi::_1 ];
   complex  = ( lit('(') > number
              > lit(',') > number > lit(')')
-             ) [ _val = phx::bind( std::make_pair<std::string,std::string>
-                                 , qi::_1 , qi::_2 )
-               ];
+             ) [ _val = phx::bind( cplx, qi::_1 , qi::_2 ) ];
 
   sequence = lit('[') > -(value % ',') > lit(']');
   table    = lit('{')

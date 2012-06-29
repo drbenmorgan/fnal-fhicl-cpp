@@ -1,18 +1,18 @@
-parent fhiclcpp v2_16_08
+parent fhiclcpp v2_16_09
 defaultqual a7
 #
 # define product/version pairs
 product		version
-gcc		v4_6_1
-cetlib		v1_03_08
+gcc		v4_7_1
+cetlib		v1_03_09
 
-only_for_build       cetbuildtools	v2_01_01
+only_for_build       cetbuildtools	v2_01_02
 
 # Matrix of qualifiers versus dependent products
 qualifier	cetlib		gcc	notes
 a7:debug	a7:debug	-nq-
 a7:opt		a7:opt		-nq-
 a7:prof		a7:prof		-nq-
-e1:debug	e1:debug	-nq-	-std=c++0x;-Wno-deprecated-declarations
-e1:opt		e1:opt		-nq-	-std=c++0x;-Wno-deprecated-declarations
-e1:prof		e1:prof		-nq-	-std=c++0x;-Wno-deprecated-declarations
+e2:debug	e2:debug	-nq-	-std=c++0x;-Wno-deprecated-declarations
+e2:opt		e2:opt		-nq-	-std=c++0x;-Wno-deprecated-declarations
+e2:prof		e2:prof		-nq-	-std=c++0x;-Wno-deprecated-declarations

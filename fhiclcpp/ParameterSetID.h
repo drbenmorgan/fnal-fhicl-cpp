@@ -8,7 +8,7 @@
 // ======================================================================
 
 #include "cetlib/sha1.h"
-#include "cpp0x/string"
+#include <string>
 #include "fhiclcpp/fwd.h"
 #include <ostream>
 

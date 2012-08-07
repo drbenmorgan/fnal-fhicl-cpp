@@ -140,7 +140,7 @@ int
   ofstream  errfile(error_filename.c_str());
   ostream & err = error_filename.empty() ? cerr : errfile;
 
-  std::auto_ptr<cet::filepath_maker> policy;
+  std::unique_ptr<cet::filepath_maker> policy;
 
 cerr << "Policy is " << lookup_policy
      << "; path is \"" << lookup_path << "\"\n";

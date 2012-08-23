@@ -10,6 +10,9 @@ cet_enable_asserts()
 # Identify libraries to be linked:
 link_libraries(fhiclcppD)
 
+cet_test_env("FHICL_FILE_PATH=.")
+cet_test(hex_test DATAFILES hex.fcl)
+
 cet_test(PSetSample INSTALL_EXAMPLE INSTALL_SOURCE
   DATAFILES Sample.cfg
 )

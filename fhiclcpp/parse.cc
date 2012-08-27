@@ -255,6 +255,8 @@ template< class FwdIter, class Skip >
   number   = ( fhicl::uint [ _val = phx::bind(canon_num, qi::_1) ]
              | inf         [ _val = phx::bind(canon_inf, qi::_1) ]
              | fhicl::real [ _val = qi::_1 ]
+             | fhicl::hex  [ _val = qi::_1 ]
+             | fhicl::bin  [ _val = qi::_1 ]
              );
   string   = ( fhicl::ass | fhicl::dss | squoted | dquoted )
              [ _val = phx::bind(canon_str, qi::_1) ];

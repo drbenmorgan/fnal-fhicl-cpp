@@ -59,6 +59,8 @@ namespace fhicl {
 //  BOOST_SPIRIT_TERMINAL(Boolean)
   BOOST_SPIRIT_TERMINAL(real)
   BOOST_SPIRIT_TERMINAL(uint)
+  BOOST_SPIRIT_TERMINAL(hex)
+  BOOST_SPIRIT_TERMINAL(bin)
   BOOST_SPIRIT_TERMINAL(ass)
   BOOST_SPIRIT_TERMINAL(dss)
 //  BOOST_SPIRIT_TERMINAL(Dquoted)
@@ -90,6 +92,16 @@ namespace boost { namespace spirit {
 
   template<>
     struct use_terminal<qi::domain, fhicl::tag::uint>
+  : mpl::true_
+  { };
+
+  template<>
+    struct use_terminal<qi::domain, fhicl::tag::hex>
+  : mpl::true_
+  { };
+
+  template<>
+    struct use_terminal<qi::domain, fhicl::tag::bin>
   : mpl::true_
   { };
 
@@ -352,6 +364,144 @@ namespace fhicl {
     { return boost::spirit::info("fhicl::uint"); }
 
   };  // uint_parser
+
+  struct hex_parser
+    : qi::primitive_parser<hex_parser>
+  {
+    // designate type resulting from successful parse:
+    template< typename Context
+            , typename Iterator
+            >
+      struct attribute
+    { typedef std::string type; };
+
+    // do the parse:
+    template< typename Iterator
+            , typename Context
+            , typename Skipper
+            , typename Attribute
+            >
+    bool
+      parse( Iterator & first, Iterator const & last
+           , Context & // unused
+           , Skipper const & skipper
+           , Attribute & attr
+           ) const
+    {
+      boost::spirit::qi::skip_over( first, last, skipper );
+      #if 0
+      std::cerr << "hex about to parse <"
+                << std::string(first,last) << ">\n";
+      #endif
+
+      static  std::string const allowed("0123456789abcdefABCDEF");
+      Iterator it = first;
+
+      if( it==last || *it!='0' )
+        return false;
+
+      ++it;
+
+      if( it==last || toupper(*it)!='X' )
+        return false;
+
+      ++it;
+
+      while( it != last  &&  allowed.find(*it) != std::string::npos )
+        ++it;
+
+      if( it != last  && ! maximally_munched_number(*it) )
+        return false;
+
+      Attribute raw(first, it);
+      if( raw.empty() || raw.size()==2 )
+        return false;
+
+      Attribute result;
+      if( ! cet::canonical_number(raw, result) )
+        return false;
+
+      first = it;
+      boost::spirit::traits::assign_to(result, attr);
+      return true;
+    }
+
+    // identify this token (in case of error):
+    template< typename Context >
+      boost::spirit::info what( Context & /*unused */ ) const
+    { return boost::spirit::info("fhicl::hex"); }
+
+  };  // hex_parser
+
+
+  struct bin_parser
+    : qi::primitive_parser<bin_parser>
+  {
+    // designate type resulting from successful parse:
+    template< typename Context
+            , typename Iterator
+            >
+      struct attribute
+    { typedef std::string type; };
+
+    // do the parse:
+    template< typename Iterator
+            , typename Context
+            , typename Skipper
+            , typename Attribute
+            >
+    bool
+      parse( Iterator & first, Iterator const & last
+           , Context & // unused
+           , Skipper const & skipper
+           , Attribute & attr
+           ) const
+    {
+      boost::spirit::qi::skip_over( first, last, skipper );
+      #if 0
+      std::cerr << "bin about to parse <"
+                << std::string(first,last) << ">\n";
+      #endif
+
+      static  std::string const allowed("01");
+      Iterator it = first;
+
+      if( it==last || *it!='0' )
+        return false;
+
+      ++it;
+
+      if( it==last || toupper(*it)!='B' )
+        return false;
+
+      ++it;
+
+      while( it != last  &&  allowed.find(*it) != std::string::npos )
+        ++it;
+
+      if( it != last  && ! maximally_munched_number(*it) )
+        return false;
+
+      Attribute raw(first, it);
+      if( raw.empty() || raw.size()==2 )
+        return false;
+
+      Attribute result;
+      if( ! cet::canonical_number(raw, result) )
+        return false;
+
+      first = it;
+      boost::spirit::traits::assign_to(result, attr);
+      return true;
+    }
+
+    // identify this token (in case of error):
+    template< typename Context >
+      boost::spirit::info what( Context & /*unused */ ) const
+    { return boost::spirit::info("fhicl::bin"); }
+
+  };  // bin_parser
+
 
   struct ass_parser
     : qi::primitive_parser<ass_parser>
@@ -750,6 +900,28 @@ namespace boost { namespace spirit { namespace qi {
     { return result_type(); }
 
   };  // make_primitive<...uint...>
+
+  template< typename Modifiers >
+    struct make_primitive<fhicl::tag::hex, Modifiers>
+  {
+    typedef  fhicl::hex_parser  result_type;
+
+    result_type
+      operator () ( unused_type, unused_type ) const
+    { return result_type(); }
+
+  };  // make_primitive<...hex...>
+
+  template< typename Modifiers >
+    struct make_primitive<fhicl::tag::bin, Modifiers>
+  {
+    typedef  fhicl::bin_parser  result_type;
+
+    result_type
+      operator () ( unused_type, unused_type ) const
+    { return result_type(); }
+
+  };  // make_primitive<...bin...>
 
   template< typename Modifiers >
     struct make_primitive<fhicl::tag::ass, Modifiers>

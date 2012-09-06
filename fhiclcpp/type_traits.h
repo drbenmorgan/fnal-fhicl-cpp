@@ -16,7 +16,10 @@ namespace tt {
   using std::is_floating_point;
 
   using std::enable_if;
-  template< bool, class = void > struct disable_if;
+
+  template <bool b, typename T = void>
+  using
+  disable_if = std::enable_if<!b, T>;
 
   template< class > struct is_complex;
   template< class > struct is_int;
@@ -25,13 +28,6 @@ namespace tt {
 }
 
 // ======================================================================
-
-namespace tt {
-  template< bool b, class T >
-    struct disable_if : std::enable_if<!b,T>  { };
-}
-
-// ----------------------------------------------------------------------
 
 namespace tt {
   template< class T > struct is_complex : public std::false_type { };
@@ -79,3 +75,7 @@ namespace tt {
 // ======================================================================
 
 #endif
+
+// Local Variables:
+// mode: c++
+// End:

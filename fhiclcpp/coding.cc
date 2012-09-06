@@ -95,6 +95,12 @@ ps_atom_t  // string (with quotes)
   return extended_value::atom_t(xval);
 }
 
+ps_atom_t  // string (with quotes)
+  fhicl::detail::encode( char const * value )
+{
+  return encode(std::string(value));
+}
+
 ps_atom_t  // nil
   fhicl::detail::encode( void * )
 {

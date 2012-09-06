@@ -37,6 +37,7 @@ namespace fhicl {  namespace detail {
 // ----------------------------------------------------------------------
 
   ps_atom_t      encode( std::string     const & );  // string (w/ quotes)
+  ps_atom_t      encode( char            const * );  // string (w/ quotes)
   ps_atom_t      encode( void *                  );  // nil
   ps_atom_t      encode( bool                    );  // bool
   ParameterSetID encode( ParameterSet    const & );  // table

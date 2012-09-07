@@ -80,3 +80,5 @@ cet_test(save-restore-ba HANDBUILT
   TEST_ARGS ba.fcl
   DATAFILES issue-2737-fcl/ba.fcl
 )
+
+cet_test(intermediate_table_t USE_BOOST_UNIT)

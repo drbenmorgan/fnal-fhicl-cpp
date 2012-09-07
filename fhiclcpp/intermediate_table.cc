@@ -28,7 +28,7 @@ typedef  intermediate_table::const_iterator  const_iterator;
 static extended_value const &
 nil_item()
 {
-  static extended_value const nil_item(false, NIL, std::string("nil"));
+  static extended_value const nil_item(false, NIL, std::string("@nil"));
   return nil_item;
 }
 

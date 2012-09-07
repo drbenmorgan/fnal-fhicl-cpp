@@ -172,7 +172,7 @@ namespace fhicl {
 //      #endif
 
 //      qi::rule<Iterator, Attribute()>
-//        Nil_rule(  qi::raw[ qi::lit("nil" ) ]
+//        Nil_rule(  qi::raw[ qi::lit("@nil" ) ]
 //                >> !( ascii::graph
 //                    - ascii::char_(')')
 //                    - ascii::char_(',')

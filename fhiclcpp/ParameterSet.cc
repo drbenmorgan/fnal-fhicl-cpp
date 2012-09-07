@@ -48,7 +48,7 @@ string
 
   else  {  // is_atom(a)
     ps_atom_t str = any_cast<ps_atom_t>(a);
-    return str == string(9, '\0')  ? "nil" : str;
+    return str == string(9, '\0')  ? "@nil" : str;
   }
 
 }  // stringify()

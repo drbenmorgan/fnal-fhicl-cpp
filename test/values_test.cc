@@ -8,6 +8,7 @@
 
 #include "boost/test/auto_unit_test.hpp"
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/make_ParameterSet.h"
 #include <complex>
 #include <iostream>
 #include <limits>
@@ -72,7 +73,7 @@ BOOST_AUTO_TEST_CASE( nil_value )  // test atom "nil"
 
   pset.put<nil_t>( "n11", 0 );
   BOOST_CHECK_EQUAL( pset.get<nil_t>("n11"), nil_value );
-  BOOST_CHECK_EQUAL( pset.to_string(), "n11:nil" );
+  BOOST_CHECK_EQUAL( pset.to_string(), "n11:@nil" );
   BOOST_CHECK_THROW( pset.get<bool        >("n11"), fhicl::exception );
   BOOST_CHECK_THROW( pset.get<uint        >("n11"), fhicl::exception );
   BOOST_CHECK_THROW( pset.get<int         >("n11"), fhicl::exception );
@@ -83,11 +84,22 @@ BOOST_AUTO_TEST_CASE( nil_value )  // test atom "nil"
 
   pset.put<string>( "n21", "nil" );
   BOOST_CHECK_THROW( pset.get<nil_t>("n21"), fhicl::exception );
-  BOOST_CHECK_EQUAL( pset.to_string(), "n11:nil n21:\"nil\"" );
+  BOOST_CHECK_EQUAL( pset.to_string(), "n11:@nil n21:\"nil\"" );
 
   pset.put<string>( "n31", "NIL" );
-  BOOST_CHECK_EQUAL( pset.to_string(), "n11:nil n21:\"nil\" n31:\"NIL\"" );
+  BOOST_CHECK_EQUAL( pset.to_string(), "n11:@nil n21:\"nil\" n31:\"NIL\"" );
   BOOST_CHECK_THROW( pset.get<nil_t>("n31"), fhicl::exception );
+
+  ParameterSet pset2;
+  make_ParameterSet( pset.to_string(), pset2 );
+  BOOST_CHECK_EQUAL( pset.to_string(), pset2.to_string() );
+
+  ParameterSet pset3;
+  make_ParameterSet( "n11:@nil n21:nil n31:\"@nil\"", pset3 );
+  BOOST_CHECK_EQUAL( pset3.to_string(), "n11:@nil n21:\"nil\" n31:\"@nil\"" );
+  BOOST_CHECK_THROW( pset3.get<string>("n11"), fhicl::exception );
+  BOOST_CHECK_EQUAL( pset3.get<string>("n21"), "nil" );
+  BOOST_CHECK_EQUAL( pset3.get<string>("n31"), "@nil" );
 }
 
 BOOST_AUTO_TEST_CASE( string_values )  // test string atoms

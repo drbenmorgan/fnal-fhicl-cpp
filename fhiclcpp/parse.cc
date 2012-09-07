@@ -226,7 +226,7 @@ template< class FwdIter, class Skip >
 : value_parser::base_type( value )
 , v                      ( )
 {
-  nil      = lexeme[ (qi::string("nil")
+  nil      = lexeme[ (qi::string("@nil")
                      >> !(graph - char_(",]}"))
                      ) [ _val = phx::bind(canon_nil, qi::_1) ]
                    ];

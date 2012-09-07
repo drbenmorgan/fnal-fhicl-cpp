@@ -135,4 +135,37 @@ BOOST_AUTO_TEST_CASE( overridden_nested_document )
   BOOST_CHECK_EQUAL( pset.get<int>("t.c"), 4 );
 }
 
+BOOST_AUTO_TEST_CASE( nil_value )
+{
+  std::string document = "a : @nil\n"
+                         "b : nil\n"
+                         "c : \"@nil\"\n"
+                         "d : \"nil\"\n"
+                         "t : { a : @nil\n"
+                         "      b : nil\n"
+                         "      c : \"@nil\"\n"
+                         "      d : \"nil\"\n"
+                         "    }\n"
+                         ;
+  intermediate_table tbl;
+  BOOST_CHECK_NO_THROW( parse_document(document, tbl) );
+  ParameterSet pset;
+  make_ParameterSet(tbl, pset);
+
+  typedef void * nil_t;
+  nil_t nil_value = 0;
+
+  BOOST_CHECK_EQUAL( pset.get<nil_t >("a"  ), nil_value );
+  BOOST_CHECK_EQUAL( pset.get<nil_t >("t.a"), nil_value );
+  BOOST_CHECK_THROW( pset.get<string>("a"  ), fhicl::exception ); 
+  BOOST_CHECK_THROW( pset.get<string>("t.a"), fhicl::exception ); 
+  BOOST_CHECK_EQUAL( pset.get<string>("b"  ), "nil");
+  BOOST_CHECK_EQUAL( pset.get<string>("t.b"), "nil");
+  BOOST_CHECK_EQUAL( pset.get<string>("c"  ), "@nil");
+  BOOST_CHECK_EQUAL( pset.get<string>("t.c"), "@nil");
+  BOOST_CHECK_EQUAL( pset.get<string>("d"  ), "nil");
+  BOOST_CHECK_EQUAL( pset.get<string>("t.d"), "nil");
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()

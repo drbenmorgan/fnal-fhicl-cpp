@@ -66,9 +66,9 @@ string
 int
   main( )
 {
-  ensure( 1, parse_as("nil"  , nil()) );
-  ensure( 2, parse_as(" nil" , nil()) );
-  ensure( 3, parse_as(" nil ", nil()) );
+  ensure( 1, parse_as("@nil"  , nil()) );
+  ensure( 2, parse_as(" @nil" , nil()) );
+  ensure( 3, parse_as(" @nil ", nil()) );
   ensure( 4, ! parse_as(" true or false ", "true") );
   ensure( 5, ! parse_as(" TRUE or FALSE ", dquoted("TRUE")) );
   ensure( 6, parse_as("infinity", "+infinity") );
@@ -107,6 +107,7 @@ int
   ensure( 45, parse_as("3a4B5c", dquoted("3a4B5c")) );
   ensure( 46, parse_as("0123Aa_", dquoted("0123Aa_")) );
   ensure( 47, ! parse_as("9...", dquoted("9...")) );
+  ensure( 48, parse_as("nil", dquoted("nil")) );
 
   ensure( 51, parse_as(" ( 1 , 2.3 ) ", "(1,2.3)") );
   ensure( 52, parse_as(" ( infinity , -infinity ) ", "(+infinity,-infinity)") );
@@ -116,6 +117,7 @@ int
   ensure( 56, parse_as( squoted("\\t\\n"), dquoted("\\\\t\\\\n")) );
   ensure( 57, parse_as( "infinityx", dquoted("infinityx")) );
   ensure( 58, parse_as( dquoted("Hi, \\\"Tom\\\""), dquoted("Hi, \\\"Tom\\\"") ) );
+  ensure( 59, parse_as(dquoted("@Nil"), dquoted("@Nil")) );
 
   ensure( 61, parse_as(" [1,2.3] ", "[1,2.3]") );
   ensure( 62, parse_as(" [ 1 , 2.3 ] ", "[1,2.3]") );

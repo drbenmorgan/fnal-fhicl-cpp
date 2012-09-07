@@ -17,6 +17,37 @@
 // 2012/08/29 CG.
 ////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////
+// Supplemental expert notes on intermediate_table vs ParameterSet.
+//
+// 1. Intermediate tables contain only extended values; ParameterSets
+//    contain only boost::any.
+//
+// 2. The boost::any in a ParameterSet may not be the same type as the
+//    boost::any in the corresponding extended_value in the intermediate
+//    table whence it came.
+//
+// 3. An extended_value::sequence_t is std::vector<extended_value>; a
+//    ParameterSet::ps_sequence_t is std::vector<boost::any>.
+//
+// 4. An extended_value::table_t is std::map<std::string,
+//    extended_value>; the equivalent concept in ParamaterSet is
+//    ParameterSet (stored as boost::any).
+//
+// 5. An extended_value::complex_t is std::pair<std::string,
+//    std::string>; the equivalent concept in ParameterSet is
+//    std::string (stored as boost::any).
+//
+// 6. Numbers, boolean values and strings are to be stored in
+//    intermediate_tables at all times in their canonical string form
+//    (using detail::encode()); complex numbers are stored in
+//    intermediate tables as a pair of strings representing the
+//    canonical string forms of the real and imaginary parts. In
+//    ParameterSets they are stored as a single std::string,
+//    "(real,imag)".
+//
+////////////////////////////////////////////////////////////////////////
+
 #include "boost/any.hpp"
 #include "cpp0x/string"
 #include "fhiclcpp/coding.h"
@@ -110,75 +141,95 @@ private:
 
 namespace fhicl {
   namespace detail {
+
+    // Template declaration (no general definition).
+    template <typename T, typename Enable = void> class it_value_get;
+
+    // Partial specialization for value types.
     template <typename T>
-    typename tt::disable_if<std::is_reference<T>::value || std::is_pointer<T>::value, T>::type
-    it_value_get(intermediate_table & table,
-                 std::string const & name)
-    {
-      T result;
-      detail::decode(table[name].value, result);
-      return result;
-    }
+    class
+    it_value_get<T,
+                 typename tt::disable_if<std::is_reference<T>::value ||
+                                         std::is_pointer<T>::value>::type> {
+  public:
+      T operator () (intermediate_table & table, std::string const & name)
+        {
+          T result;
+          detail::decode(table[name].value, result);
+          return result;
+        }
+    };
 
+    // Partial specialization for std::complex<U>.
+    template <typename U>
+    class
+    it_value_get<std::complex<U>,
+                 typename
+                 tt::disable_if<std::is_reference<std::complex<U> >::value ||
+                                std::is_pointer<std::complex<U> >::value>::type> {
+    public:
+      std::complex<U> operator () (intermediate_table & table,
+                                   std::string const & name)
+      {
+        intermediate_table::complex_t c(table[name]);
+        U r, i;
+        detail::decode(c.first, r);
+        detail::decode(c.second, i);
+        return std::complex<U>(r, i);
+      }
+    };
+
+    // Full specialization for sequence_t. Not defined: use sequence_t &
+    // or sequence_t const & instead.
+    template <> class it_value_get<intermediate_table::sequence_t>;
+
+    // Full specialization for table_t. Not defined: use table_t &
+    // or table_t const & instead.
+    template <> class it_value_get<intermediate_table::table_t>;
+
+    // Full specialization for sequence_t &
     template <>
-    typename tt::disable_if<std::is_reference<intermediate_table::sequence_t>::value ||
-                            std::is_pointer<intermediate_table::sequence_t>::value,
-                            intermediate_table::sequence_t>::type
-    it_value_get<intermediate_table::sequence_t>(intermediate_table & table,
-                                                 std::string const & name) = delete;
+    class it_value_get<intermediate_table::sequence_t &> {
+  public:
+      intermediate_table::sequence_t & operator() (intermediate_table & table,
+                                                   std::string const & name)
+        {
+          return boost::any_cast<intermediate_table::sequence_t &>(table[name].value);
+        }
+    };
 
+    // Full specialization for table_t &
     template <>
-    typename tt::disable_if<std::is_reference<intermediate_table::table_t>::value ||
-                            std::is_pointer<intermediate_table::table_t>::value,
-                            intermediate_table::table_t>::type
-    it_value_get<intermediate_table::table_t>(intermediate_table & table,
-                                              std::string const & name) = delete;
-
-    template <typename T>
-    typename tt::enable_if<std::is_reference<T>::value ||
-                           std::is_pointer<T>::value, T>::type
-    it_value_get(intermediate_table & table,
-                 std::string const & name) = delete;
-
-    template <>
-    inline
-    typename tt::enable_if<std::is_reference<intermediate_table::sequence_t &>::value,
-                           intermediate_table::sequence_t &>::type
-    it_value_get<intermediate_table::sequence_t &> (intermediate_table & table,
-                                                    std::string const & name)
-    {
-      return boost::any_cast<intermediate_table::sequence_t &>(table[name].value);
-    }
-
-    template <>
-    inline
-    typename tt::enable_if<std::is_reference<intermediate_table::table_t &>::value,
-                           intermediate_table::table_t &>::type
-    it_value_get<intermediate_table::table_t &> (intermediate_table & table,
+    class it_value_get<intermediate_table::table_t &> {
+  public:
+      intermediate_table::table_t & operator () (intermediate_table & table,
                                                  std::string const & name)
-    {
-      return boost::any_cast<intermediate_table::table_t &>(table[name].value);
-    }
+        {
+          return boost::any_cast<intermediate_table::table_t &>(table[name].value);
+        }
+    };
 
+    // Full specialization for sequence_t const &
     template <>
-    inline
-    typename tt::enable_if<std::is_reference<intermediate_table::sequence_t const &>::value,
-                           intermediate_table::sequence_t const &>::type
-    it_value_get<intermediate_table::sequence_t const &> (intermediate_table & table,
-                                                    std::string const & name)
-    {
-      return boost::any_cast<intermediate_table::sequence_t const &>(table[name].value);
-    }
+    class it_value_get<intermediate_table::sequence_t const &> {
+  public:
+      intermediate_table::sequence_t const & operator () (intermediate_table & table,
+                                                          std::string const & name)
+        {
+          return boost::any_cast<intermediate_table::sequence_t const &>(table[name].value);
+        }
+    };
 
+    // Full specialization for table_t const &
     template <>
-    inline
-    typename tt::enable_if<std::is_reference<intermediate_table::table_t const &>::value,
-                           intermediate_table::table_t const &>::type
-    it_value_get<intermediate_table::table_t const &> (intermediate_table & table,
-                                                 std::string const & name)
-    {
-      return boost::any_cast<intermediate_table::table_t const &>(table[name].value);
-    }
+    class it_value_get<intermediate_table::table_t const &> {
+  public:
+      intermediate_table::table_t const & operator () (intermediate_table & table,
+                                                       std::string const & name)
+        {
+          return boost::any_cast<intermediate_table::table_t const &>(table[name].value);
+        }
+    };
   }
 }
 
@@ -188,7 +239,8 @@ T
 fhicl::intermediate_table::
 get(std::string const & name)
 {
-  return detail::it_value_get<T>(* this, name);
+  static detail::it_value_get<T> getter;
+  return getter(* this, name);
 }
 
 inline
@@ -228,7 +280,11 @@ put(std::string const & name,
        std::complex<T> const & value, // Complex.
        bool in_prolog)
 {
-  insert(name, in_prolog, COMPLEX, detail::encode(value));
+  insert(name,
+         in_prolog,
+         COMPLEX,
+         complex_t(detail::encode(value.real()),
+                   detail::encode(value.imag())));
 }
 
 template <typename T>

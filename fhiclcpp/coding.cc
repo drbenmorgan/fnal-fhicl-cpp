@@ -7,6 +7,7 @@
 #include "fhiclcpp/coding.h"
 
 #include "cetlib/canonical_string.h"
+#include "cetlib/canonical_number.h"
 #include "cpp0x/cstddef"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -152,7 +153,9 @@ ps_atom_t  // floating-point
   if( static_cast<ldbl>(chopped) == value )
     return encode(chopped);
 
-  return lexical_cast<std::string>(value);
+  std::string result;
+  cet::canonical_number( lexical_cast<std::string>(value), result );
+  return result;
 }
 
 // ----------------------------------------------------------------------

@@ -11,7 +11,7 @@
 #include "boost/any.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/numeric/conversion/cast.hpp"
-#include "cpp0x/string"
+#include <string>
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/exception.h"

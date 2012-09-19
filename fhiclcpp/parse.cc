@@ -4,13 +4,6 @@
 //
 // ======================================================================
 
-#include "cpp0x/detail/config"
-#if GCC_IS_AT_LEAST(4, 6, 0)
-  #pragma GCC diagnostic ignored "-Wshadow"
-  #pragma GCC diagnostic ignored "-Wstrict-aliasing"
-  #pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-
 #include "fhiclcpp/parse.h"
 
 #include "boost/any.hpp"
@@ -22,7 +15,7 @@
 #include "cetlib/canonical_string.h"
 #include "cetlib/include.h"
 #include "cetlib/includer.h"
-#include "cpp0x/string"
+#include <string>
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"

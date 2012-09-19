@@ -10,8 +10,8 @@
 #include "boost/any.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/numeric/conversion/cast.hpp"
-#include "cpp0x/cstdint"
-#include "cpp0x/string"
+#include <cstdint>
+#include <string>
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"

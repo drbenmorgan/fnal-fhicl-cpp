@@ -49,7 +49,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "boost/any.hpp"
-#include "cpp0x/string"
+#include <string>
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/type_traits.h"

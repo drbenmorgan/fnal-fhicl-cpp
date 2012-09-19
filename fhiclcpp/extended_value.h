@@ -8,7 +8,7 @@
 // ======================================================================
 
 #include "boost/any.hpp"
-#include "cpp0x/string"
+#include <string>
 #include "fhiclcpp/fwd.h"
 #include <map>
 #include <vector>

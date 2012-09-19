@@ -8,9 +8,9 @@
 
 #include "cetlib/canonical_string.h"
 #include "cetlib/canonical_number.h"
+#include "cpp0x/cstddef"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
-#include <cstddef>
 #include <cstdlib>
 #include <limits>
 #include <stdexcept>

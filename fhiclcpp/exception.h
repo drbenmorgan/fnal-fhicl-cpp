@@ -8,7 +8,7 @@
 // ======================================================================
 
 #include "cetlib/coded_exception.h"
-#include <string>
+#include "cpp0x/string"
 
 namespace fhicl {
   enum error { cant_find

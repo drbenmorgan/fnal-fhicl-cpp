@@ -1,3 +1,6 @@
+
+include(CetMake)
+
 # define contents of interest:
 set( includeFiles
   ParameterSet.h
@@ -39,25 +42,10 @@ install( FILES ${includeFiles} ${srcFiles}
          DESTINATION ${product}/${version}/source/fhiclcpp
 )
 
-# build shared library:
-add_library( fhiclcppD SHARED ${srcFiles} )
-target_link_libraries( fhiclcppD cetlib )
-set_target_properties( fhiclcppD PROPERTIES OUTPUT_NAME fhiclcpp )
-
-# build static library:
-add_library (fhiclcpp  STATIC ${srcFiles})
-target_link_libraries (fhiclcpp cetlib )
-set_target_properties (fhiclcpp PROPERTIES OUTPUT_NAME fhiclcpp )
-
-SET_TARGET_PROPERTIES(fhiclcppD PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-SET_TARGET_PROPERTIES(fhiclcpp  PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-
-# install libraries:
-install( TARGETS fhiclcppD fhiclcpp
-         RUNTIME DESTINATION ${flavorqual_dir}/bin
-         LIBRARY DESTINATION ${flavorqual_dir}/lib
-         ARCHIVE DESTINATION ${flavorqual_dir}/lib
-)
+cet_make_library( LIBRARY_NAME fhiclcpp
+        	  SOURCE ${srcFiles}
+        	  LIBRARIES cetlib
+        	  WITH_STATIC_LIBRARY )
 
 # Build and install executables:
 add_executable( fhicl-expand fhicl-expand.cc )

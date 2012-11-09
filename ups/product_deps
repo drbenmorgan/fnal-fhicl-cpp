@@ -6,7 +6,7 @@ product		version
 gcc		v4_7_1
 cetlib		v1_03_14
 
-only_for_build       cetbuildtools	v2_03_05
+only_for_build       cetbuildtools	v2_05_00
 
 # Matrix of qualifiers versus dependent products
 qualifier	cetlib		gcc	notes

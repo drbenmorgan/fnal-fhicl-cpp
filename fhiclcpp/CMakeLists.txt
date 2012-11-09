@@ -44,12 +44,12 @@ install( FILES ${includeFiles} ${srcFiles}
 
 cet_make_library( LIBRARY_NAME fhiclcpp
         	  SOURCE ${srcFiles}
-        	  LIBRARIES cetlib
+        	  LIBRARIES ${CETLIB}
         	  WITH_STATIC_LIBRARY )
 
 # Build and install executables:
 add_executable( fhicl-expand fhicl-expand.cc )
-target_link_libraries( fhicl-expand cetlib ${Boost_PROGRAM_OPTIONS_LIBRARY} )
+target_link_libraries( fhicl-expand ${CETLIB} ${Boost_PROGRAM_OPTIONS_LIBRARY} )
 install( TARGETS fhicl-expand
          DESTINATION ${flavorqual_dir}/bin
 )

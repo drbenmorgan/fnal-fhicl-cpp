@@ -4,6 +4,9 @@ set( @product@_UPS_VERSION v@VERSION_MAJOR@_@VERSION_MINOR@_@VERSION_PATCH@ )
 
 @PACKAGE_INIT@
 
-find_library( FHICLCPP NAMES fhiclcpp PATHS $ENV{FHICLCPP_LIB} )
+@CONFIG_FIND_UPS_COMMANDS@
+
+@CONFIG_FIND_LIBRARY_COMMANDS@
 
 check_required_components(@product@)
+

@@ -39,13 +39,7 @@ cet_check_gcc()
 
 # these are minimum required versions, not the actual product versions
 find_ups_product( cetbuildtools v3_02_00 )
-find_ups_product( cpp0x v1_03_02 )
 find_ups_product( cetlib v1_03_02 )
-find_ups_boost( v1_50_0 )
-
-# Project library directory
-link_directories( $ENV{CETLIB_LIB}
-                  $ENV{BOOST_LIB}  )
 
 # source code
 add_subdirectory( fhiclcpp )

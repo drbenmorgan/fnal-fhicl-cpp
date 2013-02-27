@@ -1,12 +1,12 @@
-parent fhiclcpp v2_17_01
+parent fhiclcpp v2_17_02
 defaultqual e2
 #
 # define product/version pairs
 product		version
 gcc		v4_7_1
-cetlib		v1_03_14
+cetlib		v1_03_15
 
-only_for_build       cetbuildtools	v3_02_00
+only_for_build       cetbuildtools	v3_02_02
 
 # Matrix of qualifiers versus dependent products
 qualifier	cetlib		gcc	notes

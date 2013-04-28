@@ -82,3 +82,4 @@ cet_test(save-restore-ba HANDBUILT
 )
 
 cet_test(intermediate_table_t USE_BOOST_UNIT)
+cet_test(seq_of_seq_t)

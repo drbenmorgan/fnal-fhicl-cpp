@@ -151,14 +151,14 @@ BOOST_AUTO_TEST_CASE( unsigned_values )  // test unsigned integral atoms
 
   {
     ParameterSet pset;
-    pset.put<ulong>( "u41", 123456u );
+    pset.put<unsigned long>( "u41", 123456ul );
     BOOST_CHECK_EQUAL( pset.get<string>("u41"), "123456" );
     BOOST_CHECK_EQUAL( pset.to_string(), "u41:123456" );
-    BOOST_CHECK_EQUAL( pset.get<ulong>("u41"), 123456u );
-    pset.put<ulong>( "u44", 1234567u );
+    BOOST_CHECK_EQUAL( pset.get<unsigned long>("u41"), 123456ul );
+    pset.put<unsigned long>( "u44", 1234567ul );
     BOOST_CHECK_EQUAL( pset.get<string>("u44"), "1.234567e+6" );
     BOOST_CHECK_EQUAL( pset.to_string(), "u41:123456 u44:1.234567e+6" );
-    BOOST_CHECK_EQUAL( pset.get<ulong>("u44"), 1234567u );
+    BOOST_CHECK_EQUAL( pset.get<unsigned long>("u44"), 1234567ul );
   }
 }
 

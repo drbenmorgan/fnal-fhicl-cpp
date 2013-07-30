@@ -1,4 +1,4 @@
-parent fhiclcpp v2_17_05
+parent fhiclcpp v2_17_06
 defaultqual e4
 #
 # define product/version pairs

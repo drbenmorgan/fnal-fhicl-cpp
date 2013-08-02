@@ -44,7 +44,11 @@ install( FILES ${includeFiles} ${srcFiles}
 
 cet_make_library( LIBRARY_NAME fhiclcpp
         	  SOURCE ${srcFiles}
-        	  LIBRARIES ${CETLIB}
+            LIBRARIES
+            ${CETLIB}
+            ${Boost_FILESYSTEM_LIBRARY}
+            ${Boost_SYSTEM_LIBRARY}
+            ${Boost_REGEX_LIBRARY}
         	  WITH_STATIC_LIBRARY )
 
 # Build and install executables:

@@ -1,10 +1,10 @@
-parent fhiclcpp v2_17_12
+parent fhiclcpp v2_18_00
 defaultqual e5
 #
 # define product/version pairs
 product		version
 gcc		v4_8_2
-cetlib		v1_03_25
+cetlib		v1_04_00
 
 only_for_build       cetbuildtools	v3_08_00
 

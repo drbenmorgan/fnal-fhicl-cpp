@@ -36,7 +36,6 @@ cet_set_compiler_flags(DIAGS VIGILANT
   )
 cet_report_compiler_flags()
 
-cet_check_gcc()
 
 # these are minimum required versions, not the actual product versions
 find_ups_product( cetbuildtools v3_02_00 )

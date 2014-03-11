@@ -14,10 +14,12 @@
 #include "fhiclcpp/parse.h"
 
 #include "boost/any.hpp"
+#pragma warning(push, disable:780)
 #include "boost/spirit/include/phoenix_bind.hpp"
 #include "boost/spirit/include/phoenix_operator.hpp"
 #include "boost/spirit/include/qi.hpp"
 #include "boost/spirit/include/support_istream_iterator.hpp"
+#pragma warning(pop)
 #include "cetlib/canonical_number.h"
 #include "cetlib/canonical_string.h"
 #include "cetlib/include.h"

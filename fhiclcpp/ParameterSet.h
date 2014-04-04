@@ -34,7 +34,7 @@ public:
   bool                      is_empty          ( ) const;
   ParameterSetID            id                ( ) const;
   std::string               to_string         ( ) const;
-  std::string               to_indented_string( ) const;
+  std::string               to_indented_string( unsigned initial_indent_level = 0 ) const;
   std::vector<std::string>  get_keys          ( ) const;
   std::vector<std::string>  get_pset_keys     ( ) const;
 

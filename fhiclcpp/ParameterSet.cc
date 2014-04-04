@@ -141,10 +141,11 @@ bool
 class ParameterSet::Prettifier
 {
 public:
-  Prettifier( map_t const & mapping )
+  Prettifier( map_t const & mapping,
+              unsigned initial_indent_level  = 0)
     : mapping_( mapping )
     , result_ ( )
-    , start_  ( )
+    , initial_indent_ ( initial_indent_level * INDENT_PER )
   { }
 
   string
@@ -152,8 +153,8 @@ public:
   {
     for( map_iter_t it = mapping_.begin()
                   , e  = mapping_.end();  it != e;  ++it ) {
-      assert( start_.empty() );
       assert( next_col() == 1u );
+      goto_col(initial_indent_ + 1);
       result_.append( it->first )
              .append( ": " )
              ;
@@ -161,14 +162,15 @@ public:
       result_.append( "\n" );
     }
 
-    assert( start_.empty() );
-    return result_;
+    return std::move(result_);
   }
 
 private:
+  static constexpr unsigned INDENT_PER = 2;
+
   map_t const &  mapping_;
   string         result_;
-  vector<size_t> start_;
+  unsigned       initial_indent_;
 
   size_t  next_col( ) const
   {
@@ -209,7 +211,7 @@ private:
         stringify( it->second );
         // Emit remaining pairs:
         for( map_iter_t const e  = mapping.end();  ++it != e;  ) {
-          goto_col( col+2 );
+          goto_col( col+INDENT_PER );
           result_.append( it->first )
                  .append( ": " )
                  ;
@@ -249,11 +251,10 @@ private:
 // ----------------------------------------------------------------------
 
 string
-  ParameterSet::to_indented_string( ) const
+  ParameterSet::to_indented_string(unsigned initial_indent_level) const
 {
-  Prettifier p(mapping_);
-  string const & result = p();
-  return result;
+  Prettifier p(mapping_, initial_indent_level);
+  return p();
 }
 
 // ======================================================================

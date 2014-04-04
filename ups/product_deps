@@ -1,4 +1,4 @@
-parent fhiclcpp v2_18_03
+parent fhiclcpp v2_19_00
 defaultqual e5
 #
 # define product/version pairs
@@ -7,7 +7,7 @@ gcc		v4_8_2
 icc		v14_0_2
 cetlib		v1_04_03
 
-only_for_build       cetbuildtools	v3_09_02
+only_for_build       cetbuildtools	v3_10_01
 
 # Matrix of qualifiers versus dependent products
 qualifier	cetlib		gcc	icc	compiler	notes

@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE( leading_zeros )
   make_ParameterSet(tbl1, pset1);
   make_ParameterSet(tbl2, pset2);
   BOOST_CHECK_EQUAL( pset1.get<int>("x"), pset2.get<int>("x") );
-  BOOST_CHECK_EQUAL( pset1, pset2 );
+  BOOST_CHECK( pset1 == pset2 );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

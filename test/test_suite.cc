@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( doc )
     make_ParameterSet(table, ps2);
   }
 
-  BOOST_CHECK_EQUAL(ps1, ps2);
+  BOOST_CHECK(ps1 == ps2);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

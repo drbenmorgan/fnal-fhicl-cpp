@@ -26,7 +26,7 @@ public:
 
   // c'tor's:
   ParameterSetID( );
-  ParameterSetID( ParameterSet const & );
+  explicit ParameterSetID( ParameterSet const & );
 
   // observers:
   bool         is_valid ( ) const;

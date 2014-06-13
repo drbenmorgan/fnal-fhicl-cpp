@@ -187,6 +187,7 @@ template< class FwdIter, class Skip >
   atom_token      inf;
   atom_token      squoted, dquoted;
   atom_token      number, string, name;
+  atom_token      id;
   complex_token   complex;
   sequence_token  sequence;
   table_token     table;
@@ -274,10 +275,12 @@ template< class FwdIter, class Skip >
 
   sequence = lit('[') > -(value % ',') > lit(']');
   table    = lit('{')
-           > *((name >> (lit(':') > value)
-               ) [ phx::bind(map_insert, qi::_1, qi::_2, _val) ]
-              )
-           > lit('}');
+             > *((name >> (lit(':') > value)
+                 ) [ phx::bind(map_insert, qi::_1, qi::_2, _val) ]
+                )
+             > lit('}');
+
+  id    = lit("@id::") > fhicl::dbid [ _val = qi::_1 ];
 
   value    = ( nil      [ _val = phx::bind(xvalue, false, NIL     , qi::_1) ]
              | boolean  [ _val = phx::bind(xvalue, false, BOOL    , qi::_1) ]
@@ -286,6 +289,7 @@ template< class FwdIter, class Skip >
              | string   [ _val = phx::bind(xvalue, false, STRING  , qi::_1) ]
              | sequence [ _val = phx::bind(xvalue, false, SEQUENCE, qi::_1) ]
              | table    [ _val = phx::bind(xvalue, false, TABLE   , qi::_1) ]
+             | id    [ _val = phx::bind(xvalue, false, TABLEID , qi::_1) ]
              );
 
   nil     .name("nil token");
@@ -299,6 +303,7 @@ template< class FwdIter, class Skip >
   complex .name("complex atom");
   sequence.name("sequence");
   table   .name("table");
+  id   .name("id atom");
   value   .name("value");
 
 }  // value_parser c'tor
@@ -313,6 +318,7 @@ template< class FwdIter, class Skip >
 , tbl                 ( )
 , vp                  ( )
 {
+
   name     = fhicl::ass [ _val = qi::_1 ];
   qualname = fhicl::ass                                  [ _val = qi::_1 ]
            >> *( (char_('.') > fhicl::ass)               [ _val += qi::_1 + qi::_2 ]
@@ -341,6 +347,7 @@ template< class FwdIter, class Skip >
              | dbref       [ _val = phx::bind( database_lookup
                                              , qi::_1, ref(tbl), ref(in_prolog)
                                              ) ]
+             | vp.id       [ _val = phx::bind(xvalue, ref(in_prolog), TABLEID , qi::_1) ]
              | sequence    [ _val = phx::bind(xvalue, ref(in_prolog), SEQUENCE, qi::_1) ]
              | table       [ _val = phx::bind(xvalue, ref(in_prolog), TABLE   , qi::_1) ]
              );

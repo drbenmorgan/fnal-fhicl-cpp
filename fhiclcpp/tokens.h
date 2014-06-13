@@ -12,6 +12,7 @@
 #include "cetlib/canonical_number.h"
 #include "cpp0x/cstddef"
 #include "cpp0x/string"
+#include "fhiclcpp/ParameterSetID.h"
 #include <cctype>
 
 namespace qi = boost::spirit::qi;
@@ -63,6 +64,7 @@ namespace fhicl {
   BOOST_SPIRIT_TERMINAL(bin)
   BOOST_SPIRIT_TERMINAL(ass)
   BOOST_SPIRIT_TERMINAL(dss)
+  BOOST_SPIRIT_TERMINAL(dbid)
 //  BOOST_SPIRIT_TERMINAL(Dquoted)
 //  BOOST_SPIRIT_TERMINAL(Squoted)
 //  BOOST_SPIRIT_TERMINAL(Target)
@@ -97,6 +99,11 @@ namespace boost { namespace spirit {
 
   template<>
     struct use_terminal<qi::domain, fhicl::tag::hex>
+  : mpl::true_
+  { };
+
+  template<>
+    struct use_terminal<qi::domain, fhicl::tag::dbid>
   : mpl::true_
   { };
 
@@ -432,6 +439,63 @@ namespace fhicl {
     { return boost::spirit::info("fhicl::hex"); }
 
   };  // hex_parser
+
+  struct dbid_parser
+    : qi::primitive_parser<dbid_parser>
+  {
+    // designate type resulting from successful parse:
+    template< typename Context
+            , typename Iterator
+            >
+      struct attribute
+    { typedef std::string type; };
+
+    // do the parse:
+    template< typename Iterator
+            , typename Context
+            , typename Skipper
+            , typename Attribute
+            >
+    bool
+      parse( Iterator & first, Iterator const & last
+           , Context & // unused
+           , Skipper const & skipper
+           , Attribute & attr
+           ) const
+    {
+      boost::spirit::qi::skip_over( first, last, skipper );
+      #if 0
+      std::cerr << "dbid about to parse <"
+                << std::string(first,last) << ">\n";
+      #endif
+
+      static  std::string const allowed("0123456789abcdefABCDEF");
+      Iterator it = first;
+
+      if( it==last)
+        return false;
+
+      while( it != last  &&  allowed.find(*it) != std::string::npos )
+        ++it;
+
+      if( it != last  && ! maximally_munched_number(*it) )
+        return false;
+
+      Attribute result(first, it);
+      if( result.size() != ParameterSetID::max_str_size() )
+        return false;
+
+      first = it;
+      boost::spirit::traits::assign_to(result, attr);
+      return true;
+    }
+
+    // identify this token (in case of error):
+    template< typename Context >
+      boost::spirit::info what( Context & /*unused */ ) const
+    { return boost::spirit::info("fhicl::dbid"); }
+
+  };  // dbid_parser
 
 
   struct bin_parser
@@ -911,6 +975,17 @@ namespace boost { namespace spirit { namespace qi {
     { return result_type(); }
 
   };  // make_primitive<...hex...>
+
+  template< typename Modifiers >
+    struct make_primitive<fhicl::tag::dbid, Modifiers>
+  {
+    typedef  fhicl::dbid_parser  result_type;
+
+    result_type
+      operator () ( unused_type, unused_type ) const
+    { return result_type(); }
+
+  };  // make_primitive<...dbid...>
 
   template< typename Modifiers >
     struct make_primitive<fhicl::tag::bin, Modifiers>

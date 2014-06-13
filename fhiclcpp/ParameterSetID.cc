@@ -38,6 +38,30 @@ ParameterSetID::ParameterSetID( ParameterSet const & ps )
 , id_   ( )
 { reset(ps); }
 
+ParameterSetID::ParameterSetID(std::string const & id)
+  :
+  valid_(id.size() == max_str_size()),
+  id_()
+{
+  if (valid_) {
+    for (size_t i = 0, e = id_.size(); i != e; ++i) {
+      id_[i] = std::stoi(id.substr(i * 2, 2), nullptr, 16);
+    }
+    if (id != to_string()) {
+      throw exception(error::cant_happen)
+        << "ParameterSetID construction failure: "
+        << id << " != " << to_string() << ".\n";
+    }
+  } else if (id.empty()) {
+    id_ = invalid_id_();
+  } else {
+    throw fhicl::exception(error::parse_error)
+      << "Attempt to construct ParameterSetID from inappropriate input: "
+      << id
+      << ".\n";
+  }
+}
+
 // ----------------------------------------------------------------------
 
 bool

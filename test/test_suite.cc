@@ -51,6 +51,18 @@ BOOST_AUTO_TEST_CASE( doc )
   }
 
   BOOST_CHECK(ps1 == ps2);
+
+  // Alternative representation.
+  ParameterSet ps3;
+  {
+    ostringstream os;
+    os << ps1.to_compact_string() << endl;
+    intermediate_table table;
+    parse_document(os.str(), table);
+    make_ParameterSet(table, ps3);
+  }
+
+  BOOST_CHECK(ps1 == ps3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -56,6 +56,10 @@ std::string
       return s + '}';
     }
 
+    case TABLEID: {
+      return string("@id::") + any_cast<atom_t>(value);
+    }
+
     case UNKNOWN: default: {
       return "";
     }
@@ -73,7 +77,7 @@ void
 
   switch( tag )  {
 
-    case NIL: case BOOL: case NUMBER: case STRING: case COMPLEX: {
+  case NIL: case BOOL: case NUMBER: case STRING: case COMPLEX: case TABLEID: {
       break;
     }
 

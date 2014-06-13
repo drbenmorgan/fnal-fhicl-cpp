@@ -350,6 +350,8 @@ BOOST_AUTO_TEST_CASE( sequence_values )  // test sequences
   BOOST_CHECK( pset.get<uvec>("f31") == uv );
   uv.push_back(3);
   pset.put<uvec>( "f34", uv );
+  BOOST_CHECK_EQUAL( pset.to_string(),
+                     "f11:\"[]\" f16:[] f21:\"[1]\" f25:[1] f31:\"[1,2]\" f34:[1,2,3]" );
   //BOOST_CHECK_EQUAL( pset.get<string>("f34", "NO"), "NO" );
   BOOST_CHECK_EQUAL( pset.get<uvec>("f34").size(), 3u );
   BOOST_CHECK( pset.get<uvec>("f34") == uv );

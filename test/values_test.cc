@@ -35,6 +35,9 @@ BOOST_AUTO_TEST_CASE( bool_values )  // test atoms "true" and "false"
   {
     ParameterSet pset;
     pset.put<string>( "b11", "true" );
+    BOOST_CHECK(pset.is_key_to_atom("b11"));
+    BOOST_CHECK(!pset.is_key_to_sequence("b11"));
+    BOOST_CHECK(!pset.is_key_to_table("b11"));
     BOOST_CHECK_EQUAL( pset.to_string(), "b11:\"true\"" );
     BOOST_CHECK( pset.get<bool>("b11") );
     pset.put<string>( "b13", "\"false\"" );
@@ -350,6 +353,8 @@ BOOST_AUTO_TEST_CASE( sequence_values )  // test sequences
   BOOST_CHECK( pset.get<uvec>("f31") == uv );
   uv.push_back(3);
   pset.put<uvec>( "f34", uv );
+  BOOST_CHECK_EQUAL( pset.to_string(),
+                     "f11:\"[]\" f16:[] f21:\"[1]\" f25:[1] f31:\"[1,2]\" f34:[1,2,3]" );
   //BOOST_CHECK_EQUAL( pset.get<string>("f34", "NO"), "NO" );
   BOOST_CHECK_EQUAL( pset.get<uvec>("f34").size(), 3u );
   BOOST_CHECK( pset.get<uvec>("f34") == uv );
@@ -361,6 +366,9 @@ BOOST_AUTO_TEST_CASE( sequence_values )  // test sequences
   BOOST_CHECK( pset.get<uvec>("f41") == uv );
   uv.push_back(5);
   pset.put<uvec>( "f43", uv );
+  BOOST_CHECK(pset.is_key_to_sequence("f43"));
+  BOOST_CHECK(!pset.is_key_to_table("f43"));
+  BOOST_CHECK(!pset.is_key_to_atom("f43"));
   //BOOST_CHECK_EQUAL( pset.get<string>("f43", "NO"), "NO" );
   BOOST_CHECK_EQUAL( pset.get<uvec>("f43").size(), 5u );
   BOOST_CHECK( pset.get<uvec>("f43") == uv );
@@ -391,6 +399,9 @@ BOOST_AUTO_TEST_CASE( table_values )  // test tables
   ParameterSet p3;
   p3.put<ParameterSet>( "p2", p2 );
   p3.put<ParameterSet>( "p1", p1 );
+  BOOST_CHECK(p3.is_key_to_table("p2"));
+  BOOST_CHECK(!p3.is_key_to_sequence("p2"));
+  BOOST_CHECK(!p3.is_key_to_atom("p2"));
   BOOST_CHECK_EQUAL( p3.get<ParameterSet>("p1").get<string>("a"), "A" );
   BOOST_CHECK_EQUAL( p3.get<ParameterSet>("p1").get<string>("b"), "B" );
   BOOST_CHECK_EQUAL( p3.get<ParameterSet>("p2").get<string>("x"), "X" );

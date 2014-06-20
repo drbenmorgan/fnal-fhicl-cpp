@@ -17,7 +17,7 @@
 
 namespace fhicl {
   enum value_tag { UNKNOWN
-                 , NIL, BOOL, NUMBER, COMPLEX, STRING, SEQUENCE, TABLE
+                   , NIL, BOOL, NUMBER, COMPLEX, STRING, SEQUENCE, TABLE, TABLEID
                  };
 }
 

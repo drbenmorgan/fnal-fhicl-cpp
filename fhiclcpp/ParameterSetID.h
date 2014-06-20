@@ -8,9 +8,11 @@
 // ======================================================================
 
 #include "cetlib/sha1.h"
-#include <string>
 #include "fhiclcpp/fwd.h"
+
+#include <cstdlib>
 #include <ostream>
+#include <string>
 
 namespace fhicl {
   std::ostream &
@@ -26,11 +28,14 @@ public:
 
   // c'tor's:
   ParameterSetID( );
-  ParameterSetID( ParameterSet const & );
+  explicit ParameterSetID( ParameterSet const & );
+  explicit ParameterSetID(std::string const & id);
 
   // observers:
   bool         is_valid ( ) const;
   std::string  to_string( ) const;
+  static
+    std::size_t max_str_size( );
 
   // mutators:
   void  invalidate( );
@@ -50,6 +55,15 @@ private:
   cet::sha1::digest_t  id_;
 
 };  // ParameterSetID
+
+inline
+std::size_t
+fhicl::ParameterSetID::
+max_str_size()
+{
+  // Two hex digits per byte.
+  return 2 * cet::sha1::digest_sz;
+}
 
 // ======================================================================
 

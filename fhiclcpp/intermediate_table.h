@@ -31,7 +31,7 @@
 //    ParameterSet::ps_sequence_t is std::vector<boost::any>.
 //
 // 4. An extended_value::table_t is std::map<std::string,
-//    extended_value>; the equivalent concept in ParamaterSet is
+//    extended_value>; the equivalent concept in ParameterSet is
 //    ParameterSet (stored as boost::any).
 //
 // 5. An extended_value::complex_t is std::pair<std::string,

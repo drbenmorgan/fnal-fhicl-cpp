@@ -25,33 +25,39 @@ typedef  long double  ldbl;
 // ======================================================================
 
 string
-  ParameterSet::stringify( any const & a ) const
+ParameterSet::stringify_( any const & a, bool compact ) const
 {
+  string result;
   if( is_table(a) ) {
     ParameterSetID const & psid = any_cast<ParameterSetID>(a);
-    return '{' + ParameterSetRegistry::get(psid).to_string() + '}';
+    result = '{' + ParameterSetRegistry::get(psid).to_string() + '}';
+    if (compact && result.size() > ( 5 + ParameterSetID::max_str_size())) {
+      // Replace with a reference to the ParameterSetID;
+      result = std::string("@id::") + psid.to_string();
+    }
   }
 
   else if( is_sequence(a) ) {
     ps_sequence_t const & seq = any_cast<ps_sequence_t>(a);
-    string str;
+    result = '[';
     if( ! seq.empty() ) {
-      str = stringify(*seq.begin());
+      result.append(stringify_(*seq.begin(),compact));
       for( ps_sequence_t::const_iterator it = seq.begin()
                                        , e  = seq.end(); ++it != e;  ) {
-        str.append(1, ',')
-           .append(stringify(*it));
+        result.append(1, ',')
+          .append(stringify_(*it,compact));
       }
     }
-    return '[' + str + ']';
+    result.append(1, ']');
   }
 
   else  {  // is_atom(a)
     ps_atom_t str = any_cast<ps_atom_t>(a);
-    return str == string(9, '\0')  ? "@nil" : str;
+    result = str == string(9, '\0')  ? "@nil" : str;
   }
 
-}  // stringify()
+  return result;
+}  // stringify_()
 
 // ----------------------------------------------------------------------
 
@@ -68,7 +74,7 @@ ParameterSetID
 }
 
 string
-  ParameterSet::to_string( ) const
+ParameterSet::to_string_( bool compact ) const
 {
   string result;
   if( mapping_.empty() )
@@ -76,15 +82,15 @@ string
 
   map_iter_t it = mapping_.begin();
   result.append( it->first )
-        .append( 1, ':' )
-        .append( stringify(it->second) )
-        ;
+    .append( 1, ':' )
+    .append( stringify_(it->second, compact) )
+    ;
   for( map_iter_t const e = mapping_.end(); ++it != e; )
     result.append( 1, ' ' )
-          .append( it->first )
-          .append( 1, ':' )
-          .append( stringify(it->second) )
-          ;
+      .append( it->first )
+      .append( 1, ':' )
+      .append( stringify_(it->second, compact) )
+      ;
 
   return result;
 }
@@ -134,6 +140,19 @@ bool
   bool const did_erase = (1u == mapping_.erase(key));
   id_.invalidate();
   return did_erase;
+}
+
+bool
+ParameterSet::key_is_type_(std::string const & key,
+                           std::function<bool (boost::any const &)> func) const
+{
+  if (key.find('.') != std::string::npos) {
+    throw fhicl::exception(unimplemented, "is_{table,sequence,atom} for nested key.");
+  }
+  map_iter_t it = mapping_.find(key);
+  if( it == mapping_.end() )
+    throw exception(error::cant_find, key);
+  return func(it->second);
 }
 
 // ======================================================================

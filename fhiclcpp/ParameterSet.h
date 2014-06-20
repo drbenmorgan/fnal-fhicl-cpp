@@ -31,13 +31,17 @@ public:
   // compiler generates default c'tor, d'tor, copy c'tor, copy assignment
 
   // observers:
-  bool                      is_empty          ( ) const;
-  ParameterSetID            id                ( ) const;
-  std::string               to_string         ( ) const;
-  std::string               to_compact_string ( ) const;
-  std::string               to_indented_string( unsigned initial_indent_level = 0 ) const;
-  std::vector<std::string>  get_keys          ( ) const;
-  std::vector<std::string>  get_pset_keys     ( ) const;
+  bool                        is_empty           ( ) const;
+  ParameterSetID              id                 ( ) const;
+  std::string                 to_string          ( ) const;
+  std::string                 to_compact_string  ( ) const;
+  std::string                 to_indented_string ( unsigned initial_indent_level = 0 ) const;
+  std::vector<std::string>    get_keys           ( ) const;
+  std::vector<std::string>    get_pset_keys      ( ) const;
+  // Key must be local to this parameter set: no nesting.
+  bool                        is_key_to_table    ( std::string const & key ) const;
+  bool                        is_key_to_sequence ( std::string const & key ) const;
+  bool                        is_key_to_atom     ( std::string const & key ) const;
 
   // retrievers:
   template< class T >
@@ -80,8 +84,13 @@ private:
   std::string  stringify_( boost::any const & a,
                            bool compact = false ) const;
 
+  // Local retrieval only.
   template< class T >
     bool get_one_( std::string const & key, T & value ) const;
+
+  bool
+    key_is_type_(std::string const & key,
+                 std::function<bool (boost::any const &)> func) const;
 
   class Prettifier;
 
@@ -103,6 +112,33 @@ fhicl::ParameterSet::
 to_compact_string() const
 {
   return to_string_(true);
+}
+
+inline
+bool
+fhicl::ParameterSet::
+is_key_to_table(std::string const & key) const
+{
+  return key_is_type_(key, &detail::is_table);
+}
+
+inline
+bool
+fhicl::ParameterSet::
+is_key_to_sequence(std::string const & key) const
+{
+  return key_is_type_(key, &detail::is_sequence);
+}
+
+inline
+bool
+fhicl::ParameterSet::
+is_key_to_atom(std::string const & key) const
+{
+  return key_is_type_(key, [](boost::any const & a)
+                      { return ! (detail::is_sequence(a) ||
+                                  detail::is_table(a));
+                      });
 }
 
 template< class T >

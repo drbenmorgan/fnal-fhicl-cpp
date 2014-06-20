@@ -108,6 +108,24 @@ BOOST_AUTO_TEST_CASE (DeepVector) {
    BOOST_CHECK_EQUAL( vv.back().back() , 4u );
 }
 
+BOOST_AUTO_TEST_CASE(except_is_key_to) {
+  BOOST_CHECK_EXCEPTION(pset.is_key_to_table("k.l.z"),                  \
+                        fhicl::exception,                               \
+                        [](fhicl::exception const & e) -> bool {        \
+                          return e.categoryCode() == fhicl::error::unimplemented; \
+                        });
+  BOOST_CHECK_EXCEPTION(pset.is_key_to_sequence("k.l.z"),               \
+                        fhicl::exception,                               \
+                        [](fhicl::exception const & e) -> bool {        \
+                          return e.categoryCode() == fhicl::error::unimplemented; \
+                        });
+  BOOST_CHECK_EXCEPTION(pset.is_key_to_atom("k.l.z"),                   \
+                        fhicl::exception,                               \
+                        [](fhicl::exception const & e) -> bool {        \
+                          return e.categoryCode() == fhicl::error::unimplemented; \
+                        });
+}
+
 unsigned
   ctox( char c )
 {

@@ -142,6 +142,19 @@ bool
   return did_erase;
 }
 
+bool
+ParameterSet::key_is_type_(std::string const & key,
+                           std::function<bool (boost::any const &)> func) const
+{
+  if (key.find('.') != std::string::npos) {
+    throw fhicl::exception(unimplemented, "is_{table,sequence,atom} for nested key.");
+  }
+  map_iter_t it = mapping_.find(key);
+  if( it == mapping_.end() )
+    throw exception(error::cant_find, key);
+  return func(it->second);
+}
+
 // ======================================================================
 
 class ParameterSet::Prettifier

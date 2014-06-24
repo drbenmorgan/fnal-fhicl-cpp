@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_PARAMETERSET_H
-#define FHICLCPP_PARAMETERSET_H
+#ifndef fhiclcpp_ParameterSet_h
+#define fhiclcpp_ParameterSet_h
 
 // ======================================================================
 //
@@ -302,4 +302,8 @@ catch( std::exception const & e )
 
 // ======================================================================
 
-#endif
+#endif /* fhiclcpp_ParameterSet_h */
+
+// Local Variables:
+// mode: c++
+// End:

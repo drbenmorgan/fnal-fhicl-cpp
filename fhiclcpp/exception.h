@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_EXCEPTION_H
-#define FHICLCPP_EXCEPTION_H
+#ifndef fhiclcpp_exception_h
+#define fhiclcpp_exception_h
 
 // ======================================================================
 //
@@ -30,4 +30,8 @@ namespace fhicl {
 
 // ======================================================================
 
-#endif
+#endif /* fhiclcpp_exception_h */
+
+// Local Variables:
+// mode: c++
+// End:

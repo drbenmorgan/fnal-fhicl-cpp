@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_FWD_H
-#define FHICLCPP_FWD_H
+#ifndef fhiclcpp_fwd_h
+#define fhiclcpp_fwd_h
 
 // ======================================================================
 //
@@ -18,4 +18,8 @@ namespace fhicl {
 
 // ======================================================================
 
-#endif  // FHICLCPP_FWD_H
+#endif /* fhiclcpp_fwd_h */
+
+// Local Variables:
+// mode: c++
+// End:

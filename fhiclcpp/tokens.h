@@ -1,5 +1,5 @@
-#ifndef  FHICLCPP_TOKENS_H
-#define  FHICLCPP_TOKENS_H
+#ifndef  fhiclcpp_tokens_h
+#define fhiclcpp_tokens_h
 
 // ======================================================================
 //
@@ -1068,4 +1068,8 @@ namespace boost { namespace spirit { namespace qi {
 
 // ======================================================================
 
-#endif
+#endif /* fhiclcpp_tokens_h */
+
+// Local Variables:
+// mode: c++
+// End:

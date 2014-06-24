@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_EXTENDED_VALUE_H
-#define FHICLCPP_EXTENDED_VALUE_H
+#ifndef fhiclcpp_extended_value_h
+#define fhiclcpp_extended_value_h
 
 // ======================================================================
 //
@@ -76,4 +76,8 @@ public:
 
 // ======================================================================
 
-#endif
+#endif /* fhiclcpp_extended_value_h */
+
+// Local Variables:
+// mode: c++
+// End:

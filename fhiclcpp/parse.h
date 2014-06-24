@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_PARSE_H
-#define FHICLCPP_PARSE_H
+#ifndef fhiclcpp_parse_h
+#define fhiclcpp_parse_h
 
 // ======================================================================
 //
@@ -55,4 +55,8 @@ namespace fhicl {
 
 // ======================================================================
 
-#endif
+#endif /* fhiclcpp_parse_h */
+
+// Local Variables:
+// mode: c++
+// End:

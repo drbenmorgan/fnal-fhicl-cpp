@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_PARAMETERSETID_H
-#define FHICLCPP_PARAMETERSETID_H
+#ifndef fhiclcpp_ParameterSetID_h
+#define fhiclcpp_ParameterSetID_h
 
 // ======================================================================
 //
@@ -67,4 +67,8 @@ max_str_size()
 
 // ======================================================================
 
-#endif
+#endif /* fhiclcpp_ParameterSetID_h */
+
+// Local Variables:
+// mode: c++
+// End:

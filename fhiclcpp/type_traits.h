@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_TYPE_TRAITS_H
-#define FHICLCPP_TYPE_TRAITS_H
+#ifndef fhiclcpp_type_traits_h
+#define fhiclcpp_type_traits_h
 #ifndef __GCCXML__
 // ======================================================================
 //
@@ -30,7 +30,7 @@ namespace tt {
 }
 
 #endif /* __GCCXML__ */
-#endif /* FHICLCPP_TYPE_TRAITS_H */
+#endif /* fhiclcpp_type_traits_h */
 
 // Local Variables:
 // mode: c++

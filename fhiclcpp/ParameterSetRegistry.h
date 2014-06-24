@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_PARAMETERSETREGISTRY_H
-#define FHICLCPP_PARAMETERSETREGISTRY_H
+#ifndef fhiclcpp_ParameterSetRegistry_h
+#define fhiclcpp_ParameterSetRegistry_h
 
 // ======================================================================
 //
@@ -19,4 +19,8 @@ namespace fhicl {
 
 // ======================================================================
 
-#endif
+#endif /* fhiclcpp_ParameterSetRegistry_h */
+
+// Local Variables:
+// mode: c++
+// End:

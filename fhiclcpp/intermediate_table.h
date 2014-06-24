@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_INTERMEDIATE_TABLE_H
-#define FHICLCPP_INTERMEDIATE_TABLE_H
+#ifndef fhiclcpp_intermediate_table_h
+#define fhiclcpp_intermediate_table_h
 
 ////////////////////////////////////////////////////////////////////////
 // intermediate table: generic representation of parameters.
@@ -339,7 +339,7 @@ putNil(std::string const & name,
 {
   insert(name, in_prolog, NIL, detail::encode((void *)0));
 }
-#endif
+#endif /* fhiclcpp_intermediate_table_h */
 
 // Local Variables:
 // mode: c++

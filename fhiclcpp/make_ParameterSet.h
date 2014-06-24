@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_MAKE_PARAMETERSET_H
-#define FHICLCPP_MAKE_PARAMETERSET_H
+#ifndef fhiclcpp_make_ParameterSet_h
+#define fhiclcpp_make_ParameterSet_h
 
 // ======================================================================
 //
@@ -40,4 +40,8 @@ namespace fhicl {
 
 // ======================================================================
 
-#endif
+#endif /* fhiclcpp_make_ParameterSet_h */
+
+// Local Variables:
+// mode: c++
+// End:

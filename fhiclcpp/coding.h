@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_CODING_H
-#define FHICLCPP_CODING_H
+#ifndef fhiclcpp_coding_h
+#define fhiclcpp_coding_h
 
 // ======================================================================
 //
@@ -241,4 +241,8 @@ typename tt::disable_if< tt::is_numeric<T>::value, void >::type
 
 // ======================================================================
 
-#endif
+#endif /* fhiclcpp_coding_h */
+
+// Local Variables:
+// mode: c++
+// End:

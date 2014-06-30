@@ -85,3 +85,5 @@ cet_test(intermediate_table_t USE_BOOST_UNIT)
 cet_test(seq_of_seq_t)
 
 cet_test(traits_t)
+
+cet_test(ParameterSetRegistry_t USE_BOOST_UNIT ${SQLITE3})

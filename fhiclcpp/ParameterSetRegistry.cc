@@ -66,12 +66,12 @@ importFrom(sqlite3 * db)
   sqlite3_stmt * iStmt, * oStmt;
   sqlite3 * primaryDB = instance_().primaryDB_;
   sqlite3_prepare_v2(db,
-                     "SELECT ID, PSetBlob FROM ParameterSets",
+                     "SELECT ID, PSetBlob FROM ParameterSets;",
                      -1, &iStmt, NULL);
   throwOnSQLiteFailure(db);
   // Index constraint on ID will prevent duplicates via INSERT OR IGNORE.
   sqlite3_prepare_v2(primaryDB,
-                     "INSERT OR IGNORE INTO ParameterSets(ID, PSetBlob) VALUES(?, ?)",
+                     "INSERT OR IGNORE INTO ParameterSets(ID, PSetBlob) VALUES(?, ?);",
                      -1, &oStmt, NULL);
   throwOnSQLiteFailure(primaryDB);
 

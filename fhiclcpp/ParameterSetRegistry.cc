@@ -161,6 +161,32 @@ exportTo(sqlite3 * db)
   throwOnSQLiteFailure(db);
 }
 
+void
+fhicl::ParameterSetRegistry::
+stageIn()
+{
+  sqlite3_stmt * stmt;
+  sqlite3 * primaryDB = instance_().primaryDB_;
+  auto & registry = instance_().registry_;
+  sqlite3_prepare_v2(primaryDB,
+                     "SELECT ID, PSetBlob FROM ParameterSets;",
+                     -1, &stmt, NULL);
+  throwOnSQLiteFailure(primaryDB);
+  int retcode = 0;
+  while ((retcode = sqlite3_step(stmt)) == SQLITE_ROW) {
+    auto idString = reinterpret_cast<char const *>
+               (sqlite3_column_text(stmt, 0));
+    auto psBlob = reinterpret_cast<char const *>
+                  (sqlite3_column_text(stmt, 1));
+    ParameterSet pset;
+    fhicl::make_ParameterSet(psBlob, pset);
+    // Put into the registry without triggering ParameterSet::id().
+    (void) registry.emplace(ParameterSetID(idString), pset).first;
+  }
+  sqlite3_finalize(stmt);
+  throwOnSQLiteFailure(primaryDB);
+}
+
 fhicl::ParameterSetRegistry::
 ParameterSetRegistry()
 :

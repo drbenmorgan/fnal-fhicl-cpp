@@ -53,6 +53,7 @@ public:
   // DB interaction.
   static void importFrom(sqlite3 * db);
   static void exportTo(sqlite3 * db);
+  static void stageIn();
 
   // Observers.
   static bool empty();

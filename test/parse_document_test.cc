@@ -157,8 +157,8 @@ BOOST_AUTO_TEST_CASE( nil_value )
 
   BOOST_CHECK_EQUAL( pset.get<nil_t >("a"  ), nil_value );
   BOOST_CHECK_EQUAL( pset.get<nil_t >("t.a"), nil_value );
-  BOOST_CHECK_THROW( pset.get<string>("a"  ), fhicl::exception ); 
-  BOOST_CHECK_THROW( pset.get<string>("t.a"), fhicl::exception ); 
+  BOOST_CHECK_THROW( pset.get<string>("a"  ), fhicl::exception );
+  BOOST_CHECK_THROW( pset.get<string>("t.a"), fhicl::exception );
   BOOST_CHECK_EQUAL( pset.get<string>("b"  ), "nil");
   BOOST_CHECK_EQUAL( pset.get<string>("t.b"), "nil");
   BOOST_CHECK_EQUAL( pset.get<string>("c"  ), "@nil");
@@ -167,5 +167,22 @@ BOOST_AUTO_TEST_CASE( nil_value )
   BOOST_CHECK_EQUAL( pset.get<string>("t.d"), "nil");
 }
 
+BOOST_AUTO_TEST_CASE ( erase_value )
+{
+  std::string document = "a: 27\n"
+                         "b: { x: 7 y: 12 }\n"
+                         "c: { x: 7 y: 12 x: @erase }\n"
+                         "a: @erase\n"
+                         "b.x: @erase\n";
+  intermediate_table tbl;
+  parse_document(document, tbl);
+  BOOST_CHECK(!tbl.exists("a"));
+  BOOST_CHECK(tbl.exists("b"));
+  BOOST_CHECK(!tbl.exists("b.x"));
+  BOOST_CHECK(tbl.exists("b.y"));
+  BOOST_CHECK(tbl.exists("c"));
+  BOOST_CHECK(!tbl.exists("c.x"));
+  BOOST_CHECK(tbl.exists("c.y"));
+}
 
 BOOST_AUTO_TEST_SUITE_END()

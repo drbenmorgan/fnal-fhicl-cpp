@@ -143,6 +143,13 @@ static  void
   t.insert(name, value);
 }
 
+static void
+tbl_erase(std::string const & name,
+          fhicl::intermediate_table & t)
+{
+  t.erase(name);
+}
+
 static  void
   map_insert( std::string    const & name
             , extended_value const & value
@@ -152,6 +159,12 @@ static  void
   t[name] = value;
 }
 
+static  void
+map_erase(std::string    const & name,
+          table_t              & t)
+{
+  t.erase(name);
+}
 // ----------------------------------------------------------------------
 
 namespace fhicl
@@ -275,8 +288,9 @@ template< class FwdIter, class Skip >
 
   sequence = lit('[') > -(value % ',') > lit(']');
   table    = lit('{')
-             > *((name >> (lit(':') > value)
+             > *((name >> (lit(':') >> value)
                  ) [ phx::bind(map_insert, qi::_1, qi::_2, _val) ]
+                 | (name >> (lit(':') > lit("@erase"))) [ phx::bind(map_erase, qi::_1, _val) ]
                 )
              > lit('}');
 
@@ -331,8 +345,9 @@ template< class FwdIter, class Skip >
 
   sequence = lit('[') > -(value % ',') > lit(']');
   table    = lit('{')
-           > *((name >> (lit(':') > value)
-               ) [ phx::bind(map_insert, qi::_1, qi::_2, _val) ]
+             > *((name >> (lit(':') >> value)
+                 ) [ phx::bind(map_insert, qi::_1, qi::_2, _val) ]
+                 | (name >> (lit(':') > lit("@erase"))) [ phx::bind(map_erase, qi::_1, _val) ]
               )
            > lit('}');
 
@@ -359,8 +374,9 @@ template< class FwdIter, class Skip >
                )
            >> lit("END_PROLOG")  [ phx::bind(rebool, ref(in_prolog), false) ];
   document = (*prolog)    [ phx::bind(rebool, ref(prolog_allowed), false) ]
-           >> *((qualname >> (lit(':') > value)
+             >> *((qualname >> (lit(':') >> value)
                 ) [ phx::bind(tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
+                | (qualname >> (lit(':') > lit("@erase"))) [ phx::bind(tbl_erase, qi::_1, ref(tbl)) ]
                );
 
   name    .name("name atom");

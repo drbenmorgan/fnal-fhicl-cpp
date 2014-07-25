@@ -131,7 +131,7 @@ int
   ensure( 72, parse_as("{a : 1.2 }", "{a:1.2}") );
   ensure( 73, parse_as("{a : 1.2 b: hello}", "{a:1.2 b:"
                                            + dquoted("hello") + "}") );
-
+  ensure( 74, parse_as("{a : 3 b: 7 a: @erase}", "{b:7}") );
   return 0;
 
 }  // main()

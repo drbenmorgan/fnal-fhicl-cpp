@@ -26,6 +26,8 @@ void
 fhicl::detail::
 throwOnSQLiteFailure(sqlite3 * db, char *msg)
 {
+  std::string msgString(msg ? msg : "" );
+  sqlite3_free(msg);
   if (db == nullptr) {
     throw fhicl::exception(fhicl::error::cant_open_db,
                            "Can't open DB.");
@@ -40,7 +42,7 @@ throwOnSQLiteFailure(sqlite3 * db, char *msg)
       << errcode
       << "): "
       << sqlite3_errmsg(db)
-      << ((msg && *msg) ? (std::string(". ") + *msg) : "");
+      << (msgString.empty() ? "" : (std::string(". ") + msgString));
   }
 }
 

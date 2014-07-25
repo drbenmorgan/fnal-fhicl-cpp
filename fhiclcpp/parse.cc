@@ -159,6 +159,17 @@ static  void
   t[name] = value;
 }
 
+static void
+map_insert_table(std::string const & name,
+                 fhicl::intermediate_table & tbl,
+                 table_t & t)
+{
+  table_t const & incoming = local_lookup(name, tbl, false);
+  for (auto i = incoming.cbegin(), e = incoming.cend(); i != e; ++i) {
+    t[i->first] = i->second;
+  }
+}
+
 static  void
 map_erase(std::string    const & name,
           table_t              & t)
@@ -348,6 +359,7 @@ template< class FwdIter, class Skip >
              > *((name >> (lit(':') >> value)
                  ) [ phx::bind(map_insert, qi::_1, qi::_2, _val) ]
                  | (name >> (lit(':') > lit("@erase"))) [ phx::bind(map_erase, qi::_1, _val) ]
+                 | (lit("@table::") > qualname) [ phx::bind(map_insert_table, qi::_1, ref(tbl), _val) ]
               )
            > lit('}');
 

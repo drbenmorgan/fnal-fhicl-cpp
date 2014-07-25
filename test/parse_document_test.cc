@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE ( erase_value )
                          "a: @erase\n"
                          "b.x: @erase\n";
   intermediate_table tbl;
-  parse_document(document, tbl);
+  BOOST_CHECK_NO_THROW(parse_document(document, tbl));
   BOOST_CHECK(!tbl.exists("a"));
   BOOST_CHECK(tbl.exists("b"));
   BOOST_CHECK(!tbl.exists("b.x"));
@@ -183,6 +183,19 @@ BOOST_AUTO_TEST_CASE ( erase_value )
   BOOST_CHECK(tbl.exists("c"));
   BOOST_CHECK(!tbl.exists("c.x"));
   BOOST_CHECK(tbl.exists("c.y"));
+}
+
+BOOST_AUTO_TEST_CASE( expandTable )
+{
+  std::string document = "BEGIN_PROLOG\n"
+                         "fred: { bill: twelve charlie: 27 }\n"
+                         "END_PROLOG\n"
+                         "x: { ethel: 14 bill: 12 @table::fred }\n";
+  intermediate_table tbl;
+  parse_document(document, tbl);
+  BOOST_CHECK(tbl.exists("x.ethel"));
+  BOOST_CHECK(tbl.exists("x.charlie"));
+  BOOST_CHECK_EQUAL(tbl.get<std::string>("x.bill"), std::string("twelve"));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

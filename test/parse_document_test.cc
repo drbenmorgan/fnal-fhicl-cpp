@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE( empty_document )
 {
   std::string document;
   intermediate_table tbl;
-  BOOST_CHECK_NO_THROW( parse_document(document, tbl) );
+  BOOST_REQUIRE_NO_THROW(parse_document(document, tbl));
   ParameterSet pset;
   make_ParameterSet(tbl, pset);
   BOOST_CHECK( pset.is_empty() );
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE( nonempty_document )
                          "b : 2\n"
                          ;
   intermediate_table tbl;
-  BOOST_CHECK_NO_THROW( parse_document(document, tbl) );
+  BOOST_REQUIRE_NO_THROW( parse_document(document, tbl) );
   ParameterSet pset;
   make_ParameterSet(tbl, pset);
   BOOST_CHECK( ! pset.is_empty() );
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE( nested_document )
                          "x.b : 2\n"
                          ;
   intermediate_table tbl;
-  BOOST_CHECK_NO_THROW( parse_document(document, tbl) );
+  BOOST_REQUIRE_NO_THROW( parse_document(document, tbl) );
   ParameterSet pset;
   make_ParameterSet(tbl, pset);
   BOOST_CHECK( ! pset.is_empty() );
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( overridden_prolog_document )
                          "t.a : @local::t.b\n"
                          ;
   intermediate_table tbl;
-  BOOST_CHECK_NO_THROW( parse_document(document, tbl) );
+  BOOST_REQUIRE_NO_THROW(parse_document(document, tbl));
   ParameterSet pset;
   make_ParameterSet(tbl, pset);
   BOOST_CHECK_EQUAL( pset.get<int>("a"), 2 );
@@ -96,6 +96,38 @@ BOOST_AUTO_TEST_CASE( overridden_prolog_document )
   BOOST_REQUIRE( ! pset.get<ParameterSet>("t").is_empty() );
   BOOST_CHECK_EQUAL( pset.get<int>("t.a"), 12 );
   BOOST_CHECK_THROW( pset.get<int>("t.b"), cet::exception );
+}
+
+BOOST_AUTO_TEST_CASE ( contiguous_prolog )
+{
+  std::string document = "BEGIN_PROLOG\n"
+                         "  a: 1\n"
+                         "  t: { a : 11\n"
+                         "       b : 12\n"
+                         "     }\n"
+                         "END_PROLOG\n"
+                         "BEGIN_PROLOG\n"
+                         " c: 47\n"
+                         "END_PROLOG\n";
+  intermediate_table tbl;
+  BOOST_REQUIRE_NO_THROW(parse_document(document, tbl));
+  BOOST_CHECK(tbl.exists("c"));
+}
+
+BOOST_AUTO_TEST_CASE ( noncontiguous_prolog )
+{
+  std::string document = "BEGIN_PROLOG\n"
+                         "  a: 1\n"
+                         "  t: { a : 11\n"
+                         "       b : 12\n"
+                         "     }\n"
+                         "END_PROLOG\n"
+                         "d: 27\n"
+                         "BEGIN_PROLOG\n"
+                         " c: 47\n"
+                         "END_PROLOG\n";
+  intermediate_table tbl;
+  BOOST_REQUIRE_THROW(parse_document(document, tbl), cet::exception);
 }
 
 BOOST_AUTO_TEST_CASE( overridden_toplevel_document )
@@ -108,7 +140,7 @@ BOOST_AUTO_TEST_CASE( overridden_toplevel_document )
                          "a : 6\n"
                          ;
   intermediate_table tbl;
-  BOOST_CHECK_NO_THROW( parse_document(document, tbl) );
+  BOOST_REQUIRE_NO_THROW( parse_document(document, tbl) );
   ParameterSet pset;
   make_ParameterSet(tbl, pset);
   BOOST_CHECK_EQUAL( pset.get<int>("a"), 6 );
@@ -127,7 +159,7 @@ BOOST_AUTO_TEST_CASE( overridden_nested_document )
                          "    }\n"
                          ;
   intermediate_table tbl;
-  BOOST_CHECK_NO_THROW( parse_document(document, tbl) );
+  BOOST_REQUIRE_NO_THROW( parse_document(document, tbl) );
   ParameterSet pset;
   make_ParameterSet(tbl, pset);
   BOOST_CHECK_EQUAL( pset.get<int>("t.a"), 6 );
@@ -148,7 +180,7 @@ BOOST_AUTO_TEST_CASE( nil_value )
                          "    }\n"
                          ;
   intermediate_table tbl;
-  BOOST_CHECK_NO_THROW( parse_document(document, tbl) );
+  BOOST_REQUIRE_NO_THROW( parse_document(document, tbl) );
   ParameterSet pset;
   make_ParameterSet(tbl, pset);
 
@@ -175,7 +207,7 @@ BOOST_AUTO_TEST_CASE ( erase_value )
                          "a: @erase\n"
                          "b.x: @erase\n";
   intermediate_table tbl;
-  parse_document(document, tbl);
+  BOOST_REQUIRE_NO_THROW(parse_document(document, tbl));
   BOOST_CHECK(!tbl.exists("a"));
   BOOST_CHECK(tbl.exists("b"));
   BOOST_CHECK(!tbl.exists("b.x"));
@@ -183,6 +215,85 @@ BOOST_AUTO_TEST_CASE ( erase_value )
   BOOST_CHECK(tbl.exists("c"));
   BOOST_CHECK(!tbl.exists("c.x"));
   BOOST_CHECK(tbl.exists("c.y"));
+}
+
+BOOST_AUTO_TEST_CASE( expand_table )
+{
+  std::string document = "BEGIN_PROLOG\n"
+                         "fred: { bill: twelve charlie: 27 }\n"
+                         "END_PROLOG\n"
+                         "x: { ethel: 14 bill: 12 @table::fred }\n"
+                         "@table::fred\n";
+  intermediate_table tbl;
+  parse_document(document, tbl);
+  BOOST_CHECK(tbl.exists("x.ethel"));
+  BOOST_CHECK(tbl.exists("x.charlie"));
+  BOOST_CHECK(tbl.exists("bill"));
+  BOOST_CHECK(tbl.exists("charlie"));
+  BOOST_CHECK_EQUAL(tbl.get<std::string>("x.bill"), std::string("twelve"));
+  BOOST_CHECK_EQUAL(tbl.get<std::string>("bill"), std::string("twelve"));
+}
+
+BOOST_AUTO_TEST_CASE( expand_sequence )
+{
+  std::string document = "BEGIN_PROLOG\n"
+                         "fred: [ three, four, five ]\n"
+                         "END_PROLOG\n"
+                         "bill: [ one, two, @sequence::fred, six ]\n"
+                         "charlie: @local::fred\n"
+                         "ethel: [ @sequence::fred, six ]\n";
+  intermediate_table tbl;
+  parse_document(document, tbl);
+  BOOST_CHECK(tbl.exists("fred"));
+  BOOST_CHECK(tbl.exists("bill"));
+  BOOST_CHECK(tbl.exists("charlie"));
+  BOOST_CHECK(tbl.exists("ethel"));
+
+  ParameterSet pset;
+  make_ParameterSet(tbl, pset);
+
+  BOOST_CHECK_EQUAL(pset.get<std::vector<std::string> >("charlie").size(), 3ul);
+
+  std::vector<std::string> const billref { "one", "two", "three", "four", "five", "six" };
+  std::vector<std::string> const ethelref { "three", "four", "five", "six" };
+
+  auto cmp = [] (std::vector<std::string> const & seq, std::vector<std::string> const & ref)
+  {
+    BOOST_CHECK_EQUAL(seq.size(), ref.size());
+    for (auto i = seq.cbegin(), e = seq.cend(), iref = ref.cbegin(); i != e; ++i, ++iref) {
+      BOOST_CHECK_EQUAL(*i, *iref);
+    }
+  };
+
+  cmp(pset.get<std::vector<std::string> >("bill"), billref);
+  cmp(pset.get<std::vector<std::string> >("ethel"), ethelref);
+}
+
+BOOST_AUTO_TEST_CASE( bad_lookup )
+{
+  std::string document = "x: @local::dead\n";
+  intermediate_table tbl;
+  BOOST_CHECK_THROW(parse_document(document, tbl), cet::exception);
+}
+
+BOOST_AUTO_TEST_CASE( bad_expand_table )
+{
+  std::string document = "BEGIN_PROLOG\n"
+                         "bad: John\n"
+                         "END_PROLOG\n"
+                         "@table::bad\n";
+  intermediate_table tbl;
+  BOOST_CHECK_THROW(parse_document(document, tbl), cet::exception);
+}
+
+BOOST_AUTO_TEST_CASE( bad_expand_sequence )
+{
+  std::string document = "BEGIN_PROLOG\n"
+                         "bad: John\n"
+                         "END_PROLOG\n"
+                         "f: [ @sequence::bad ]\n";
+  intermediate_table tbl;
+  BOOST_CHECK_THROW(parse_document(document, tbl), cet::exception);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

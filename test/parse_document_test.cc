@@ -98,6 +98,38 @@ BOOST_AUTO_TEST_CASE( overridden_prolog_document )
   BOOST_CHECK_THROW( pset.get<int>("t.b"), cet::exception );
 }
 
+BOOST_AUTO_TEST_CASE ( contiguous_prolog )
+{
+  std::string document = "BEGIN_PROLOG\n"
+                         "  a: 1\n"
+                         "  t: { a : 11\n"
+                         "       b : 12\n"
+                         "     }\n"
+                         "END_PROLOG\n"
+                         "BEGIN_PROLOG\n"
+                         " c: 47\n"
+                         "END_PROLOG\n";
+  intermediate_table tbl;
+  BOOST_REQUIRE_NO_THROW(parse_document(document, tbl));
+  BOOST_CHECK(tbl.exists("c"));
+}
+
+BOOST_AUTO_TEST_CASE ( noncontiguous_prolog )
+{
+  std::string document = "BEGIN_PROLOG\n"
+                         "  a: 1\n"
+                         "  t: { a : 11\n"
+                         "       b : 12\n"
+                         "     }\n"
+                         "END_PROLOG\n"
+                         "d: 27\n"
+                         "BEGIN_PROLOG\n"
+                         " c: 47\n"
+                         "END_PROLOG\n";
+  intermediate_table tbl;
+  BOOST_REQUIRE_THROW(parse_document(document, tbl), cet::exception);
+}
+
 BOOST_AUTO_TEST_CASE( overridden_toplevel_document )
 {
   std::string document = "a : 1\n"

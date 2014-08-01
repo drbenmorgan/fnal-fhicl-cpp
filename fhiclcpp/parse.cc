@@ -183,6 +183,7 @@ namespace {
   void
   insert_table(std::string const & name,
                fhicl::intermediate_table & tbl,
+               bool in_prolog,
                TABLEISH & t,
                FwdIter pos,
                cet::includer const & s)
@@ -201,7 +202,7 @@ namespace {
     for (auto i = incoming.cbegin(), e = incoming.cend(); i != e; ++i) {
       auto & element = t[i->first];
       element = i->second;
-      // element.setprolog(in_prolog);
+      element.set_prolog(in_prolog);
     }
   }
 
@@ -209,6 +210,7 @@ namespace {
   void
   seq_insert_sequence(std::string const & name,
                       fhicl::intermediate_table & tbl,
+                      bool in_prolog,
                       sequence_t & v,
                       FwdIter pos,
                       cet::includer const & s)
@@ -231,7 +233,7 @@ namespace {
     auto it = v.end() - incoming.size();
 #endif
     for (auto const e = v.end(); it != e; ++it) {
-      // it->set_prolog(in_prolog);
+      it->set_prolog(in_prolog);
     }
   }
 
@@ -417,8 +419,8 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
   // the list elements actually returning multiple elements.
   sequence =
     lit('[')
-    > -(((value [ phx::bind(seq_insert_value, qi::_1, _val) ]) | (iter_pos >> lit("@sequence::") > qualname) [ phx::bind(&seq_insert_sequence<iter_t>, qi::_2, ref(tbl), _val, qi::_1, s) ]))
-    > *(lit(',') > ((value [ phx::bind(seq_insert_value, qi::_1, _val) ]) | (iter_pos >> lit("@sequence::") > qualname) [ phx::bind(&seq_insert_sequence<iter_t>, qi::_2, ref(tbl), _val, qi::_1, s) ]))
+    > -(((value [ phx::bind(seq_insert_value, qi::_1, _val) ]) | (iter_pos >> lit("@sequence::") > qualname) [ phx::bind(&seq_insert_sequence<iter_t>, qi::_2, ref(tbl), ref(in_prolog), _val, qi::_1, s) ]))
+    > *(lit(',') > ((value [ phx::bind(seq_insert_value, qi::_1, _val) ]) | (iter_pos >> lit("@sequence::") > qualname) [ phx::bind(&seq_insert_sequence<iter_t>, qi::_2, ref(tbl), ref(in_prolog), _val, qi::_1, s) ]))
     > lit(']');
   table =
     lit('{')
@@ -428,7 +430,7 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
           ) [ phx::bind(map_erase, qi::_1, _val) ]
         | (iter_pos >> lit("@table::") > qualname
           ) [ phx::bind(&insert_table<table_t, iter_t>,
-                        qi::_2, ref(tbl), _val,
+                        qi::_2, ref(tbl), ref(in_prolog), _val,
                         qi::_1, s) ]
        )
     > lit('}');
@@ -456,7 +458,8 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
           >> (lit(':') > value)
          ) [ phx::bind(tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
          | (iter_pos >> lit("@table::") > qualname
-           ) [ phx::bind(&insert_table<fhicl::intermediate_table, iter_t>, qi::_2, ref(tbl), ref(tbl),
+           ) [ phx::bind(&insert_table<fhicl::intermediate_table, iter_t>,
+                         qi::_2, ref(tbl), ref(in_prolog), ref(tbl),
                          qi::_1, s) ]
         )
     >> lit("END_PROLOG")  [ phx::bind(rebool, ref(in_prolog), false) ];
@@ -467,7 +470,7 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
                     ) [ phx::bind(tbl_erase, qi::_1, ref(tbl)) ]
                   | (iter_pos >> lit("@table::") > qualname
                     ) [ phx::bind(&insert_table<fhicl::intermediate_table, iter_t>,
-                                  qi::_2, ref(tbl), ref(tbl),
+                                  qi::_2, ref(tbl), ref(in_prolog), ref(tbl),
                                   qi::_1, s) ]
                  );
   name    .name("name atom");

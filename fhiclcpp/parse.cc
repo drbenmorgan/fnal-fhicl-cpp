@@ -309,7 +309,6 @@ struct fhicl::document_parser
 
   // data members:
   bool                in_prolog;
-  bool                prolog_allowed;
   intermediate_table  tbl;
   value_parser        vp;
 
@@ -402,7 +401,6 @@ template< class FwdIter, class Skip >
 fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
   : document_parser::base_type(document)
   , in_prolog(false)
-  , prolog_allowed(true)
   , tbl()
   , vp()
 {
@@ -463,7 +461,7 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
                          qi::_1, s) ]
         )
     >> lit("END_PROLOG")  [ phx::bind(rebool, ref(in_prolog), false) ];
-  document = (*prolog)    [ phx::bind(rebool, ref(prolog_allowed), false) ]
+  document = (*prolog)
              >> *((qualname >> (lit(':') >> value)
                   ) [ phx::bind(tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
                   | (qualname >> (lit(':') > lit("@erase"))

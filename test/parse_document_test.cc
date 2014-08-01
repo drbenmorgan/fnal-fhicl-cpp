@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE ( erase_value )
   BOOST_CHECK(tbl.exists("c.y"));
 }
 
-BOOST_AUTO_TEST_CASE( expandTable )
+BOOST_AUTO_TEST_CASE( expand_table )
 {
   std::string document = "BEGIN_PROLOG\n"
                          "fred: { bill: twelve charlie: 27 }\n"
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE( expandTable )
   BOOST_CHECK_EQUAL(tbl.get<std::string>("bill"), std::string("twelve"));
 }
 
-BOOST_AUTO_TEST_CASE( expandSequence )
+BOOST_AUTO_TEST_CASE( expand_sequence )
 {
   std::string document = "BEGIN_PROLOG\n"
                          "fred: [ three, four, five ]\n"
@@ -269,14 +269,14 @@ BOOST_AUTO_TEST_CASE( expandSequence )
   cmp(pset.get<std::vector<std::string> >("ethel"), ethelref);
 }
 
-BOOST_AUTO_TEST_CASE( badLookup )
+BOOST_AUTO_TEST_CASE( bad_lookup )
 {
   std::string document = "x: @local::dead\n";
   intermediate_table tbl;
   BOOST_CHECK_THROW(parse_document(document, tbl), cet::exception);
 }
 
-BOOST_AUTO_TEST_CASE( badExpandTable )
+BOOST_AUTO_TEST_CASE( bad_expand_table )
 {
   std::string document = "BEGIN_PROLOG\n"
                          "bad: John\n"
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE( badExpandTable )
   BOOST_CHECK_THROW(parse_document(document, tbl), cet::exception);
 }
 
-BOOST_AUTO_TEST_CASE( badExpandSequence )
+BOOST_AUTO_TEST_CASE( bad_expand_sequence )
 {
   std::string document = "BEGIN_PROLOG\n"
                          "bad: John\n"

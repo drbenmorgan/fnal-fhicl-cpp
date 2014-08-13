@@ -9,8 +9,8 @@ gcc		v4_8_2
 icc		v14_0_2
 cetlib		v1_06_02
 sqlite		v3_08_03_00
-
-only_for_build       cetbuildtools	v3_13_00
+cetbuildtools	v4_00_00	-	only_for_build
+end_product_list
 
 # Matrix of qualifiers versus dependent products
 qualifier	cetlib		sqlite	gcc	icc	compiler	notes
@@ -19,6 +19,7 @@ e5:opt		e5:opt		-nq-	-nq-	-	gcc
 e5:prof		e5:prof		-nq-	-nq-	-	gcc
 i1:debug	i1:debug	-nq-	-	i1	icc
 i1:prof		i1:prof		-nq-	-	i1	icc
+end_qualifier_list
 
 # Local Variables:
 # tab-width: 8

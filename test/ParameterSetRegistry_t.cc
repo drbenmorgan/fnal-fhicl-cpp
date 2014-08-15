@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE(TestImport)
     }
     ParameterSet p2 = ParameterSetRegistry::get(p.first.id());
     BOOST_REQUIRE(p2 == p.first);
-    BOOST_REQUIRE_EQUAL(ParameterSetRegistry::size(), expected_size);  
+    BOOST_REQUIRE_EQUAL(ParameterSetRegistry::size(), expected_size);
   }
 }
 
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE(TestExport)
   sqlite3_finalize(stmt);
   sqlite3_prepare_v2(db, "SELECT COUNT(*) from ParameterSets;", -1, &stmt, NULL);
   BOOST_REQUIRE_EQUAL(sqlite3_step(stmt), SQLITE_ROW);
-  BOOST_REQUIRE_EQUAL(sqlite3_column_int64(stmt, 0), 13ul);
+  BOOST_REQUIRE_EQUAL(sqlite3_column_int64(stmt, 0), 13l);
   sqlite3_finalize(stmt);
   sqlite3_close(db);
 }

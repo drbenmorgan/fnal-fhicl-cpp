@@ -87,3 +87,23 @@ cet_test(seq_of_seq_t)
 cet_test(traits_t)
 
 cet_test(ParameterSetRegistry_t USE_BOOST_UNIT ${SQLITE3})
+
+cet_test(DatabaseSupport_t USE_BOOST_UNIT
+         DATAFILES
+            testFiles/db_0.fcl
+            testFiles/db_1.fcl
+            testFiles/db_2.fcl
+         )
+
+cet_test(WriteSQLiteDB_t USE_BOOST_UNIT
+         DATAFILES testFiles/db_2.fcl
+         )
+
+cet_test(fhicl-write-db-test HANDBUILT
+  TEST_EXEC sqlite3
+  TEST_ARGS ../WriteSQLiteDB_t.d/test.db "select count(ID) from ParameterSets"
+  TEST_PROPERTIES
+  DEPENDS WriteSQLiteDB_t
+  PASS_REGULAR_EXPRESSION "^3\n$"
+  )
+

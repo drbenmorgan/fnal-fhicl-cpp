@@ -1,6 +1,6 @@
 include(CetMake)
 
-cet_make(EXCLUDE fhicl-expand.cc
+cet_make(EXCLUDE fhicl-expand.cc fhicl-write-db.cc
   LIBRARIES
   ${CETLIB}
   ${SQLITE3}
@@ -14,6 +14,13 @@ cet_make_exec(fhicl-expand
   SOURCE fhicl-expand.cc
   LIBRARIES
    ${CETLIB} ${Boost_PROGRAM_OPTIONS_LIBRARY}
+)
+
+cet_make_exec(fhicl-write-db
+  SOURCE fhicl-write-db.cc
+  LIBRARIES
+    fhiclcpp
+    ${SQLITE3}
 )
 
 install_headers()

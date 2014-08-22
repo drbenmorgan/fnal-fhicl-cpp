@@ -25,9 +25,9 @@ namespace fhicl
 
   // Read the file 'filename', creating a ParameterSet, and then call
   // decompose_parameterset using that ParameterSet.
-  void do_everything(std::string const& filename,
-                     std::vector<std::string>& records,
-                     std::vector<std::string>& hashes);
+  void decompose_fhicl(std::string const& filename,
+                       std::vector<std::string>& records,
+                       std::vector<std::string>& hashes);
 
   // Read the file 'filename', creating a ParameterSet, and then fill
   // the given empty sqlite3 database with all the ParameterSets created

@@ -15,7 +15,7 @@ BOOST_AUTO_TEST_CASE( no_nesting )
   std::vector<std::string> records;
   std::vector<std::string> hashes;
 
-  BOOST_CHECK_NO_THROW(fhicl::do_everything("db_0.fcl", records, hashes));
+  BOOST_CHECK_NO_THROW(fhicl::decompose_fhicl("db_0.fcl", records, hashes));
   BOOST_CHECK_EQUAL(records.size(), hashes.size());
   BOOST_CHECK_EQUAL(records.size(), 1);
 }
@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE( two_nested )
   std::cout << p.to_string() << std::endl;
 
 
-  BOOST_CHECK_NO_THROW(fhicl::do_everything("db_1.fcl", records, hashes));
+  BOOST_CHECK_NO_THROW(fhicl::decompose_fhicl("db_1.fcl", records, hashes));
   BOOST_CHECK_EQUAL(records.size(), hashes.size());
   BOOST_CHECK_EQUAL(records.size(), 3);
 }
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE( nested_vector)
   std::cout << p.to_compact_string() << std::endl;
   BOOST_CHECK_EQUAL(v.size(), 2);
 
-  BOOST_CHECK_NO_THROW(fhicl::do_everything("db_2.fcl", records, hashes));
+  BOOST_CHECK_NO_THROW(fhicl::decompose_fhicl("db_2.fcl", records, hashes));
   BOOST_CHECK_EQUAL(records.size(), hashes.size());
   BOOST_CHECK_EQUAL(records.size(), 3);
 }

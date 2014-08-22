@@ -2,9 +2,9 @@
 #include "fhiclcpp/ParameterSetRegistry.h"
 
 
-void fhicl::do_everything(std::string const& filename,
-                          std::vector<std::string>& records,
-                          std::vector<std::string>& hashes)
+void fhicl::decompose_fhicl(std::string const& filename,
+                            std::vector<std::string>& records,
+                            std::vector<std::string>& hashes)
 {
   // Parse file into a ParameterSet.
   fhicl::ParameterSet top;

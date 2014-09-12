@@ -39,7 +39,7 @@ cet_report_compiler_flags()
 # these are minimum required versions, not the actual product versions
 find_ups_product( cetbuildtools v3_02_00 )
 find_ups_product( cetlib v1_03_02 )
-find_ups_product( sqlite v3_07_08_00 )
+find_ups_product( sqlite v3_07_15_00 )
 
 # SQLite
 cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)

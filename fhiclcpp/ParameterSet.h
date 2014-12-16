@@ -39,6 +39,7 @@ public:
   std::vector<std::string>    get_keys           ( ) const;
   std::vector<std::string>    get_pset_keys      ( ) const;
   // Key must be local to this parameter set: no nesting.
+  bool                        has_key            ( std::string const & key ) const;
   bool                        is_key_to_table    ( std::string const & key ) const;
   bool                        is_key_to_sequence ( std::string const & key ) const;
   bool                        is_key_to_atom     ( std::string const & key ) const;
@@ -112,6 +113,17 @@ fhicl::ParameterSet::
 to_compact_string() const
 {
   return to_string_(true);
+}
+
+inline
+bool
+fhicl::ParameterSet::
+has_key(std::string const & key) const
+{
+  if (key.find('.') != std::string::npos) {
+    throw fhicl::exception(unimplemented, "has_key() for nested key.");
+  }
+  return mapping_.find(key) != mapping_.end();
 }
 
 inline

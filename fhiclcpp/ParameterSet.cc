@@ -130,7 +130,7 @@ void
 void
   ParameterSet::insert( string const & key, any const & value )
 {
-  mapping_.insert( pair<string const,any>(key, value) );
+  mapping_.emplace(key, value);
   id_.invalidate();
 }
 

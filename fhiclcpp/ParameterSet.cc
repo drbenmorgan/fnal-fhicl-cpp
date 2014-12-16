@@ -147,7 +147,7 @@ ParameterSet::key_is_type_(std::string const & key,
                            std::function<bool (boost::any const &)> func) const
 {
   if (key.find('.') != std::string::npos) {
-    throw fhicl::exception(unimplemented, "is_{table,sequence,atom} for nested key.");
+    throw fhicl::exception(unimplemented, "is_{table,sequence,atom}() for nested key.");
   }
   map_iter_t it = mapping_.find(key);
   if( it == mapping_.end() )

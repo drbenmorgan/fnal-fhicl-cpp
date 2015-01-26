@@ -2,7 +2,7 @@ include(CetMake)
 
 cet_make(EXCLUDE fhicl-expand.cc fhicl-write-db.cc
   LIBRARIES
-  ${CETLIB}
+  cetlib
   ${SQLITE3}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
@@ -13,7 +13,7 @@ cet_make(EXCLUDE fhicl-expand.cc fhicl-write-db.cc
 cet_make_exec(fhicl-expand
   SOURCE fhicl-expand.cc
   LIBRARIES
-   ${CETLIB} ${Boost_PROGRAM_OPTIONS_LIBRARY}
+   cetlib ${Boost_PROGRAM_OPTIONS_LIBRARY}
 )
 
 cet_make_exec(fhicl-write-db

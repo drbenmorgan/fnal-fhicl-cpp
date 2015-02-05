@@ -300,7 +300,8 @@ try
   if( it == mapping_.end() )
     return false;
 
-  detail::decode(it->second, value);
+  using detail::decode;
+  decode(it->second, value);
   return true;
 }
 catch( fhicl::exception const & e )

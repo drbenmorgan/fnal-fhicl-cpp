@@ -12,7 +12,7 @@
 #include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
 #include <string>
-
+#include <iostream>
 using namespace fhicl;
 using namespace std;
 
@@ -294,6 +294,37 @@ BOOST_AUTO_TEST_CASE( bad_expand_sequence )
                          "f: [ @sequence::bad ]\n";
   intermediate_table tbl;
   BOOST_CHECK_THROW(parse_document(document, tbl), cet::exception);
+}
+
+BOOST_AUTO_TEST_CASE(colon_spacing)
+{
+  std::string const prolog = "BEGIN_PROLOG\n"
+                             "t: { a: 7 b: 6}\n"
+                             "s: [ 7, 6, 7 ]\n"
+                             "END_PROLOG\n";
+  intermediate_table tbl;
+  std::vector<std::string> refs { "t1: @local::t\n",
+      "@table::t\n",
+      "s2: [ 1, 2, @sequence::s ]\n",
+      "a: @id::0001020304050607080910111213141516171819\n",
+      "t1: { t2: @local::t }\n",
+      "t1: { @table::t }\n",
+      "t1: { s1: [ 1, 2, 3, @sequence::s ] }\n",
+      "t1: { a: @id::0001020304050607080910111213141516171819 }\n",
+      };
+  for (auto const & ref : refs) {
+//    BOOST_CHECK_NO_THROW(parse_document(prolog + ref, tbl));
+    std::cerr << ref;
+    parse_document(prolog + ref, tbl);
+    auto const cpos = ref.find("::");
+    BOOST_REQUIRE(cpos != std::string::npos);
+    std::string bad1 { ref };
+    std::string bad2 { ref };
+    bad1.insert(cpos, " ");
+    BOOST_CHECK_THROW(parse_document(prolog + bad1, tbl), cet::exception);
+    bad2.insert(cpos + 2, " ");
+    BOOST_CHECK_THROW(parse_document(prolog + bad2, tbl), cet::exception);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

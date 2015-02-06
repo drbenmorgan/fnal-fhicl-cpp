@@ -129,9 +129,22 @@ ParameterSet::put_or_replace(std::string const & key)
 
 // ----------------------------------------------------------------------
 
+namespace {
+  inline
+  void
+  check_put_local_key(std::string const & key)
+  {
+    if (key.find('.') != std::string::npos) {
+      throw fhicl::exception(unimplemented,
+                             "putXXX() for nested key.");
+    }
+  }
+}
+
 void
 ParameterSet::insert_(string const & key, any const & value)
 {
+  check_put_local_key(key);
   if (!mapping_.emplace(key, value).second) {
     throw exception(cant_insert) << "key " << key << " already exists.";
   }
@@ -141,6 +154,7 @@ ParameterSet::insert_(string const & key, any const & value)
 void
 ParameterSet::insert_or_replace_(string const & key, any const & value)
 {
+  check_put_local_key(key);
   mapping_[key] = value;
   id_.invalidate();
 }
@@ -148,6 +162,7 @@ ParameterSet::insert_or_replace_(string const & key, any const & value)
 void
 ParameterSet::insert_or_replace_compatible_(string const & key, any const & value)
 {
+  check_put_local_key(key);
   auto item = mapping_.find(key);
   if (item == mapping_.end()) {
     insert_(key, value);

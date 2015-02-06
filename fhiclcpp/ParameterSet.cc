@@ -120,12 +120,55 @@ ParameterSet::put(std::string const & key)
   put(key, value);
 }
 
+void
+ParameterSet::put_or_replace(std::string const & key)
+{
+  void * const value = nullptr;
+  put_or_replace(key, value); // Replace with nil is always OK.
+}
+
 // ----------------------------------------------------------------------
 
 void
-ParameterSet::insert(string const & key, any const & value)
+ParameterSet::insert_(string const & key, any const & value)
 {
-  mapping_.emplace(key, value);
+  if (!mapping_.emplace(key, value).second) {
+    throw exception(cant_insert) << "key " << key << " already exists.";
+  }
+  id_.invalidate();
+}
+
+void
+ParameterSet::insert_or_replace_(string const & key, any const & value)
+{
+  mapping_[key] = value;
+  id_.invalidate();
+}
+
+void
+ParameterSet::insert_or_replace_compatible_(string const & key, any const & value)
+{
+  auto item = mapping_.find(key);
+  if (item == mapping_.end()) {
+    insert_(key, value);
+    return;
+  } else {
+    if (!detail::is_nil(value)) {
+      auto is_non_nil_atom =
+        [](any const & v) -> bool { return ! (detail::is_sequence(v) ||
+                                              detail::is_table(v) ||
+                                              detail::is_nil(v)); };
+      if (detail::is_sequence(item->second) && ! detail::is_sequence(value)) {
+        throw exception(cant_insert) << "can't use non-sequence to replace sequence.";
+      } else if (detail::is_table(item->second) && ! detail::is_table(value)) {
+        throw exception(cant_insert) << "can't use non-table to replace table.";
+      } else if (is_non_nil_atom(item->second) &&
+                 (detail::is_sequence(value) || detail::is_table(value))) {
+        throw exception(cant_insert) << "can't use non-atom to replace non-nil atom.";
+      }
+    }
+    item->second = value;
+  }
   id_.invalidate();
 }
 

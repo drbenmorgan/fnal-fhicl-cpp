@@ -30,7 +30,7 @@ BOOST_FIXTURE_TEST_SUITE ( sampleConfig, SampleConfigFixture )
 
 BOOST_AUTO_TEST_CASE ( Local ) {
    fhicl::ParameterSet j;
-   j.put<int>("y", -1);
+   j.put("y", -1);
    fhicl::ParameterSet orig(pset.get<fhicl::ParameterSet>("j"));
    BOOST_CHECK( j == orig );
    BOOST_CHECK_EQUAL( orig.get<int>("y"), -1 );
@@ -42,8 +42,8 @@ BOOST_AUTO_TEST_CASE ( Local ) {
 }
 
 BOOST_AUTO_TEST_CASE ( DeepInjection ) {
-   fhicl::ParameterSet l; l.put<int>("zz", -2);
-   fhicl::ParameterSet k; k.put<fhicl::ParameterSet>("l", l);
+   fhicl::ParameterSet l; l.put("zz", -2);
+   fhicl::ParameterSet k; k.put("l", l);
    fhicl::ParameterSet orig(pset.get<fhicl::ParameterSet>("k"));
    BOOST_CHECK( k == orig );
    BOOST_CHECK_EQUAL( orig.get<fhicl::ParameterSet>("l")
@@ -124,6 +124,125 @@ BOOST_AUTO_TEST_CASE(except_is_key_to) {
                         [](fhicl::exception const & e) -> bool {        \
                           return e.categoryCode() == fhicl::error::unimplemented; \
                         });
+}
+
+BOOST_AUTO_TEST_CASE(put) {
+  std::string const sval = "friendly";
+  std::string const sval2 = "unfriendly";
+  BOOST_CHECK_NO_THROW(pset.put("putTest", sval));
+  BOOST_CHECK_EQUAL(pset.get<std::string>("putTest"), sval);
+  BOOST_CHECK_EXCEPTION(pset.put("putTest", sval2),                     \
+                        fhicl::exception,                               \
+                        [](auto const & e) {                            \
+                          return e.categoryCode() ==                    \
+                            fhicl::error::cant_insert;                  \
+                        });
+}
+
+BOOST_AUTO_TEST_CASE(put_or_replace) {
+  std::string const sval = "friendly";
+  std::string const sval2 = "superfriendly";
+  BOOST_CHECK_NO_THROW(pset.put_or_replace("putOrReplaceTest", sval));
+  BOOST_CHECK_EQUAL(pset.get<std::string>("putOrReplaceTest"), sval);
+  BOOST_CHECK_NO_THROW(pset.put_or_replace("putOrReplaceTest", sval2));
+  BOOST_CHECK_EQUAL(pset.get<std::string>("putOrReplaceTest"), sval2);
+}
+
+BOOST_AUTO_TEST_CASE(put_or_replace_compatible_nil) {
+  std::string const sval = "friendly";
+  std::vector<int> vval { 1, 2, 3, 5, 7, 11, 13 };
+  fhicl::ParameterSet psval;
+  psval.put("junk", 3);
+  BOOST_CHECK_NO_THROW(pset.put_or_replace("putOrReplaceCompatibleTest")); // Nil.
+  BOOST_CHECK_NO_THROW(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", sval));
+  BOOST_CHECK_EQUAL(pset.get<std::string>("putOrReplaceCompatibleTest"), sval);
+  BOOST_CHECK_NO_THROW(pset.put_or_replace("putOrReplaceCompatibleTest")); // Nil.
+  BOOST_CHECK_NO_THROW(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", vval.front()));
+  BOOST_CHECK_EQUAL(pset.get<int>("putOrReplaceCompatibleTest"), vval.front());
+  BOOST_CHECK_NO_THROW(pset.put_or_replace("putOrReplaceCompatibleTest")); // Nil.
+  BOOST_CHECK_NO_THROW(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", vval));
+  BOOST_CHECK(pset.get<decltype(vval)>("putOrReplaceCompatibleTest") == vval);
+  BOOST_CHECK_NO_THROW(pset.put_or_replace("putOrReplaceCompatibleTest")); // Nil.
+  BOOST_CHECK_NO_THROW(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", psval));
+  BOOST_CHECK(pset.get<decltype(psval)>("putOrReplaceCompatibleTest") == psval);
+}
+
+BOOST_AUTO_TEST_CASE(put_or_replace_compatible_atom) {
+  std::string const sval = "friendly";
+  std::string const sval2 = "superfriendly";
+  std::vector<int> vval { 1, 2, 3, 5, 7, 11, 13 };
+  fhicl::ParameterSet psval;
+  BOOST_CHECK_NO_THROW(pset.put_or_replace("putOrReplaceCompatibleTest")); // Nil.
+  BOOST_CHECK_NO_THROW(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", sval));
+  BOOST_CHECK_EQUAL(pset.get<std::string>("putOrReplaceCompatibleTest"), sval);
+  BOOST_CHECK_NO_THROW(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", sval2));
+  BOOST_CHECK_EQUAL(pset.get<std::string>("putOrReplaceCompatibleTest"), sval2);
+  BOOST_CHECK_EXCEPTION(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", vval),
+                        fhicl::exception,                               \
+                        [](auto const & e) {                            \
+                          return e.categoryCode() ==                    \
+                            fhicl::error::cant_insert;                  \
+                        });
+  BOOST_CHECK_EXCEPTION(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", psval),
+                        fhicl::exception,                               \
+                        [](auto const & e) {                            \
+                          return e.categoryCode() ==                    \
+                            fhicl::error::cant_insert;                  \
+                        });
+  BOOST_CHECK_NO_THROW(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", vval.front()));
+  BOOST_CHECK_EQUAL(pset.get<int>("putOrReplaceCompatibleTest"), vval.front());
+  BOOST_CHECK_NO_THROW(pset.put_or_replace("putOrReplaceCompatibleTest")); // Nil.
+}
+
+BOOST_AUTO_TEST_CASE(put_or_replace_compatible_sequence) {
+  std::string const sval = "friendly";
+  std::vector<int> vval { 1, 2, 3, 5, 7, 11, 13 };
+  std::vector<int> vval2 { 4, 6, 8, 9, 10, 12, 14 };
+  fhicl::ParameterSet psval;
+  BOOST_CHECK_NO_THROW(pset.put_or_replace("putOrReplaceCompatibleTest")); // Nil.
+  BOOST_CHECK_NO_THROW(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", vval));
+  BOOST_CHECK(pset.get<decltype(vval)>("putOrReplaceCompatibleTest") == vval);
+  BOOST_CHECK_NO_THROW(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", vval2));
+  BOOST_CHECK(pset.get<decltype(vval)>("putOrReplaceCompatibleTest") == vval2);
+  BOOST_CHECK_EXCEPTION(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", sval),
+                        fhicl::exception,                               \
+                        [](auto const & e) {                            \
+                          return e.categoryCode() ==                    \
+                            fhicl::error::cant_insert;                  \
+                        });
+  BOOST_CHECK_EXCEPTION(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", psval),
+                        fhicl::exception,                               \
+                        [](auto const & e) {                            \
+                          return e.categoryCode() ==                    \
+                            fhicl::error::cant_insert;                  \
+                        });
+  BOOST_CHECK_NO_THROW(pset.put_or_replace("putOrReplaceCompatibleTest")); // Nil.
+}
+
+BOOST_AUTO_TEST_CASE(put_or_replace_compatible_table) {
+  std::string const sval = "friendly";
+  std::vector<int> vval { 1, 2, 3, 5, 7, 11, 13 };
+  fhicl::ParameterSet psval, psval2;
+  psval.put("junk", 3);
+  psval.put("ethel", 3);
+  BOOST_CHECK_NO_THROW(pset.put_or_replace("putOrReplaceCompatibleTest")); // Nil.
+  BOOST_CHECK_NO_THROW(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", psval));
+  BOOST_CHECK(pset.get<decltype(psval)>("putOrReplaceCompatibleTest") == psval);
+  BOOST_CHECK_NO_THROW(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", psval2));
+  BOOST_CHECK(pset.get<decltype(psval)>("putOrReplaceCompatibleTest") == psval2);
+  BOOST_CHECK_EXCEPTION(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", sval),
+                        fhicl::exception,                               \
+                        [](auto const & e) {                            \
+                          return e.categoryCode() ==                    \
+                            fhicl::error::cant_insert;                  \
+                        });
+  BOOST_CHECK_EXCEPTION(pset.put_or_replace_compatible("putOrReplaceCompatibleTest", vval),
+                        fhicl::exception,                               \
+                        [](auto const & e) {                            \
+                          return e.categoryCode() ==                    \
+                            fhicl::error::cant_insert;                  \
+                        });
+  BOOST_CHECK_NO_THROW(pset.put_or_replace("putOrReplaceCompatibleTest")); // Nil.
 }
 
 unsigned

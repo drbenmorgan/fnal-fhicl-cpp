@@ -43,7 +43,7 @@ public:
   bool is_key_to_sequence(std::string const & key) const;
   bool is_key_to_atom(std::string const & key) const;
 
-  // retrievers:
+  // retrievers (nested key OK):
   template< class T >
   bool get_if_present(std::string const & key, T & value) const;
   template< class T, class Via >
@@ -60,11 +60,15 @@ public:
   T get(std::string const & key, T const & default_value
         , T convert(Via const &)) const;
 
-  // inserters:
-  void insert(std::string const & key, boost::any const & value);
-  void put(std::string const & key);   // implicit nil value
-  template< class T >
+  // inserters (key must be local: no nesting):
+  void put(std::string const & key); // Implicit nil value.
+  template< class T > // Fail on preexisting key.
   void put(std::string const & key, T const & value);
+  void put_or_replace(std::string const & key); // Implicit nil value.
+  template< class T > // Succeed.
+  void put_or_replace(std::string const & key, T const & value);
+  template< class T > // Fail if preexisting key of incompatible type.
+  void put_or_replace_compatible(std::string const & key, T const & value);
 
   // deleters:
   bool erase(std::string const & key);
@@ -79,6 +83,12 @@ private:
 
   map_t mapping_;
   mutable ParameterSetID id_;
+
+  // Private inserters.
+  void insert_(std::string const & key, boost::any const & value);
+  void insert_or_replace_(std::string const & key, boost::any const & value);
+  void insert_or_replace_compatible_(std::string const & key,
+                                     boost::any const & value);
 
   std::string to_string_(bool compact = false) const;
   std::string stringify_(boost::any const & a,
@@ -157,7 +167,59 @@ void
 fhicl::ParameterSet::put(std::string const & key, T const & value)
 try
 {
-  insert(key, boost::any(detail::encode(value)));
+  using detail::encode;
+  insert_(key, boost::any(encode(value)));
+}
+catch (boost::bad_lexical_cast const & e)
+{
+  throw fhicl::exception(cant_insert, key) << e.what();
+}
+catch (boost::bad_numeric_cast const & e)
+{
+  throw fhicl::exception(cant_insert, key) << e.what();
+}
+catch (fhicl::exception const & e)
+{
+  throw fhicl::exception(cant_insert, key, e);
+}
+catch (std::exception const & e)
+{
+  throw fhicl::exception(cant_insert, key) << e.what();
+}
+
+template< class T >
+void
+fhicl::ParameterSet::put_or_replace(std::string const & key, T const & value)
+try
+{
+  using detail::encode;
+  insert_or_replace_(key, boost::any(encode(value)));
+}
+catch (boost::bad_lexical_cast const & e)
+{
+  throw fhicl::exception(cant_insert, key) << e.what();
+}
+catch (boost::bad_numeric_cast const & e)
+{
+  throw fhicl::exception(cant_insert, key) << e.what();
+}
+catch (fhicl::exception const & e)
+{
+  throw fhicl::exception(cant_insert, key, e);
+}
+catch (std::exception const & e)
+{
+  throw fhicl::exception(cant_insert, key) << e.what();
+}
+
+template< class T >
+void
+fhicl::ParameterSet::put_or_replace_compatible(std::string const & key,
+                                               T const & value)
+try
+{
+  using detail::encode;
+  insert_or_replace_compatible_(key, boost::any(encode(value)));
 }
 catch (boost::bad_lexical_cast const & e)
 {
@@ -294,10 +356,10 @@ fhicl::ParameterSet::get_one_(std::string const & key
                              ) const
 try
 {
+  using detail::decode;
   map_iter_t it = mapping_.find(key);
   if (it == mapping_.end())
   { return false; }
-  using detail::decode;
   decode(it->second, value);
   return true;
 }

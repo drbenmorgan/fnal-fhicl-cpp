@@ -34,6 +34,9 @@ namespace fhicl {  namespace detail {
     is_table( boost::any const & val )
   { return val.type() == typeid(ParameterSetID); }
 
+  bool
+  is_nil( boost::any const & val );
+
 // ----------------------------------------------------------------------
 
   ps_atom_t      encode( std::string     const & );  // string (w/ quotes)

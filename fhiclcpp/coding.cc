@@ -77,6 +77,18 @@ static  void
 
 // ----------------------------------------------------------------------
 
+bool
+fhicl::detail::is_nil(boost::any const & val )
+{
+  bool result = false;
+  if (!(is_table(val) || is_sequence(val))) {
+    std::string str;
+    atom_rep(val, str);
+    result = (str == canon_nil());
+  }
+  return result;
+}
+
 ps_atom_t  // string (with quotes)
   fhicl::detail::encode( std::string const & value )
 {

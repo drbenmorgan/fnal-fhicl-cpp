@@ -136,24 +136,22 @@ namespace {
   {
     throw fhicl::exception(fhicl::error::parse_error, "Local lookup error", e)
       << "at "
-      << s.whereis(pos)
-      << ".\n";
+      << s.highlighted_whereis(pos)
+      << "\n";
   }
 
   template <typename FwdIter>
   fhicl::extended_value
-  database_lookup(std::string const & name,
+  database_lookup(std::string const &,
                   fhicl::intermediate_table const &,
                   bool,
                   FwdIter pos,
                   cet::includer const & s)
   {
     throw fhicl::exception(fhicl::error::unimplemented, "Database lookup error")
-      << "@db::"
-      << name
-      << " at "
-      << s.whereis(pos)
-      << ": FHiCL-cpp database lookup not yet available.\n";
+      << "at "
+      << s.highlighted_whereis(pos)
+      << "\nFHiCL-cpp database lookup not yet available.\n";
   }
 
   void
@@ -196,8 +194,8 @@ namespace {
           << "key \""
           << name
           << "\" does not refer to a table at "
-          << s.whereis(pos)
-          << ".\n";
+          << s.highlighted_whereis(pos)
+          << "\n";
     }
     table_t const & incoming = boost::any_cast<table_t const &>(xval.value);
     for (auto i = incoming.cbegin(), e = incoming.cend(); i != e; ++i) {
@@ -223,8 +221,8 @@ namespace {
           << "key \""
           << name
           << "\" does not refer to a sequence at "
-          << s.whereis(pos)
-          << ".\n";
+          << s.highlighted_whereis(pos)
+          << "\n";
     }
     sequence_t const & incoming = boost::any_cast<sequence_t const &>(xval.value);
 #if 0 /* Compiler supports C++2011 signature for ranged vector::insert() */
@@ -542,8 +540,8 @@ fhicl::parse_document(std::string const  &  filename
   { result = p.tbl; }
   else
     throw fhicl::exception(fhicl::parse_error, "detected at or near")
-        << s.whereis(begin)
-        << ".\n";
+        << s.highlighted_whereis(begin)
+        << "\n";
 }  // parse_document()
 
 // ----------------------------------------------------------------------
@@ -575,8 +573,8 @@ fhicl::parse_document(std::istream     &    is
   { result = p.tbl; }
   else
     throw fhicl::exception(fhicl::parse_error, "detected at or near")
-        << s.whereis(begin)
-        << ".\n";
+        << s.highlighted_whereis(begin)
+        << "\n";
 }  // parse_document()
 
 // ======================================================================

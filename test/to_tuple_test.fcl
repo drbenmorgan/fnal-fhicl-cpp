@@ -1,0 +1,12 @@
+vec : [ "e1", "e2", "e3" ]
+tup : [ 2, "something else", 14.3 ]
+tup2: [ #dates from memory...could be wrong
+   [1,"Johannes Brahms",1833,1897],
+   [2,"Ludwig van Beethown",1770,1827],
+   [3,"Johann Sebastion Bach",1675,1750]
+]
+tup3: [
+   ["Composers with 9 symphonies",Beethoven,Dvorak,Mahler], #Mahler's 10th doesn't count
+   ["Composers with fewer than 9 symphonies",Brahms,Tchaikovksy,Martinu],
+   ["Fun Beethoven piano sonatas",Pathetique,Appassionata,Waldstein,30,31,32]
+]

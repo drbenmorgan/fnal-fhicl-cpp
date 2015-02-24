@@ -6,6 +6,19 @@
 // coding
 //
 // ======================================================================
+//
+// Notes:
+//
+// exception handling
+//
+// - For std::pair- and std::tuple- supported decode functions,
+//   exceptions are thrown using std::exception-derived classes since
+//   fhicl::ParameterSet::get_one_ rethrows whatever exception it
+//   receives.  If a fhicl::exception is rethrown with a
+//   fhicl::exception, then the cetlib::exception class includes two
+//   prolog/epilog statements instead of one.
+//
+// ======================================================================
 
 #include "boost/any.hpp"
 #include "boost/lexical_cast.hpp"
@@ -290,8 +303,7 @@ fhicl::detail::decode( boost::any const& a, std::pair<KEY,VALUE> & result )
       }
     }
     errmsg << "]";
-    errmsg << "\nCannot convert to std::pair.";
-    throw fhicl::exception(type_mismatch, errmsg.str() );
+    throw std::length_error( errmsg.str() );
   }
 
   KEY key;
@@ -348,7 +360,7 @@ fhicl::detail::decode( boost::any const & a, std::tuple<ARGS...> & result )
       }
     }
     errmsg << "]";
-    throw fhicl::exception(type_mismatch, errmsg.str() );
+    throw std::length_error( errmsg.str() );
   }
 
   using TUPLE = std::tuple<ARGS...>;

@@ -11,6 +11,7 @@
 #include "boost/any.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/numeric/conversion/cast.hpp"
+#include "cetlib/demangle.h"
 #include "cpp0x/string"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/coding.h"
@@ -18,6 +19,8 @@
 #include "fhiclcpp/fwd.h"
 #include <cctype>
 #include <map>
+#include <sstream>
+#include <typeinfo>
 #include <vector>
 
 // ----------------------------------------------------------------------
@@ -365,11 +368,23 @@ try
 }
 catch (fhicl::exception const & e)
 {
-  throw fhicl::exception(type_mismatch, key, e);
+  std::ostringstream errmsg;
+  errmsg << "\nUnsuccessful attempt to convert FHiCL parameter '"
+         << key
+         << "' to type '"
+         << cet::demangle_symbol( typeid(value).name() ) << "'.\n\n"
+         << "[Specific error:]";
+  throw fhicl::exception(type_mismatch, errmsg.str(), e);
 }
 catch (std::exception const & e)
 {
-  throw fhicl::exception(type_mismatch, key + "\n" + e.what());
+  std::ostringstream errmsg;
+  errmsg << "\nUnsuccessful attempt to convert FHiCL parameter '"
+         << key
+         << "' to type '"
+         << cet::demangle_symbol( typeid(value).name() ) << "'.\n\n"
+         << "[Specific error:]\n" << e.what() << "\n\n";
+  throw fhicl::exception(type_mismatch, errmsg.str() );
 }
 
 // ======================================================================

@@ -1,5 +1,16 @@
-vec : [ "e1", "e2", "e3" ]
-tup : [ 2, "something else", 14.3 ]
+# std::array check
+vec0  : [ e1,e2,e3,e4 ]
+vec_arrays : [[a1,a2,a3],[b1,b2,b3],[c1,c2,c3]]
+
+# std::pair check
+vec1  : [ "e1", "e2" ]
+pair1 : [ 2, "something else"]
+pair2 : [ ["Feynman",1965],["Schwinger",1965] ]
+pair3 : [ this,is,meant,to,fail ]
+
+# std::tuple check
+vec2: [ "e1", "e2", "e3" ]
+tup1: [ 2, "something else", 14.3 ]
 tup2: [ #dates from memory...could be wrong
    [1,"Johannes Brahms",1833,1897],
    [2,"Ludwig van Beethown",1770,1827],

@@ -1,4 +1,0 @@
-vec : [ "e1", "e2" ]
-pair1 : [ 2, "something else"]
-pair2 : [ ["Feynman",1965],["Schwinger",1965] ]
-pair3 : [ this,is,meant,to,fail ]

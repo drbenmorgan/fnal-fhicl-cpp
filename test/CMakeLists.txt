@@ -40,8 +40,7 @@ cet_test(to_indented_string_test USE_BOOST_UNIT)
 cet_test(to_string_test
   DATAFILES Sample.cfg
 )
-cet_test(to_pair_test  DATAFILES to_pair_test.fcl )
-cet_test(to_tuple_test DATAFILES to_tuple_test.fcl )
+cet_test(to_tupleTypes_test DATAFILES to_tupleTypes_test.fcl )
 cet_test(values_test USE_BOOST_UNIT)
 
 cet_test(test_suite USE_BOOST_UNIT NO_AUTO)

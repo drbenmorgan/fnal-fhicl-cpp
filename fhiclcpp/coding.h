@@ -23,6 +23,7 @@
 #include "boost/any.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/numeric/conversion/cast.hpp"
+#include "cetlib/demangle.h"
 #include "cpp0x/cstdint"
 #include "cpp0x/string"
 #include "fhiclcpp/ParameterSetID.h"
@@ -31,7 +32,9 @@
 #include "fhiclcpp/fwd.h"
 #include "fhiclcpp/parse.h"
 #include "fhiclcpp/type_traits.h"
+#include <array>
 #include <complex>
+#include <iostream>
 #include <vector>
 #include <utility>
 #include <sstream>
@@ -117,23 +120,40 @@ namespace fhicl {  namespace detail {
     void
     decode( boost::any const &, std::vector<T>     & );  // sequence
 
-    template < class KEY, class VALUE >
+    template < typename U >
     void
-    decode( boost::any const &, std::pair<KEY,VALUE> & ); // pair
+    decode_tuple( boost::any const &, U & tuple ); // tuple-type decoding
 
-    template< typename ... ARGS >
+    template < typename T, std::size_t SIZE >
     void
-    decode( boost::any const &, std::tuple<ARGS...> & ); // tuple
+    decode( boost::any const & a, std::array<T,SIZE> & result ) // std::array
+    {
+      decode_tuple(a,result);
+    }
+
+    template < typename KEY, typename VALUE >
+    void
+    decode( boost::any const & a, std::pair<KEY,VALUE> & result ) // std::pair
+    {
+      decode_tuple(a,result);
+    }
+
+    template < typename ... ARGS >
+    void
+    decode( boost::any const & a, std::tuple<ARGS...> & result ) // std::tuple
+    {
+      decode_tuple(a,result);
+    }
 
     template < unsigned SIZE, typename TUPLE >   // tuple support
     struct per_entry {
-      static void decode_it( ps_sequence_t const &, TUPLE & );
+      static void decode_tuple_entry( ps_sequence_t const &, TUPLE & );
     };
 
     template<>
     template<typename TUPLE>    // tuple support
     struct per_entry<0,TUPLE> {
-      static void decode_it( ps_sequence_t const &, TUPLE & );
+      static void decode_tuple_entry( ps_sequence_t const &, TUPLE & );
     };
 
     template< class T >
@@ -203,7 +223,9 @@ fhicl::detail::encode( T const & value )
 
 // ----------------------------------------------------------------------
 
-template< class T >  // unsigned
+//===================================================================
+// unsigned
+template< class T >
 typename tt::enable_if< tt::is_uint<T>::value, void >::type
 fhicl::detail::decode( boost::any const & a, T & result )
 {
@@ -212,7 +234,9 @@ fhicl::detail::decode( boost::any const & a, T & result )
   result = boost::numeric_cast<T>(via);
 }
 
-template< class T >  // signed
+//====================================================================
+// signed
+template< class T >
 typename tt::enable_if< tt::is_int<T>::value, void >::type
 fhicl::detail::decode( boost::any const & a, T & result )
 {
@@ -221,7 +245,9 @@ fhicl::detail::decode( boost::any const & a, T & result )
   result = boost::numeric_cast<T>(via);
 }
 
-template< class T >  // floating-point
+//====================================================================
+// floating-point
+template< class T >
 typename tt::enable_if< tt::is_floating_point<T>::value, void >::type
 fhicl::detail::decode( boost::any const & a, T & result )
 {
@@ -230,7 +256,9 @@ fhicl::detail::decode( boost::any const & a, T & result )
   result = via;  // boost::numeric_cast<T>(via);
 }
 
-template< class T >  // complex
+//====================================================================
+// complex
+template< class T >
 void
 fhicl::detail::decode( boost::any const & a, std::complex<T> & result )
 {
@@ -241,7 +269,9 @@ fhicl::detail::decode( boost::any const & a, std::complex<T> & result )
                             );
 }
 
-template< class T >  // sequence
+//====================================================================
+// sequence
+template< class T >
 void
 fhicl::detail::decode( boost::any const & a, std::vector<T> & result )
 {
@@ -285,68 +315,42 @@ fhicl::detail::decode( boost::any const & a, std::vector<T> & result )
 
 }
 
-template <class KEY,class VALUE>
-void
-fhicl::detail::decode( boost::any const& a, std::pair<KEY,VALUE> & result )
-{
-  ps_sequence_t const & seq = boost::any_cast<ps_sequence_t>(a);
-
-  if ( seq.size() != 2 ) {
-    std::ostringstream errmsg;
-    errmsg << "Number of FHiCL sequence entries not equal to 2: [";
-    for ( auto ca = seq.begin(); ca != seq.cend(); ++ca ) {
-      std::string tmp;
-      decode(*ca,tmp);
-      errmsg << tmp;
-      if ( ca != seq.cend()-1) {
-        errmsg << ",";
-      }
-    }
-    errmsg << "]";
-    throw std::length_error( errmsg.str() );
-  }
-
-  KEY key;
-  decode( seq.at(0), key);
-
-  VALUE value;
-  decode( seq.at(1), value);
-
-  result = std::make_pair( key, value );
-}
-
-// tuple support
+//====================================================================
+// per-entry decode base
 template <>
 template <typename TUPLE>
 void
-fhicl::detail::per_entry<0,TUPLE>::decode_it( fhicl::detail::ps_sequence_t const& vec, TUPLE & result )
+fhicl::detail::per_entry<0,TUPLE>::decode_tuple_entry( fhicl::detail::ps_sequence_t const& vec, TUPLE & result )
 {
   std::tuple_element_t<0,TUPLE> result_elem;
   decode( vec.at(0), result_elem );
   std::get<0>( result ) = result_elem;
 }
 
-// tuple support
+// per-entry decode
 template < unsigned IENTRY, typename TUPLE >
 void
-fhicl::detail::per_entry<IENTRY,TUPLE>::decode_it( fhicl::detail::ps_sequence_t const& vec, TUPLE & result )
+fhicl::detail::per_entry<IENTRY,TUPLE>::decode_tuple_entry( fhicl::detail::ps_sequence_t const& vec, TUPLE & result )
 {
   std::tuple_element_t<IENTRY,TUPLE> result_elem;
   decode( vec.at(IENTRY), result_elem );
   std::get<IENTRY>( result ) = result_elem;
-  per_entry<IENTRY-1,TUPLE>::decode_it( vec, result );
+  per_entry<IENTRY-1,TUPLE>::decode_tuple_entry( vec, result );
 }
 
-template< typename ... ARGS >  // tuple
+// tuple-type support
+template< typename U >
 void
-fhicl::detail::decode( boost::any const & a, std::tuple<ARGS...> & result )
+fhicl::detail::decode_tuple( boost::any const & a, U & result )
 {
   ps_sequence_t const & seq = boost::any_cast<ps_sequence_t>(a);
 
-  if ( seq.size() != sizeof...(ARGS) ) {
+  constexpr std::size_t TUPLE_SIZE = std::tuple_size<U>::value;
+
+  if ( seq.size() != TUPLE_SIZE ) {
     std::ostringstream errmsg;
-    errmsg << "Number of std::tuple arguments ("
-           << sizeof...(ARGS)
+    errmsg << "Number of expected arguments ("
+           << TUPLE_SIZE
            << ") does not match "
            << "number of FHiCL sequence entries ("
            << seq.size()
@@ -356,17 +360,17 @@ fhicl::detail::decode( boost::any const & a, std::tuple<ARGS...> & result )
       decode(*ca,tmp);
       errmsg << tmp;
       if ( ca != seq.cend()-1) {
-        errmsg << ",";
+        errmsg << ", ";
       }
     }
-    errmsg << "]";
+    errmsg << " ]";
     throw std::length_error( errmsg.str() );
   }
 
-  using TUPLE = std::tuple<ARGS...>;
-  per_entry<sizeof...(ARGS)-1,TUPLE>::decode_it( seq, result );
+  per_entry<TUPLE_SIZE-1,U>::decode_tuple_entry( seq, result );
 }
 
+//====================================================================
 template< class T >  // none of the above
 typename tt::disable_if< tt::is_numeric<T>::value, void >::type
 fhicl::detail::decode( boost::any const & a, T & result )

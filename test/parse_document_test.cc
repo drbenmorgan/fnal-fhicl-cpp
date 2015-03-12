@@ -217,6 +217,22 @@ BOOST_AUTO_TEST_CASE ( erase_value )
   BOOST_CHECK(tbl.exists("c.y"));
 }
 
+BOOST_AUTO_TEST_CASE( expand_nested_tables )
+{
+  std::string document = "BEGIN_PROLOG\n"
+                         "A: { B: { x: foo } }\n"
+                         "END_PROLOG\n"
+                         "modules: {\n"
+                         "   A: {\n"
+                         "      @table::A\n"
+                         "      B:{ @table::A.B x:bar }\n"
+                         "   }\n"
+                         "}\n";
+  intermediate_table tbl;
+  parse_document(document, tbl);
+  BOOST_CHECK_EQUAL(tbl.get<std::string>("modules.A.B.x"), std::string("bar"));
+}
+
 BOOST_AUTO_TEST_CASE( expand_table )
 {
   std::string document = "BEGIN_PROLOG\n"

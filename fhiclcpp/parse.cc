@@ -108,9 +108,21 @@ namespace {
   }
 
   extended_value
-  xvalue(bool b, fhicl::value_tag t, boost::any v)
+  xvalue_vp(bool b, fhicl::value_tag t, boost::any v)
   {
     return fhicl::extended_value(b, t, v);
+  }
+
+  template <typename FwdIter>
+  extended_value
+  xvalue_dp(bool b,
+            fhicl::value_tag t,
+            boost::any v,
+            FwdIter pos,
+            cet::includer const & s)
+  {
+    std::string const src_info = s.src_whereis(pos);
+    return fhicl::extended_value(b, t, v, src_info);
   }
 
   complex_t
@@ -130,6 +142,7 @@ namespace {
   {
     fhicl::extended_value result = tbl.find(name);
     result.set_prolog(in_prolog);
+    result.set_src_info(s.src_whereis(pos));
     return result;
   }
   catch (fhicl::exception const & e)
@@ -202,6 +215,7 @@ namespace {
       auto & element = t[i->first];
       element = i->second;
       element.set_prolog(in_prolog);
+      element.set_src_info(s.src_whereis(pos));
     }
   }
 
@@ -233,6 +247,7 @@ namespace {
 #endif
     for (auto const e = v.end(); it != e; ++it) {
       it->set_prolog(in_prolog);
+      it->set_src_info(s.src_whereis(pos));
     }
   }
 
@@ -370,14 +385,14 @@ fhicl::value_parser<FwdIter, Skip>::value_parser()
                 )
              > lit('}');
   id    = lit("@id::") > no_skip [ fhicl::dbid ] [ _val = qi::_1 ];
-  value    = (nil      [ _val = phx::bind(xvalue, false, NIL     , qi::_1) ]
-              | boolean  [ _val = phx::bind(xvalue, false, BOOL    , qi::_1) ]
-              | number   [ _val = phx::bind(xvalue, false, NUMBER  , qi::_1) ]
-              | complex  [ _val = phx::bind(xvalue, false, COMPLEX , qi::_1) ]
-              | string   [ _val = phx::bind(xvalue, false, STRING  , qi::_1) ]
-              | sequence [ _val = phx::bind(xvalue, false, SEQUENCE, qi::_1) ]
-              | table    [ _val = phx::bind(xvalue, false, TABLE   , qi::_1) ]
-              | id    [ _val = phx::bind(xvalue, false, TABLEID , qi::_1) ]
+  value    = (nil      [ _val = phx::bind(xvalue_vp, false, NIL     , qi::_1) ]
+              | boolean  [ _val = phx::bind(xvalue_vp, false, BOOL    , qi::_1) ]
+              | number   [ _val = phx::bind(xvalue_vp, false, NUMBER  , qi::_1) ]
+              | complex  [ _val = phx::bind(xvalue_vp, false, COMPLEX , qi::_1) ]
+              | string   [ _val = phx::bind(xvalue_vp, false, STRING  , qi::_1) ]
+              | sequence [ _val = phx::bind(xvalue_vp, false, SEQUENCE, qi::_1) ]
+              | table    [ _val = phx::bind(xvalue_vp, false, TABLE   , qi::_1) ]
+              | id    [ _val = phx::bind(xvalue_vp, false, TABLEID , qi::_1) ]
              );
   nil     .name("nil token");
   boolean .name("boolean token");
@@ -435,11 +450,11 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
        )
     > lit('}');
   value =
-    (vp.nil     [ _val = phx::bind(xvalue, ref(in_prolog), NIL     , qi::_1) ] |
-     vp.boolean [ _val = phx::bind(xvalue, ref(in_prolog), BOOL    , qi::_1) ] |
-     vp.number  [ _val = phx::bind(xvalue, ref(in_prolog), NUMBER  , qi::_1) ] |
-     vp.complex [ _val = phx::bind(xvalue, ref(in_prolog), COMPLEX , qi::_1) ] |
-     vp.string  [ _val = phx::bind(xvalue, ref(in_prolog), STRING  , qi::_1) ] |
+    ((iter_pos >> vp.nil    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), NIL     , qi::_2, qi::_1, s) ] |
+     (iter_pos >> vp.boolean) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), BOOL    , qi::_2, qi::_1, s) ] |
+     (iter_pos >> vp.number ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), NUMBER  , qi::_2, qi::_1, s) ] |
+     (iter_pos >> vp.complex) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), COMPLEX , qi::_2, qi::_1, s) ] |
+     (iter_pos >> vp.string ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), STRING  , qi::_2, qi::_1, s) ] |
      (iter_pos >> localref)
      [ _val = phx::bind(&local_lookup<iter_t>,
                         qi::_2, ref(tbl), ref(in_prolog),
@@ -448,9 +463,9 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
      [ _val = phx::bind(&database_lookup<iter_t>,
                         qi::_2, ref(tbl), ref(in_prolog),
                         qi::_1, s) ] |
-     vp.id      [ _val = phx::bind(xvalue, ref(in_prolog), TABLEID , qi::_1) ] |
-     sequence   [ _val = phx::bind(xvalue, ref(in_prolog), SEQUENCE, qi::_1) ] |
-     table      [ _val = phx::bind(xvalue, ref(in_prolog), TABLE   , qi::_1) ]
+     (iter_pos >> vp.id    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), TABLEID , qi::_2, qi::_1, s) ] |
+     (iter_pos >> sequence ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), SEQUENCE, qi::_2, qi::_1, s) ] |
+     (iter_pos >> table    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), TABLE   , qi::_2, qi::_1, s) ]
     );
   prolog =
     lit("BEGIN_PROLOG") [ phx::bind(rebool, ref(in_prolog), true) ]

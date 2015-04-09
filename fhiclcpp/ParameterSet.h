@@ -15,12 +15,15 @@
 #include "cpp0x/string"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/coding.h"
+#include "fhiclcpp/detail/encode_extended_value.h"
 #include "fhiclcpp/exception.h"
+#include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/fwd.h"
 #include <cctype>
 #include <map>
 #include <sstream>
 #include <typeinfo>
+#include <unordered_map>
 #include <vector>
 
 // ----------------------------------------------------------------------
@@ -29,6 +32,8 @@ class fhicl::ParameterSet {
 public:
   typedef fhicl::detail::ps_atom_t ps_atom_t;
   typedef fhicl::detail::ps_sequence_t ps_sequence_t;
+  typedef std::unordered_map<std::string,std::string> annot_t;
+
 
   // compiler generates default c'tor, d'tor, copy c'tor, copy assignment
 
@@ -37,7 +42,8 @@ public:
   ParameterSetID id() const;
   std::string to_string() const;
   std::string to_compact_string() const;
-  std::string to_indented_string(unsigned initial_indent_level = 0) const;
+  std::string to_indented_string(unsigned initial_indent_level = 0,
+                                 bool annotate = true) const;
   std::vector<std::string> get_keys() const;
   std::vector<std::string> get_pset_keys() const;
   // Key must be local to this parameter set: no nesting.
@@ -63,6 +69,8 @@ public:
   T get(std::string const & key, T const & default_value
         , T convert(Via const &)) const;
 
+  std::string get_src_info(std::string const& key) const;
+
   // inserters (key must be local: no nesting):
   void put(std::string const & key); // Implicit nil value.
   template< class T > // Fail on preexisting key.
@@ -85,6 +93,7 @@ private:
   typedef map_t::const_iterator map_iter_t;
 
   map_t mapping_;
+  annot_t srcMapping_;
   mutable ParameterSetID id_;
 
   // Private inserters.
@@ -168,27 +177,27 @@ is_key_to_atom(std::string const & key) const
 template< class T >
 void
 fhicl::ParameterSet::put(std::string const & key, T const & value)
-try
-{
-  using detail::encode;
-  insert_(key, boost::any(encode(value)));
-}
-catch (boost::bad_lexical_cast const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
-}
-catch (boost::bad_numeric_cast const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
-}
-catch (fhicl::exception const & e)
-{
-  throw fhicl::exception(cant_insert, key, e);
-}
-catch (std::exception const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
-}
+  try
+    {
+      using detail::encode;
+      insert_(key, boost::any(encode(value)));
+    }
+  catch (boost::bad_lexical_cast const & e)
+    {
+      throw fhicl::exception(cant_insert, key) << e.what();
+    }
+  catch (boost::bad_numeric_cast const & e)
+    {
+      throw fhicl::exception(cant_insert, key) << e.what();
+    }
+  catch (fhicl::exception const & e)
+    {
+      throw fhicl::exception(cant_insert, key, e);
+    }
+  catch (std::exception const & e)
+    {
+      throw fhicl::exception(cant_insert, key) << e.what();
+    }
 
 template< class T >
 void
@@ -197,6 +206,7 @@ try
 {
   using detail::encode;
   insert_or_replace_(key, boost::any(encode(value)));
+  srcMapping_.erase(key);
 }
 catch (boost::bad_lexical_cast const & e)
 {
@@ -223,6 +233,7 @@ try
 {
   using detail::encode;
   insert_or_replace_compatible_(key, boost::any(encode(value)));
+  srcMapping_.erase(key);
 }
 catch (boost::bad_lexical_cast const & e)
 {
@@ -385,6 +396,16 @@ catch (std::exception const & e)
          << cet::demangle_symbol( typeid(value).name() ) << "'.\n\n"
          << "[Specific error:]\n" << e.what() << "\n\n";
   throw fhicl::exception(type_mismatch, errmsg.str() );
+}
+
+// ----------------------------------------------------------------------
+
+namespace fhicl {
+
+  template<>
+  void
+  ParameterSet::put(std::string const & key, fhicl::extended_value const & value);
+
 }
 
 // ======================================================================

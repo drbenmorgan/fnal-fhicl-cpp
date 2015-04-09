@@ -1,0 +1,82 @@
+another_number: 4
+any_more_success: { table4: { foo: "bar"  # ./to_indented_string_annotated_prolog.fcl:3
+                              seq_prolog: [ "When"  # ./to_indented_string_annotated_prolog.fcl:7
+                                          , "in"  # ""
+                                          , "the"  # ""
+                                          , "course"  # ""
+                                          , "of"  # ""
+                                          , "human"  # ""
+                                          , "events"  # ""
+                                          , "..."  # ""
+                                          ]
+                              table: { foo: "bar"  # ./to_indented_string_annotated_prolog.fcl:5
+                                     }  # ./to_indented_string_annotated_prolog.fcl:4
+                            }  # ./to_indented_string_annotated_test.fcl:26
+                  }  # ./to_indented_string_annotated_test.fcl:26
+double: 2.34599999999999994316e2
+some_number: 8
+success: { table3: { foo: "bar"  # ./to_indented_string_annotated_prolog.fcl:3
+                     seq_prolog: [ "When"  # ./to_indented_string_annotated_prolog.fcl:7
+                                 , "in"  # ""
+                                 , "the"  # ""
+                                 , "course"  # ""
+                                 , "of"  # ""
+                                 , "human"  # ""
+                                 , "events"  # ""
+                                 , "..."  # ""
+                                 ]
+                     table: { foo: "bar"  # ./to_indented_string_annotated_prolog.fcl:5
+                            }  # ./to_indented_string_annotated_prolog.fcl:4
+                   }  # ./to_indented_string_annotated_test.fcl:24
+         }  # ./to_indented_string_annotated_test.fcl:24
+table1: { books: [ [ "nested"  # ./to_indented_string_annotated_test.fcl:10
+                   , "sequence"  # ""
+                   , "does"  # ""
+                   , "this"  # ""
+                   , "work?"  # ""
+                   ]
+                 , { is: "this"  # ./to_indented_string_annotated_test.fcl:11
+                   }  # ./to_indented_string_annotated_test.fcl:11
+                 , [ "okay"  # ./to_indented_string_annotated_test.fcl:12
+                   ]
+                 , { just: { suppose: "no"  # ./to_indented_string_annotated_test.fcl:13
+                           }  # ./to_indented_string_annotated_test.fcl:13
+                   }  # ./to_indented_string_annotated_test.fcl:13
+                 , { nose: { where: "would"  # ./to_indented_string_annotated_test.fcl:14
+                           }  # ./to_indented_string_annotated_test.fcl:14
+                   }  # ./to_indented_string_annotated_test.fcl:14
+                 , { all: { our: [ "glasses"  # ./to_indented_string_annotated_test.fcl:15
+                                 , "sit"  # ""
+                                 , "they\'d"  # ""
+                                 , "all"  # ""
+                                 ]
+                          }  # ./to_indented_string_annotated_test.fcl:15
+                   }  # ./to_indented_string_annotated_test.fcl:15
+                 , { fall: [ "off"  # ./to_indented_string_annotated_test.fcl:16
+                           , "just"  # ""
+                           , "think"  # ""
+                           , "of"  # ""
+                           , "it"  # ""
+                           ]
+                   }  # ./to_indented_string_annotated_test.fcl:16
+                 ]  # ./to_indented_string_annotated_test.fcl:9
+          foo: "bar6"  # ./to_indented_string_annotated_test.fcl:18
+          seq1: [ "When"  # ./to_indented_string_annotated_test.fcl:7
+                , "in"  # ""
+                , "the"  # ""
+                , "course"  # ""
+                , "of"  # ""
+                , "human"  # ""
+                , "events"  # ""
+                , "it"  # ./to_indented_string_annotated_test.fcl:21
+                ]
+          table: { foo: "bar_none"  # ./to_indented_string_annotated_test.fcl:28
+                 }  # ./to_indented_string_annotated_test.fcl:6
+          this: { can: { be: { extended: "What to do here?"  # ./to_indented_string_annotated_test.fcl:29
+                             }
+                       }
+                }
+        }  # ./to_indented_string_annotated_test.fcl:5
+table2: { foo: "bar"  # ./to_indented_string_annotated_prolog.fcl:5
+        }  # ./to_indented_string_annotated_test.fcl:22
+

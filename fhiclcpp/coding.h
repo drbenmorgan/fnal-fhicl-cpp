@@ -34,7 +34,6 @@
 #include "fhiclcpp/type_traits.h"
 #include <array>
 #include <complex>
-#include <iostream>
 #include <vector>
 #include <utility>
 #include <sstream>

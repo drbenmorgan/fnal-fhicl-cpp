@@ -1,5 +1,7 @@
 include(CetMake)
 
+add_subdirectory( detail )
+
 cet_make(EXCLUDE fhicl-expand.cc fhicl-write-db.cc
   LIBRARIES
   cetlib
@@ -8,6 +10,7 @@ cet_make(EXCLUDE fhicl-expand.cc fhicl-write-db.cc
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_REGEX_LIBRARY}
   WITH_STATIC_LIBRARY
+  SUBDIRS detail
   )
 
 cet_make_exec(fhicl-expand

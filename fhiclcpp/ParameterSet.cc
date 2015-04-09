@@ -6,21 +6,47 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
+#include "cetlib/container_algorithms.h"
 #include "cpp0x/cstddef"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include <cassert>
+#include <regex>
 
 using namespace fhicl;
 using namespace fhicl::detail;
 using namespace std;
+using namespace std::string_literals;
 
 using boost::any;
 using boost::any_cast;
 
-typedef ParameterSet::ps_atom_t ps_atom_t;
-typedef ParameterSet::ps_sequence_t ps_sequence_t;
+using ps_atom_t     = ParameterSet::ps_atom_t;
+using ps_sequence_t = ParameterSet::ps_sequence_t;
 
-typedef long double ldbl;
+using ldbl = long double;
+
+// ======================================================================
+
+namespace {
+
+  // See notes for 'put' specialization below
+  void
+  fill_src_info(extended_value const& value,
+                std::string const & key,
+                ParameterSet::annot_t& src_map)
+  {
+    src_map[key]=value.src_info;
+    if ( !value.is_a(SEQUENCE) ) return;
+    std::size_t i(0);
+    for ( auto const& xval : extended_value::sequence_t(value) ) {
+      std::ostringstream oss;
+      oss << key << "." << i++;
+      src_map[oss.str()] = xval.src_info;
+      fill_src_info(xval,oss.str(),src_map);
+    }
+  }
+
+}
 
 // ======================================================================
 
@@ -109,6 +135,15 @@ ParameterSet::get_pset_keys() const
     if (is_table(it->second))
     { keys.push_back(it->first); }
   return keys;
+}
+
+// ----------------------------------------------------------------------
+
+std::string
+ParameterSet::get_src_info(std::string const& key) const
+{
+  auto result = srcMapping_.find(key);
+  return result != srcMapping_.cend() ? result->second : "";
 }
 
 // ----------------------------------------------------------------------
@@ -210,28 +245,152 @@ ParameterSet::key_is_type_(std::string const & key,
 }
 
 // ======================================================================
+// 'put' specialization for extended_value
+//
+// With this specialization, the free function 'fill_src_info' is
+// called, which fills an std::unordered_map whose key-value pairs
+// correspond to the ParameterSet key and the location
+// (filename:line#) where the key was last overridden.
+//
+// The main benefit of 'fill_src_info' is that it appropriately tracks
+// the source information for individual sequence entries.  This is
+// possible because each entry from a 'sequence_t' in the intermediate
+// table is an extended_value that has a data member 'src_info'.  Note
+// that whenever a printout is provided, the 'Prettifier::stringify()'
+// function is used, which no longer uses the extended_value
+// instances, but only the mapping_ key-value pairs, which are the
+// ParameterSet names and associated boost::any objects.
+//
+// ParameterSet instances therefore do not have a natural way of
+// storing source information for sequence entries because the
+// extended-value information is lost.  In other words,  simply doing
+//
+//      srcMapping_[key] = value.src_info;
+//
+// whenever 'put' is called will insert the source information for the
+// sequence, but not for each sequence entry.  To get around this, the
+// 'fill_src_info' function appends an index number to the end of the
+// sequence key (e.g. "sequence_key.1").  It is called recursively to
+// allow for nested sequences.
+//
+// In order to access the correct source information for individual
+// sequence entries in 'Prettifier::stringify()', the sequence
+// index(es) must be appended to the sequence key.  Care must be taken
+// to ensure that the correct ParameterSet is used to lookup the
+// source information.  This is accomplished by using a stack of the
+// form:
+//
+//     std::vector<ParameterSet const *>
+
+namespace fhicl {
+
+  template<>
+  void
+  ParameterSet::put(std::string const & key, fhicl::extended_value const & value)
+    try
+      {
+        using detail::encode;
+        insert_(key, boost::any(encode(value)));
+        fill_src_info(value,key,srcMapping_);
+      }
+    catch (boost::bad_lexical_cast const & e)
+      {
+        throw fhicl::exception(cant_insert, key) << e.what();
+      }
+    catch (boost::bad_numeric_cast const & e)
+      {
+        throw fhicl::exception(cant_insert, key) << e.what();
+      }
+    catch (fhicl::exception const & e)
+      {
+        throw fhicl::exception(cant_insert, key, e);
+      }
+    catch (std::exception const & e)
+      {
+        throw fhicl::exception(cant_insert, key) << e.what();
+      }
+
+}
+
+// ======================================================================
+
+namespace {
+
+  std::string const UNKNOWN_SRC {"-:1"};
+
+  using namespace fhicl;
+
+  inline bool
+  allowed_info(std::string const& src_info){
+    return !src_info.empty() && src_info != UNKNOWN_SRC;
+  }
+
+  inline bool
+  allowed_seq_entry(std::string const& key) {
+    std::regex const key_pattern{".*\\.\\d*[1-9]"};
+    return std::regex_match(key,key_pattern);
+  }
+
+  // If the source info is the same as the one before it, set the
+  // printed_info to '""'.  The exception is the first entry of a
+  // sequence or the first table of a series of nested tables.
+
+  std::string
+  get_printed_info (any const& a,
+                    std::string const& key,
+                    ParameterSet const * ps,
+                    std::string& curr_info)
+  {
+    std::string const src_info = ps->get_src_info(key);
+    std::string printed_info = src_info;
+
+    if ( allowed_info(src_info) &&
+         !is_table(a) &&
+         allowed_seq_entry(key) &&
+         curr_info == src_info ) {
+      printed_info = "\"\"";
+    }
+
+    curr_info = src_info;
+
+    // Look ahead to see if there is a sequence whose first entry
+    // source location is different than that of the sequence source
+    // location
+    if ( is_sequence(a) ) {
+      std::string const next_src_info = ps->get_src_info(key+".0"s);
+      if ( next_src_info == src_info && !next_src_info.empty() )
+        printed_info = "";
+    }
+
+    return printed_info;
+  }
+
+}
+
+// ======================================================================
 
 class ParameterSet::Prettifier {
 public:
-  Prettifier(map_t const & mapping,
-             unsigned initial_indent_level = 0)
-    : mapping_(mapping)
-    , result_()
+
+  Prettifier(unsigned const initial_indent_level = 0,
+             bool const annotate = true)
+    : result_()
     , initial_indent_(initial_indent_level * INDENT_PER)
-  { }
+    , annotate_(annotate)
+    , curr_info_()
+    , ps_stack_()
+  {}
 
   string
-  operator()()
+  operator()( ParameterSet const * ps )
   {
-    for (map_iter_t it = mapping_.begin()
-                         , e = mapping_.end(); it != e; ++it) {
+    ps_stack_.push_back(ps);
+    for (const auto& entry : ps->mapping_ ) {
       assert(next_col() == 1u);
       goto_col(initial_indent_ + 1);
-      result_.append(it->first)
-      .append(": ")
-      ;
-      stringify(it->second);
-      result_.append("\n");
+      append(entry.first,": ");
+      stringify(entry.second,entry.first);
+      append("\n");
     }
     return std::move(result_);
   }
@@ -239,87 +398,125 @@ public:
 private:
   static constexpr unsigned INDENT_PER = 2;
 
-  map_t const & mapping_;
-  string result_;
+  std::string result_;
   unsigned initial_indent_;
+  bool annotate_;
+  std::string curr_info_;
+  std::vector<ParameterSet const *> ps_stack_;
+
+  void
+  stringify(any const & a, std::string const& key)
+  {
+    auto ps = ps_stack_.back();
+    std::string const printed_info = get_printed_info(a, key, ps, curr_info_);
+
+    size_t const col = next_col();
+
+    if (is_table(a))
+      stringify_table(col,a);
+    else if (is_sequence(a))
+      stringify_sequence(col,a,key,ps);
+    else
+      stringify_atom(a);
+
+    if ( annotate_ && allowed_info( printed_info ) )
+      append("  # ",printed_info);
+
+  } // stringify()
 
   size_t next_col() const
   {
-    size_t ans = result_.size() + 1u;
-    size_t last_nl = result_.find_last_of('\n') + 1u;
+    size_t const ans = result_.size() + 1u;
+    size_t const last_nl = result_.find_last_of('\n') + 1u;
     return ans - last_nl;
   }
 
   void
-  goto_col(size_t dest)
+  goto_col(size_t const dest)
   {
     size_t now_at = next_col();
     if (now_at > dest) {
       result_.append("\n");
       now_at = 1;
     }
-    result_.append(dest - now_at, ' ');
+    result_.append(dest - now_at,' ');
+  }
+
+  template<typename ... ARGS>
+  void append(ARGS ... args)
+  {
+    cet::for_all(std::vector<std::string>{args...},
+                 [this](auto arg){result_.append(arg);});
   }
 
   void
-  stringify(any const & a)
+  stringify_table(std::size_t const col, any const & a)
   {
-    size_t col = next_col();
-    if (is_table(a)) {
-      ParameterSetID const & psid = any_cast<ParameterSetID>(a);
-      ParameterSet const & ps = ParameterSetRegistry::get(psid);
-      map_t const & mapping = ps.mapping_;
-      result_.append("{");
-      if (! mapping.empty()) {
-        // Emit 1st pair:
-        map_iter_t it = mapping.begin();
-        result_.append(" ")
-        .append(it->first)
-        .append(": ")
-        ;
-        stringify(it->second);
-        // Emit remaining pairs:
-        for (map_iter_t const e = mapping.end(); ++it != e;) {
-          goto_col(col + INDENT_PER);
-          result_.append(it->first)
-          .append(": ")
-          ;
-          stringify(it->second);
-        }
+    ParameterSetID const & psid = any_cast<ParameterSetID>(a);
+    ParameterSet const * ps = &ParameterSetRegistry::get(psid);
+    ps_stack_.push_back(ps);
+    map_t const & mapping = ps->mapping_;
+    append("{");
+    if (!mapping.empty()) {
+      // Emit 1st pair:
+      auto it = mapping.begin();
+      append(" ",it->first,": ");
+      stringify(it->second,it->first);
+      // Emit remaining pairs:
+      for (auto e = mapping.end(); ++it != e;) {
+        goto_col(col + INDENT_PER);
+        append(it->first,": ");
+        stringify(it->second,it->first);
+      }
+      goto_col(col);
+    }
+    append("}");
+    ps_stack_.pop_back();
+  }
+
+  void
+  stringify_sequence(std::size_t const col,
+                     any const & a,
+                     std::string const & key,
+                     ParameterSet const * ps)
+  {
+    ps_sequence_t const & seq = any_cast<ps_sequence_t>(a);
+    append("[");
+    if (! seq.empty()) {
+      append(" ");
+      std::string const first_key = key+".0"s;
+      std::string const first_elem_src_info = ps->get_src_info(first_key);
+      stringify( *seq.begin(), first_key );
+      auto const b = seq.cbegin();
+      for (auto it = b, e = seq.end(); ++it != e;) {
         goto_col(col);
+        append(", ");
+        stringify(*it,key+"."s+std::to_string( std::distance(b,it) ));
       }
-      result_.append("}");
+      if ( seq.size() == 1u && ( !annotate_ || !allowed_info( first_elem_src_info ) ) )
+        append(" ");
+      else goto_col(col);
     }
-    else if (is_sequence(a)) {
-      ps_sequence_t const & seq = any_cast<ps_sequence_t>(a);
-      result_.append("[");
-      if (! seq.empty()) {
-        result_.append(" ");
-        stringify(*seq.begin());
-        for (ps_sequence_t::const_iterator it = seq.begin()
-                                                , e = seq.end(); ++it != e;) {
-          goto_col(col);
-          result_.append(", ");
-          stringify(*it);
-        }
-        if (seq.size() == 1u) { result_.append(" "); }
-        else { goto_col(col); }
-      }
-      result_.append("]");
-    }
-    else // is_atom(a)
-    { result_.append(any_cast<ps_atom_t>(a)); }
-  } // stringify()
+    append("]");
+  }
+
+  void
+  stringify_atom(any const & a)
+  {
+    std::string const str = any_cast<ps_atom_t>(a);
+    append( str == string(9, '\0') ? "@nil" : str );
+  }
 
 }; // Prettifier
 
 // ----------------------------------------------------------------------
 
 string
-ParameterSet::to_indented_string(unsigned initial_indent_level) const
+ParameterSet::to_indented_string(unsigned const initial_indent_level,
+                                 bool const annotate) const
 {
-  Prettifier p(mapping_, initial_indent_level);
-  return p();
+  Prettifier p(initial_indent_level,annotate);
+  return p(this);
 }
 
 // ======================================================================

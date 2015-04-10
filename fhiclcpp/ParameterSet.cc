@@ -331,10 +331,6 @@ namespace {
     return std::regex_match(key,key_pattern);
   }
 
-  // If the source info is the same as the one before it, set the
-  // printed_info to '""'.  The exception is the first entry of a
-  // sequence or the first table of a series of nested tables.
-
   std::string
   get_printed_info (any const& a,
                     std::string const& key,
@@ -344,6 +340,10 @@ namespace {
     std::string const src_info = ps->get_src_info(key);
     std::string printed_info = src_info;
 
+    // For sequence entries, if the source info is the same as the one
+    // before it, set the printed_info to "".  The exception is the
+    // first entry of a sequence or the first table of a series of
+    // nested tables.
     if ( allowed_info(src_info) &&
          !is_table(a) &&
          allowed_seq_entry(key) &&
@@ -355,7 +355,8 @@ namespace {
 
     // Look ahead to see if there is a sequence whose first entry
     // source location is different than that of the sequence source
-    // location
+    // location.  If it is the same, then suppress the source
+    // information for the sequence.
     if ( is_sequence(a) ) {
       std::string const next_src_info = ps->get_src_info(key+".0"s);
       if ( next_src_info == src_info && !next_src_info.empty() )

@@ -3,12 +3,11 @@
 
 // ======================================================================
 //
-// encode overload for extended_value, receiving std::string annotation
+// encode overload for extended_value
 //
 // ======================================================================
 
 #include "boost/any.hpp"
-#include <string>
 
 namespace fhicl {
 
@@ -17,7 +16,7 @@ namespace fhicl {
   namespace detail {
 
     boost::any
-      encode( extended_value const & xval );
+    encode( extended_value const & xval );
 
   }
 }

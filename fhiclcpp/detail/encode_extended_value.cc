@@ -1,6 +1,6 @@
 // ======================================================================
 //
-// encode overload for extended_value, receiving std::string annotation
+// encode overload for extended_value
 //
 // ======================================================================
 
@@ -10,7 +10,6 @@
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/intermediate_table.h"
-// #include "fhiclcpp/parse.h"
 
 using namespace fhicl;
 

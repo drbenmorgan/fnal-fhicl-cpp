@@ -327,8 +327,11 @@ namespace {
 
   inline bool
   allowed_seq_entry(std::string const& key) {
-    std::regex const key_pattern{".*\\.\\d*[1-9]"};
-    return std::regex_match(key,key_pattern);
+    std::regex const must_be_seq_entry{".*\\..*"};
+    std::regex const but_not_first_one{".*\\.0"};
+    return
+      std::regex_match(key,must_be_seq_entry) &&
+      !std::regex_match(key,but_not_first_one);
   }
 
   std::string
@@ -342,8 +345,7 @@ namespace {
 
     // For sequence entries, if the source info is the same as the one
     // before it, set the printed_info to "".  The exception is the
-    // first entry of a sequence or the first table of a series of
-    // nested tables.
+    // first entry of a sequence.
     if ( allowed_info(src_info) &&
          !is_table(a) &&
          allowed_seq_entry(key) &&

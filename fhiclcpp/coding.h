@@ -24,20 +24,21 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/numeric/conversion/cast.hpp"
 #include "cetlib/demangle.h"
-#include "cpp0x/cstdint"
-#include "cpp0x/string"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/fwd.h"
 #include "fhiclcpp/parse.h"
 #include "fhiclcpp/type_traits.h"
+
 #include <array>
 #include <complex>
-#include <vector>
-#include <utility>
+#include <cstdint>
 #include <sstream>
+#include <string>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 namespace fhicl {  namespace detail {
     typedef  std::string                ps_atom_t;

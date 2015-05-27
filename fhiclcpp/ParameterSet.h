@@ -13,17 +13,18 @@
 #include "boost/numeric/conversion/cast.hpp"
 #include "cetlib/demangle.h"
 #include "cetlib/split_by_regex.h"
-#include "cpp0x/string"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/detail/encode_extended_value.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/fwd.h"
+
 #include <cctype>
 #include <regex>
 #include <map>
 #include <sstream>
+#include <string>
 #include <typeinfo>
 #include <unordered_map>
 #include <vector>

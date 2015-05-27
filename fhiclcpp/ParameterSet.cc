@@ -7,9 +7,10 @@
 #include "fhiclcpp/ParameterSet.h"
 
 #include "cetlib/container_algorithms.h"
-#include "cpp0x/cstddef"
 #include "fhiclcpp/ParameterSetRegistry.h"
+
 #include <cassert>
+#include <cstddef>
 #include <regex>
 
 using namespace fhicl;

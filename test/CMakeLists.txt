@@ -8,16 +8,21 @@ include(CetTest)
 cet_enable_asserts()
 
 # Identify libraries to be linked:
-link_libraries(fhiclcpp)
+link_libraries(fhiclcpp
+  ${Boost_FILESYSTEM_LIBRARY} 
+  ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  )
 
 cet_test_env("FHICL_FILE_PATH=.")
+
+add_subdirectory( fhiclcpp-types )
 
 cet_test(dotted_names)
 cet_test(hex_test)
 
 cet_test(PSetSample INSTALL_EXAMPLE INSTALL_SOURCE
   DATAFILES Sample.cfg
-)
+  )
 cet_test(PSetTest)
 cet_test(ParameterSet_t USE_BOOST_UNIT
   DATAFILES Sample.cfg

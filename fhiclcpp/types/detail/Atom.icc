@@ -1,0 +1,84 @@
+#include "fhiclcpp/types/detail/ParameterRegistrySentry.h"
+
+namespace fhicl {
+
+  template <typename T>
+  Atom<T>::Atom(Key && key,
+                Comment && cmt )
+    : AtomBase(std::move(key), std::move(cmt), false, par_type::ATOM, this)
+    , value_()
+  {
+    static_assert(!tt::is_sequence_type<T>::value, NO_CONTAINERS_IN_ATOM);
+    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_ATOM);
+    detail::ParameterRegistrySentry();
+  }
+
+  template <typename T>
+  Atom<T>::Atom(Key && key,
+                Comment && cmt,
+                T const& dflt_value )
+    : AtomBase(std::move(key), std::move(cmt), true, par_type::ATOM, this)
+    , value_(dflt_value)
+  {
+    static_assert(!tt::is_sequence_type<T>::value, NO_CONTAINERS_IN_ATOM);
+    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_ATOM);
+    detail::ParameterRegistrySentry();
+  }
+
+  template <typename T>
+  Atom<T>::Atom(Key && key)
+    : Atom<T>::Atom( std::move(key), Comment("") )
+  {}
+
+  template <typename T>
+  Atom<T>::Atom(Key && key, T const& dflt_value)
+    : Atom<T>::Atom( std::move(key), Comment(""), dflt_value )
+  {}
+
+  template <typename T>
+  Atom<T>::Atom(Key && key, T const& dflt_value, Comment && cmt)
+    : Atom<T>::Atom( std::move(key), std::move(cmt), dflt_value )
+  {}
+
+  template <typename T>
+  Atom<T>::Atom()
+    : AtomBase(Key::anonymous(), Comment(""), false, par_type::ATOM, this)
+    , value_()
+  {
+    detail::ParameterRegistrySentry();
+  }
+
+  template <typename T>
+  std::string
+  Atom<T>::get_stringified_value() const
+  {
+    std::stringstream oss;
+    if ( has_default() ) {
+      using namespace detail::yes_defaults;
+      oss << maybe_quotes<T>(value_) ;
+    }
+    else {
+      using namespace detail::no_defaults;
+      oss << expected_types<T>();
+    }
+    return oss.str();
+  }
+
+  template <typename T>
+  void
+  Atom<T>::do_set_value( fhicl::ParameterSet const & pset, bool const trimParent )
+  {
+    std::string const& rkey = key();
+    std::string const& key = trimParent ? rkey.substr( rkey.find_first_of(".")+1 ) : rkey;
+
+    if ( has_default() )
+      pset.get_if_present<T>( key, value_ );
+    else
+      value_ = pset.get<T>( key );
+  }
+
+}
+
+// Local variables:
+// mode: c++
+// End:

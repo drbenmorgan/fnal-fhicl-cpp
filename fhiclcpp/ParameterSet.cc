@@ -40,7 +40,7 @@ namespace {
     std::size_t i(0);
     for ( auto const& xval : extended_value::sequence_t(value) ) {
       std::ostringstream oss;
-      oss << key << "." << i++;
+      oss << key << "[" << i++ << "]";
       src_map[oss.str()] = xval.src_info;
       fill_src_info(xval,oss.str(),src_map);
     }
@@ -119,10 +119,11 @@ ParameterSet::to_string_(bool compact) const
 vector<string>
 ParameterSet::get_keys() const
 {
-  vector<string> keys; keys.reserve(mapping_.size());
-  for (map_iter_t it = mapping_.begin()
-                       , e = mapping_.end(); it != e; ++it)
-  { keys.push_back(it->first); }
+  vector<string> keys;
+  keys.reserve(mapping_.size());
+  for (auto const& pr : mapping_ ) {
+    keys.push_back(pr.first);
+  }
   return keys;
 }
 
@@ -130,10 +131,62 @@ vector<string>
 ParameterSet::get_pset_keys() const
 {
   vector<string> keys;
-  for (map_iter_t it = mapping_.begin()
-                       , e = mapping_.end(); it != e; ++it)
-    if (is_table(it->second))
-    { keys.push_back(it->first); }
+  for (auto const& pr : mapping_ )
+    if (is_table(pr.second)) {
+      keys.push_back(pr.first);
+    }
+  return keys;
+}
+
+void
+ParameterSet::assemble_table_(any const & a,
+                              std::string const& key,
+                              std::vector<std::string> & keys) const
+{
+  ParameterSetID const & psid = any_cast<ParameterSetID>(a);
+  ParameterSet const * ps = &ParameterSetRegistry::get(psid);
+  map_t const & mapping = ps->mapping_;
+  keys.push_back( key );
+  for ( auto const & entry : ps->mapping_ ){
+    std::string const new_key = key + "." + entry.first;
+    assemble_(entry.second,new_key,keys);
+  }
+}
+
+void
+ParameterSet::assemble_sequence_(any const & a,
+                                 std::string const & key,
+                                 std::vector<std::string> & keys) const
+{
+  ps_sequence_t const & seq = any_cast<ps_sequence_t>(a);
+  std::size_t i{};
+  keys.push_back( key );
+  for ( auto const & seq_a : seq ){
+    std::string const new_key = key+"["s+std::to_string(i++)+"]";
+    assemble_(seq_a,new_key,keys);
+  }
+}
+
+void
+ParameterSet::assemble_(any const & a,
+                        std::string const& key,
+                        std::vector<std::string>& keys) const
+{
+  if (is_table(a))
+    assemble_table_(a,key,keys);
+  else if (is_sequence(a))
+    assemble_sequence_(a,key,keys);
+  else
+    keys.push_back( key );
+
+} // assemble
+
+vector<string>
+ParameterSet::get_all_keys() const
+{
+  vector<string> keys;
+  for (auto const& entry : mapping_)
+    assemble_(entry.second, entry.first, keys);
   return keys;
 }
 
@@ -327,8 +380,8 @@ namespace {
 
   inline bool
   allowed_seq_entry(std::string const& key) {
-    std::regex const must_be_seq_entry{".*\\..*"};
-    std::regex const but_not_first_one{".*\\.0"};
+    std::regex const must_be_seq_entry{R"(.*\[\d+\])"};
+    std::regex const but_not_first_one{R"(.*\[0\])"};
     return
       std::regex_match(key,must_be_seq_entry) &&
       !std::regex_match(key,but_not_first_one);
@@ -360,7 +413,7 @@ namespace {
     // location.  If it is the same, then suppress the source
     // information for the sequence.
     if ( is_sequence(a) ) {
-      std::string const next_src_info = ps->get_src_info(key+".0"s);
+      std::string const next_src_info = ps->get_src_info(key+"[0]"s);
       if ( next_src_info == src_info && !next_src_info.empty() )
         printed_info = "";
     }
@@ -487,14 +540,14 @@ private:
     append("[");
     if (! seq.empty()) {
       append(" ");
-      std::string const first_key = key+".0"s;
+      std::string const first_key = key+"[0]"s;
       std::string const first_elem_src_info = ps->get_src_info(first_key);
       stringify( *seq.begin(), first_key );
       auto const b = seq.cbegin();
       for (auto it = b, e = seq.end(); ++it != e;) {
         goto_col(col);
         append(", ");
-        stringify(*it,key+"."s+std::to_string( std::distance(b,it) ));
+        stringify(*it,key+"["s+std::to_string( std::distance(b,it) )+"]");
       }
       if ( seq.size() == 1u && ( !annotate_ || !allowed_info( first_elem_src_info ) ) )
         append(" ");

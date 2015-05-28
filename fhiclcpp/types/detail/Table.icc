@@ -1,0 +1,54 @@
+namespace fhicl {
+
+  template <typename T>
+  Table<T>::Table(Key && key,
+                  Comment && comment )
+    : ParameterBase(std::move(key),std::move(comment),false,par_type::TABLE,this)
+    , value_()
+  {
+    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
+    detail::ParameterRegistrySentry();
+  }
+
+  template <typename T>
+  Table<T>::Table(Key && key) : Table( std::move(key), Comment("") ) {}
+
+  template <typename T>
+  Table<T>::Table()
+    : ParameterBase(Key::anonymous(),Comment(""),false,par_type::TABLE,this)
+    , value_()
+  {
+    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
+    detail::ParameterRegistrySentry();
+  }
+
+  template <typename T>
+  Table<T>::Table(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
+    : ParameterBase(Key::anonymous(),Comment(""),false,par_type::TABLE,this)
+    , value_()
+  {
+    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
+    detail::ParameterRegistrySentry();
+    validate_ParameterSet( pset, keysToIgnore );
+  }
+
+  template <typename T>
+  void
+  Table<T>::validate_ParameterSet(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
+  {
+    detail::validate_ParameterSet( this, pset, keysToIgnore );
+  }
+
+  template <typename T>
+  void
+  Table<T>::print_reference(std::ostream& os,
+                            std::string const& tab) const
+  {
+    detail::print_reference(key(), os, false, tab);
+  }
+
+}
+
+// Local variables:
+// mode: c++
+// End:

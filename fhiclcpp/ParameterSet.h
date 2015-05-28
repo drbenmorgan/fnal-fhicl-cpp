@@ -48,6 +48,7 @@ public:
                                  bool annotate = true) const;
   std::vector<std::string> get_keys() const;
   std::vector<std::string> get_pset_keys() const;
+  std::vector<std::string> get_all_keys() const;
   // Key must be local to this parameter set: no nesting.
   bool has_key(std::string const & key) const;
   bool is_key_to_table(std::string const & key) const;
@@ -107,6 +108,18 @@ private:
   std::string to_string_(bool compact = false) const;
   std::string stringify_(boost::any const & a,
                          bool compact = false) const;
+
+  void assemble_(boost::any const & a,
+                 std::string const& key,
+                 std::vector<std::string> & keys ) const;
+
+ void assemble_table_(boost::any const & a,
+                      std::string const& key,
+                      std::vector<std::string> & keys ) const;
+
+  void assemble_sequence_(boost::any const & a,
+                          std::string const& key,
+                          std::vector<std::string> & keys ) const;
 
   // Local retrieval only.
   template< class T >

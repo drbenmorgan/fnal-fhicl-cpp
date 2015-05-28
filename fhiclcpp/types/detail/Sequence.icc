@@ -1,0 +1,119 @@
+#include "fhiclcpp/types/detail/ParameterRegistrySentry.h"
+#include "fhiclcpp/types/detail/ostream_helpers.h"
+#include "fhiclcpp/types/detail/type_traits_error_msgs.h"
+#include "fhiclcpp/type_traits.h"
+
+#include <string>
+
+namespace fhicl {
+
+  //==================================================================
+  // e.g. Sequence<int,4> ====> std::array<int,4>
+  //
+  template<typename T, std::size_t SIZE>
+  Sequence<T,SIZE>::Sequence(Key && key,
+                             Comment && cmt )
+    : ParameterBase(std::move(key),std::move(cmt),false,par_type::SEQ_ARRAY,this)
+    , value_()
+  {
+    detail::ParameterRegistrySentry s;
+    finalize_elements();
+  }
+
+  template<typename T, std::size_t SIZE>
+  Sequence<T,SIZE>::Sequence(Key && key,
+                             Comment && cmt,
+                             Sequence<T,SIZE> const& dflt )
+    : ParameterBase(std::move(key),std::move(cmt),true,par_type::SEQ_ARRAY,this)
+    , value_(dflt.value_)
+  {
+    detail::ParameterRegistrySentry s;
+    finalize_elements();
+  }
+
+  template<typename T, std::size_t SIZE>
+  Sequence<T,SIZE>::Sequence (std::initializer_list<T> const & args)
+    : ParameterBase( Key::anonymous(), Comment(""), true, par_type::SEQ_ARRAY, this )
+    , value_()
+  {
+    detail::ParameterRegistrySentry s;
+    std::size_t i{};
+    for ( auto const & arg : args ) {
+
+      // One of the downsides of automatic registration of
+      // default-c'tored elements is that if you want to override
+      // the values later (as in the case with std::array or
+      // std::tuple), you need to first remove the entries of the
+      // registered empty elements and reassign.  Ideally, I
+      // wouldn't have to do this, but could reuse those map
+      // entries, but at the moment, I can't see a straightforward
+      // way without rewriting a significant portion of the entires
+      // system.
+      value_.at(i) = tt::fhicl_type<T>{ Key::anonymous(), arg };
+      ++i;
+    }
+  }
+
+  template<typename T, std::size_t SIZE>
+  Sequence<T,SIZE>::Sequence()
+    : ParameterBase( Key::anonymous(), Comment(""),false,par_type::SEQ_ARRAY,this)
+    , value_()
+  {
+    detail::ParameterRegistrySentry s;
+    finalize_elements();
+  }
+
+
+  //==================================================================
+  // e.g. Sequence<int> ====> std::vector<int>
+  //
+  template<typename T>
+  Sequence<T,-1>::Sequence(Key && key,
+                           Comment && cmt )
+    : SeqVectorBase(std::move(key),std::move(cmt),false,par_type::SEQ_VECTOR,this)
+    , value_()
+  {
+    detail::ParameterRegistrySentry s;
+    value_.resize(1);
+    finalize_elements();
+  }
+
+  template<typename T>
+  Sequence<T,-1>::Sequence(Key && key,
+                           Comment && cmt,
+                           Sequence<T,-1> const & dflt )
+    : SeqVectorBase(std::move(key),std::move(cmt),true,par_type::SEQ_VECTOR,this)
+    , value_(dflt.value_)
+  {
+    detail::ParameterRegistrySentry s;
+    finalize_elements();
+  }
+
+  template<typename T>
+  Sequence<T,-1>::Sequence (std::initializer_list<T> const & args)
+    : SeqVectorBase( Key::anonymous(), Comment(""), true, par_type::SEQ_VECTOR, this )
+    , value_()
+  {
+    static_assert(!tt::is_table<T>::value, NO_DEFAULTS_FOR_TABLE);
+
+    detail::ParameterRegistrySentry s;
+    for ( auto const& arg : args ) {
+      value_.emplace_back( Key::anonymous(), arg );
+    }
+  }
+
+  template<typename T>
+  Sequence<T,-1>::Sequence()
+    : SeqVectorBase( Key::anonymous(), Comment(""),false,par_type::SEQ_VECTOR, this)
+    , value_()
+  {
+    detail::ParameterRegistrySentry s;
+    value_.resize(1);
+    finalize_elements();
+  }
+
+}
+
+// Local variables:
+// mode: c++
+// End:

@@ -22,6 +22,11 @@ cet_test(PSetTest)
 cet_test(ParameterSet_t USE_BOOST_UNIT
   DATAFILES Sample.cfg
 )
+
+cet_test(get_sequence_elements_t USE_BOOST_UNIT
+  DATAFILES Sample.cfg
+)
+
 cet_test(equalTest USE_BOOST_UNIT)
 cet_test(failer DATAFILES test_config_fail.fcl)
 cet_test(fhicl-config_t NO_AUTO)

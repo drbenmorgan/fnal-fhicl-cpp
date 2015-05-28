@@ -12,6 +12,7 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/numeric/conversion/cast.hpp"
 #include "cetlib/demangle.h"
+#include "cetlib/split_by_regex.h"
 #include "cpp0x/string"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/coding.h"
@@ -20,6 +21,7 @@
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/fwd.h"
 #include <cctype>
+#include <regex>
 #include <map>
 #include <sstream>
 #include <typeinfo>
@@ -262,10 +264,11 @@ fhicl::ParameterSet::get_if_present(std::string const & key
 {
   typedef std::vector<std::string> Keys;
   Keys keys;
-  boost::algorithm::split(keys
-                          , key
-                          , boost::algorithm::is_any_of(".")
-                         );
+  boost::algorithm::split(keys,
+                          key,
+                          boost::algorithm::is_any_of(".")
+                          );
+
   Keys::iterator b = keys.begin()
                      , e = keys.end()
                            , r = b;
@@ -279,10 +282,11 @@ fhicl::ParameterSet::get_if_present(std::string const & key
   ParameterSet pset;
   for (b = keys.begin(), e = keys.end() - 1; b != e; ++b) {
     std::string const & this_key = *b;
-    if (std::isdigit(this_key[0]))
-    { throw fhicl::exception(unimplemented, "lookup in a sequence"); }
-    if (! p->get_one_(this_key, pset))
-    { return false; }
+
+    if (! p->get_one_(this_key, pset)){
+      return false;
+    }
+
     p = & pset;
   }
   return p->get_one_(keys.back(), value);
@@ -363,18 +367,60 @@ fhicl::ParameterSet::operator != (ParameterSet const & other) const
 
 // ----------------------------------------------------------------------
 
+namespace fhicl {
+  namespace detail {
+
+    using cit_size_t = std::vector<std::size_t>::const_iterator;
+
+    template< class T >
+    void
+    get_parameter(cit_size_t const cend,
+                  cit_size_t const subscript_it,
+                  boost::any const a,
+                  T & value)
+    {
+      if ( subscript_it == cend ){
+        decode(a,value);
+        return;
+      }
+
+      auto const seq = boost::any_cast<ps_sequence_t>(a);
+      get_parameter( cend, std::next(subscript_it), seq[*subscript_it], value );
+
+    }
+  }
+}
+
 template< class T >
 bool
-fhicl::ParameterSet::get_one_(std::string const & key
-                              , T & value
-                             ) const
+fhicl::ParameterSet::get_one_(std::string const & key,
+                              T & value) const
 try
 {
   using detail::decode;
-  map_iter_t it = mapping_.find(key);
-  if (it == mapping_.end())
-  { return false; }
-  decode(it->second, value);
+
+  // Replace (e.g.) "name[2]" with "name,2", then split by ','
+  static std::regex const r("\\[(\\d+)\\]");
+  auto tokens = cet::split_by_regex( std::regex_replace(key, r, ",$1" ), ",");
+
+  std::string const name = tokens.front();
+
+  map_iter_t it = mapping_.find(name);
+  if (it == mapping_.end()) {
+    return false;
+  }
+
+  std::vector<std::size_t> seq_indices;
+  std::for_each( tokens.cbegin()+1, tokens.cend(),
+                 [&seq_indices](std::string const& str_ind)
+                 { seq_indices.push_back( std::stoul(str_ind) ); }
+                 );
+
+  detail::get_parameter( seq_indices.cend(),
+                         seq_indices.cbegin(),
+                         it->second,
+                         value );
+
   return true;
 }
 catch (fhicl::exception const & e)

@@ -237,17 +237,22 @@ BOOST_AUTO_TEST_CASE( expand_table )
 {
   std::string document = "BEGIN_PROLOG\n"
                          "fred: { bill: twelve charlie: 27 }\n"
+                         "y: { @table::fred bill: \"one dozen\" }\n"
                          "END_PROLOG\n"
                          "x: { ethel: 14 bill: 12 @table::fred }\n"
-                         "@table::fred\n";
+                         "@table::fred\n"
+                         "y: @local::y\n";
   intermediate_table tbl;
   parse_document(document, tbl);
   BOOST_CHECK(tbl.exists("x.ethel"));
   BOOST_CHECK(tbl.exists("x.charlie"));
   BOOST_CHECK(tbl.exists("bill"));
   BOOST_CHECK(tbl.exists("charlie"));
+  BOOST_CHECK(tbl.exists("y.bill"));
+  BOOST_CHECK(tbl.exists("y.charlie"));
   BOOST_CHECK_EQUAL(tbl.get<std::string>("x.bill"), std::string("twelve"));
   BOOST_CHECK_EQUAL(tbl.get<std::string>("bill"), std::string("twelve"));
+  BOOST_CHECK_EQUAL(tbl.get<std::string>("y.bill"), std::string("one dozen"));
 }
 
 BOOST_AUTO_TEST_CASE( expand_sequence )

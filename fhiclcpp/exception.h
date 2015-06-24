@@ -17,6 +17,7 @@ namespace fhicl {
              , number_is_too_large
              , parse_error
              , type_mismatch
+             , protection_violation
              , cant_open_db
              , sql_error
              , unimplemented

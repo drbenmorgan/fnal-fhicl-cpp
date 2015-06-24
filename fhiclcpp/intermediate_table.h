@@ -128,14 +128,20 @@ public:
   void  insert(std::string    const & name
                , extended_value const & value
               );
+  void  insert(std::string    const & name
+               , extended_value && value
+              );
 
-  extended_value  & operator [](std::string const & name);
   extended_value const  & find(std::string const & name) const;
 
 private:
-  extended_value  ex_val;
-
+  // Operator [] is not safe to call from outside the class, since we
+  // need to check whether the returned reference is valid before we
+  // attempt to use it. See the implementations of insert() for details.
+  extended_value  & operator [](std::string const & name);
   std::vector<std::string>  split(std::string const & name) const;
+
+  extended_value  ex_val;
 
 };  // intermediate_table
 
@@ -155,7 +161,7 @@ namespace fhicl {
       T operator () (intermediate_table & table, std::string const & name)
         {
           T result;
-          detail::decode(table[name].value, result);
+          detail::decode(table.find(name).value, result);
           return result;
         }
     };
@@ -171,7 +177,7 @@ namespace fhicl {
       std::complex<U> operator () (intermediate_table & table,
                                    std::string const & name)
       {
-        intermediate_table::complex_t c(table[name]);
+        intermediate_table::complex_t c(table.find(name));
         U r, i;
         detail::decode(c.first, r);
         detail::decode(c.second, i);
@@ -189,25 +195,33 @@ namespace fhicl {
 
     // Full specialization for sequence_t &
     template <>
-    class it_value_get<intermediate_table::sequence_t &> {
-  public:
-      intermediate_table::sequence_t & operator() (intermediate_table & table,
-                                                   std::string const & name)
-        {
-          return boost::any_cast<intermediate_table::sequence_t &>(table[name].value);
-        }
-    };
+    class it_value_get<intermediate_table::sequence_t &>;
+
+  //   // Full specialization for sequence_t &
+  //   template <>
+  //   class it_value_get<intermediate_table::sequence_t &> {
+  // public:
+  //     intermediate_table::sequence_t & operator() (intermediate_table & table,
+  //                                                  std::string const & name)
+  //       {
+  //         return boost::any_cast<intermediate_table::sequence_t &>(table[name].value);
+  //       }
+  //   };
 
     // Full specialization for table_t &
     template <>
-    class it_value_get<intermediate_table::table_t &> {
-  public:
-      intermediate_table::table_t & operator () (intermediate_table & table,
-                                                 std::string const & name)
-        {
-          return boost::any_cast<intermediate_table::table_t &>(table[name].value);
-        }
-    };
+    class it_value_get<intermediate_table::table_t &>;
+
+  //   // Full specialization for table_t &
+  //   template <>
+  //   class it_value_get<intermediate_table::table_t &> {
+  // public:
+  //     intermediate_table::table_t & operator () (intermediate_table & table,
+  //                                                std::string const & name)
+  //       {
+  //         return boost::any_cast<intermediate_table::table_t &>(table[name].value);
+  //       }
+  //   };
 
     // Full specialization for sequence_t const &
     template <>
@@ -216,7 +230,7 @@ namespace fhicl {
       intermediate_table::sequence_t const & operator () (intermediate_table & table,
                                                           std::string const & name)
         {
-          return boost::any_cast<intermediate_table::sequence_t const &>(table[name].value);
+          return boost::any_cast<intermediate_table::sequence_t const &>(table.find(name).value);
         }
     };
 
@@ -227,7 +241,7 @@ namespace fhicl {
       intermediate_table::table_t const & operator () (intermediate_table & table,
                                                        std::string const & name)
         {
-          return boost::any_cast<intermediate_table::table_t const &>(table[name].value);
+          return boost::any_cast<intermediate_table::table_t const &>(table.find(name).value);
         }
     };
   }

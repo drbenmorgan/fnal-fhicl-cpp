@@ -36,12 +36,12 @@ BOOST_AUTO_TEST_CASE(main)
   BOOST_CHECK_EQUAL(table.get<std::complex<double> >("complex"),
                     std::complex<double>(-3, -0.5));
   BOOST_CHECK_EQUAL(table.get<sequence_t const &>("sequence").size(), 7u);
-  BOOST_CHECK_EQUAL(table.get<sequence_t &>("sequence").size(), 7u);
+//   BOOST_CHECK_EQUAL(table.get<sequence_t &>("sequence").size(), 7u);
   BOOST_CHECK_EQUAL(table.get<int>("sequence[3]"), 20);
   BOOST_CHECK_THROW(table.get<int>("sequence[5]"), fhicl::exception); // Nil
   BOOST_CHECK_EQUAL(table.get<table_t const &>("table").size(), 2u);
   BOOST_CHECK_EQUAL(table.get<table_t const &>("table.t1").size(), 0u);
-  BOOST_CHECK_EQUAL(table.get<table_t &>("table").size(), 2u);
+//  BOOST_CHECK_EQUAL(table.get<table_t &>("table").size(), 2u);
   ParameterSet pset;
   make_ParameterSet(table, pset);
   std::cout << pset.to_indented_string() << std::endl;

@@ -24,26 +24,29 @@ typedef  intermediate_table::iterator        iterator;
 typedef  intermediate_table::const_iterator  const_iterator;
 
 // ----------------------------------------------------------------------
+namespace {
+  extended_value const &
+  nil_item()
+  {
+    static extended_value const nil_item(false, NIL, std::string("@nil"));
+    return nil_item;
+  }
 
-static extended_value const &
-nil_item()
-{
-  static extended_value const nil_item(false, NIL, std::string("@nil"));
-  return nil_item;
-}
+  extended_value const &
+  empty_seq()
+  {
+    static extended_value const empty_seq(false, SEQUENCE, sequence_t());
+    return empty_seq;
+  }
 
-static extended_value const &
-empty_seq()
-{
-  static extended_value const empty_seq(false, SEQUENCE, sequence_t());
-  return empty_seq;
-}
+  extended_value const &
+  empty_tbl()
+  {
+    static extended_value const empty_tbl(false, TABLE, table_t());
+    return empty_tbl;
+  }
 
-static extended_value const &
-empty_tbl()
-{
-  static extended_value const empty_tbl(false, TABLE, table_t());
-  return empty_tbl;
+  extended_value dummy;
 }
 
 // ----------------------------------------------------------------------
@@ -96,7 +99,28 @@ insert(std::string    const & name
     if (it != t.end() && it->second.in_prolog)
     { t.erase(it); }
   }
-  this->operator[](name)  = value;
+  auto & ref = this->operator[](name);
+  if (&ref != &dummy) {
+    ref = value;
+  }
+}
+
+void
+intermediate_table::
+insert(std::string const & name,
+       extended_value && value)
+{
+  if (! value.in_prolog)  {
+    table_t & t = boost::any_cast<table_t &>(ex_val.value);
+    std::vector<std::string> const & key = split(name);
+    iterator it = t.find(key[0]);
+    if (it != t.end() && it->second.in_prolog)
+    { t.erase(it); }
+  }
+  auto & ref = this->operator[](name);
+  if (&ref != &dummy) {
+    ref = std::move(value);
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -136,6 +160,18 @@ operator [](std::string const & name)
         it = t.find(this_key);
       }
       p = & it->second;
+    }
+    auto prot = p->protection;
+    if (prot == Protection::PROTECT_ERROR) {
+      throw exception(protection_violation)
+        << "Part \""
+        << this_key
+        << "\" of specification to be overwritten\n"
+        << "\""
+        << name
+        << "\" is protected.\n";
+    } else if (prot == Protection::PROTECT_IGNORE) {
+      return dummy;
     }
   }  // for
   return *p;
@@ -225,13 +261,13 @@ erase(std::string const & name)
   auto t(boost::any_cast<table_t>(&p->value));
   auto it(t->end());
   bool at_sequence(false);
-for (auto const & this_key : key) {
+  for (auto const & this_key : key) {
     if (this_key.empty())
       ;
     else if (std::isdigit(this_key[0])) {
       if (! p->is_a(SEQUENCE))
         throw exception(cant_find, name)
-            << "-- not a sequence (at part \"" << this_key << "\")";
+          << "-- not a sequence (at part \"" << this_key << "\")";
       auto & s = boost::any_cast<sequence_t &>(p->value);
       unsigned i = std::atoi(this_key.c_str());
       if (s.size() <= i) {
@@ -243,7 +279,7 @@ for (auto const & this_key : key) {
     else { /* this_key[0] is alpha or '_' */
       if (! p->is_a(TABLE))
         throw exception(cant_find, name)
-            << "-- not a table (at part \"" << this_key << "\")";
+          << "-- not a table (at part \"" << this_key << "\")";
       at_sequence = false;
       t = boost::any_cast<table_t>(&p->value);
       it = t->find(this_key);
@@ -251,6 +287,18 @@ for (auto const & this_key : key) {
         return;
       }
       p = & it->second;
+      auto prot = p->protection;
+      if (prot == Protection::PROTECT_ERROR) {
+        throw exception(protection_violation)
+          << "Part \""
+          << this_key
+          << "\" of specification to be erased\n"
+          << "\""
+          << name
+          << "\" is protected.\n";
+      } else if (prot == Protection::PROTECT_IGNORE) {
+        return;
+      }
     }
   }  // for
   if (at_sequence) {

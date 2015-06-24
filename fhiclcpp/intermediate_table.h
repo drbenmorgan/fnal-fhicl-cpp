@@ -71,7 +71,8 @@ public:
 
   bool exists(std::string const & name) const;
 
-  void erase(std::string const & name);
+  void erase(std::string const & name,
+             bool in_prolog = false);
 
   template <typename T>
   T get(std::string const & name);

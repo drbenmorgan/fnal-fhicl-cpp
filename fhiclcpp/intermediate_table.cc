@@ -251,7 +251,8 @@ exists(std::string const & name) const
 
 void
 intermediate_table::
-erase(std::string const & name)
+erase(std::string const & name,
+      bool in_prolog)
 {
   // A missing part of the "a.b.c.d" chain will not cause an error; it
   // is an error for an intermediate link in the chain *not* to be a
@@ -260,6 +261,10 @@ erase(std::string const & name)
   auto p(& ex_val);
   auto t(boost::any_cast<table_t>(&p->value));
   auto it(t->end());
+  if ((! in_prolog) &&
+      (((it = t->find(key[0])) == t->end()) || it->second.in_prolog)) {
+    return;
+  }
   bool at_sequence(false);
   for (auto const & this_key : key) {
     if (this_key.empty())

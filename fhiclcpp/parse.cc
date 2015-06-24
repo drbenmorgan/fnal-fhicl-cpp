@@ -628,6 +628,8 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
     >> *((qualname
           >> bound_value
          ) [ phx::bind(tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
+         | (qualname >> (lit(':') > lit("@erase"))
+           ) [ phx::bind(tbl_erase, qi::_1, ref(tbl)) ]
          | (iter_pos >> lit("@table::") > noskip_qualname
            ) [ phx::bind(&insert_table<iter_t>,
                          qi::_2, ref(tbl), ref(in_prolog),

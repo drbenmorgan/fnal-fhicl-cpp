@@ -201,13 +201,21 @@ BOOST_AUTO_TEST_CASE( nil_value )
 
 BOOST_AUTO_TEST_CASE ( erase_value )
 {
-  std::string document = "a: 27\n"
-                         "b: { x: 7 y: 12 }\n"
-                         "c: { x: 7 y: 12 x: @erase }\n"
-                         "a: @erase\n"
-                         "b.x: @erase\n";
+  std::string document =
+    "BEGIN_PROLOG\n"
+    "x: 27\n"
+    "z: 43\n"
+    "z: @erase\n"
+    "END_PROLOG\n"
+    "a: 27\n"
+    "b: { x: 7 y: 12 }\n"
+    "c: { x: 7 y: 12 x: @erase }\n"
+    "a: @erase\n"
+    "b.x: @erase\n";
   intermediate_table tbl;
   BOOST_REQUIRE_NO_THROW(parse_document(document, tbl));
+  BOOST_CHECK(tbl.exists("x"));
+  BOOST_CHECK(!tbl.exists("z"));
   BOOST_CHECK(!tbl.exists("a"));
   BOOST_CHECK(tbl.exists("b"));
   BOOST_CHECK(!tbl.exists("b.x"));
@@ -334,9 +342,7 @@ BOOST_AUTO_TEST_CASE(colon_spacing)
       "t1: { a: @id::0001020304050607080910111213141516171819 }\n",
       };
   for (auto const & ref : refs) {
-//    BOOST_CHECK_NO_THROW(parse_document(prolog + ref, tbl));
-    std::cerr << ref;
-    parse_document(prolog + ref, tbl);
+    BOOST_CHECK_NO_THROW(parse_document(prolog + ref, tbl));
     auto const cpos = ref.find("::");
     BOOST_REQUIRE(cpos != std::string::npos);
     std::string bad1 { ref };

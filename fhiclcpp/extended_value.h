@@ -79,6 +79,9 @@ public:
   set_src_info( std::string const & src )
   { src_info = src; }
 
+  std::string
+  pretty_src_info() const;
+
   operator atom_t() const
   { return boost::any_cast<atom_t>(value); }
 

@@ -237,34 +237,57 @@ namespace {
       << "\nFHiCL-cpp database lookup not yet available.\n";
   }
 
+  template <typename FwdIter>
   void
   tbl_insert(std::string const & name,
              extended_value const & value,
-             intermediate_table & t)
+             intermediate_table & t,
+             FwdIter pos,
+             cet::includer const & s)
   {
-    t.insert(name, value);
+    try {
+      t.insert(name, value);
+    } catch (fhicl::exception & e) {
+      throw fhicl::exception(fhicl::error::parse_error, "Error in assignment:", e)
+        << " at "
+        << s.highlighted_whereis(pos)
+        << '\n';
+    }
   }
 
+  template <typename FwdIter>
   void
   tbl_erase(std::string const & name,
-            intermediate_table & t)
+            intermediate_table & t,
+            bool in_prolog,
+            FwdIter pos,
+            cet::includer const & s)
   {
-    t.erase(name);
+    try {
+      t.erase(name, in_prolog);
+    } catch (fhicl::exception & e) {
+      throw fhicl::exception(fhicl::error::parse_error, "Error in erase attempt:", e)
+        << " at "
+        << s.highlighted_whereis(pos)
+        << '\n';
+    }
   }
 
   void
-  map_insert(std::string const & name
-             , extended_value const & value
-             , table_t & t
-            )
+  map_insert(std::string const & name,
+             extended_value const & value,
+             table_t & t)
   {
     auto const i = t.find(name);
     if (i != t.end()) {
       if (value.protection > Protection::NONE) {
         throw fhicl::exception(fhicl::error::protection_violation)
-          << "Unable to insert protected binding for name "
+          << '"'
           << name
-          << ": name already exists.\n";
+          << "\" cannot be assigned with protection if it already exists\n"
+          << "(previous definition on "
+          << i->second.pretty_src_info()
+          << ")\n";
       }
       switch (i->second.protection) {
       case Protection::NONE:
@@ -274,12 +297,32 @@ namespace {
         return;
       case Protection::PROTECT_ERROR:
         throw fhicl::exception(fhicl::error::protection_violation)
-          << "Unable to overwrite protected binding for name "
+          << '"'
           << name
-          << ".\n";
+          << "\" is protected on "
+          << i->second.pretty_src_info()
+          << '\n';
       }
     }
     t[name] = value;
+  }
+
+  template <typename FwdIter>
+  void
+  map_insert_loc(std::string const & name,
+                 extended_value const & value,
+                 table_t & t,
+                 FwdIter pos,
+                 cet::includer const & s)
+  {
+    try {
+      map_insert(name, value, t);
+    } catch (fhicl::exception & e) {
+      throw fhicl::exception(fhicl::error::parse_error, "Error in assignment:", e)
+        << " at "
+        << s.highlighted_whereis(pos)
+        << '\n';
+    }
   }
 
   template <typename FwdIter>
@@ -417,6 +460,23 @@ namespace {
       }
     }
   }
+
+  template <typename FwdIter>
+  void
+  map_erase_loc(std::string const & name,
+                table_t & t,
+                FwdIter pos,
+                cet::includer const & s)
+  {
+    try {
+      map_erase(name, t);
+    } catch (fhicl::exception & e) {
+      throw fhicl::exception(fhicl::error::parse_error, "Error in erase attempt:", e)
+        << " at "
+        << s.highlighted_whereis(pos)
+        << '\n';
+    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -534,8 +594,10 @@ fhicl::value_parser<FwdIter, Skip>::value_parser()
   sequence = lit('[') > -(value % ',') > lit(']');
   bound_value = (fhicl::binding >> value) [ _val = phx::bind(set_protection, qi::_1, ref(qi::_2)) ];
   table    = lit('{')
-             > *((name >> bound_value) [ phx::bind(map_insert, qi::_1, qi::_2, _val) ]
-                 | (name >> (lit(':') > lit("@erase"))) [ phx::bind(map_erase, qi::_1, _val) ]
+             > *((name >> bound_value
+                 ) [ phx::bind(map_insert, qi::_1, qi::_2, _val) ]
+                 | (name >> (lit(':') > lit("@erase"))
+                   ) [ phx::bind(map_erase, qi::_1, _val) ]
                 )
              > lit('}');
   id    = lit("@id::") > no_skip [ fhicl::dbid ] [ _val = qi::_1 ];
@@ -589,62 +651,86 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
   // the list elements actually returning multiple elements.
   sequence =
     lit('[')
-    > -(((value [ phx::bind(seq_insert_value, qi::_1, _val) ]) | (iter_pos >> lit("@sequence::") > noskip_qualname) [ phx::bind(&seq_insert_sequence<iter_t>, qi::_2, ref(tbl), ref(in_prolog), _val, qi::_1, s) ]))
-    > *(lit(',') > ((value [ phx::bind(seq_insert_value, qi::_1, _val) ]) | (iter_pos >> lit("@sequence::") > noskip_qualname) [ phx::bind(&seq_insert_sequence<iter_t>, qi::_2, ref(tbl), ref(in_prolog), _val, qi::_1, s) ]))
+    > -(((value [ phx::bind(seq_insert_value, qi::_1, _val) ])
+         | (iter_pos >> lit("@sequence::") > noskip_qualname
+           ) [ phx::bind(&seq_insert_sequence<iter_t>,
+                         qi::_2,
+                         ref(tbl),
+                         ref(in_prolog),
+                         _val,
+                         qi::_1,
+                         ref(s)) ]))
+    > *(lit(',') > ((value [ phx::bind(seq_insert_value, qi::_1, _val) ])
+                    | (iter_pos >> lit("@sequence::") > noskip_qualname
+                      ) [ phx::bind(&seq_insert_sequence<iter_t>,
+                                    qi::_2,
+                                    ref(tbl),
+                                    ref(in_prolog),
+                                    _val,
+                                    qi::_1,
+                                    ref(s)) ]))
     > lit(']');
   table =
     lit('{')
-    > *((name >> bound_value
-        ) [ phx::bind(map_insert, qi::_1, qi::_2, _val) ]
-        | (name >> (lit(':') > lit("@erase"))
-          ) [ phx::bind(map_erase, qi::_1, _val) ]
+    > *((iter_pos >> name >> bound_value
+        ) [ phx::bind(&map_insert_loc<iter_t>,
+                      qi::_2,
+                      qi::_3,
+                      _val,
+                      qi::_1,
+                      ref(s)) ]
+        | (iter_pos >> name >> (lit(':') > lit("@erase"))
+          ) [ phx::bind(&map_erase_loc<iter_t>, qi::_2, _val, qi::_1, ref(s)) ]
         | (iter_pos >> lit("@table::") > noskip_qualname
           ) [ phx::bind(&insert_table_in_table<iter_t>,
-                        qi::_2, ref(tbl), ref(in_prolog), _val,
-                        qi::_1, s) ]
+                        qi::_2,
+                        ref(tbl),
+                        ref(in_prolog),
+                        _val,
+                        qi::_1,
+                        ref(s)) ]
        )
     > lit('}');
   bound_value = (fhicl::binding >> value) [ _val = phx::bind(set_protection, qi::_1, ref(qi::_2)) ];
   value =
-    ((iter_pos >> vp.nil    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), NIL     , qi::_2, qi::_1, s) ] |
-     (iter_pos >> vp.boolean) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), BOOL    , qi::_2, qi::_1, s) ] |
-     (iter_pos >> vp.number ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), NUMBER  , qi::_2, qi::_1, s) ] |
-     (iter_pos >> vp.complex) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), COMPLEX , qi::_2, qi::_1, s) ] |
-     (iter_pos >> vp.string ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), STRING  , qi::_2, qi::_1, s) ] |
+    ((iter_pos >> vp.nil    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), NIL     , qi::_2, qi::_1, ref(s)) ] |
+     (iter_pos >> vp.boolean) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), BOOL    , qi::_2, qi::_1, ref(s)) ] |
+     (iter_pos >> vp.number ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), NUMBER  , qi::_2, qi::_1, ref(s)) ] |
+     (iter_pos >> vp.complex) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), COMPLEX , qi::_2, qi::_1, ref(s)) ] |
+     (iter_pos >> vp.string ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), STRING  , qi::_2, qi::_1, ref(s)) ] |
      (iter_pos >> localref)
      [ _val = phx::bind(&local_lookup<iter_t>,
                         qi::_2, ref(tbl), ref(in_prolog),
-                        qi::_1, s) ] |
+                        qi::_1, ref(s)) ] |
      (iter_pos >> dbref)
      [ _val = phx::bind(&database_lookup<iter_t>,
                         qi::_2, ref(tbl), ref(in_prolog),
-                        qi::_1, s) ] |
-     (iter_pos >> vp.id    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), TABLEID , qi::_2, qi::_1, s) ] |
-     (iter_pos >> sequence ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), SEQUENCE, qi::_2, qi::_1, s) ] |
-     (iter_pos >> table    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), TABLE   , qi::_2, qi::_1, s) ]
+                        qi::_1, ref(s)) ] |
+     (iter_pos >> vp.id    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), TABLEID , qi::_2, qi::_1, ref(s)) ] |
+     (iter_pos >> sequence ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), SEQUENCE, qi::_2, qi::_1, ref(s)) ] |
+     (iter_pos >> table    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), TABLE   , qi::_2, qi::_1, ref(s)) ]
     );
   prolog =
     lit("BEGIN_PROLOG") [ phx::bind(rebool, ref(in_prolog), true) ]
-    >> *((qualname
-          >> bound_value
-         ) [ phx::bind(tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
-         | (qualname >> (lit(':') > lit("@erase"))
-           ) [ phx::bind(tbl_erase, qi::_1, ref(tbl)) ]
+    >> *((iter_pos >> qualname >> bound_value
+         ) [ phx::bind(&tbl_insert<iter_t>, qi::_2, qi::_3, ref(tbl), qi::_1, ref(s)) ]
+         | (iter_pos >> qualname >> (lit(':') > lit("@erase"))
+           ) [ phx::bind(&tbl_erase<iter_t>, qi::_2, ref(tbl), ref(in_prolog), qi::_1, ref(s)) ]
          | (iter_pos >> lit("@table::") > noskip_qualname
            ) [ phx::bind(&insert_table<iter_t>,
                          qi::_2, ref(tbl), ref(in_prolog),
-                         qi::_1, s) ]
+                         qi::_1, ref(s)) ]
         )
     >> lit("END_PROLOG")  [ phx::bind(rebool, ref(in_prolog), false) ];
   document = (*prolog)
-             >> *((qualname >> bound_value
-                  ) [ phx::bind(tbl_insert, qi::_1, qi::_2, ref(tbl)) ]
-                  | (qualname >> (lit(':') > lit("@erase"))
-                    ) [ phx::bind(tbl_erase, qi::_1, ref(tbl)) ]
+             >> *((iter_pos >> qualname >> bound_value
+                  ) [ phx::bind(&tbl_insert<iter_t>, qi::_2, qi::_3, ref(tbl), qi::_1, ref(s)) ]
+                  | (iter_pos >> qualname >> (lit(':') > lit("@erase"))
+                    ) [ phx::bind(&tbl_erase<iter_t>, qi::_2, ref(tbl), ref(in_prolog), qi::_1, ref(s)) ]
                   | (iter_pos >> lit("@table::") > noskip_qualname
                     ) [ phx::bind(&insert_table<iter_t>,
                                   qi::_2, ref(tbl), ref(in_prolog),
-                                  qi::_1, s) ]
+                                  qi::_1, ref(s)) ]
                  );
   name    .name("name atom");
   localref.name("localref atom");

@@ -10,6 +10,7 @@
 #include "boost/any.hpp"
 #include "cpp0x/utility"
 #include "fhiclcpp/exception.h"
+
 #include <cctype>
 #include <cstdlib>
 
@@ -45,8 +46,6 @@ namespace {
     static extended_value const empty_tbl(false, TABLE, table_t());
     return empty_tbl;
   }
-
-  extended_value dummy;
 }
 
 // ----------------------------------------------------------------------
@@ -77,105 +76,42 @@ empty() const
 
 // ----------------------------------------------------------------------
 
-void
+bool
 intermediate_table::
 insert(std::string const & name
        , bool                in_prolog
        , value_tag           tag
        , boost::any const  & value
       )
-{ insert(name, extended_value(in_prolog, tag, value)); }
+{ return insert(name, extended_value(in_prolog, tag, value)); }
 
-void
+bool
 intermediate_table::
-insert(std::string    const & name
-       , extended_value const & value
-      )
+insert(std::string const & name,
+       extended_value const & value)
 {
-  if (! value.in_prolog)  {
-    table_t & t = boost::any_cast<table_t &>(ex_val.value);
-    std::vector<std::string> const & key = split(name);
-    iterator it = t.find(key[0]);
-    if (it != t.end() && it->second.in_prolog)
-    { t.erase(it); }
+  auto found_val = pre_insert_(name, value);
+  bool result = (found_val != nullptr);
+  if (result) {
+    *found_val = value;
   }
-  auto & ref = this->operator[](name);
-  if (&ref != &dummy) {
-    ref = value;
-  }
+  return result;
 }
 
-void
+bool
 intermediate_table::
 insert(std::string const & name,
        extended_value && value)
 {
-  if (! value.in_prolog)  {
-    table_t & t = boost::any_cast<table_t &>(ex_val.value);
-    std::vector<std::string> const & key = split(name);
-    iterator it = t.find(key[0]);
-    if (it != t.end() && it->second.in_prolog)
-    { t.erase(it); }
+  auto found_val = pre_insert_(name, value);
+  bool result = (found_val != nullptr);
+  if (result) {
+    *found_val = std::move(value);
   }
-  auto & ref = this->operator[](name);
-  if (&ref != &dummy) {
-    ref = std::move(value);
-  }
+  return result;
 }
 
 // ----------------------------------------------------------------------
-
-extended_value &
-intermediate_table::
-operator [](std::string const & name)
-{
-  std::vector<std::string> const & key = split(name);
-  extended_value * p = & ex_val;
-  for (unsigned k = 0, sz = key.size(); k != sz; ++k) {
-    std::string const & this_key = key[k];
-    if (this_key.empty())
-      ;
-    else if (std::isdigit(this_key[0])) {
-      if (p->is_a(NIL))
-      { *p = empty_seq(); }
-      if (! p->is_a(SEQUENCE))
-        throw exception(cant_find, name)
-            << "-- not a sequence (at part \"" << this_key << "\")";
-      sequence_t & s = boost::any_cast<sequence_t &>(p->value);
-      unsigned i = std::atoi(this_key.c_str());
-      while (s.size() <= i)
-      { s.push_back(nil_item()); }
-      p = & s[i];
-    }
-    else { /* this_key[0] is alpha or '_' */
-      if (p->is_a(NIL))
-      { *p = empty_tbl(); }
-      if (! p->is_a(TABLE))
-        throw exception(cant_find, name)
-            << "-- not a table (at part \"" << this_key << "\")";
-      table_t & t = boost::any_cast<table_t &>(p->value);
-      iterator it = t.find(this_key);
-      if (it == t.end()) {
-        t.insert(std::make_pair(this_key, nil_item()));
-        it = t.find(this_key);
-      }
-      p = & it->second;
-    }
-    auto prot = p->protection;
-    if (prot == Protection::PROTECT_ERROR) {
-      throw exception(protection_violation)
-        << "Part \""
-        << this_key
-        << "\" of specification to be overwritten\n"
-        << "\""
-        << name
-        << "\" is protected.\n";
-    } else if (prot == Protection::PROTECT_IGNORE) {
-      return dummy;
-    }
-  }  // for
-  return *p;
-}  // operator [] ()
 
 // ----------------------------------------------------------------------
 
@@ -295,12 +231,15 @@ erase(std::string const & name,
       auto prot = p->protection;
       if (prot == Protection::PROTECT_ERROR) {
         throw exception(protection_violation)
-          << "Part \""
-          << this_key
-          << "\" of specification to be erased\n"
-          << "\""
+          << ((this_key != name) ?
+              (std::string("Part \"") +
+               this_key +
+               "\" of specification to be erased\n") : "")
+          << '"'
           << name
-          << "\" is protected.\n";
+          << "\" is protected on "
+          << p->pretty_src_info()
+          << '\n';
       } else if (prot == Protection::PROTECT_IGNORE) {
         return;
       }
@@ -314,7 +253,87 @@ erase(std::string const & name,
   }
 }
 
-// ----------------------------------------------------------------------
+extended_value *
+intermediate_table::
+pre_insert_(std::string const & name,
+            extended_value const & value)
+{
+  if (! value.in_prolog)  {
+    table_t & t = boost::any_cast<table_t &>(ex_val.value);
+    std::vector<std::string> const & key = split(name);
+    iterator it = t.find(key[0]);
+    if (it != t.end() && it->second.in_prolog)
+    { t.erase(it); }
+  }
+  auto located = locate_(name);
+  if ((value.protection > Protection::NONE) &&
+      ! located.first->is_a(NIL)) {
+    throw exception(protection_violation)
+      << '"'
+      << name
+      << "\" cannot be assigned with protection if it already exists\n"
+      << "(previous definition on "
+      << (located.first)->pretty_src_info()
+      << ")\n";
+  }
+  return located.second ? located.first : nullptr;
+}
+
+std::pair<extended_value *, bool>
+intermediate_table::
+locate_(std::string const & name)
+{
+  std::pair<extended_value *, bool> result(nullptr, true);
+  std::vector<std::string> const & key = split(name);
+  extended_value * & p = result.first;
+  p = & ex_val;
+  for (unsigned k = 0, sz = key.size(); k != sz; ++k) {
+    std::string const & this_key = key[k];
+    if (this_key.empty())
+      ;
+    else if (std::isdigit(this_key[0])) {
+      if (p->is_a(NIL))
+      { *p = empty_seq(); }
+      if (! p->is_a(SEQUENCE))
+        throw exception(cant_find, name)
+            << "-- not a sequence (at part \"" << this_key << "\")";
+      sequence_t & s = boost::any_cast<sequence_t &>(p->value);
+      unsigned i = std::atoi(this_key.c_str());
+      while (s.size() <= i)
+      { s.push_back(nil_item()); }
+      p = & s[i];
+    }
+    else { /* this_key[0] is alpha or '_' */
+      if (p->is_a(NIL))
+      { *p = empty_tbl(); }
+      if (! p->is_a(TABLE))
+        throw exception(cant_find, name)
+            << "-- not a table (at part \"" << this_key << "\")";
+      table_t & t = boost::any_cast<table_t &>(p->value);
+      // This will do what we need whether the key is already in the map
+      // or not.
+      p = & t.emplace(this_key, nil_item()).first->second;
+    }
+    auto prot = p->protection;
+    if (prot == Protection::PROTECT_ERROR) {
+      throw exception(protection_violation)
+        << ((this_key != name) ?
+            (std::string("Part \"") +
+             this_key +
+             "\" of specification to be overwritten\n") : "")
+        << '"'
+        << name
+        << "\" is protected on "
+        << p->pretty_src_info()
+        << '\n';
+    } else if (prot == Protection::PROTECT_IGNORE) {
+      result.second = false;
+      // Keep going since we might need definition location information
+      // for specified item upstream.
+    }
+  }  // for
+  return result;
+}  // locate_()
 
 std::vector<std::string>
 intermediate_table::
@@ -327,5 +346,6 @@ split(std::string const & name) const
                          );
   return result;
 }
+
 
 // ======================================================================

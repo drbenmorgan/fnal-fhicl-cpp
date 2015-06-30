@@ -6,6 +6,8 @@
 
 #include "fhiclcpp/extended_value.h"
 
+#include <regex>
+
 using std::string;
 using boost::any_cast;
 
@@ -106,5 +108,20 @@ void
   };  // switch
 
 }  // set_prolog()
+
+std::string
+fhicl::extended_value::
+pretty_src_info() const
+{
+  std::string result;
+  static std::regex const splitRE("(.*):([0-9-]*)");
+  std::smatch m;
+  if (std::regex_match(src_info, m, splitRE)) {
+    result = std::string("line ") + m[2].str() + " of file \"" + m[1].str() + '"';
+  } else {
+    result = "<unknown>";
+  }
+  return result;
+}
 
 // ======================================================================

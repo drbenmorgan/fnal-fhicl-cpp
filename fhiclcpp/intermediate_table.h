@@ -71,39 +71,40 @@ public:
 
   bool exists(std::string const & name) const;
 
-  void erase(std::string const & name);
+  void erase(std::string const & name,
+             bool in_prolog = false);
 
   template <typename T>
   T get(std::string const & name);
 
-  void put(std::string const & name,
+  bool put(std::string const & name,
            std::string const & value, // String.
            bool in_prolog = false);
-  void put(std::string const & name,
+  bool put(std::string const & name,
            char const * value, // String.
            bool in_prolog = false);
-  void put(std::string const & name,
+  bool put(std::string const & name,
            bool value, // Boolean.
            bool in_prolog = false);
   template <typename T>
-  void put(std::string const & name,
+  bool put(std::string const & name,
            std::complex<T> const & value, // Complex.
            bool in_prolog = false);
   template <typename T>
-  void put(std::string const & name,
+  bool put(std::string const & name,
            std::vector<T> const & value, // Sequence.
            bool in_prolog = false);
   template <typename T>
-  typename std::enable_if<tt::is_numeric<T>::value, void>::type
+  typename std::enable_if<tt::is_numeric<T>::value, bool>::type
   put(std::string const & name,
       T value, // Number
       bool in_prolog = false);
 
-  void putEmptySequence(std::string const & name,
+  bool putEmptySequence(std::string const & name,
                         bool in_prolog = false); // Empty Sequence.
-  void putEmptyTable(std::string const & name,
+  bool putEmptyTable(std::string const & name,
                      bool in_prolog = false); // Empty Table.
-  void putNil(std::string const & name,
+  bool putNil(std::string const & name,
               bool in_prolog = false); // Nil.
 
   ////////////////////
@@ -120,22 +121,40 @@ public:
   const_iterator  end() const;
 
   // Flexible insert interface.
-  void  insert(std::string const & name
-               , bool                in_prolog
-               , value_tag           tag
-               , boost::any const  & value
-              );
-  void  insert(std::string    const & name
-               , extended_value const & value
-              );
+  bool insert(std::string const & name
+              , bool                in_prolog
+              , value_tag           tag
+              , boost::any const  & value
+             );
+  bool insert(std::string    const & name
+              , extended_value const & value
+             );
+  bool insert(std::string    const & name
+              , extended_value && value
+             );
 
-  extended_value  & operator [](std::string const & name);
+  /// \throw if item does not exist.
   extended_value const  & find(std::string const & name) const;
 
+  /// \return nullptr if not able to be updated.
+  extended_value * locate(std::string const & name);
+
+  /// \throw if not able to be updated.
+  extended_value & update(std::string const & name);
+
 private:
-  extended_value  ex_val;
+  // Do all the work required to find somewhere to put the new
+  // value. Called by insert().
+  extended_value * pre_insert_(std::string const & name,
+                               extended_value const & value);
+
+  // Return an item with a bool indicating whether it may be updated.
+  std::pair<extended_value *, bool>
+  locate_(std::string const & name);
 
   std::vector<std::string>  split(std::string const & name) const;
+
+  extended_value  ex_val;
 
 };  // intermediate_table
 
@@ -155,7 +174,7 @@ namespace fhicl {
       T operator () (intermediate_table & table, std::string const & name)
         {
           T result;
-          detail::decode(table[name].value, result);
+          detail::decode(table.find(name).value, result);
           return result;
         }
     };
@@ -171,7 +190,7 @@ namespace fhicl {
       std::complex<U> operator () (intermediate_table & table,
                                    std::string const & name)
       {
-        intermediate_table::complex_t c(table[name]);
+        intermediate_table::complex_t c(table.find(name));
         U r, i;
         detail::decode(c.first, r);
         detail::decode(c.second, i);
@@ -179,44 +198,71 @@ namespace fhicl {
       }
     };
 
-    // Full specialization for sequence_t. Not defined: use sequence_t &
-    // or sequence_t const & instead.
-    template <> class it_value_get<intermediate_table::sequence_t>;
-
-    // Full specialization for table_t. Not defined: use table_t &
-    // or table_t const & instead.
-    template <> class it_value_get<intermediate_table::table_t>;
-
-    // Full specialization for sequence_t &
+    // Full specialization for sequence_t
     template <>
-    class it_value_get<intermediate_table::sequence_t &> {
+    class it_value_get<intermediate_table::sequence_t> {
   public:
-      intermediate_table::sequence_t & operator() (intermediate_table & table,
-                                                   std::string const & name)
+      intermediate_table::sequence_t operator () (intermediate_table & table,
+                                                  std::string const & name)
         {
-          return boost::any_cast<intermediate_table::sequence_t &>(table[name].value);
+          return boost::any_cast<intermediate_table::sequence_t>(table.find(name).value);
         }
     };
 
-    // Full specialization for table_t &
+    // Full specialization for sequence_t &: will throw if not writable
+    template <>
+    class it_value_get<intermediate_table::sequence_t &> {
+  public:
+      intermediate_table::sequence_t & operator () (intermediate_table & sequence,
+                                                 std::string const & name)
+        {
+          auto item = sequence.locate(name);
+          if (item != nullptr) {
+            return boost::any_cast<intermediate_table::sequence_t &>(item->value);
+          } else {
+            throw fhicl::exception(protection_violation)
+              << "Requested non-updatable parameter \"" << name << "\" for update.\n";
+          }
+        }
+    };
+
+
+    // Full specialization for sequence_t const &
+    template <>
+    class it_value_get<intermediate_table::sequence_t const &> {
+  public:
+      intermediate_table::sequence_t const & operator () (intermediate_table const & table,
+                                                          std::string const & name)
+        {
+          return boost::any_cast<intermediate_table::sequence_t const &>(table.find(name).value);
+        }
+    };
+
+    // Full specialization for table_t
+    template <>
+    class it_value_get<intermediate_table::table_t> {
+  public:
+      intermediate_table::table_t operator () (intermediate_table & table,
+                                               std::string const & name)
+        {
+          return boost::any_cast<intermediate_table::table_t>(table.find(name).value);
+        }
+    };
+
+    // Full specialization for table_t &: will throw if not writable
     template <>
     class it_value_get<intermediate_table::table_t &> {
   public:
       intermediate_table::table_t & operator () (intermediate_table & table,
                                                  std::string const & name)
         {
-          return boost::any_cast<intermediate_table::table_t &>(table[name].value);
-        }
-    };
-
-    // Full specialization for sequence_t const &
-    template <>
-    class it_value_get<intermediate_table::sequence_t const &> {
-  public:
-      intermediate_table::sequence_t const & operator () (intermediate_table & table,
-                                                          std::string const & name)
-        {
-          return boost::any_cast<intermediate_table::sequence_t const &>(table[name].value);
+          auto item = table.locate(name);
+          if (item != nullptr) {
+            return boost::any_cast<intermediate_table::table_t &>(item->value);
+          } else {
+            throw fhicl::exception(protection_violation)
+              << "Requested non-updatable parameter " << name << " for update.\n";
+          }
         }
     };
 
@@ -224,12 +270,13 @@ namespace fhicl {
     template <>
     class it_value_get<intermediate_table::table_t const &> {
   public:
-      intermediate_table::table_t const & operator () (intermediate_table & table,
+      intermediate_table::table_t const & operator () (intermediate_table const & table,
                                                        std::string const & name)
         {
-          return boost::any_cast<intermediate_table::table_t const &>(table[name].value);
+          return boost::any_cast<intermediate_table::table_t const &>(table.find(name).value);
         }
     };
+
   }
 }
 
@@ -244,101 +291,134 @@ get(std::string const & name)
 }
 
 inline
-void
+bool
 fhicl::intermediate_table::
 put(std::string const & name,
        std::string const & value, // String.
        bool in_prolog)
 {
-  insert(name, in_prolog, STRING, detail::encode(value));
+  return insert(name, in_prolog, STRING, detail::encode(value));
 }
 
 inline
-void
+bool
 fhicl::intermediate_table::
 put(std::string const & name,
        char const * value, // String.
        bool in_prolog)
 {
-  insert(name, in_prolog, STRING, detail::encode(value));
+  return insert(name, in_prolog, STRING, detail::encode(value));
 }
 
 inline
-void
+bool
 fhicl::intermediate_table::
 put(std::string const & name,
        bool value, // Boolean.
        bool in_prolog)
 {
-  insert(name, in_prolog, BOOL, detail::encode(value));
+  return insert(name, in_prolog, BOOL, detail::encode(value));
 }
 
 template <typename T>
-void
+bool
 fhicl::intermediate_table::
 put(std::string const & name,
        std::complex<T> const & value, // Complex.
        bool in_prolog)
 {
-  insert(name,
-         in_prolog,
-         COMPLEX,
-         complex_t(detail::encode(value.real()),
-                   detail::encode(value.imag())));
+  return insert(name,
+                in_prolog,
+                COMPLEX,
+                complex_t(detail::encode(value.real()),
+                          detail::encode(value.imag())));
 }
 
 template <typename T>
 inline
-void
+bool
 fhicl::intermediate_table::
 put(std::string const & name,
        std::vector<T> const & value, // Sequence.
        bool in_prolog)
 {
-  putEmptySequence(name, in_prolog);
+  bool result = putEmptySequence(name, in_prolog);
+  if (!result) {
+    return result;
+  }
   size_t count(0);
   for (auto const & item : value) {
-    put(name + "[" + std::to_string(count++) + "]", item, in_prolog);
+    result = result && put(name + "[" + std::to_string(count++) + "]", item, in_prolog);
   }
+  return result;
 }
 
 template <typename T>
 inline
-typename std::enable_if<tt::is_numeric<T>::value, void>::type
+typename std::enable_if<tt::is_numeric<T>::value, bool>::type
 fhicl::intermediate_table::
 put(std::string const & name,
-       T value, // Number
-       bool in_prolog)
+    T value, // Number
+    bool in_prolog)
 {
-  insert(name, in_prolog, NUMBER, detail::encode(value));
+  return insert(name, in_prolog, NUMBER, detail::encode(value));
 }
 
 inline
-void
+bool
 fhicl::intermediate_table::
 putEmptySequence(std::string const & name,
-                    bool in_prolog) // Sequence.
+                 bool in_prolog) // Sequence.
 {
-  insert(name, in_prolog, SEQUENCE, sequence_t());
+  return insert(name, in_prolog, SEQUENCE, sequence_t());
 }
 
 inline
-void
+bool
 fhicl::intermediate_table::
 putEmptyTable(std::string const & name,
-                    bool in_prolog) // Table.
+              bool in_prolog) // Table.
 {
-  insert(name, in_prolog, TABLE, table_t());
+  return insert(name, in_prolog, TABLE, table_t());
 }
 
 inline
-void
+bool
 fhicl::intermediate_table::
 putNil(std::string const & name,
-          bool in_prolog) // Nil.
+       bool in_prolog) // Nil.
 {
-  insert(name, in_prolog, NIL, detail::encode((void *)0));
+  return insert(name, in_prolog, NIL, detail::encode((void *)0));
 }
+
+inline
+fhicl::extended_value *
+fhicl::intermediate_table::
+locate(std::string const & name)
+{
+  extended_value * result = nullptr;
+  auto located = locate_(name);
+  if (located.second) {
+    result = located.first;
+  }
+  return result;
+}
+
+inline
+fhicl::extended_value &
+fhicl::intermediate_table::
+update(std::string const & name)
+{
+  auto located = locate_(name);
+  if (!located.second) {
+    throw exception(protection_violation)
+      << "Requested non-modifiable item \""
+      << name
+      << "\" for update.\n";
+  }
+  return *located.first;
+}
+
 #endif /* fhiclcpp_intermediate_table_h */
 
 // Local Variables:

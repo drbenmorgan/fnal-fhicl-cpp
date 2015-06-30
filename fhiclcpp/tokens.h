@@ -13,6 +13,8 @@
 #include "cpp0x/cstddef"
 #include "cpp0x/string"
 #include "fhiclcpp/ParameterSetID.h"
+#include "fhiclcpp/detail/binding_modifier.h"
+
 #include <cctype>
 
 namespace qi = boost::spirit::qi;
@@ -65,6 +67,7 @@ namespace fhicl {
   BOOST_SPIRIT_TERMINAL(ass)
   BOOST_SPIRIT_TERMINAL(dss)
   BOOST_SPIRIT_TERMINAL(dbid)
+  BOOST_SPIRIT_TERMINAL(binding)
 //  BOOST_SPIRIT_TERMINAL(Dquoted)
 //  BOOST_SPIRIT_TERMINAL(Squoted)
 //  BOOST_SPIRIT_TERMINAL(Target)
@@ -121,6 +124,12 @@ namespace boost { namespace spirit {
     struct use_terminal<qi::domain, fhicl::tag::dss>
   : mpl::true_
   { };
+
+  template<>
+    struct use_terminal<qi::domain, fhicl::tag::binding>
+  : mpl::true_
+  { };
+
 
 //  template<>
 //    struct use_terminal<qi::domain, fhicl::tag::Dquoted>
@@ -672,6 +681,53 @@ namespace fhicl {
 
   };  // dss_parser
 
+  struct binding_parser
+    : qi::primitive_parser<binding_parser>
+  {
+    // Desired type resulting from a successful parse:
+    template <typename Context, typename Iterator>
+    struct attribute { typedef fhicl::detail::binding_modifier type; };
+
+    // Do the parse:
+    template <typename Iterator,
+              typename Context,
+              typename Skipper,
+              typename Attribute>
+    bool parse(Iterator & first, Iterator const & last,
+               Context & c,
+               Skipper const & skipper,
+               Attribute & attr) const
+      {
+        using detail::binding_modifier;
+        boost::spirit::qi::skip_over(first, last, skipper);
+
+        Attribute result = binding_modifier::NONE;
+        boost::spirit::qi::symbols<char, binding_modifier> modifiers;
+        modifiers.add("@protect_ignore", binding_modifier::PROTECT_IGNORE);
+        modifiers.add("@protect_error", binding_modifier::PROTECT_ERROR);
+#if 0 /* Preparation for issue #7231. */
+        modifiers.add("@initial", binding_modifier::INITIAL);
+        modifiers.add("@replace", binding_modifier::REPLACE);
+        modifiers.add("@replace_compat", binding_modifier::REPLACE_COMPAT);
+        modifiers.add("@add_or_replace_compat", binding_modifier::ADD_OR_REPLACE_COMPAT);
+#endif
+        if (((*first) == ':') ||
+            (modifiers.parse(first, last, c, skipper, result) &&
+             (*first) == ':')) {
+          ++first;
+        } else {
+          return false;
+        }
+        boost::spirit::traits::assign_to(result, attr);
+        return true;
+      }
+
+    // identify this token (in case of error):
+    template <typename Context >
+    boost::spirit::info what(Context &) const
+      { return boost::spirit::info("fhicl::binding"); }
+  }; // binding_parser.
+
 //  struct Dquoted_parser
 //    : qi::primitive_parser<Dquoted_parser>
 //  {
@@ -943,82 +999,92 @@ namespace boost { namespace spirit { namespace qi {
 
 //  };  // make_primitive<...Boolean...>
 
-  template< typename Modifiers >
-    struct make_primitive<fhicl::tag::real, Modifiers>
-  {
-    typedef  fhicl::real_parser  result_type;
+      template< typename Modifiers >
+      struct make_primitive<fhicl::tag::real, Modifiers>
+      {
+        typedef  fhicl::real_parser  result_type;
 
-    result_type
-      operator () ( unused_type, unused_type ) const
-    { return result_type(); }
+        result_type
+        operator () ( unused_type, unused_type ) const
+          { return result_type(); }
 
-  };  // make_primitive<...real...>
+      };  // make_primitive<...real...>
 
-  template< typename Modifiers >
-    struct make_primitive<fhicl::tag::uint, Modifiers>
-  {
-    typedef  fhicl::uint_parser  result_type;
+      template< typename Modifiers >
+      struct make_primitive<fhicl::tag::uint, Modifiers>
+      {
+        typedef  fhicl::uint_parser  result_type;
 
-    result_type
-      operator () ( unused_type, unused_type ) const
-    { return result_type(); }
+        result_type
+        operator () ( unused_type, unused_type ) const
+          { return result_type(); }
 
-  };  // make_primitive<...uint...>
+      };  // make_primitive<...uint...>
 
-  template< typename Modifiers >
-    struct make_primitive<fhicl::tag::hex, Modifiers>
-  {
-    typedef  fhicl::hex_parser  result_type;
+      template< typename Modifiers >
+      struct make_primitive<fhicl::tag::hex, Modifiers>
+      {
+        typedef  fhicl::hex_parser  result_type;
 
-    result_type
-      operator () ( unused_type, unused_type ) const
-    { return result_type(); }
+        result_type
+        operator () ( unused_type, unused_type ) const
+          { return result_type(); }
 
-  };  // make_primitive<...hex...>
+      };  // make_primitive<...hex...>
 
-  template< typename Modifiers >
-    struct make_primitive<fhicl::tag::dbid, Modifiers>
-  {
-    typedef  fhicl::dbid_parser  result_type;
+      template< typename Modifiers >
+      struct make_primitive<fhicl::tag::dbid, Modifiers>
+      {
+        typedef  fhicl::dbid_parser  result_type;
 
-    result_type
-      operator () ( unused_type, unused_type ) const
-    { return result_type(); }
+        result_type
+        operator () ( unused_type, unused_type ) const
+          { return result_type(); }
 
-  };  // make_primitive<...dbid...>
+      };  // make_primitive<...dbid...>
 
-  template< typename Modifiers >
-    struct make_primitive<fhicl::tag::bin, Modifiers>
-  {
-    typedef  fhicl::bin_parser  result_type;
+      template< typename Modifiers >
+      struct make_primitive<fhicl::tag::bin, Modifiers>
+      {
+        typedef  fhicl::bin_parser  result_type;
 
-    result_type
-      operator () ( unused_type, unused_type ) const
-    { return result_type(); }
+        result_type
+        operator () ( unused_type, unused_type ) const
+          { return result_type(); }
 
-  };  // make_primitive<...bin...>
+      };  // make_primitive<...bin...>
 
-  template< typename Modifiers >
-    struct make_primitive<fhicl::tag::ass, Modifiers>
-  {
-    typedef  fhicl::ass_parser  result_type;
+      template< typename Modifiers >
+      struct make_primitive<fhicl::tag::ass, Modifiers>
+      {
+        typedef  fhicl::ass_parser  result_type;
 
-    result_type
-      operator () ( unused_type, unused_type ) const
-    { return result_type(); }
+        result_type
+        operator () ( unused_type, unused_type ) const
+          { return result_type(); }
 
-  };  // make_primitive<...ass...>
+      };  // make_primitive<...ass...>
 
-  template< typename Modifiers >
-    struct make_primitive<fhicl::tag::dss, Modifiers>
-  {
-    typedef  fhicl::dss_parser  result_type;
+      template< typename Modifiers >
+      struct make_primitive<fhicl::tag::dss, Modifiers>
+      {
+        typedef  fhicl::dss_parser  result_type;
 
-    result_type
-      operator () ( unused_type, unused_type ) const
-    { return result_type(); }
+        result_type
+        operator () ( unused_type, unused_type ) const
+          { return result_type(); }
 
-  };  // make_primitive<...dss...>
+      };  // make_primitive<...dss...>
+
+      template <typename Modifiers>
+      struct make_primitive<fhicl::tag::binding, Modifiers> {
+        typedef fhicl::binding_parser result_type;
+
+        result_type
+        operator () (unused_type, unused_type) const
+          { return result_type(); }
+
+      }; // make_primitive<...binding...>
 
 //  template< typename Modifiers >
 //    struct make_primitive<fhicl::tag::Dquoted, Modifiers>
@@ -1064,7 +1130,7 @@ namespace boost { namespace spirit { namespace qi {
 
 //  };  // make_primitive<...Ref...>
 
-} } }  // boost::spirit::qi
+    } } }  // boost::spirit::qi
 
 // ======================================================================
 

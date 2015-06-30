@@ -18,6 +18,7 @@ std::string
     case number_is_too_large: return "Excessive value";
     case parse_error        : return "Parse error";
     case type_mismatch      : return "Type mismatch";
+  case protection_violation : return "Protection violation";
     case cant_open_db       : return "Can't open DB";
     case sql_error          : return "SQL error";
     case unimplemented      : return "Unimplemented feature";

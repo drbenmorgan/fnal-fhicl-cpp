@@ -394,21 +394,6 @@ BOOST_AUTO_TEST_CASE(protect_ignore_03)
   BOOST_CHECK_EQUAL(tbl.get<std::size_t>("x"), 33ul);
 }
 
-BOOST_AUTO_TEST_CASE(protect_ignore_04)
-{
-  std::string const doc =
-    "x @protect_ignore: 29\n"
-    "x @protect_ignore: 33\n"
-    ;
-  intermediate_table tbl;
-  BOOST_CHECK_EXCEPTION(parse_document(doc, tbl),                       \
-                        fhicl::exception,                               \
-                        [](fhicl::exception const & e) -> bool {        \
-                          return e.categoryCode() == fhicl::error::parse_error \
-                            && e.root_cause() == "Protection violation"; \
-                        });
-}
-
 #define PV_EXCEPTION                                                    \
   BOOST_CHECK_EXCEPTION(parse_document(doc, tbl),                       \
                         fhicl::exception,                               \
@@ -416,6 +401,16 @@ BOOST_AUTO_TEST_CASE(protect_ignore_04)
                           return e.categoryCode() == fhicl::error::parse_error \
                             && e.root_cause() == "Protection violation"; \
                         })
+
+BOOST_AUTO_TEST_CASE(protect_ignore_04)
+{
+  std::string const doc =
+    "x @protect_ignore: 29\n"
+    "x @protect_ignore: 33\n"
+    ;
+  intermediate_table tbl;
+  PV_EXCEPTION;
+}
 
 BOOST_AUTO_TEST_CASE(protect_ignore_05)
 {
@@ -453,6 +448,7 @@ BOOST_AUTO_TEST_CASE(protect_ignore_07)
   intermediate_table tbl;
   parse_document(doc, tbl);
   BOOST_CHECK_EQUAL(tbl.get<std::size_t>("a.x"), 37ul);
+  BOOST_CHECK(tbl.find("a.x").protection == fhicl::Protection::NONE);
 }
 
 BOOST_AUTO_TEST_CASE(protect_ignore_08)
@@ -866,6 +862,54 @@ BOOST_AUTO_TEST_CASE(erase_11)
   intermediate_table tbl;
   parse_document(doc, tbl);
   BOOST_CHECK(tbl.empty());
+}
+
+BOOST_AUTO_TEST_CASE(protect_local_01)
+{
+  std::string const doc =
+    "BEGIN_PROLOG\n"
+    "x @protect_ignore: 27\n"
+    "a: { b: { x: @local::x } }\n"
+    "END_PROLOG\n"
+    "a: @local::a\n"
+    "a.b.x: 29\n";
+    ;
+  intermediate_table tbl;
+  parse_document(doc, tbl);
+  BOOST_CHECK_EQUAL(tbl.get<std::size_t>("a.b.x"), 27ul);
+  BOOST_CHECK(tbl.find("a.b.x").protection == Protection::PROTECT_IGNORE);
+}
+
+BOOST_AUTO_TEST_CASE(protect_local_02)
+{
+  std::string const doc =
+    "BEGIN_PROLOG\n"
+    "x @protect_ignore: 27\n"
+    "a: { b: { x: @local::x } }\n"
+    "END_PROLOG\n"
+    "a @protect_error: @local::a\n"
+    "a.b.x: 29\n";
+    ;
+  intermediate_table tbl;
+  PV_EXCEPTION;
+}
+
+BOOST_AUTO_TEST_CASE(protect_local_03)
+{
+  std::string const doc =
+    "BEGIN_PROLOG\n"
+    "x @protect_ignore: 27\n"
+    "a: { b: { x: @local::x } }\n"
+    "END_PROLOG\n"
+    "a @protect_ignore: @local::a\n"
+    "a.b.x: 29\n";
+    ;
+  intermediate_table tbl;
+  parse_document(doc, tbl);
+  BOOST_CHECK_EQUAL(tbl.get<std::size_t>("a.b.x"), 27ul);
+  BOOST_CHECK(tbl.find("a.b.x").protection == Protection::PROTECT_IGNORE);
+  BOOST_CHECK(tbl.find("a").protection == Protection::PROTECT_IGNORE);
+  BOOST_CHECK(tbl.find("a.b.x").protection == Protection::PROTECT_IGNORE);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

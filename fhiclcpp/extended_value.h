@@ -9,7 +9,9 @@
 
 #include "boost/any.hpp"
 #include "cpp0x/string"
+#include "fhiclcpp/Protection.h"
 #include "fhiclcpp/fwd.h"
+
 #include <map>
 #include <vector>
 #include <string>
@@ -37,6 +39,19 @@ public:
     , tag      ( UNKNOWN )
     , value    ()
     , src_info ()
+    , protection (Protection::NONE)
+  { }
+
+  extended_value(bool       in_prolog,
+                 value_tag  tag,
+                 boost::any value,
+                 Protection  protection,
+                 std::string const& src = {})
+    : in_prolog( in_prolog )
+    , tag      ( tag )
+    , value    ( value )
+    , src_info ( src )
+    , protection (protection)
   { }
 
   extended_value(bool       in_prolog,
@@ -47,6 +62,7 @@ public:
     , tag      ( tag )
     , value    ( value )
     , src_info ( src )
+    , protection (Protection::NONE)
   { }
 
   bool
@@ -62,6 +78,9 @@ public:
   void
   set_src_info( std::string const & src )
   { src_info = src; }
+
+  std::string
+  pretty_src_info() const;
 
   operator atom_t() const
   { return boost::any_cast<atom_t>(value); }
@@ -79,6 +98,7 @@ public:
   value_tag  tag;
   boost::any value;
   std::string src_info;
+  Protection protection;
 
 };  // extended_value
 

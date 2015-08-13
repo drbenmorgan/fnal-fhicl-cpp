@@ -57,7 +57,7 @@ namespace fhicl {
 
       std::regex const r =
         is_sequence(pt) ? std::regex( Key::regex_safe(key) + R"(\[\d+\])") :
-        is_table(pt)    ? std::regex( Key::regex_safe(key) + R"(\.\w+)" )   : std::regex();
+        is_table(pt)    ? std::regex( Key::regex_safe(key) + R"(\.\w+)" )  : std::regex();
 
       for ( auto const & keyPtrPr : instance().get_parameters_by_key(key) ) {
         key_string const k = keyPtrPr.first;
@@ -161,18 +161,15 @@ namespace fhicl {
     void
     ParameterReferenceRegistry::emplace(key_string const& key, base_ptr ptr)
     {
-      parameters_.emplace_back( key, ptr );
+      parameters_.emplace_back(key, ptr);
     }
 
     void
     ParameterReferenceRegistry::erase(key_string const& key)
     {
       auto it = find_parameter_by_key(key);
-      if ( it != parameters_.cend() ){
-        parameters_.erase( it );
-      }
-      else
-        {}
+      if ( it == parameters_.cend() ) return;
+      parameters_.erase(it);
     }
 
     void

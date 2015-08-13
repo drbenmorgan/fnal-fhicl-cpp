@@ -30,6 +30,7 @@ namespace fhicl {
     static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
     detail::ParameterRegistrySentry();
     validate_ParameterSet( pset, keysToIgnore );
+    set_PSet( pset );
   }
 
   template <typename T>

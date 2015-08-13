@@ -140,7 +140,7 @@ namespace fhicl {
 
     Sequence();
 
-    static Sequence<T> empty() {
+    static Sequence<T> make_empty() {
       Sequence<T> result;
       result.resize_sequence(0ul);
       return result;

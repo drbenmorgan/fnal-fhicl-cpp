@@ -3,7 +3,8 @@ include(CetMake)
 add_subdirectory( detail types )
 
 cet_make(
-  EXCLUDE 
+  EXCLUDE
+  fhicl-dump.cc
   fhicl-expand.cc 
   fhicl-write-db.cc
   LIBRARIES
@@ -17,6 +18,12 @@ cet_make(
   detail
   types
   types/detail
+  )
+
+cet_make_exec(fhicl-dump
+  SOURCE fhicl-dump.cc
+  LIBRARIES
+  cetlib fhiclcpp ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
 
 cet_make_exec(fhicl-expand

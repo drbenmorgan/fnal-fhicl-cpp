@@ -19,9 +19,9 @@ namespace fhicl {
       if ( keys_.empty() ||
            std::regex_match(key,std::regex( R"(\[(\d+)\])") ) || // Non-table sequence elements
            std::regex_match(key,std::regex( R"(<\d+>)")) )       // Placeholding table sequence elements
-        keys_.push_back(key);
+        keys_.emplace_back(key);
       else
-        keys_.push_back(std::string(".")+key);
+        keys_.emplace_back("."+key);
       return print_qualified_name();
     }
 
@@ -44,10 +44,8 @@ namespace fhicl {
 
     std::vector<std::string> keys_;
 
-    std::string print_qualified_name() {
-      std::string value;
-      for ( const auto& key : keys_ ) value += key;
-      return value;
+    inline std::string print_qualified_name() {
+      return std::accumulate(keys_.begin(), keys_.end(), std::string{} );
     }
   };
 

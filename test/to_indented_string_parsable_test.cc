@@ -41,6 +41,7 @@ int main()
   pset.put_or_replace<int>("some_number",8);
   pset.put_or_replace<double>("double",234.6);
 
-  std::cout << pset.to_indented_string(0,true) << std::endl;
+  std::cout << pset.to_indented_string(0,fhicl::detail::print_mode::parsable)
+            << std::endl;
 
 }

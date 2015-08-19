@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
 
   std::ofstream ofs { opts.output_filename };
   std::ostream &os = opts.output_filename.empty() ? std::cout : ofs;
-  os << pset.to_indented_string(0,opts.annotate);
+  os << pset.to_indented_string(0, opts.annotate);
 
 }
 

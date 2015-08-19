@@ -44,6 +44,7 @@ cet_test(issue_0923_t.sh PREBUILT
   issue_0923_ref.txt
   DEPENDENCIES fhicl-config_t
 )
+cet_test(key_assembler_t USE_BOOST_UNIT)
 cet_test(parse_document_test USE_BOOST_UNIT)
 cet_test(parse_value_string_test)
 cet_test(to_indented_string_test USE_BOOST_UNIT)
@@ -52,6 +53,12 @@ cet_test(to_indented_string_annotated_test
   issue-7788/to_indented_string_annotated_test.fcl
   issue-7788/to_indented_string_annotated_prolog.fcl
   REF "${CMAKE_CURRENT_SOURCE_DIR}/issue-7788/to_indented_string_annotated_test-ref.txt"
+  )
+cet_test(to_indented_string_parsable_test
+  DATAFILES
+  issue-7788/to_indented_string_annotated_test.fcl
+  issue-7788/to_indented_string_annotated_prolog.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/to_indented_string_parsable_test-ref.txt"
   )
 cet_test(to_string_test
   DATAFILES Sample.cfg

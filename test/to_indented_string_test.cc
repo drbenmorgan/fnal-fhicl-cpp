@@ -16,7 +16,7 @@ using namespace std;
 
 namespace{
   auto to_ind_str =
-    [](auto pset){return pset.to_indented_string(0,false);};
+    [](auto pset){return pset.to_indented_string();};
 }
 
 BOOST_AUTO_TEST_SUITE( values_test )
@@ -62,7 +62,9 @@ BOOST_AUTO_TEST_CASE( sequences )
   pset.put<intv>("b", v);
   BOOST_CHECK_EQUAL( to_ind_str(pset)
                    , "a: []\n"
-                     "b: [ 11 ]\n"
+                     "b: [\n"
+                     "   11\n"
+                     "]\n"
                    );
 
 
@@ -71,11 +73,14 @@ BOOST_AUTO_TEST_CASE( sequences )
   pset.put<intv>("c", v);
   BOOST_CHECK_EQUAL( to_ind_str(pset)
                    , "a: []\n"
-                     "b: [ 11 ]\n"
-                     "c: [ 11\n"
-                     "   , 12\n"
-                     "   , 13\n"
-                     "   ]\n"
+                     "b: [\n"
+                     "   11\n"
+                     "]\n"
+                     "c: [\n"
+                     "   11,\n"
+                     "   12,\n"
+                     "   13\n"
+                     "]\n"
                    );
 }
 
@@ -85,48 +90,54 @@ BOOST_AUTO_TEST_CASE( tables )
 
   ParameterSet p;
   pset.put<ParameterSet>("p1", p);
-  BOOST_CHECK_EQUAL( to_ind_str(pset)
-                   , "p1: {}\n"
+  BOOST_CHECK_EQUAL( to_ind_str(pset),
+                     "p1: {}\n"
                    );
 
   p.put<std::string>("a", "string1");
   pset.put<ParameterSet>("p2", p);
   BOOST_CHECK_EQUAL( to_ind_str(pset)
                    , "p1: {}\n"
-                     "p2: { a: \"string1\"\n"
-                     "    }\n"
+                     "p2: {\n"
+                     "   a: \"string1\"\n"
+                     "}\n"
                    );
 
   p.put<int>("b", -1234);
   pset.put<ParameterSet>("p3", p);
-  BOOST_CHECK_EQUAL( to_ind_str(pset)
-                   , "p1: {}\n"
-                     "p2: { a: \"string1\"\n"
-                     "    }\n"
-                     "p3: { a: \"string1\"\n"
-                     "      b: -1234\n"
-                     "    }\n"
+  BOOST_CHECK_EQUAL( to_ind_str(pset),
+                     "p1: {}\n"
+                     "p2: {\n"
+                     "   a: \"string1\"\n"
+                     "}\n"
+                     "p3: {\n"
+                     "   a: \"string1\"\n"
+                     "   b: -1234\n"
+                     "}\n"
                    );
 
   p.put<bool>("c", false);
   pset.put<ParameterSet>("p4", p);
   BOOST_CHECK_EQUAL( to_ind_str(pset)
                    , "p1: {}\n"
-                     "p2: { a: \"string1\"\n"
-                     "    }\n"
-                     "p3: { a: \"string1\"\n"
-                     "      b: -1234\n"
-                     "    }\n"
-                     "p4: { a: \"string1\"\n"
-                     "      b: -1234\n"
-                     "      c: false\n"
-                     "    }\n"
+                     "p2: {\n"
+                     "   a: \"string1\"\n"
+                     "}\n"
+                     "p3: {\n"
+                     "   a: \"string1\"\n"
+                     "   b: -1234\n"
+                     "}\n"
+                     "p4: {\n"
+                     "   a: \"string1\"\n"
+                     "   b: -1234\n"
+                     "   c: false\n"
+                     "}\n"
                    );
 }
 
 BOOST_AUTO_TEST_CASE( combo )
 {
-  typedef  std::vector<int> intv;
+  using intv = std::vector<int>;
   intv v;
   v.push_back( 11 );
   v.push_back( 12 );
@@ -137,13 +148,15 @@ BOOST_AUTO_TEST_CASE( combo )
 
   ParameterSet pset;
   pset.put<ParameterSet>("p", p);
-  BOOST_CHECK_EQUAL( to_ind_str(pset)
-                   , "p: { v: [ 11\n"
-                     "        , 12\n"
-                     "        , 13\n"
-                     "        ]\n"
-                     "   }\n"
-                   );
+  BOOST_CHECK_EQUAL( to_ind_str(pset),
+                     "p: {\n"
+                     "   v: [\n"
+                     "      11,\n"
+                     "      12,\n"
+                     "      13\n"
+                     "   ]\n"
+                     "}\n");
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

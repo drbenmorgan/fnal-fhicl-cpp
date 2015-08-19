@@ -13,17 +13,20 @@
 #include "boost/numeric/conversion/cast.hpp"
 #include "cetlib/demangle.h"
 #include "cetlib/split_by_regex.h"
-#include "cpp0x/string"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/coding.h"
+#include "fhiclcpp/detail/ParameterSetWalker.h"
 #include "fhiclcpp/detail/encode_extended_value.h"
+#include "fhiclcpp/detail/print_mode.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/fwd.h"
+
 #include <cctype>
 #include <regex>
 #include <map>
 #include <sstream>
+#include <string>
 #include <typeinfo>
 #include <unordered_map>
 #include <vector>
@@ -32,20 +35,25 @@
 
 class fhicl::ParameterSet {
 public:
-  typedef fhicl::detail::ps_atom_t ps_atom_t;
-  typedef fhicl::detail::ps_sequence_t ps_sequence_t;
-  typedef std::unordered_map<std::string,std::string> annot_t;
 
+  using ps_atom_t     = fhicl::detail::ps_atom_t;
+  using ps_sequence_t = fhicl::detail::ps_sequence_t;
+  using annot_t       = std::unordered_map<std::string,std::string>;
 
   // compiler generates default c'tor, d'tor, copy c'tor, copy assignment
 
   // observers:
   bool is_empty() const;
   ParameterSetID id() const;
+
   std::string to_string() const;
   std::string to_compact_string() const;
-  std::string to_indented_string(unsigned initial_indent_level = 0,
-                                 bool annotate = true) const;
+
+  std::string to_indented_string() const;
+  std::string to_indented_string(unsigned initial_indent_level) const;
+  std::string to_indented_string(unsigned initial_indent_level, bool annotate) const;
+  std::string to_indented_string(unsigned initial_indent_level, detail::print_mode pm) const;
+
   std::vector<std::string> get_keys() const;
   std::vector<std::string> get_pset_keys() const;
   std::vector<std::string> get_all_keys() const;
@@ -92,8 +100,8 @@ public:
   bool operator != (ParameterSet const & other) const;
 
 private:
-  typedef std::map<std::string, boost::any> map_t;
-  typedef map_t::const_iterator map_iter_t;
+  using map_t      = std::map<std::string, boost::any>;
+  using map_iter_t = map_t::const_iterator;
 
   map_t mapping_;
   annot_t srcMapping_;
@@ -128,8 +136,7 @@ private:
   bool
   key_is_type_(std::string const & key,
                std::function<bool (boost::any const &)> func) const;
-
-  class Prettifier;
+  void walk_( detail::ParameterSetWalker& psw) const;
 
 }; // ParameterSet
 

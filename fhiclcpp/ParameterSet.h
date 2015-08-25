@@ -16,6 +16,7 @@
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/detail/ParameterSetWalker.h"
+#include "fhiclcpp/detail/deprecation_msgs.h"
 #include "fhiclcpp/detail/encode_extended_value.h"
 #include "fhiclcpp/detail/print_mode.h"
 #include "fhiclcpp/exception.h"
@@ -54,8 +55,12 @@ public:
   std::string to_indented_string(unsigned initial_indent_level, bool annotate) const;
   std::string to_indented_string(unsigned initial_indent_level, detail::print_mode pm) const;
 
-  std::vector<std::string> get_keys() const;
-  std::vector<std::string> get_pset_keys() const;
+  std::vector<std::string> get_names() const;
+  std::vector<std::string> get_pset_names() const;
+
+  [[deprecated(GET_KEYS_MSG)     ]] std::vector<std::string> get_keys()      const { return get_names();      }
+  [[deprecated(GET_PSET_KEYS_MSG)]] std::vector<std::string> get_pset_keys() const { return get_pset_names(); }
+
   std::vector<std::string> get_all_keys() const;
   // Key must be local to this parameter set: no nesting.
   bool has_key(std::string const & key) const;

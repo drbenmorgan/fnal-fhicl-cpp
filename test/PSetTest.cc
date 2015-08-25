@@ -95,7 +95,7 @@ int main()
   pset.put<bool>("b2", false);
   assert(pset.get<bool>("b2") == false);
 
-  std::vector<std::string> names = pset.get_pset_keys();
+  std::vector<std::string> names = pset.get_pset_names();
   assert(! names.empty());
   assert(names[0].compare("h") == 0);
 

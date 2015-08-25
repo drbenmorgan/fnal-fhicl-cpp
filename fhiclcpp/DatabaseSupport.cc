@@ -25,7 +25,7 @@ void fhicl::decompose_parameterset(fhicl::ParameterSet const& top,
 
   // Recurse through all parameters, dealing with ParameterSets and
   // vectors thereof.
-  std::vector<std::string> keys = top.get_keys();
+  std::vector<std::string> keys = top.get_names();
   for (auto const& key : keys)
     {
       if (top.is_key_to_table(key))

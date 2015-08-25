@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE ( Local ) {
    BOOST_CHECK_EQUAL( orig.get<int>("y"), -1 );
    BOOST_CHECK_EQUAL( pset.get<std::vector<int> >("m")[0], -1 );
 
-   std::vector<std::string> const names = pset.get_keys();
+   std::vector<std::string> const names = pset.get_names();
    for( std::size_t k = 0; k != names.size(); ++k )
       BOOST_CHECK ( "x" != names[k] );
 }

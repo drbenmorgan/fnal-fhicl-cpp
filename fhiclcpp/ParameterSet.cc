@@ -128,7 +128,7 @@ ParameterSet::to_string_(bool compact) const
 }
 
 vector<string>
-ParameterSet::get_keys() const
+ParameterSet::get_names() const
 {
   vector<string> keys;
   keys.reserve(mapping_.size());
@@ -139,7 +139,7 @@ ParameterSet::get_keys() const
 }
 
 vector<string>
-ParameterSet::get_pset_keys() const
+ParameterSet::get_pset_names() const
 {
   vector<string> keys;
   for (auto const& pr : mapping_ )

@@ -24,7 +24,7 @@ namespace fhicl {
     public:
 
       Indentation(unsigned const iil = 0u)
-        : indents_{{ std::string(iil,' ') }}
+        : indents_{{ std::string(iil*indent_increment,' ') }}
       {}
 
       std::string const & operator()() const { return indents_.top(); }

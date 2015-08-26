@@ -3,7 +3,7 @@
 
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Table.h"
-#include "fhiclcpp/types/detail/KeyStackRegistry.h"
+#include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
@@ -32,12 +32,12 @@ namespace fhicl {
     using ftype = std::array< tt::fhicl_type <T>, SIZE >;
     using rtype = std::array< tt::return_type<T>, SIZE >;
 
-    explicit Sequence(Key && key, Comment && cmt );
-    explicit Sequence(Key && key, Comment && cmt, Sequence<T,SIZE> const& dflt );
+    explicit Sequence(Name && name, Comment && cmt );
+    explicit Sequence(Name && name, Comment && cmt, Sequence<T,SIZE> const& dflt );
 
-    explicit Sequence(Key && key) : Sequence( std::move(key), Comment("") ) {}
-    explicit Sequence(Key && key, Sequence<T,SIZE> const & dflt ) : Sequence( std::move(key), Comment(""), dflt ){}
-    explicit Sequence(Key && key, Sequence<T,SIZE> const & dflt, Comment && cmt ) : Sequence( std::move(key), std::move(cmt), dflt ){}
+    explicit Sequence(Name && name) : Sequence( std::move(name), Comment("") ) {}
+    explicit Sequence(Name && name, Sequence<T,SIZE> const & dflt ) : Sequence( std::move(name), Comment(""), dflt ){}
+    explicit Sequence(Name && name, Sequence<T,SIZE> const & dflt, Comment && cmt ) : Sequence( std::move(name), std::move(cmt), dflt ){}
 
     /* Default value support
 
@@ -112,12 +112,12 @@ namespace fhicl {
     using ftype = std::vector< tt::fhicl_type <T> >;
     using rtype = std::vector< tt::return_type<T> >;
 
-    explicit Sequence(Key && key, Comment && cmt );
-    explicit Sequence(Key && key, Comment && cmt, Sequence<T,-1>  const & dflt );
+    explicit Sequence(Name && name, Comment && cmt );
+    explicit Sequence(Name && name, Comment && cmt, Sequence<T,-1>  const & dflt );
 
-    explicit Sequence(Key && key) : Sequence( std::move(key), Comment("") ) {}
-    explicit Sequence(Key && key, Sequence<T,-1> const & dflt) : Sequence( std::move(key), Comment(""), dflt ){}
-    explicit Sequence(Key && key, Sequence<T,-1> const & dflt, Comment && cmt ) : Sequence( std::move(key), std::move(cmt), dflt ){}
+    explicit Sequence(Name && name) : Sequence( std::move(name), Comment("") ) {}
+    explicit Sequence(Name && name, Sequence<T,-1> const & dflt) : Sequence( std::move(name), Comment(""), dflt ){}
+    explicit Sequence(Name && name, Sequence<T,-1> const & dflt, Comment && cmt ) : Sequence( std::move(name), std::move(cmt), dflt ){}
 
     /* Default value support
 

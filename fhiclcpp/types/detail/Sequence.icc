@@ -11,9 +11,9 @@ namespace fhicl {
   // e.g. Sequence<int,4> ====> std::array<int,4>
   //
   template<typename T, std::size_t SIZE>
-  Sequence<T,SIZE>::Sequence(Key && key,
+  Sequence<T,SIZE>::Sequence(Name && name,
                              Comment && cmt )
-    : ParameterBase(std::move(key),std::move(cmt),false,par_type::SEQ_ARRAY,this)
+    : ParameterBase(std::move(name),std::move(cmt),false,par_type::SEQ_ARRAY,this)
     , value_()
   {
     detail::ParameterRegistrySentry s;
@@ -21,10 +21,10 @@ namespace fhicl {
   }
 
   template<typename T, std::size_t SIZE>
-  Sequence<T,SIZE>::Sequence(Key && key,
+  Sequence<T,SIZE>::Sequence(Name && name,
                              Comment && cmt,
                              Sequence<T,SIZE> const& dflt )
-    : ParameterBase(std::move(key),std::move(cmt),true,par_type::SEQ_ARRAY,this)
+    : ParameterBase(std::move(name),std::move(cmt),true,par_type::SEQ_ARRAY,this)
     , value_(dflt.value_)
   {
     detail::ParameterRegistrySentry s;
@@ -33,7 +33,7 @@ namespace fhicl {
 
   template<typename T, std::size_t SIZE>
   Sequence<T,SIZE>::Sequence (std::initializer_list<T> const & args)
-    : ParameterBase( Key::anonymous(), Comment(""), true, par_type::SEQ_ARRAY, this )
+    : ParameterBase( Name::anonymous(), Comment(""), true, par_type::SEQ_ARRAY, this )
     , value_()
   {
     detail::ParameterRegistrySentry s;
@@ -49,14 +49,14 @@ namespace fhicl {
       // entries, but at the moment, I can't see a straightforward
       // way without rewriting a significant portion of the entires
       // system.
-      value_.at(i) = tt::fhicl_type<T>{ Key::anonymous(), arg };
+      value_.at(i) = tt::fhicl_type<T>{ Name::anonymous(), arg };
       ++i;
     }
   }
 
   template<typename T, std::size_t SIZE>
   Sequence<T,SIZE>::Sequence()
-    : ParameterBase( Key::anonymous(), Comment(""),false,par_type::SEQ_ARRAY,this)
+    : ParameterBase( Name::anonymous(), Comment(""),false,par_type::SEQ_ARRAY,this)
     , value_()
   {
     detail::ParameterRegistrySentry s;
@@ -68,9 +68,9 @@ namespace fhicl {
   // e.g. Sequence<int> ====> std::vector<int>
   //
   template<typename T>
-  Sequence<T,-1>::Sequence(Key && key,
+  Sequence<T,-1>::Sequence(Name && name,
                            Comment && cmt )
-    : SeqVectorBase(std::move(key),std::move(cmt),false,par_type::SEQ_VECTOR,this)
+    : SeqVectorBase(std::move(name),std::move(cmt),false,par_type::SEQ_VECTOR,this)
     , value_()
   {
     detail::ParameterRegistrySentry s;
@@ -79,10 +79,10 @@ namespace fhicl {
   }
 
   template<typename T>
-  Sequence<T,-1>::Sequence(Key && key,
+  Sequence<T,-1>::Sequence(Name && name,
                            Comment && cmt,
                            Sequence<T,-1> const & dflt )
-    : SeqVectorBase(std::move(key),std::move(cmt),true,par_type::SEQ_VECTOR,this)
+    : SeqVectorBase(std::move(name),std::move(cmt),true,par_type::SEQ_VECTOR,this)
     , value_(dflt.value_)
   {
     detail::ParameterRegistrySentry s;
@@ -91,20 +91,20 @@ namespace fhicl {
 
   template<typename T>
   Sequence<T,-1>::Sequence (std::initializer_list<T> const & args)
-    : SeqVectorBase( Key::anonymous(), Comment(""), true, par_type::SEQ_VECTOR, this )
+    : SeqVectorBase( Name::anonymous(), Comment(""), true, par_type::SEQ_VECTOR, this )
     , value_()
   {
     static_assert(!tt::is_table<T>::value, NO_DEFAULTS_FOR_TABLE);
 
     detail::ParameterRegistrySentry s;
     for ( auto const& arg : args ) {
-      value_.emplace_back( Key::anonymous(), arg );
+      value_.emplace_back( Name::anonymous(), arg );
     }
   }
 
   template<typename T>
   Sequence<T,-1>::Sequence()
-    : SeqVectorBase( Key::anonymous(), Comment(""),false,par_type::SEQ_VECTOR, this)
+    : SeqVectorBase( Name::anonymous(), Comment(""),false,par_type::SEQ_VECTOR, this)
     , value_()
   {
     detail::ParameterRegistrySentry s;

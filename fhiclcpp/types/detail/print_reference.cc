@@ -1,6 +1,6 @@
 #include "cetlib/split_by_regex.h"
 #include "fhiclcpp/exception.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"

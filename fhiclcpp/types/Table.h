@@ -3,8 +3,8 @@
 
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Comment.h"
-#include "fhiclcpp/types/Key.h"
-#include "fhiclcpp/types/detail/KeyStackRegistry.h"
+#include "fhiclcpp/types/Name.h"
+#include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
@@ -27,8 +27,8 @@ namespace fhicl {
     //=====================================================
     // User-friendly
     // ... c'tors
-    explicit Table(Key && key);
-    explicit Table(Key && key, Comment && comment );
+    explicit Table(Name && name);
+    explicit Table(Name && name, Comment && comment );
     Table(ParameterSet const& pset, std::set<std::string> const & keysToIgnore );
 
     // ... Accessors

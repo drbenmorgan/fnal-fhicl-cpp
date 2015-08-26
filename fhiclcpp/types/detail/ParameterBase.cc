@@ -4,12 +4,12 @@
 namespace fhicl {
   namespace detail {
 
-    ParameterBase::ParameterBase(Key const & key,
+    ParameterBase::ParameterBase(Name const & name,
                                  Comment const & comment,
                                  bool const hasDefault,
                                  par_type const type,
                                  ParameterBase* pb)
-      : mdata_(key,comment,hasDefault,type)
+      : mdata_(name,comment,hasDefault,type)
     {
       if ( pb ) ParameterReferenceRegistry::instance().emplace( mdata_.key(), pb );
     }

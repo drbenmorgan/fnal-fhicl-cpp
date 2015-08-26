@@ -2,7 +2,7 @@
 #define fhiclcpp_Tuple_h
 
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/detail/KeyStackRegistry.h"
+#include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/ParameterRegistrySentry.h"
 #include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
@@ -28,12 +28,12 @@ namespace fhicl {
     using ftype = std::tuple< tt::fhicl_type <TYPES>... >;
     using rtype = std::tuple< tt::return_type<TYPES>... >;
 
-    explicit Tuple(Key && key, Comment && cmt );
-    explicit Tuple(Key && key, Comment && cmt, Tuple<TYPES...> const& dflt );
+    explicit Tuple(Name && name, Comment && cmt );
+    explicit Tuple(Name && name, Comment && cmt, Tuple<TYPES...> const& dflt );
 
-    explicit Tuple(Key && key) : Tuple( std::move(key), Comment("") ) {}
-    explicit Tuple(Key && key, Tuple<TYPES...> const& dflt ) : Tuple( std::move(key), Comment(""), dflt ) {}
-    explicit Tuple(Key && key, Tuple<TYPES...> const& dflt, Comment && cmt ) : Tuple( std::move(key), std::move(cmt), dflt ) {}
+    explicit Tuple(Name && name) : Tuple( std::move(name), Comment("") ) {}
+    explicit Tuple(Name && name, Tuple<TYPES...> const& dflt ) : Tuple( std::move(name), Comment(""), dflt ) {}
+    explicit Tuple(Name && name, Tuple<TYPES...> const& dflt, Comment && cmt ) : Tuple( std::move(name), std::move(cmt), dflt ) {}
 
     Tuple(TYPES const & ... args);
 
@@ -103,7 +103,7 @@ namespace fhicl {
       static_assert(!tt::is_table<elem_utype>::value, NO_DEFAULTS_FOR_TABLE);
 
       auto & elem      = std::get<I>(value_);
-      elem = tt::fhicl_type<elem_utype>( Key::anonymous(), std::get<I>(utuple) );
+      elem = tt::fhicl_type<elem_utype>( Name::anonymous(), std::get<I>(utuple) );
       fill_tuple_element<I+1>(utuple);
     }
 
@@ -136,9 +136,9 @@ namespace fhicl {
   //================= IMPLEMENTATION =========================
   //
   template<typename ... TYPES>
-  Tuple<TYPES...>::Tuple(Key && key,
+  Tuple<TYPES...>::Tuple(Name && name,
                          Comment && comment)
-    : ParameterBase(std::move(key),comment,false,par_type::TUPLE,this)
+    : ParameterBase(std::move(name),comment,false,par_type::TUPLE,this)
     , value_()
   {
     detail::ParameterRegistrySentry s;
@@ -146,10 +146,10 @@ namespace fhicl {
   }
 
   template<typename ... TYPES>
-  Tuple<TYPES...>::Tuple(Key && key,
+  Tuple<TYPES...>::Tuple(Name && name,
                          Comment && comment,
                          Tuple<TYPES...> const& dflt )
-    : ParameterBase(std::move(key),comment,true,par_type::TUPLE,this)
+    : ParameterBase(std::move(name),comment,true,par_type::TUPLE,this)
     , value_(dflt.value_)
   {
     detail::ParameterRegistrySentry s;
@@ -158,7 +158,7 @@ namespace fhicl {
 
   template<typename ... TYPES>
   Tuple<TYPES...>::Tuple()
-    : ParameterBase(Key::anonymous(),Comment(""),false,par_type::TUPLE,this)
+    : ParameterBase(Name::anonymous(),Comment(""),false,par_type::TUPLE,this)
     , value_()
   {
     detail::ParameterRegistrySentry s;
@@ -167,7 +167,7 @@ namespace fhicl {
 
   template<typename ... TYPES>
   Tuple<TYPES...>::Tuple(TYPES const & ... args)
-    : ParameterBase(Key::anonymous(),Comment(""),false,par_type::TUPLE,this)
+    : ParameterBase(Name::anonymous(),Comment(""),false,par_type::TUPLE,this)
     , value_()
   {
     detail::ParameterRegistrySentry s;

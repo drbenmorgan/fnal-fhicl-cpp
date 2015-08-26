@@ -7,7 +7,7 @@
 #include "fhiclcpp/types/detail/ostream_helpers.h"
 #include "fhiclcpp/types/detail/SeqVectorBase.h"
 #include "fhiclcpp/types/detail/validationException.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 
 #include <algorithm>
 #include <iomanip>
@@ -109,7 +109,7 @@ namespace {
 
       auto & registry = fhicl::detail::ParameterReferenceRegistry::instance();
 
-      std::regex const r( fhicl::Key::regex_safe(key) + "\\[\\d+\\]" );
+      std::regex const r( fhicl::Name::regex_safe(key) + "\\[\\d+\\]" );
 
       std::size_t nElems{};
       for( auto const& uk : userKeys ) {

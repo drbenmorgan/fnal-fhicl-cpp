@@ -2,9 +2,9 @@
 #define fhiclcpp_types_detail_ParameterMetadata_h
 
 #include "fhiclcpp/types/Comment.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
-#include "fhiclcpp/types/detail/KeyStackRegistry.h"
+#include "fhiclcpp/types/detail/NameStackRegistry.h"
 
 #include <string>
 
@@ -24,11 +24,11 @@ namespace fhicl {
       {
       }
 
-      ParameterMetadata(Key const& key = Key(),
+      ParameterMetadata(Name const& name = Name(),
                         Comment const& cmt = Comment(""),
                         bool const hasDefault = false,
                         par_type const parType = par_type::NTYPES)
-        : key_( KeyStackRegistry::instance().qualified_name(key.value) )
+        : key_( NameStackRegistry::instance().full_key(name.value) )
         , comment_(cmt.value)
         , hasDefault_(hasDefault)
         , type_(parType)

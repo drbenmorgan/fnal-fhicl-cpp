@@ -64,9 +64,9 @@ namespace {
   }
 
   struct S {
-    Atom<int> atom      { Key("atom") };
-    Sequence<int,2> sequence { Key("sequence") };
-    Tuple<int,string,bool> tuple { Key("tuple") };
+    Atom<int> atom      { Name("atom") };
+    Sequence<int,2> sequence { Name("sequence") };
+    Tuple<int,string,bool> tuple { Name("tuple") };
 
     bool operator==(const RefS& refs) const
     {
@@ -93,14 +93,14 @@ namespace {
   }
 
   struct Configuration {
-    Table<S> table { Key("table") };
-    Sequence< Table<S> > vecOfTable { Key("vecOfTable") };
-    Sequence< Table<S>, 2 > arrOfTable { Key("arrOfTable") };
-    Tuple< Table<S>, int, double > tupWithTable { Key("tupWithTable") };
-    Tuple< Sequence< Table<S> >, int, double > tupWithVecTable    { Key("tupWithVecTable") };
-    Tuple< Sequence< Table<S>, 2 >, int, double > tupWithArrTable { Key("tupWithArrTable") };
-    Sequence< Tuple< Table<S>, int, double > > vecWithTupTable    { Key("vecWithTupTable") };
-    Sequence< Tuple< Table<S>, int, double >, 2 > arrWithTupTable { Key("arrWithTupTable") };
+    Table<S> table { Name("table") };
+    Sequence< Table<S> > vecOfTable { Name("vecOfTable") };
+    Sequence< Table<S>, 2 > arrOfTable { Name("arrOfTable") };
+    Tuple< Table<S>, int, double > tupWithTable { Name("tupWithTable") };
+    Tuple< Sequence< Table<S> >, int, double > tupWithVecTable    { Name("tupWithVecTable") };
+    Tuple< Sequence< Table<S>, 2 >, int, double > tupWithArrTable { Name("tupWithArrTable") };
+    Sequence< Tuple< Table<S>, int, double > > vecWithTupTable    { Name("vecWithTupTable") };
+    Sequence< Tuple< Table<S>, int, double >, 2 > arrWithTupTable { Name("arrWithTupTable") };
   };
 
   struct Fixture : fhiclcpp_types::FixtureBase<Configuration> {

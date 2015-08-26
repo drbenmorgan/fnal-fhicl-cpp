@@ -14,53 +14,53 @@ namespace {
   //
 
   struct PSet2 {
-    Atom<std::string> test { Key("test"), Comment("this works") };
-    Sequence<int> sequence { Key("sequence") };
-    Sequence<double,5> array { Key("array") };
+    Atom<std::string> test { Name("test"), Comment("this works") };
+    Sequence<int> sequence { Name("sequence") };
+    Sequence<double,5> array { Name("array") };
   };
 
   struct Test {
-    Atom<int> value { Key("c") };
+    Atom<int> value { Name("c") };
   };
 
   struct ForRootInput {
-    Atom<std::string> primary { Key("a") };
-    Sequence<std::string> secondaries { Key("b") };
-    Sequence< Table<Test> > tablesequence2 { Key("tableSequence2") };
+    Atom<std::string> primary { Name("a") };
+    Sequence<std::string> secondaries { Name("b") };
+    Sequence< Table<Test> > tablesequence2 { Name("tableSequence2") };
   };
 
   struct Configuration {
-    Atom<bool> flag { Key("flag") };
+    Atom<bool> flag { Name("flag") };
 
-    Tuple<double,std::string> pair { Key("pair") };
-    Tuple<int,std::string,double> tup { Key("tuple") };
+    Tuple<double,std::string> pair { Name("pair") };
+    Tuple<int,std::string,double> tup { Name("tuple") };
 
-    Sequence< Tuple<int,double> > vt { Key("vecOfTuples") };
-    Sequence< Tuple<int,double>, 2 > at { Key("arrayOfTuples") };
+    Sequence< Tuple<int,double> > vt { Name("vecOfTuples") };
+    Sequence< Tuple<int,double>, 2 > at { Name("arrayOfTuples") };
 
-    Sequence< Sequence<int> >      vv { Key("vecOfVecs") };
-    Sequence< Sequence<int, 2> >   va { Key("vecOfArrays") };
-    Sequence< Sequence<int>, 2 >   av { Key("arrayOfVecs") };
-    Sequence< Sequence<int,2>, 2 > aa { Key("arrayOfArrays") };
+    Sequence< Sequence<int> >      vv { Name("vecOfVecs") };
+    Sequence< Sequence<int, 2> >   va { Name("vecOfArrays") };
+    Sequence< Sequence<int>, 2 >   av { Name("arrayOfVecs") };
+    Sequence< Sequence<int,2>, 2 > aa { Name("arrayOfArrays") };
 
-    Tuple< Sequence<double>, bool, int> tv { Key("tupleWithVec") };
-    Tuple< Sequence<double,2>, bool, int> ta { Key("tupleWithArray") };
-    Tuple< Tuple<int,double>, bool, int> tt { Key("tupleWithTuple") };
+    Tuple< Sequence<double>, bool, int> tv { Name("tupleWithVec") };
+    Tuple< Sequence<double,2>, bool, int> ta { Name("tupleWithArray") };
+    Tuple< Tuple<int,double>, bool, int> tt { Name("tupleWithTuple") };
 
-    Sequence< Table<ForRootInput> > vtable  { Key("vecOfTables") };
-    Sequence< Table<ForRootInput>,2 > atable  { Key("arrayOfTables") };
-    Tuple< Table<ForRootInput>, bool, int> tupleWithTable { Key("tupleWithTable") };
-    Tuple< Sequence< Table<ForRootInput> >, double > tvtable { Key("tupleWithVecTable") };
-    Tuple< Sequence< Table<ForRootInput>, 2>, double > tstable { Key("tupleWithArrTable") };
-    Sequence< Tuple< Table<ForRootInput>, double> > vttable { Key("vecWithTupleTable") };
-    Sequence< Tuple< Table<ForRootInput>, double>, 2 > attable { Key("arrWithTupleTable") };
-    Table<PSet2> pset2 { Key("pset2") };
+    Sequence< Table<ForRootInput> > vtable  { Name("vecOfTables") };
+    Sequence< Table<ForRootInput>,2 > atable  { Name("arrayOfTables") };
+    Tuple< Table<ForRootInput>, bool, int> tupleWithTable { Name("tupleWithTable") };
+    Tuple< Sequence< Table<ForRootInput> >, double > tvtable { Name("tupleWithVecTable") };
+    Tuple< Sequence< Table<ForRootInput>, 2>, double > tstable { Name("tupleWithArrTable") };
+    Sequence< Tuple< Table<ForRootInput>, double> > vttable { Name("vecWithTupleTable") };
+    Sequence< Tuple< Table<ForRootInput>, double>, 2 > attable { Name("arrWithTupleTable") };
+    Table<PSet2> pset2 { Name("pset2") };
   };
 
 }
 
 int main()
 {
-  Table<Configuration> pset { Key("pset") };
+  Table<Configuration> pset { Name("pset") };
   pset.print_reference(std::cout);
 }

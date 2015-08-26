@@ -1,7 +1,7 @@
 #ifndef fhiclcpp_types_detail_ParameterRegistrySentry_h
 #define fhiclcpp_types_detail_ParameterRegistrySentry_h
 
-#include "fhiclcpp/types/detail/KeyStackRegistry.h"
+#include "fhiclcpp/types/detail/NameStackRegistry.h"
 
 namespace fhicl {
   namespace detail {
@@ -13,7 +13,7 @@ namespace fhicl {
 
       ~ParameterRegistrySentry()
       {
-        KeyStackRegistry::instance().pop_back();
+        NameStackRegistry::instance().pop();
       }
 
     };

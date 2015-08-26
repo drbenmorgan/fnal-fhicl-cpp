@@ -23,7 +23,7 @@ namespace fhicl {
       bool        has_default()    const { return mdata_.has_default(); }
       par_type    parameter_type() const { return mdata_.type(); }
 
-      ParameterBase(Key const & key,
+      ParameterBase(Name const & key,
                     Comment const & comment,
                     bool const hasDefault,
                     par_type const type,

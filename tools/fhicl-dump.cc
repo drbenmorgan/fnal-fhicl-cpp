@@ -7,6 +7,7 @@
 #include "boost/program_options.hpp"
 
 #include "fhiclcpp/ParameterSet.h"
+#include "fhiclcpp/detail/print_mode.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
@@ -16,6 +17,7 @@
 #include <string>
 
 using namespace fhicl;
+using namespace fhicl::detail;
 
 namespace {
 
@@ -29,11 +31,11 @@ namespace {
   using std::string;
 
   struct Options {
-    bool    annotate{false};
-    string  output_filename;
-    string  input_filename;
-    int     lookup_policy{};
-    string  lookup_path;
+    print_mode mode{print_mode::raw};
+    string     output_filename;
+    string     input_filename;
+    int        lookup_policy{};
+    string     lookup_path;
   };
 
   Options process_arguments( int argc, char* argv[] );
@@ -57,8 +59,8 @@ int main(int argc, char* argv[])
   }
   catch(cet::exception const& e) {
     if ( e.category() == help       ) return 0;
-    if ( e.category() == processing ) return 1;
-    if ( e.category() == config     ) return 2;
+    if ( e.category() == processing ) { std::cerr << e.what() << '\n'; return 1; }
+    if ( e.category() == config     ) { std::cerr << e.what() << '\n'; return 2; }
   }
 
   auto const policy = get_policy(opts.lookup_policy, opts.lookup_path);
@@ -66,7 +68,7 @@ int main(int argc, char* argv[])
 
   std::ofstream ofs { opts.output_filename };
   std::ostream &os = opts.output_filename.empty() ? std::cout : ofs;
-  os << pset.to_indented_string(0, opts.annotate);
+  os << pset.to_indented_string(0, opts.mode);
 
 }
 
@@ -80,12 +82,16 @@ namespace {
 
     Options opts;
 
+    bool annotate{false};
+    bool parsable{false};
+
     bpo::options_description desc("fhicl-dump [-c] <file>\nOptions");
     desc.add_options()
       ( "help,h", "produce this help message")
       ( "config,c", bpo::value<std::string>(&opts.input_filename), "input file" )
       ( "output,o", bpo::value<std::string>(&opts.output_filename), "output file (default is STDOUT)")
-      ( "annotate,a", bpo::bool_switch(&opts.annotate)->default_value(false,"false"), "include source location annotations")
+      ( "annotated,a", bpo::bool_switch(&annotate)->default_value(false,"false"), "include source location annotations")
+      ( "parsable", bpo::bool_switch(&parsable)->default_value(false,"false"), "include parsable source location annotations (mutually exclusive with 'annotated' option)")
       ( "lookup-policy,l" ,
         bpo::value<int>(&opts.lookup_policy)->default_value(1),
         "lookup policy code:"
@@ -119,6 +125,15 @@ namespace {
       throw cet::exception(help);
     }
 
+    if ( annotate && parsable ) {
+      std::ostringstream err_stream;
+      err_stream << "Cannot specify both '--annotated' and '--parsable' options.\n";
+      throw cet::exception(config) << err_stream.str();
+    }
+
+    if ( annotate ) opts.mode = print_mode::annotated;
+    if ( parsable ) opts.mode = print_mode::parsable;
+
     if ( !vm.count("config") ) {
       std::ostringstream err_stream;
       err_stream << "\nMissing input configuration file.\n\n"
@@ -126,6 +141,7 @@ namespace {
       throw cet::exception(config) << err_stream.str();
     }
     return opts;
+
   }
 
   std::unique_ptr<cet::filepath_maker>

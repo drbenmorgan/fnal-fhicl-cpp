@@ -19,6 +19,7 @@
 #include "fhiclcpp/detail/deprecation_msgs.h"
 #include "fhiclcpp/detail/encode_extended_value.h"
 #include "fhiclcpp/detail/print_mode.h"
+#include "fhiclcpp/detail/try_blocks.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/fwd.h"
@@ -203,80 +204,46 @@ is_key_to_atom(std::string const & key) const
 
 template< class T >
 void
-fhicl::ParameterSet::put(std::string const & key, T const & value)
-  try
-    {
-      using detail::encode;
-      insert_(key, boost::any(encode(value)));
-    }
-  catch (boost::bad_lexical_cast const & e)
-    {
-      throw fhicl::exception(cant_insert, key) << e.what();
-    }
-  catch (boost::bad_numeric_cast const & e)
-    {
-      throw fhicl::exception(cant_insert, key) << e.what();
-    }
-  catch (fhicl::exception const & e)
-    {
-      throw fhicl::exception(cant_insert, key, e);
-    }
-  catch (std::exception const & e)
-    {
-      throw fhicl::exception(cant_insert, key) << e.what();
-    }
+fhicl::ParameterSet::put(std::string const & key, T const & value){
+
+  auto insert = [this,&key,&value](){
+    using detail::encode;
+    insert_(key, boost::any(encode(value)));
+  };
+
+  detail::try_insert(insert, key);
+
+}
 
 template< class T >
 void
 fhicl::ParameterSet::put_or_replace(std::string const & key, T const & value)
-try
 {
-  using detail::encode;
-  insert_or_replace_(key, boost::any(encode(value)));
-  srcMapping_.erase(key);
-}
-catch (boost::bad_lexical_cast const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
-}
-catch (boost::bad_numeric_cast const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
-}
-catch (fhicl::exception const & e)
-{
-  throw fhicl::exception(cant_insert, key, e);
-}
-catch (std::exception const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
+
+  auto insert_or_replace = [this,&key,&value](){
+    using detail::encode;
+    insert_or_replace_(key, boost::any(encode(value)));
+    srcMapping_.erase(key);
+  };
+
+  detail::try_insert(insert_or_replace, key);
+
 }
 
 template< class T >
 void
 fhicl::ParameterSet::put_or_replace_compatible(std::string const & key,
                                                T const & value)
-try
 {
-  using detail::encode;
-  insert_or_replace_compatible_(key, boost::any(encode(value)));
-  srcMapping_.erase(key);
-}
-catch (boost::bad_lexical_cast const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
-}
-catch (boost::bad_numeric_cast const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
-}
-catch (fhicl::exception const & e)
-{
-  throw fhicl::exception(cant_insert, key, e);
-}
-catch (std::exception const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
+
+  auto insert_or_replace_compatible = [this,&key,&value](){
+    using detail::encode;
+    insert_or_replace_compatible_(key, boost::any(encode(value)));
+    srcMapping_.erase(key);
+  };
+
+  detail::try_insert(insert_or_replace_compatible, key);
+
 }
 
 // ----------------------------------------------------------------------

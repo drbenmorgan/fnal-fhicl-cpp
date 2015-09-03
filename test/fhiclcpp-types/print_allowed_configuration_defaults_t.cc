@@ -56,5 +56,5 @@ namespace {
 int main()
 {
   Table<Configuration> pset { Name("pset") };
-  pset.print_reference(std::cout);
+  pset.print_allowed_configuration(std::cout);
 }

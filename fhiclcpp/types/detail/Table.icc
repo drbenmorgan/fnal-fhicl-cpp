@@ -42,10 +42,10 @@ namespace fhicl {
 
   template <typename T>
   void
-  Table<T>::print_reference(std::ostream& os,
-                            std::string const& tab) const
+  Table<T>::print_allowed_configuration(std::ostream& os,
+                                        std::string const& tab) const
   {
-    detail::print_reference(key(), os, false, tab);
+    detail::print_allowed_configuration(key(), os, false, tab);
   }
 
 }

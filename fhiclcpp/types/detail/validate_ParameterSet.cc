@@ -3,7 +3,7 @@
 #include "fhiclcpp/types/detail/validate_ParameterSet.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
-#include "fhiclcpp/types/detail/print_reference.h"
+#include "fhiclcpp/types/detail/print_allowed_configuration.h"
 #include "fhiclcpp/types/detail/ostream_helpers.h"
 #include "fhiclcpp/types/detail/SeqVectorBase.h"
 #include "fhiclcpp/types/detail/validationException.h"
@@ -158,10 +158,10 @@ validate_ParameterSet( base_ptr param,
       // If the key is nested (e.g. pset1.pset2[0] ), show the
       // parents
       bool const showParents = key.find_first_of(".[") != std::string::npos;
-      print_reference( param->key()+std::string(".")+key,
-                       oss,
-                       showParents,
-                       prefix );
+      print_allowed_configuration( param->key()+"."+key,
+                                   oss,
+                                   showParents,
+                                   prefix );
     }
     oss << "\n";
   }

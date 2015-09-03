@@ -10,7 +10,7 @@
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
 #include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
 #include "fhiclcpp/types/detail/ParameterRegistrySentry.h"
-#include "fhiclcpp/types/detail/print_reference.h"
+#include "fhiclcpp/types/detail/print_allowed_configuration.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
 #include "fhiclcpp/types/detail/validate_ParameterSet.h"
 #include "fhiclcpp/type_traits.h"
@@ -39,8 +39,8 @@ namespace fhicl {
     void validate_ParameterSet(ParameterSet const& pset,
                                std::set<std::string> const & keysToIgnore = {} );
 
-    void print_reference(std::ostream& os,
-                         std::string const& tab = std::string(3, ' ') ) const;
+    void print_allowed_configuration(std::ostream& os,
+                                     std::string const& tab = std::string(3, ' ') ) const;
 
     //=====================================================
     // Expert-only

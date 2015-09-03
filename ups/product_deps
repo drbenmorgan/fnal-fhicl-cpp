@@ -1,11 +1,11 @@
-parent fhiclcpp v3_12_00
+parent fhiclcpp v3_12_01
 defaultqual e7
 #
 fcldir -
 #
 # define product/version pairs
 product		version
-cetlib		v1_13_01
+cetlib		v1_14_00
 sqlite		v3_08_08_02
 
 cetbuildtools	v4_12_05	-	only_for_build

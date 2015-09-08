@@ -4,6 +4,7 @@
 #include "cetlib/exception.h"
 
 #include <exception>
+#include <string>
 
 namespace fhicl {
   namespace detail {
@@ -13,10 +14,10 @@ namespace fhicl {
 
       validationException(const char* msg) : msg_(msg) {}
 
-      const char* what() const noexcept override { return msg_; }
+      const char* what() const noexcept override { return msg_.c_str(); }
 
     private:
-      const char* msg_;
+      std::string msg_;
     };
 
   }

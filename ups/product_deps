@@ -1,11 +1,11 @@
-parent fhiclcpp v3_12_02
+parent fhiclcpp v3_12_03
 defaultqual e7
 #
 fcldir -
 #
 # define product/version pairs
 product		version
-cetlib		v1_14_00
+cetlib		v1_15_00
 sqlite		v3_08_10_02
 
 cetbuildtools	v4_14_00	-	only_for_build
@@ -20,6 +20,9 @@ e6:prof		e6:prof		-nq-	gcc
 e7:debug	e7:debug	-nq-	gcc
 e7:opt		e7:opt		-nq-	gcc
 e7:prof		e7:prof		-nq-	gcc
+e9:debug	e9:debug	-nq-	gcc
+e9:opt		e9:opt		-nq-	gcc
+e9:prof		e9:prof		-nq-	gcc
 i1:debug	i1:debug	-nq-	icc
 i1:prof		i1:prof		-nq-	icc
 end_qualifier_list

@@ -33,22 +33,22 @@ namespace {
   double const ftolerance = std::numeric_limits<float>::epsilon();
 
   struct Configuration {
-    Atom<int>       atom { Key("atom") };
-    Sequence<int>   vec  { Key("vec") };
-    Sequence<int,2> arr  { Key("arr") };
+    Atom<int>       atom { Name("atom") };
+    Sequence<int>   vec  { Name("vec") };
+    Sequence<int,2> arr  { Name("arr") };
 
-    Tuple<int,double,bool> tuple { Key("tuple") };
-    Tuple< Sequence<int>   ,double,bool> tupWithVec { Key("tupWithVec") };
-    Tuple< Sequence<int,2> ,double,bool> tupWithArr { Key("tupWithArr") };
-    Tuple< Tuple<int,float>,double,bool> tupWithTup { Key("tupWithTup") };
+    Tuple<int,double,bool> tuple { Name("tuple") };
+    Tuple< Sequence<int>   ,double,bool> tupWithVec { Name("tupWithVec") };
+    Tuple< Sequence<int,2> ,double,bool> tupWithArr { Name("tupWithArr") };
+    Tuple< Tuple<int,float>,double,bool> tupWithTup { Name("tupWithTup") };
 
-    Sequence< Tuple<int,string>   > vecWithTup { Key("vecWithTup") };
-    Sequence< Tuple<string,int,string>, 2> arrWithTup { Key("arrWithTup") };
+    Sequence< Tuple<int,string>   > vecWithTup { Name("vecWithTup") };
+    Sequence< Tuple<string,int,string>, 2> arrWithTup { Name("arrWithTup") };
 
-    Sequence< Sequence<int  >  >  vecOfVec { Key("vecOfVec") };
-    Sequence< Sequence<int,2>  >  vecOfArr { Key("vecOfArr") };
-    Sequence< Sequence<int  >, 2> arrOfVec { Key("arrOfVec") };
-    Sequence< Sequence<int,2>, 2> arrOfArr { Key("arrOfArr") };
+    Sequence< Sequence<int  >  >  vecOfVec { Name("vecOfVec") };
+    Sequence< Sequence<int,2>  >  vecOfArr { Name("vecOfArr") };
+    Sequence< Sequence<int  >, 2> arrOfVec { Name("arrOfVec") };
+    Sequence< Sequence<int,2>, 2> arrOfArr { Name("arrOfArr") };
   };
 
   struct Fixture : fhiclcpp_types::FixtureBase<Configuration> {

@@ -3,9 +3,9 @@
 namespace fhicl {
 
   template <typename T>
-  Atom<T>::Atom(Key && key,
+  Atom<T>::Atom(Name && name,
                 Comment && cmt )
-    : AtomBase(std::move(key), std::move(cmt), false, par_type::ATOM, this)
+    : AtomBase(std::move(name), std::move(cmt), false, par_type::ATOM, this)
     , value_()
   {
     static_assert(!tt::is_sequence_type<T>::value, NO_CONTAINERS_IN_ATOM);
@@ -14,10 +14,10 @@ namespace fhicl {
   }
 
   template <typename T>
-  Atom<T>::Atom(Key && key,
+  Atom<T>::Atom(Name && name,
                 Comment && cmt,
                 T const& dflt_value )
-    : AtomBase(std::move(key), std::move(cmt), true, par_type::ATOM, this)
+    : AtomBase(std::move(name), std::move(cmt), true, par_type::ATOM, this)
     , value_(dflt_value)
   {
     static_assert(!tt::is_sequence_type<T>::value, NO_CONTAINERS_IN_ATOM);
@@ -26,23 +26,23 @@ namespace fhicl {
   }
 
   template <typename T>
-  Atom<T>::Atom(Key && key)
-    : Atom<T>::Atom( std::move(key), Comment("") )
+  Atom<T>::Atom(Name && name)
+    : Atom<T>::Atom( std::move(name), Comment("") )
   {}
 
   template <typename T>
-  Atom<T>::Atom(Key && key, T const& dflt_value)
-    : Atom<T>::Atom( std::move(key), Comment(""), dflt_value )
+  Atom<T>::Atom(Name && name, T const& dflt_value)
+    : Atom<T>::Atom( std::move(name), Comment(""), dflt_value )
   {}
 
   template <typename T>
-  Atom<T>::Atom(Key && key, T const& dflt_value, Comment && cmt)
-    : Atom<T>::Atom( std::move(key), std::move(cmt), dflt_value )
+  Atom<T>::Atom(Name && name, T const& dflt_value, Comment && cmt)
+    : Atom<T>::Atom( std::move(name), std::move(cmt), dflt_value )
   {}
 
   template <typename T>
   Atom<T>::Atom()
-    : AtomBase(Key::anonymous(), Comment(""), false, par_type::ATOM, this)
+    : AtomBase(Name::anonymous(), Comment(""), false, par_type::ATOM, this)
     , value_()
   {
     detail::ParameterRegistrySentry();

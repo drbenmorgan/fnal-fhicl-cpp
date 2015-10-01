@@ -65,9 +65,9 @@ namespace {
   }
 
   struct S {
-    Atom<int> test { Key("atom") };
-    Sequence<int,2> seq { Key("sequence") };
-    Tuple<int,double,bool> tuple { Key("tuple") };
+    Atom<int> test { Name("atom") };
+    Sequence<int,2> seq { Name("sequence") };
+    Tuple<int,double,bool> tuple { Name("tuple") };
   };
 
 }
@@ -77,56 +77,56 @@ BOOST_AUTO_TEST_SUITE( static_types_return_types_tables )
 // [14] Table<S>
 BOOST_AUTO_TEST_CASE( table_t )
 {
-  Table<S> test { Key("table") };
+  Table<S> test { Name("table") };
   require_type_as<S>( test );
 }
 
 // [15] Sequence< Table<S> >
 BOOST_AUTO_TEST_CASE( table_in_seq_t )
 {
-  Sequence< Table<S> > test { Key("seqtable") };
+  Sequence< Table<S> > test { Name("seqtable") };
   require_type_as<std::vector<S>>( test );
 }
 
 // [16] Sequence< Table<S>,2 >
 BOOST_AUTO_TEST_CASE( table_in_seq_2_t )
 {
-  Sequence< Table<S>, 2 > test { Key("seqtable") };
+  Sequence< Table<S>, 2 > test { Name("seqtable") };
   require_type_as<std::array<S,2>>( test );
 }
 
 // [17] Tuple< Table<S>, U... >
 BOOST_AUTO_TEST_CASE( table_in_tuple_t )
 {
-  Tuple< Table<S>, int, double > test { Key("tuptable") };
+  Tuple< Table<S>, int, double > test { Name("tuptable") };
   require_type_as<std::tuple<S,int,double>>( test );
 }
 
 // [18] Tuple< Sequence< Table<S> >, U... >
 BOOST_AUTO_TEST_CASE( seqtable_in_tuple_t )
 {
-  Tuple< Sequence< Table<S> >, int, double > test { Key("seqtuptable") };
+  Tuple< Sequence< Table<S> >, int, double > test { Name("seqtuptable") };
   require_type_as<std::tuple< std::vector<S>, int, double>>( test );
 }
 
 // [19] Tuple< Sequence< Table<S>, SZ >, U... >
 BOOST_AUTO_TEST_CASE( seqtable_2_in_tuple_t )
 {
-  Tuple< Sequence< Table<S>, 2 >, int, double > test { Key("seqtuptable") };
+  Tuple< Sequence< Table<S>, 2 >, int, double > test { Name("seqtuptable") };
   require_type_as<std::tuple<std::array<S,2>, int, double> >( test );
 }
 
 // [20] Sequence< Tuple< Table<S>, U... > >
 BOOST_AUTO_TEST_CASE( tuptable_in_seq_t )
 {
-  Sequence< Tuple< Table<S>, int, double > > test { Key("tupseqtable") };
+  Sequence< Tuple< Table<S>, int, double > > test { Name("tupseqtable") };
   require_type_as<std::vector< std::tuple<S,int,double> > >( test );
 }
 
 // [21] Sequence< Tuple< Table<S>, U... >, SZ >
 BOOST_AUTO_TEST_CASE( tuptable_in_seq_2_t )
 {
-  Sequence< Tuple< Table<S>, int, double >, 2 > test { Key("tupseqtable") };
+  Sequence< Tuple< Table<S>, int, double >, 2 > test { Name("tupseqtable") };
   require_type_as<std::array< std::tuple<S,int,double>, 2 > >( test );
 }
 

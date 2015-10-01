@@ -1,17 +1,23 @@
-#ifndef fhiclcpp_Key_h
-#define fhiclcpp_Key_h
+#ifndef fhiclcpp_Name_h
+#define fhiclcpp_Name_h
 
 #include <regex>
 #include <string>
 
 namespace fhicl {
 
-  struct Key {
+  struct Name {
 
-    explicit Key(std::string const& key = "") : value(key) {}
+    explicit Name(std::string const& name = "") : value(name) {}
     std::string value;
 
-    enum class bracket  { SQUARE, ANGLE, NTYPES };
+    enum class bracket { SQUARE, ANGLE, NTYPES };
+
+    static Name anonymous()
+    {
+      static std::size_t i{};
+      return Name( array_index(i++, bracket::ANGLE) );
+    }
 
     static inline std::string array_index(std::size_t i, bracket const bkt = bracket::SQUARE)
     {
@@ -19,12 +25,6 @@ namespace fhicl {
       std::string const suffix = bkt == bracket::SQUARE ? std::string("]") : std::string(">");
       std::string const index  = prefix + std::to_string(i) + suffix;
       return index;
-    }
-
-    static Key anonymous()
-    {
-      static std::size_t i{};
-      return Key( array_index(i++, bracket::ANGLE) );
     }
 
     /*
@@ -35,12 +35,6 @@ namespace fhicl {
     static std::string regex_safe(std::string const& key)
     {
       return std::regex_replace( key, std::regex("\\[|\\]"), "\\$&" );
-    }
-
-    static inline Key append_to (std::string const & prefix,
-                                 std::string const & suffix )
-    {
-      return Key( prefix + std::string(".") + suffix );
     }
 
   };

@@ -32,6 +32,8 @@ namespace fhicl {
                   key_set & userKeys,
                   key_set & missingKeys);
 
+    std::string fillMissingKeysMsg( base_ptr, key_set const& missingKeys );
+    std::string fillExtraKeysMsg( ParameterSet const& pset, key_set const& extraKeys );
 
   }
 }

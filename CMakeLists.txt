@@ -37,7 +37,7 @@ cet_report_compiler_flags()
 
 
 # these are minimum required versions, not the actual product versions
-find_ups_product (cetbuildtools v4_07_02)
+find_ups_product (cetbuildtools v4_14_01)
 find_ups_product( cetlib v1_09_00 )
 find_ups_product( sqlite v3_07_15_00 )
 find_ups_boost(v1_50_0)

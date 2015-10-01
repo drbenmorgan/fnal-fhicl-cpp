@@ -13,12 +13,12 @@ namespace fhicl {
     class AtomBase : public ParameterBase {
     public:
 
-      AtomBase(Key const & key,
+      AtomBase(Name const & name,
                Comment const & comment,
                bool const hasDefault,
                par_type const type,
                ParameterBase* pb)
-        : ParameterBase( key, comment, hasDefault, type, pb ) {}
+        : ParameterBase( name, comment, hasDefault, type, pb ) {}
 
       std::string stringified_value() const
       {

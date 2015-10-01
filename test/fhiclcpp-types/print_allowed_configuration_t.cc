@@ -1,7 +1,3 @@
-#include "fhiclcpp/intermediate_table.h"
-#include "fhiclcpp/make_ParameterSet.h"
-#include "fhiclcpp/ParameterSet.h"
-
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Table.h"
@@ -18,8 +14,9 @@ namespace {
   //
 
   struct PSet2 {
-    Atom<std::string> test { Name("test"), Comment("this works"), "try again" };
+    Atom<std::string> test { Name("test"), Comment("this works") };
     Sequence<int> sequence { Name("sequence") };
+    Sequence<double,5> array { Name("array") };
   };
 
   struct Test {
@@ -33,7 +30,7 @@ namespace {
   };
 
   struct Configuration {
-    Atom<bool> flag { Name("flag"), true };
+    Atom<bool> flag { Name("flag") };
 
     Tuple<double,std::string> pair { Name("pair") };
     Tuple<int,std::string,double> tup { Name("tuple") };
@@ -51,6 +48,7 @@ namespace {
     Tuple< Tuple<int,double>, bool, int> tt { Name("tupleWithTuple") };
 
     Sequence< Table<ForRootInput> > vtable  { Name("vecOfTables") };
+    Sequence< Table<ForRootInput>,2 > atable  { Name("arrayOfTables") };
     Tuple< Table<ForRootInput>, bool, int> tupleWithTable { Name("tupleWithTable") };
     Tuple< Sequence< Table<ForRootInput> >, double > tvtable { Name("tupleWithVecTable") };
     Tuple< Sequence< Table<ForRootInput>, 2>, double > tstable { Name("tupleWithArrTable") };
@@ -63,19 +61,6 @@ namespace {
 
 int main()
 {
-  putenv(const_cast<char*>("FHICL_FILE_PATH=./test:."));
-  cet::filepath_lookup policy("FHICL_FILE_PATH");
-  fhicl::intermediate_table tbl;
-  std::string cfg_in("validate_ParameterSet_t.fcl");
-  parse_document(cfg_in, policy, tbl);
-  fhicl::ParameterSet pset;
-  make_ParameterSet(tbl, pset);
-
-  try {
-    Table<Configuration> table { Name("pset") };
-    table.validate_ParameterSet( pset.get<fhicl::ParameterSet>( "pset" ) );
-  }
-  catch ( std::exception const & e ) {
-    std::cout << e.what() << std::endl;
-  }
+  Table<Configuration> pset { Name("pset") };
+  pset.print_allowed_configuration(std::cout);
 }

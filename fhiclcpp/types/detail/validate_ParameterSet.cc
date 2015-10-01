@@ -3,11 +3,11 @@
 #include "fhiclcpp/types/detail/validate_ParameterSet.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
-#include "fhiclcpp/types/detail/print_reference.h"
+#include "fhiclcpp/types/detail/print_allowed_configuration.h"
 #include "fhiclcpp/types/detail/ostream_helpers.h"
 #include "fhiclcpp/types/detail/SeqVectorBase.h"
 #include "fhiclcpp/types/detail/validationException.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 
 #include <algorithm>
 #include <iomanip>
@@ -109,7 +109,7 @@ namespace {
 
       auto & registry = fhicl::detail::ParameterReferenceRegistry::instance();
 
-      std::regex const r( fhicl::Key::regex_safe(key) + "\\[\\d+\\]" );
+      std::regex const r( fhicl::Name::regex_safe(key) + "\\[\\d+\\]" );
 
       std::size_t nElems{};
       for( auto const& uk : userKeys ) {
@@ -125,67 +125,55 @@ namespace {
 
 }
 
+//=========================================================================================
+
+/*
+  The validation process is as follows:
+
+  - Get all user-provided configuration keys.
+
+  - Retrieve all ignorable keys (including those with defaults)
+    vis-a-vis the allowed configuration.
+
+  - Loop through all allowed keys, erasing the corresponding element
+    on the user-provided key set if it is present, and adding the key
+    to the missing key set if it is not.
+
+  - If the user key list is non-empty after the validation procedure,
+    then the existing elements of that list correspond to extra keys
+    that are not supported.
+*/
+
 void
 fhicl::detail::
 validate_ParameterSet( base_ptr param,
                        ParameterSet const& pset,
-                       std::set<std::string> const& keysToIgnore)
+                       key_set const& keysToIgnore)
 {
-  std::set<std::string> missingKeys;
-
   auto providedKeys = pset.get_all_keys();
-  std::set<std::string> userKeys( providedKeys.begin(), providedKeys.end() );
+  key_set userKeys( providedKeys.begin(), providedKeys.end() );
 
   auto & registry = detail::ParameterReferenceRegistry::instance();
 
-  std::set<std::string> ignorableKeys(keysToIgnore);
+  key_set ignorableKeys(keysToIgnore);
   registry.get_keys_with_defaults(&*param, ignorableKeys);
 
+  key_set missingKeys;
   validate( registry.get_child_parameters(&*param),
             ignorableKeys,
             userKeys,
             missingKeys);
 
-
-  std::ostringstream oss;
-  if ( missingKeys.size() ) {
-
-    std::string const prefix = " - ";
-
-    oss << "Missing parameters:\n";
-    for ( auto const & key : missingKeys ) {
-
-      // If the key is nested (e.g. pset1.pset2[0] ), show the
-      // parents
-      bool const showParents = key.find_first_of(".[") != std::string::npos;
-      print_reference( param->key()+std::string(".")+key,
-                       oss,
-                       showParents,
-                       prefix );
-    }
-    oss << "\n";
-  }
-
-  if ( userKeys.size() ) {
-    oss << "Unsupported parameters:\n\n";
-    for ( auto const & key : userKeys )
-      oss << " + " << std::setw(30) << std::left << key
-          << " [ "
-          << pset.get_src_info( key )
-          << " ]"
-          << std::endl;
-    oss << '\n';
-  }
-
-  if ( missingKeys.size() || userKeys.size() ) {
+  std::string errmsg;
+  errmsg += fillMissingKeysMsg( param, missingKeys );
+  errmsg += fillExtraKeysMsg( pset, userKeys );
+  if ( errmsg.size() ) {
     registry.clear();
-    std::string const error = oss.str();
-    throw validationException( error.c_str() );
+    throw validationException( errmsg.c_str() );
   }
 
   registry.set_values( pset, true );
   registry.clear();
-
 }
 
 //=========================================================================================
@@ -218,6 +206,49 @@ validate(fhicl::detail::ref_map const & declaredParams,
 
   removeIgnorableKeys( ignorableKeys, userKeys, missingKeys );
 
+}
+
+std::string
+fhicl::detail::fillMissingKeysMsg( base_ptr param, key_set const & missingKeys )
+{
+
+  if ( missingKeys.empty() ) return "";
+
+  std::string const prefix = " - ";
+
+  std::ostringstream oss;
+  oss << "Missing parameters:\n";
+  for ( auto const & key : missingKeys ) {
+
+    // If the key is nested (e.g. pset1.pset2[0] ), show the
+    // parents
+    bool const showParents = key.find_first_of(".[") != std::string::npos;
+    print_allowed_configuration( param->key()+"."+key,
+                                 oss,
+                                 showParents,
+                                 prefix );
+  }
+  oss << "\n";
+
+  return oss.str();
+}
+
+std::string
+fhicl::detail::fillExtraKeysMsg( fhicl::ParameterSet const& pset, key_set const& extraKeys )
+{
+  if ( extraKeys.empty() ) return "";
+
+  std::ostringstream oss;
+  oss << "Unsupported parameters:\n\n";
+  for ( auto const & key : extraKeys )
+    oss << " + " << std::setw(30) << std::left << key
+        << " [ "
+        << pset.get_src_info( key )
+        << " ]"
+        << std::endl;
+  oss << '\n';
+
+  return oss.str();
 }
 
 // Local variables:

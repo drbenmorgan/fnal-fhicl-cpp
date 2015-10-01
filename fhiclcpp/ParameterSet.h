@@ -15,7 +15,11 @@
 #include "cetlib/split_by_regex.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/coding.h"
+#include "fhiclcpp/detail/ParameterSetWalker.h"
+#include "fhiclcpp/detail/deprecation_msgs.h"
 #include "fhiclcpp/detail/encode_extended_value.h"
+#include "fhiclcpp/detail/print_mode.h"
+#include "fhiclcpp/detail/try_blocks.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/fwd.h"
@@ -33,22 +37,31 @@
 
 class fhicl::ParameterSet {
 public:
-  typedef fhicl::detail::ps_atom_t ps_atom_t;
-  typedef fhicl::detail::ps_sequence_t ps_sequence_t;
-  typedef std::unordered_map<std::string,std::string> annot_t;
 
+  using ps_atom_t     = fhicl::detail::ps_atom_t;
+  using ps_sequence_t = fhicl::detail::ps_sequence_t;
+  using annot_t       = std::unordered_map<std::string,std::string>;
 
   // compiler generates default c'tor, d'tor, copy c'tor, copy assignment
 
   // observers:
   bool is_empty() const;
   ParameterSetID id() const;
+
   std::string to_string() const;
   std::string to_compact_string() const;
-  std::string to_indented_string(unsigned initial_indent_level = 0,
-                                 bool annotate = true) const;
-  std::vector<std::string> get_keys() const;
-  std::vector<std::string> get_pset_keys() const;
+
+  std::string to_indented_string() const;
+  std::string to_indented_string(unsigned initial_indent_level) const;
+  std::string to_indented_string(unsigned initial_indent_level, bool annotate) const;
+  std::string to_indented_string(unsigned initial_indent_level, detail::print_mode pm) const;
+
+  std::vector<std::string> get_names() const;
+  std::vector<std::string> get_pset_names() const;
+
+  [[deprecated(GET_KEYS_MSG)     ]] std::vector<std::string> get_keys()      const { return get_names();      }
+  [[deprecated(GET_PSET_KEYS_MSG)]] std::vector<std::string> get_pset_keys() const { return get_pset_names(); }
+
   std::vector<std::string> get_all_keys() const;
   // Key must be local to this parameter set: no nesting.
   bool has_key(std::string const & key) const;
@@ -93,8 +106,8 @@ public:
   bool operator != (ParameterSet const & other) const;
 
 private:
-  typedef std::map<std::string, boost::any> map_t;
-  typedef map_t::const_iterator map_iter_t;
+  using map_t      = std::map<std::string, boost::any>;
+  using map_iter_t = map_t::const_iterator;
 
   map_t mapping_;
   annot_t srcMapping_;
@@ -129,8 +142,7 @@ private:
   bool
   key_is_type_(std::string const & key,
                std::function<bool (boost::any const &)> func) const;
-
-  class Prettifier;
+  void walk_( detail::ParameterSetWalker& psw) const;
 
 }; // ParameterSet
 
@@ -192,80 +204,46 @@ is_key_to_atom(std::string const & key) const
 
 template< class T >
 void
-fhicl::ParameterSet::put(std::string const & key, T const & value)
-  try
-    {
-      using detail::encode;
-      insert_(key, boost::any(encode(value)));
-    }
-  catch (boost::bad_lexical_cast const & e)
-    {
-      throw fhicl::exception(cant_insert, key) << e.what();
-    }
-  catch (boost::bad_numeric_cast const & e)
-    {
-      throw fhicl::exception(cant_insert, key) << e.what();
-    }
-  catch (fhicl::exception const & e)
-    {
-      throw fhicl::exception(cant_insert, key, e);
-    }
-  catch (std::exception const & e)
-    {
-      throw fhicl::exception(cant_insert, key) << e.what();
-    }
+fhicl::ParameterSet::put(std::string const & key, T const & value){
+
+  auto insert = [this,&key,&value](){
+    using detail::encode;
+    insert_(key, boost::any(encode(value)));
+  };
+
+  detail::try_insert(insert, key);
+
+}
 
 template< class T >
 void
 fhicl::ParameterSet::put_or_replace(std::string const & key, T const & value)
-try
 {
-  using detail::encode;
-  insert_or_replace_(key, boost::any(encode(value)));
-  srcMapping_.erase(key);
-}
-catch (boost::bad_lexical_cast const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
-}
-catch (boost::bad_numeric_cast const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
-}
-catch (fhicl::exception const & e)
-{
-  throw fhicl::exception(cant_insert, key, e);
-}
-catch (std::exception const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
+
+  auto insert_or_replace = [this,&key,&value](){
+    using detail::encode;
+    insert_or_replace_(key, boost::any(encode(value)));
+    srcMapping_.erase(key);
+  };
+
+  detail::try_insert(insert_or_replace, key);
+
 }
 
 template< class T >
 void
 fhicl::ParameterSet::put_or_replace_compatible(std::string const & key,
                                                T const & value)
-try
 {
-  using detail::encode;
-  insert_or_replace_compatible_(key, boost::any(encode(value)));
-  srcMapping_.erase(key);
-}
-catch (boost::bad_lexical_cast const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
-}
-catch (boost::bad_numeric_cast const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
-}
-catch (fhicl::exception const & e)
-{
-  throw fhicl::exception(cant_insert, key, e);
-}
-catch (std::exception const & e)
-{
-  throw fhicl::exception(cant_insert, key) << e.what();
+
+  auto insert_or_replace_compatible = [this,&key,&value](){
+    using detail::encode;
+    insert_or_replace_compatible_(key, boost::any(encode(value)));
+    srcMapping_.erase(key);
+  };
+
+  detail::try_insert(insert_or_replace_compatible, key);
+
 }
 
 // ----------------------------------------------------------------------

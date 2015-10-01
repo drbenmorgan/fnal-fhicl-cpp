@@ -8,7 +8,7 @@
   ----------------------------
 */
 
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/remove_stale_keys.h"
 
@@ -26,7 +26,7 @@ namespace fhicl {
     {
       auto & registry = ParameterReferenceRegistry::instance();
       std::string const old_key = pb.key();
-      std::string const new_key = key_prefix + Key::array_index(i);
+      std::string const new_key = key_prefix + Name::array_index(i);
 
       remove_stale_keys( t, pb.key() );
       pb.set_key( new_key );
@@ -39,7 +39,7 @@ namespace fhicl {
       */
       if ( is_table( pb.parameter_type() ) ) {
 
-        std::string const key_format = Key::regex_safe( old_key ) + std::string("(.*)");
+        std::string const key_format = Name::regex_safe( old_key ) + std::string("(.*)");
         std::string const new_format = new_key + std::string("$1");
 
         for ( auto const & pr : registry.get_parameters_by_key( old_key ) ) {
@@ -60,7 +60,7 @@ namespace fhicl {
                           std::size_t const i)
     {
       auto & registry = ParameterReferenceRegistry::instance();
-      std::string const new_key = key_prefix + Key::array_index(i);
+      std::string const new_key = key_prefix + Name::array_index(i);
 
       remove_stale_keys( arr, pb.key() );
       pb.set_key( new_key );
@@ -79,7 +79,7 @@ namespace fhicl {
     {
       auto & registry = ParameterReferenceRegistry::instance();
 
-      std::string const new_key = key_prefix + Key::array_index(i);
+      std::string const new_key = key_prefix + Name::array_index(i);
       remove_stale_keys( vec, pb.key() );
       pb.set_key( new_key );
       registry.emplace( pb.key(), &pb );
@@ -113,7 +113,7 @@ namespace fhicl {
                           std::size_t const i)
     {
       auto & registry = ParameterReferenceRegistry::instance();
-      std::string const new_key = key_prefix + Key::array_index(i);
+      std::string const new_key = key_prefix + Name::array_index(i);
       remove_stale_keys( tuple, pb.key() );
       pb.set_key( new_key );
       registry.emplace( pb.key(), &pb );

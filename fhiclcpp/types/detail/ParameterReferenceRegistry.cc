@@ -1,4 +1,4 @@
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
 #include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
 #include "fhiclcpp/exception.h"
@@ -56,8 +56,8 @@ namespace fhicl {
       par_type const pt = instance().get_parameter_by_key(key).second->parameter_type();
 
       std::regex const r =
-        is_sequence(pt) ? std::regex( Key::regex_safe(key) + R"(\[\d+\])") :
-        is_table(pt)    ? std::regex( Key::regex_safe(key) + R"(\.\w+)" )  : std::regex();
+        is_sequence(pt) ? std::regex( Name::regex_safe(key) + R"(\[\d+\])") :
+        is_table(pt)    ? std::regex( Name::regex_safe(key) + R"(\.\w+)" )  : std::regex();
 
       for ( auto const & keyPtrPr : instance().get_parameters_by_key(key) ) {
         key_string const k = keyPtrPr.first;

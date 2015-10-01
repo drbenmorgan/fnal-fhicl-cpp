@@ -61,7 +61,7 @@
     FIXME: Specify 'set_values' for specific ParameterBase objects;
            not looping over all keys.
 
-    FIXME: revamp system so that only c'tor calls that require a Key()
+    FIXME: revamp system so that only c'tor calls that require a Name()
            argument register the parameter.
  */
 

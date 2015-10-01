@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_types_detail_print_reference_h
-#define fhiclcpp_types_detail_print_reference_h
+#ifndef fhiclcpp_types_detail_print_allowed_configuration_h
+#define fhiclcpp_types_detail_print_allowed_configuration_h
 
 #include "cetlib/exempt_ptr.h"
 
@@ -14,9 +14,9 @@ namespace fhicl {
 
     using base_ptr = cet::exempt_ptr<ParameterBase>;
 
-    void print_reference( std::string const& key, std::ostream & os,
-                          bool const showParents = false,
-                          std::string const & prefix = std::string(3,' ') );
+    void print_allowed_configuration( std::string const& key, std::ostream & os,
+                                      bool const showParents = false,
+                                      std::string const & prefix = std::string(3,' ') );
 
     void stringify(base_ptr parameter, std::ostream & os,
                    bool const showParents = false,

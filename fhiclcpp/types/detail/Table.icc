@@ -1,9 +1,9 @@
 namespace fhicl {
 
   template <typename T>
-  Table<T>::Table(Key && key,
+  Table<T>::Table(Name && name,
                   Comment && comment )
-    : ParameterBase(std::move(key),std::move(comment),false,par_type::TABLE,this)
+    : ParameterBase(std::move(name),std::move(comment),false,par_type::TABLE,this)
     , value_()
   {
     static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
@@ -11,11 +11,11 @@ namespace fhicl {
   }
 
   template <typename T>
-  Table<T>::Table(Key && key) : Table( std::move(key), Comment("") ) {}
+  Table<T>::Table(Name && name) : Table( std::move(name), Comment("") ) {}
 
   template <typename T>
   Table<T>::Table()
-    : ParameterBase(Key::anonymous(),Comment(""),false,par_type::TABLE,this)
+    : ParameterBase(Name::anonymous(),Comment(""),false,par_type::TABLE,this)
     , value_()
   {
     static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
@@ -24,7 +24,7 @@ namespace fhicl {
 
   template <typename T>
   Table<T>::Table(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
-    : ParameterBase(Key::anonymous(),Comment(""),false,par_type::TABLE,this)
+    : ParameterBase(Name::anonymous(),Comment(""),false,par_type::TABLE,this)
     , value_()
   {
     static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
@@ -42,10 +42,10 @@ namespace fhicl {
 
   template <typename T>
   void
-  Table<T>::print_reference(std::ostream& os,
-                            std::string const& tab) const
+  Table<T>::print_allowed_configuration(std::ostream& os,
+                                        std::string const& tab) const
   {
-    detail::print_reference(key(), os, false, tab);
+    detail::print_allowed_configuration(key(), os, false, tab);
   }
 
 }

@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_SUITE( static_types_keymap_defaults_test )
 // [1] Atom<T>
 BOOST_AUTO_TEST_CASE( one_atom_t )
 {
-  Atom<int> test { Key("atom"), 4 };
+  Atom<int> test { Name("atom"), 4 };
   auto map = key_map(&test);
   auto ref = {"atom"};
   BOOST_CHECK_EQUAL_COLLECTIONS( map.begin(), map.end(),
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( one_atom_t )
 // [2] Sequence<T>
 BOOST_AUTO_TEST_CASE( one_sequence_t )
 {
-  Sequence<int> test { Key("sequence"), {1,2,4} };
+  Sequence<int> test { Name("sequence"), {1,2,4} };
   auto map = key_map(&test);
   auto ref = {"sequence",
               "sequence[0]",
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( one_sequence_t )
 // [3] Sequence<T,SZ>
 BOOST_AUTO_TEST_CASE( one_sequence_2_t )
 {
-  Sequence<int,2> test { Key("sequence"), {5,7} };
+  Sequence<int,2> test { Name("sequence"), {5,7} };
   auto map = key_map(&test);
   auto ref = {"sequence",
               "sequence[0]",
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( one_sequence_2_t )
 // [4] Tuple<T...>
 BOOST_AUTO_TEST_CASE( one_tuple_t )
 {
-  Tuple<int,double,bool> test { Key("tuple"), {4,1.5,false} };
+  Tuple<int,double,bool> test { Name("tuple"), {4,1.5,false} };
   auto map = key_map(&test);
   auto ref = {"tuple",
               "tuple[0]",
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( one_tuple_t )
 // [5] Tuple< Sequence<T>, U...>
 BOOST_AUTO_TEST_CASE( seq_in_tuple_t )
 {
-  Tuple< Sequence<int>,double,bool> test { Key("tuple"), { {1,3,5},4.6,true } };
+  Tuple< Sequence<int>,double,bool> test { Name("tuple"), { {1,3,5},4.6,true } };
   auto map = key_map(&test);
   auto ref = {"tuple",
               "tuple[0]",
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( seq_in_tuple_t )
 // [6] Tuple< Sequence<T,SZ>, U...>
 BOOST_AUTO_TEST_CASE( bounded_seq_in_tuple_t )
 {
-  Tuple< Sequence<int,2>,double,bool> test { Key("tuple"), { {9,15}, 0.2, false} };
+  Tuple< Sequence<int,2>,double,bool> test { Name("tuple"), { {9,15}, 0.2, false} };
   auto map = key_map(&test);
   auto ref = {"tuple",
               "tuple[0]",
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( bounded_seq_in_tuple_t )
 // [7] Tuple< Tuple<T...>, U...>
 BOOST_AUTO_TEST_CASE( tuple_in_tuple_t )
 {
-  Tuple< Tuple<int,float>,double,bool> test { Key("tuple"), { {4,3.7f}, 8.1, true } };
+  Tuple< Tuple<int,float>,double,bool> test { Name("tuple"), { {4,3.7f}, 8.1, true } };
   auto map = key_map(&test);
   auto ref = {"tuple",
               "tuple[0]",
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( tuple_in_tuple_t )
 // [8] Sequence< Tuple<T...> >
 BOOST_AUTO_TEST_CASE( tuple_in_seq_t )
 {
-  Sequence< Tuple<int,float> > test { Key("seqtuple"), { {2,5.4f}, {4,104.5f}, {8,15.3f} } };
+  Sequence< Tuple<int,float> > test { Name("seqtuple"), { {2,5.4f}, {4,104.5f}, {8,15.3f} } };
   auto map = key_map(&test);
   auto ref = {"seqtuple",
               "seqtuple[0]",
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE( tuple_in_seq_t )
 // [9] Sequence< Tuple<T...>, SZ >
 BOOST_AUTO_TEST_CASE( tuple_in_seq_2_t )
 {
-  Sequence< Tuple<int,float>, 2 > test { Key("seqtuple"), { {1,2.3f},{9,3.2f} } };
+  Sequence< Tuple<int,float>, 2 > test { Name("seqtuple"), { {1,2.3f},{9,3.2f} } };
   auto map = key_map(&test);
   auto ref = {"seqtuple",
               "seqtuple[0]",
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE( tuple_in_seq_2_t )
 // [10] Sequence< Sequence<T> >
 BOOST_AUTO_TEST_CASE( seq_in_seq_t )
 {
-  Sequence< Sequence<int> > test { Key("seqseq"), { { 1,5,7}, {2} }};
+  Sequence< Sequence<int> > test { Name("seqseq"), { { 1,5,7}, {2} }};
   auto map = key_map(&test);
   auto ref = {"seqseq",
               "seqseq[0]",
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE( seq_in_seq_t )
 // [11] Sequence< Sequence<T,SZ> >
 BOOST_AUTO_TEST_CASE( seq_2_in_seq_t )
 {
-  Sequence< Sequence<int,2> > test { Key("seqseq"), { {1,2} } };
+  Sequence< Sequence<int,2> > test { Name("seqseq"), { {1,2} } };
   auto map = key_map(&test);
   auto ref = {"seqseq",
               "seqseq[0]",
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE( seq_2_in_seq_t )
 // [12] Sequence< Sequence<T>, SZ >
 BOOST_AUTO_TEST_CASE( seq_in_seq_2_t )
 {
-  Sequence< Sequence<int>, 2> test { Key("seqseq"), { {4}, {1,4,9,1} } };
+  Sequence< Sequence<int>, 2> test { Name("seqseq"), { {4}, {1,4,9,1} } };
   auto map = key_map(&test);
   auto ref = {"seqseq",
               "seqseq[0]",
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( seq_in_seq_2_t )
 // [13] Sequence< Sequence<T,SZ>, SZ >
 BOOST_AUTO_TEST_CASE( seq_2_in_seq_2_t )
 {
-  Sequence< Sequence<int, 2>, 2> test { Key("seqseq"), { {6,7},{2,1} } };
+  Sequence< Sequence<int, 2>, 2> test { Name("seqseq"), { {6,7},{2,1} } };
   auto map = key_map(&test);
   auto ref = {"seqseq",
               "seqseq[0]",

@@ -11,12 +11,12 @@ cet_test(return_types_t          USE_BOOST_UNIT)
 cet_test(return_types_table_t    USE_BOOST_UNIT)
 cet_test(return_value_defaults_t USE_BOOST_UNIT)
 
-cet_test(print_reference_t
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/print_reference_t-ref.txt"
+cet_test(print_allowed_configuration_t
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/print_allowed_configuration_t-ref.txt"
   )
 
-cet_test(print_reference_defaults_t
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/print_reference_defaults_t-ref.txt"
+cet_test(print_allowed_configuration_defaults_t
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/print_allowed_configuration_defaults_t-ref.txt"
   )
 
 cet_test(validate_ParameterSet_t

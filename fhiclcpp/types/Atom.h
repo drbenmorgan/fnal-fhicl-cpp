@@ -3,9 +3,9 @@
 
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Comment.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
-#include "fhiclcpp/types/detail/KeyStackRegistry.h"
+#include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
 #include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
 #include "fhiclcpp/types/detail/ostream_helpers.h"
@@ -25,13 +25,13 @@ namespace fhicl {
     //=====================================================
     // User-friendly
     // ... c'tors
-    explicit Atom(Key && key);
+    explicit Atom(Name && name);
 
-    explicit Atom(Key && key, Comment && cmt );
-    explicit Atom(Key && key, T const& dflt_value );
+    explicit Atom(Name && name, Comment && cmt );
+    explicit Atom(Name && name, T const& dflt_value );
 
-    explicit Atom(Key && key, Comment && cmt, T const& dflt_value );
-    explicit Atom(Key && key, T const& dflt_value, Comment && cmt );
+    explicit Atom(Name && name, Comment && cmt, T const& dflt_value );
+    explicit Atom(Name && name, T const& dflt_value, Comment && cmt );
 
     // ... Accessors
     auto const & operator()() const { return value_; }

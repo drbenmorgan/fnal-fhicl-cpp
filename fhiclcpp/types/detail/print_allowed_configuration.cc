@@ -1,11 +1,11 @@
 #include "cetlib/split_by_regex.h"
 #include "fhiclcpp/exception.h"
-#include "fhiclcpp/types/Key.h"
+#include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
 #include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
-#include "fhiclcpp/types/detail/print_reference.h"
+#include "fhiclcpp/types/detail/print_allowed_configuration.h"
 
 #include <cctype>
 #include <regex>
@@ -163,10 +163,10 @@ namespace {
 //===================================================================================
 void
 fhicl::detail::
-print_reference(std::string const& key,
-                std::ostream & os,
-                bool const showParents,
-                std::string const& prefix)
+print_allowed_configuration(std::string const& key,
+                            std::ostream & os,
+                            bool const showParents,
+                            std::string const& prefix)
 {
   auto const & param = detail::ParameterReferenceRegistry::get_parameter_by_key( key );
   if ( param.second ) {

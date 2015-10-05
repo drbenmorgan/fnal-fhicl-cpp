@@ -64,7 +64,6 @@ namespace fhicl {
     typename std::enable_if<(I < std::tuple_size<TUPLE>::value)>::type
     finalize_tuple_elements()
     {
-      auto & registry = detail::ParameterReferenceRegistry::instance();
       auto & elem = std::get<I>(value_);
       set_element_keys(elem.get_ftype(), elem, key(), I);
       finalize_tuple_elements<I+1>();

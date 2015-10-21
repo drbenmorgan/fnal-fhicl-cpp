@@ -34,11 +34,11 @@
 #include <array>
 #include <complex>
 #include <cstdint>
-#include <vector>
-#include <utility>
 #include <sstream>
 #include <string>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 namespace fhicl {  namespace detail {
     typedef  std::string                ps_atom_t;

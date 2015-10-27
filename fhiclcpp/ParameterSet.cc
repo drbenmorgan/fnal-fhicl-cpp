@@ -10,7 +10,7 @@
 #include "fhiclcpp/detail/KeyAssembler.h"
 #include "fhiclcpp/detail/Prettifier.h"
 #include "fhiclcpp/detail/PrettifierAnnotated.h"
-#include "fhiclcpp/detail/PrettifierParsable.h"
+#include "fhiclcpp/detail/PrettifierPrefixAnnotated.h"
 
 #include <cassert>
 #include <cstddef>
@@ -420,8 +420,8 @@ ParameterSet::to_indented_string(unsigned const initial_indent_level,
     result = p.result();
     break;
   }
-  case print_mode::parsable : {
-    PrettifierParsable p;
+  case print_mode::prefix_annotated : {
+    PrettifierPrefixAnnotated p;
     walk_( p );
     result = p.result();
     break;

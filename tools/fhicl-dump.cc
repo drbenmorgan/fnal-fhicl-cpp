@@ -83,7 +83,7 @@ namespace {
     Options opts;
 
     bool annotate{false};
-    bool parsable{false};
+    bool prefix_annotated{false};
 
     bpo::options_description desc("fhicl-dump [-c] <file>\nOptions");
     desc.add_options()
@@ -91,7 +91,7 @@ namespace {
       ( "config,c", bpo::value<std::string>(&opts.input_filename), "input file" )
       ( "output,o", bpo::value<std::string>(&opts.output_filename), "output file (default is STDOUT)")
       ( "annotated,a", bpo::bool_switch(&annotate)->default_value(false,"false"), "include source location annotations")
-      ( "parsable", bpo::bool_switch(&parsable)->default_value(false,"false"), "include parsable source location annotations (mutually exclusive with 'annotated' option)")
+      ( "prefix-annotated", bpo::bool_switch(&prefix_annotated)->default_value(false,"false"), "include source location annotations on line preceding parameter assignment (mutually exclusive with 'annotated' option)")
       ( "lookup-policy,l" ,
         bpo::value<int>(&opts.lookup_policy)->default_value(1),
         "lookup policy code:"
@@ -125,14 +125,14 @@ namespace {
       throw cet::exception(help);
     }
 
-    if ( annotate && parsable ) {
+    if ( annotate && prefix_annotated ) {
       std::ostringstream err_stream;
-      err_stream << "Cannot specify both '--annotated' and '--parsable' options.\n";
+      err_stream << "Cannot specify both '--annotated' and '--prefix-annotated' options.\n";
       throw cet::exception(config) << err_stream.str();
     }
 
-    if ( annotate ) opts.mode = print_mode::annotated;
-    if ( parsable ) opts.mode = print_mode::parsable;
+    if ( annotate )         opts.mode = print_mode::annotated;
+    if ( prefix_annotated ) opts.mode = print_mode::prefix_annotated;
 
     if ( !vm.count("config") ) {
       std::ostringstream err_stream;

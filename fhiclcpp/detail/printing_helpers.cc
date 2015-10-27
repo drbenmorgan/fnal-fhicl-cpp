@@ -35,7 +35,7 @@ std::string detail::print_annotated_info(std::string const& curr_info,
   return tag+printed_info;
 }
 
-std::string detail::print_parsable_info(std::string const& info)
+std::string detail::print_prefix_annotated_info(std::string const& info)
 {
   std::string const printed_info = allowed_info(info) ? info : "";
   return "#SRC|"+printed_info+"|";

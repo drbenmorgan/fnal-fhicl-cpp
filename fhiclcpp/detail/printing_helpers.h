@@ -21,7 +21,7 @@ namespace fhicl {
 
     std::string printed_suffix(std::string const& key, std::size_t const sz);
 
-    std::string print_parsable_info(std::string const& curr_info);
+    std::string print_prefix_annotated_info(std::string const& curr_info);
 
     std::string print_annotated_info(std::string const& curr_info,
                                      std::string const& cached_info);

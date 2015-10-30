@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_Table_h
-#define fhiclcpp_Table_h
+#ifndef fhiclcpp_types_Table_h
+#define fhiclcpp_types_Table_h
 
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Comment.h"
@@ -23,6 +23,10 @@ namespace fhicl {
   template<typename T>
   class Table : public detail::ParameterBase {
   public:
+
+    static_assert(!tt::is_sequence_type<T>::value , NO_STD_CONTAINERS             );
+    static_assert(!tt::is_fhicl_type<T>::value    , NO_NESTED_FHICL_TYPES_IN_TABLE);
+    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS     );
 
     //=====================================================
     // User-friendly

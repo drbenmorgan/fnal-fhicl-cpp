@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_Comment_h
-#define fhiclcpp_Comment_h
+#ifndef fhiclcpp_types_Comment_h
+#define fhiclcpp_types_Comment_h
 
 #include <string>
 

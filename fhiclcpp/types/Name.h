@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_Name_h
-#define fhiclcpp_Name_h
+#ifndef fhiclcpp_types_Name_h
+#define fhiclcpp_types_Name_h
 
 #include <regex>
 #include <string>

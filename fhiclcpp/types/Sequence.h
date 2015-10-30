@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_Sequence_h
-#define fhiclcpp_Sequence_h
+#ifndef fhiclcpp_types_Sequence_h
+#define fhiclcpp_types_Sequence_h
 
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Table.h"

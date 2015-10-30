@@ -1,51 +1,22 @@
 // ======================================================================
 //
-// test static_types keymap for tables
-
-/* The purpose of this test is to verify that types 14-21 below create
-   the correct key maps for ParameterSet validation.
-
-   In what follows, ’T’ represents a type supported by an Atom<>
-   and ’S’ represents an explicitly constructed struct that may
-   contain Atom<>, Sequence<>, Tuple<>, or Table<> objects.
-
-   [ 1] Atom<T>;
-   [ 2] Sequence<T>
-   [ 3] Sequence<T,SZ>
-   [ 4] Tuple<T...>
-   [ 5] Tuple< Sequence<T>, U...>
-   [ 6] Tuple< Sequence<T,SZ>, U...>
-   [ 7] Tuple< Tuple<T...>,U...>
-   [ 8] Sequence< Tuple<T...> >
-   [ 9] Sequence< Tuple<T...>, SZ >
-   [10] Sequence< Sequence<T> >
-   [11] Sequence< Sequence<T,SZ> >
-   [12] Sequence< Sequence<T>, SZ >
-   [13] Sequence< Sequence<T,SZ>, SZ >
-
-   14-21 cannot support default arguments (since Table<> cannot have a default)
-
-   [14] Table<S>
-   [15] Sequence< Table<S> >
-   [16] Sequence< Table<S>, SZ >
-   [17] Tuple< Table<S>, U... >
-   [18] Tuple< Sequence< Table<S> >, U... >
-   [19] Tuple< Sequence< Table<S>, SZ>, U... >
-   [20] Sequence< Tuple< Table<S>, U... > >
-   [21] Sequence< Tuple< Table<S>, U... >, SZ>
-
- */
-
+// test types keymap for tables:
+//
+//   The purpose of this test is to verify that types 14-21 below create
+//   the correct key maps for ParameterSet validation.
+//
 // ======================================================================
 
 #define BOOST_TEST_MODULE ( keymap test with tables )
 
 #include "boost/test/auto_unit_test.hpp"
 #include "boost/test/test_tools.hpp"
-
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
 #include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/TableFragment.h"
 #include "fhiclcpp/types/Tuple.h"
 
 #include <iostream>
@@ -74,7 +45,7 @@ namespace {
 
 }
 
-BOOST_AUTO_TEST_SUITE( static_types_keymap_test )
+BOOST_AUTO_TEST_SUITE( types_keymap_test )
 
 // [14] Table<S>
 BOOST_AUTO_TEST_CASE( table_t )
@@ -268,6 +239,30 @@ BOOST_AUTO_TEST_CASE( tuptable_in_seq_2_t )
               "tupseqtable[1][1]",
               "tupseqtable[1][2]" };
   BOOST_CHECK_EQUAL_COLLECTIONS( map.begin(), map.end(),
+                                 ref.begin(), ref.end());
+}
+
+// [21] Sequence< Tuple< Table<S>, U... >, SZ >
+BOOST_AUTO_TEST_CASE( tablefragment_t )
+{
+  TableFragment<S> test;
+  auto map = ParameterReferenceRegistry::get_parameters_by_key("");
+
+  std::vector<std::string> result;
+  cet::transform_all( map, std::back_inserter(result),
+                      [](auto const& pr){
+                        return pr.first;
+                      } );
+
+  auto ref = {"atom",
+              "sequence",
+              "sequence[0]",
+              "sequence[1]",
+              "tuple",
+              "tuple[0]",
+              "tuple[1]",
+              "tuple[2]"};
+  BOOST_CHECK_EQUAL_COLLECTIONS( result.begin(), result.end(),
                                  ref.begin(), ref.end());
 }
 

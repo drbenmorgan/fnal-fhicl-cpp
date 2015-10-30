@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_Tuple_h
-#define fhiclcpp_Tuple_h
+#ifndef fhiclcpp_types_Tuple_h
+#define fhiclcpp_types_Tuple_h
 
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
@@ -87,21 +87,21 @@ namespace fhicl {
 
       /*
         One of the downsides of automatic registration of
-        default-c'tored elements is that if you want to override
-        the values later (as in the case with std::array or
-        std::tuple), you need to first remove the entries of the
-        registered empty elements and reassign.  Ideally, I
-        wouldn't have to do this, but could reuse those map
-        entries, but at the moment, I can't see a straightforward
-        way without rewriting a significant portion of the entire
-        system.
+        default-c'tored elements is that if you want to override the
+        values later (as in the case with std::array or std::tuple),
+        you need to first remove the entries of the registered empty
+        elements and reassign.  Ideally, I wouldn't have to do this,
+        but could reuse those map entries, but at the moment, I can't
+        see a straightforward way without rewriting a significant
+        portion of the entire system.
 
         Remove registered elements from default-c'tored value_
       */
       using elem_utype = typename std::tuple_element<I,UTUPLE>::type;
       static_assert(!tt::is_table<elem_utype>::value, NO_DEFAULTS_FOR_TABLE);
+      static_assert(!tt::is_sequence_type<elem_utype>::value, NO_STD_CONTAINERS);
 
-      auto & elem      = std::get<I>(value_);
+      auto & elem = std::get<I>(value_);
       elem = tt::fhicl_type<elem_utype>( Name::anonymous(), std::get<I>(utuple) );
       fill_tuple_element<I+1>(utuple);
     }

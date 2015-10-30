@@ -1,6 +1,6 @@
 // ======================================================================
 //
-// test static_types return type for tables
+// test types return type for tables
 
 /* The purpose of this test is to verify that types 14-21 below return
    the correct types.
@@ -72,7 +72,7 @@ namespace {
 
 }
 
-BOOST_AUTO_TEST_SUITE( static_types_return_types_tables )
+BOOST_AUTO_TEST_SUITE( types_return_types_tables )
 
 // [14] Table<S>
 BOOST_AUTO_TEST_CASE( table_t )

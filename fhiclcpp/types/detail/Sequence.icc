@@ -95,7 +95,6 @@ namespace fhicl {
     , value_()
   {
     static_assert(!tt::is_table<T>::value, NO_DEFAULTS_FOR_TABLE);
-
     detail::ParameterRegistrySentry s;
     for ( auto const& arg : args ) {
       value_.emplace_back( Name::anonymous(), arg );

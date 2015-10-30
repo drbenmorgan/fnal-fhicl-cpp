@@ -6,7 +6,6 @@ namespace fhicl {
     : ParameterBase(std::move(name),std::move(comment),false,par_type::TABLE,this)
     , value_()
   {
-    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
     detail::ParameterRegistrySentry();
   }
 
@@ -18,7 +17,6 @@ namespace fhicl {
     : ParameterBase(Name::anonymous(),Comment(""),false,par_type::TABLE,this)
     , value_()
   {
-    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
     detail::ParameterRegistrySentry();
   }
 
@@ -27,7 +25,6 @@ namespace fhicl {
     : ParameterBase(Name::anonymous(),Comment(""),false,par_type::TABLE,this)
     , value_()
   {
-    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
     detail::ParameterRegistrySentry();
     validate_ParameterSet( pset, keysToIgnore );
     set_PSet( pset );

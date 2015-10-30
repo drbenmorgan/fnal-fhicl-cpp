@@ -28,6 +28,9 @@ namespace fhicl {
   template <typename T>
   struct Table;
 
+  template <typename T>
+  struct TableFragment;
+
   template <typename ... ARGS>
   struct Tuple;
 
@@ -88,6 +91,14 @@ namespace tt {
 
   template <typename T>
   struct is_table<fhicl::Table<T>> : std::true_type {};
+
+  //=======================================================
+  // Check if TableFragment<>
+  //
+  template <typename T> struct is_table_fragment : std::false_type {};
+
+  template <typename T>
+  struct is_table_fragment<fhicl::TableFragment<T>> : std::true_type {};
 
   //=======================================================
   // Get FHiCL types: can be Atom, Sequence, Tuple, or Table

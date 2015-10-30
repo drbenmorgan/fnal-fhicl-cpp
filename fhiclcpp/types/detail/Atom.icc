@@ -8,8 +8,6 @@ namespace fhicl {
     : AtomBase(std::move(name), std::move(cmt), false, par_type::ATOM, this)
     , value_()
   {
-    static_assert(!tt::is_sequence_type<T>::value, NO_CONTAINERS_IN_ATOM);
-    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_ATOM);
     detail::ParameterRegistrySentry();
   }
 
@@ -20,8 +18,6 @@ namespace fhicl {
     : AtomBase(std::move(name), std::move(cmt), true, par_type::ATOM, this)
     , value_(dflt_value)
   {
-    static_assert(!tt::is_sequence_type<T>::value, NO_CONTAINERS_IN_ATOM);
-    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_ATOM);
     detail::ParameterRegistrySentry();
   }
 

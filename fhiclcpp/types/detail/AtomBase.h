@@ -16,9 +16,8 @@ namespace fhicl {
       AtomBase(Name const & name,
                Comment const & comment,
                bool const hasDefault,
-               par_type const type,
                ParameterBase* pb)
-        : ParameterBase( name, comment, hasDefault, type, pb ) {}
+        : ParameterBase( name, comment, hasDefault, par_type::ATOM, pb ) {}
 
       std::string stringified_value() const
       {

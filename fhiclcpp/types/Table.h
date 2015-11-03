@@ -6,10 +6,10 @@
 #include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
-#include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
 #include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
 #include "fhiclcpp/types/detail/ParameterRegistrySentry.h"
+#include "fhiclcpp/types/detail/TableBase.h"
 #include "fhiclcpp/types/detail/print_allowed_configuration.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
 #include "fhiclcpp/types/detail/validate_ParameterSet.h"
@@ -21,7 +21,7 @@ namespace fhicl {
 
   //========================================================
   template<typename T>
-  class Table : public detail::ParameterBase {
+  class Table : public detail::TableBase {
   public:
 
     static_assert(!tt::is_sequence_type<T>::value , NO_STD_CONTAINERS             );
@@ -55,11 +55,12 @@ namespace fhicl {
     auto const & get_ftype() const { return value_; }
     auto       & get_ftype()       { return value_; }
 
-    void set_PSet( fhicl::ParameterSet const& pset ) { pset_ = pset; }
-
   private:
     T value_;
     ParameterSet pset_;
+
+    void do_set_value(fhicl::ParameterSet const& pset, bool const trimParents) override;
+
   };
 
 }

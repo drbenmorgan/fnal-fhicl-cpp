@@ -1,10 +1,31 @@
+#include "cetlib/demangle.h"
 #include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
 #include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
+#include "fhiclcpp/types/detail/TableBase.h"
 #include "fhiclcpp/exception.h"
 
 #include <iostream>
 #include <regex>
+
+namespace {
+
+  template <typename T>
+  auto getPtr(fhicl::detail::ParameterBase * pbptr)
+  {
+    auto ptr = dynamic_cast<T*>(pbptr);
+    if (!ptr) {
+      std::ostringstream err_msg;
+      err_msg << "Error when converting from ParameterBase* to "
+              << cet::demangle_symbol( typeid(T*).name() ) << "\n"
+              << "in " << __func__ << "\n"
+              << "Please contact artists@fnal.gov";
+      throw fhicl::exception(fhicl::error::cant_happen, err_msg.str());
+    }
+    return ptr;
+  }
+
+}
 
 namespace fhicl {
   namespace detail {
@@ -177,20 +198,20 @@ namespace fhicl {
                                            bool const trimParent)
     {
       for ( auto & keyPtrPr : parameters_ ) {
-
-        if ( keyPtrPr.second->parameter_type() != par_type::ATOM )
-          continue;
-
-        auto atom_ptr = dynamic_cast<AtomBase*>( keyPtrPr.second.get() );
-        if ( !atom_ptr ) {
-          std::ostringstream err_msg;
-          err_msg << "Error when converting from ParameterBase* to AtomBase*\n"
-                  << "in " << __func__ << "\n"
-                  << "Please contact artists@fnal.gov";
-          throw fhicl::exception(fhicl::error::cant_happen, err_msg.str());
+        switch(keyPtrPr.second->parameter_type()) {
+        case par_type::ATOM: {
+          auto atom_ptr = getPtr<AtomBase>( keyPtrPr.second.get() );
+          atom_ptr->set_value(pset, trimParent);
+          break;
         }
-
-        atom_ptr->set_value(pset, trimParent);
+        case par_type::TABLE: {
+          auto table_ptr = getPtr<TableBase>( keyPtrPr.second.get() );
+          table_ptr->set_value(pset, true);
+          break;
+        }
+        default:
+          continue;
+        }
       }
     }
 

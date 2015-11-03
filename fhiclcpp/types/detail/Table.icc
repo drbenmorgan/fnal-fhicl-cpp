@@ -3,7 +3,7 @@ namespace fhicl {
   template <typename T>
   Table<T>::Table(Name && name,
                   Comment && comment )
-    : ParameterBase(std::move(name),std::move(comment),false,par_type::TABLE,this)
+    : TableBase(std::move(name),std::move(comment),this)
     , value_()
   {
     detail::ParameterRegistrySentry();
@@ -14,7 +14,7 @@ namespace fhicl {
 
   template <typename T>
   Table<T>::Table()
-    : ParameterBase(Name::anonymous(),Comment(""),false,par_type::TABLE,this)
+    : TableBase(Name::anonymous(),Comment(""),this)
     , value_()
   {
     detail::ParameterRegistrySentry();
@@ -22,12 +22,11 @@ namespace fhicl {
 
   template <typename T>
   Table<T>::Table(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
-    : ParameterBase(Name::anonymous(),Comment(""),false,par_type::TABLE,this)
+    : TableBase(Name::anonymous(),Comment(""),this)
     , value_()
   {
     detail::ParameterRegistrySentry();
     validate_ParameterSet( pset, keysToIgnore );
-    set_PSet( pset );
   }
 
   template <typename T>
@@ -43,6 +42,22 @@ namespace fhicl {
                                         std::string const& tab) const
   {
     detail::print_allowed_configuration(key(), os, false, tab);
+  }
+
+  template <typename T>
+  void
+  Table<T>::do_set_value(fhicl::ParameterSet const& pset, bool const trimParent [[gnu::unused]])
+  {
+    // Kind of tricky: we do not have the name of the current
+    // parameter set.  A placeholder is often used (e.g. "<140>").
+    // Fortunately, since the pset is passed in, we can just assign to
+    // it for a top-level ParameterSet.  However, for nested parameter
+    // sets, we need to trim off the placeholder, and then the key we
+    // send pset.get<fhicl::ParameterSet>(key) is the key relative to
+    // the top-level pset.
+    std::string const& rkey = key();
+    std::string const& key  = rkey.substr( rkey.find_first_of(".")+1 );
+    pset_ = (key == rkey) ? pset : pset.get<fhicl::ParameterSet>(key,{});
   }
 
 }

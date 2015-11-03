@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_types_Table_h
-#define fhiclcpp_types_Table_h
+#ifndef fhiclcpp_types_OptionalTable_h
+#define fhiclcpp_types_OptionalTable_h
 
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Comment.h"
@@ -18,7 +18,7 @@ namespace fhicl {
 
   //========================================================
   template<typename T>
-  class Table : public detail::TableBase {
+  class OptionalTable : public detail::TableBase {
   public:
 
     static_assert(!tt::is_sequence_type<T>::value , NO_STD_CONTAINERS             );
@@ -28,12 +28,18 @@ namespace fhicl {
     //=====================================================
     // User-friendly
     // ... c'tors
-    explicit Table(Name && name);
-    explicit Table(Name && name, Comment && comment );
-    Table(ParameterSet const& pset, std::set<std::string> const & keysToIgnore );
+    explicit OptionalTable(Name && name);
+    explicit OptionalTable(Name && name, Comment && comment );
+    OptionalTable(ParameterSet const& pset, std::set<std::string> const & keysToIgnore );
 
     // ... Accessors
-    auto const& operator()() const { return value_; }
+    bool operator()(T& value) const {
+      if(has_value_) {
+        value = value_;
+        return true;
+      }
+      return false;
+    }
 
     ParameterSet const & get_PSet() const { return pset_; }
 
@@ -47,7 +53,7 @@ namespace fhicl {
     // Expert-only
     using rtype = T;
 
-    Table();
+    OptionalTable();
 
     auto const & get_ftype() const { return value_; }
     auto       & get_ftype()       { return value_; }
@@ -57,6 +63,7 @@ namespace fhicl {
     using members_t = std::vector<cet::exempt_ptr<ParameterBase>>;
 
     T value_ {};
+    bool has_value_ {false};
     ParameterSet pset_ {};
     members_t members_ {};
 
@@ -64,12 +71,12 @@ namespace fhicl {
     void do_set_value(fhicl::ParameterSet const& pset, bool const trimParents) override;
 
     void fill_members();
-    void maybe_implicitly_default();
+
   };
 
 }
 
-#include "fhiclcpp/types/detail/Table.icc"
+#include "fhiclcpp/types/detail/OptionalTable.icc"
 
 #endif
 

@@ -1,6 +1,7 @@
 #ifndef fhiclcpp_detail_TableBase_h
 #define fhiclcpp_detail_TableBase_h
 
+#include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 
 namespace fhicl {
@@ -15,17 +16,19 @@ namespace fhicl {
 
       TableBase(Name const & name,
                 Comment const & comment,
+                value_type const vt,
                 ParameterBase* pb)
-        : ParameterBase( name, comment, false, par_type::TABLE, pb ) {}
+        : ParameterBase{name, comment, vt, par_type::TABLE, pb}
+      {}
 
-      void set_value(fhicl::ParameterSet const& pset, bool const trimParents)
+      std::vector<cet::exempt_ptr<ParameterBase>> const& members() const
       {
-        do_set_value(pset,trimParents);
+        return get_members();
       }
 
     private:
 
-      virtual void do_set_value(fhicl::ParameterSet const&, bool const trimParents) = 0;
+      virtual std::vector<cet::exempt_ptr<ParameterBase>> const& get_members() const = 0;
 
     };
 

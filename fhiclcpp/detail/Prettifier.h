@@ -96,15 +96,15 @@ namespace fhicl {
 
     private:
 
-      virtual void enter_table   (key_t const&, any_t const&) override;
-      virtual void enter_sequence(key_t const&, any_t const&) override;
+      void enter_table   (key_t const&, any_t const&) override;
+      void enter_sequence(key_t const&, any_t const&) override;
 
-      virtual void exit_table    (key_t const&, any_t const&) override;
-      virtual void exit_sequence (key_t const&, any_t const&) override;
+      void exit_table    (key_t const&, any_t const&) override;
+      void exit_sequence (key_t const&, any_t const&) override;
 
-      virtual void atom(key_t const&, any_t const&) override;
+      void atom(key_t const&, any_t const&) override;
 
-      virtual void before_action(key_t const&, any_t const&, ParameterSet const*) override;
+      void before_action(key_t const&, any_t const&, ParameterSet const*) override;
 
       void push_size_(any_t const&);
       void pop_size_();
@@ -127,4 +127,3 @@ namespace fhicl {
 // Local variables:
 // mode: c++
 // End:
-

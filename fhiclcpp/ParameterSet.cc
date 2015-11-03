@@ -57,6 +57,24 @@ namespace {
     return ParameterSetRegistry::get(psid);
   }
 
+  bool find_parameter(cit_size_t const cend,
+                      cit_size_t const subscript_it,
+                      boost::any const a)
+  {
+    if ( subscript_it == cend ){
+      // If we got this far, that means the element must exist,
+      // otherwise the previous recursive 'find_parameter' call would
+      // have returned false.
+      return true;
+    }
+
+    auto const seq = boost::any_cast<ps_sequence_t>(a);
+
+    return
+      *subscript_it < seq.size() ?
+      find_parameter( cend, std::next(subscript_it), seq[*subscript_it] )
+      : false ;
+  }
 }
 
 // ======================================================================
@@ -115,9 +133,9 @@ ParameterSet::to_string_(bool compact) const
   { return result; }
   map_iter_t it = mapping_.begin();
   result.append(it->first)
-  .append(1, ':')
-  .append(stringify_(it->second, compact))
-  ;
+    .append(1, ':')
+    .append(stringify_(it->second, compact))
+    ;
   for (map_iter_t const e = mapping_.end(); ++it != e;)
     result.append(1, ' ')
     .append(it->first)
@@ -131,10 +149,8 @@ vector<string>
 ParameterSet::get_names() const
 {
   vector<string> keys;
-  keys.reserve(mapping_.size());
-  for (auto const& pr : mapping_ ) {
-    keys.push_back(pr.first);
-  }
+  cet::transform_all( mapping_, std::back_inserter(keys),
+                      [](auto const& pr){ return pr.first; } );
   return keys;
 }
 
@@ -155,6 +171,47 @@ ParameterSet::get_all_keys() const
   KeyAssembler ka;
   walk_(ka);
   return ka.result();
+}
+
+bool
+ParameterSet::find_one_(std::string const & key) const
+{
+  // Replace (e.g.) "name[2]" with "name,2", then split by ','
+  static std::regex const r("\\[(\\d+)\\]");
+  auto tokens = cet::split_by_regex( std::regex_replace(key, r, ",$1" ), ",");
+
+  std::string const name = tokens.front();
+
+  map_iter_t it = mapping_.find(name);
+  if (it == mapping_.end()) {
+    return false;
+  }
+
+  std::vector<std::size_t> seq_indices;
+  std::for_each( tokens.cbegin()+1, tokens.cend(),
+                 [&seq_indices](std::string const& str_ind)
+                 {seq_indices.push_back( std::stoul(str_ind) );}
+                 );
+
+  return find_parameter(seq_indices.cend(),
+                        seq_indices.cbegin(),
+                        it->second);
+}
+
+bool
+ParameterSet::has_key(std::string const& key) const
+{
+  auto keys = detail::get_names(key);
+  ParameterSet const *p {this};
+  ParameterSet pset;
+
+  for (auto const& table : keys.tables()) {
+    if (!p->get_one_(table, pset)){
+      return false;
+    }
+    p = &pset;
+  }
+  return p->find_one_(keys.last());
 }
 
 // ----------------------------------------------------------------------
@@ -306,29 +363,16 @@ namespace fhicl {
   template<>
   void
   ParameterSet::put(std::string const & key, fhicl::extended_value const & value)
-    try
-      {
-        using detail::encode;
-        insert_(key, boost::any(encode(value)));
-        fill_src_info(value,key,srcMapping_);
-      }
-    catch (boost::bad_lexical_cast const & e)
-      {
-        throw fhicl::exception(cant_insert, key) << e.what();
-      }
-    catch (boost::bad_numeric_cast const & e)
-      {
-        throw fhicl::exception(cant_insert, key) << e.what();
-      }
-    catch (fhicl::exception const & e)
-      {
-        throw fhicl::exception(cant_insert, key, e);
-      }
-    catch (std::exception const & e)
-      {
-        throw fhicl::exception(cant_insert, key) << e.what();
-      }
+  {
 
+    auto insert = [this,&key,&value](){
+      using detail::encode;
+      insert_(key, boost::any(encode(value)));
+      fill_src_info(value,key,srcMapping_);
+    };
+
+    detail::try_insert(insert, key);
+  }
 }
 
 // ======================================================================

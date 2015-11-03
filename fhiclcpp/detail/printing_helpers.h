@@ -17,7 +17,7 @@
 namespace fhicl {
   namespace detail {
 
-    inline std::string nl() { return "\n"; }
+    inline std::string nl(std::size_t i = 1) { return std::string(i,'\n'); }
 
     std::string printed_suffix(std::string const& key, std::size_t const sz);
 

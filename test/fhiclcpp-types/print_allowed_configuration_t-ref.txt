@@ -1,20 +1,20 @@
 
-   pset : {
+   pset: {
 
-      flag : <bool>
+      flag: <bool>
 
-      pair : [
+      pair: [
          <double>,
          <string>
       ]
 
-      tuple : [
+      tuple: [
          <int>,
          <string>,
          <double>
       ]
 
-      vecOfTuples : [
+      vecOfTuples: [
          [
             <int>,
             <double>
@@ -22,7 +22,7 @@
          ...
       ]
 
-      arrayOfTuples : [
+      arrayOfTuples: [
          [
             <int>,
             <double>
@@ -33,7 +33,7 @@
          ]
       ]
 
-      vecOfVecs : [
+      vecOfVecs: [
          [
             <int>,
             ...
@@ -41,7 +41,7 @@
          ...
       ]
 
-      vecOfArrays : [
+      vecOfArrays: [
          [
             <int>,
             <int>
@@ -49,7 +49,7 @@
          ...
       ]
 
-      arrayOfVecs : [
+      arrayOfVecs: [
          [
             <int>,
             ...
@@ -60,7 +60,7 @@
          ]
       ]
 
-      arrayOfArrays : [
+      arrayOfArrays: [
          [
             <int>,
             <int>
@@ -71,7 +71,7 @@
          ]
       ]
 
-      tupleWithVec : [
+      tupleWithVec: [
          [
             <double>,
             ...
@@ -80,7 +80,7 @@
          <int>
       ]
 
-      tupleWithArray : [
+      tupleWithArray: [
          [
             <double>,
             <double>
@@ -89,7 +89,7 @@
          <int>
       ]
 
-      tupleWithTuple : [
+      tupleWithTuple: [
          [
             <int>,
             <double>
@@ -98,20 +98,20 @@
          <int>
       ]
 
-      vecOfTables : [
+      vecOfTables: [
          {
 
-            a : <string>
+            a: <string>
 
-            b : [
+            b: [
                <string>,
                ...
             ]
 
-            tableSequence2 : [
+            tableSequence2: [
                {
 
-                  c : <int>
+                  c: <int>
                },
                ...
             ]
@@ -119,57 +119,57 @@
          ...
       ]
 
-      arrayOfTables : [
+      arrayOfTables: [
          {
 
-            a : <string>
+            a: <string>
 
-            b : [
+            b: [
                <string>,
                ...
             ]
 
-            tableSequence2 : [
+            tableSequence2: [
                {
 
-                  c : <int>
+                  c: <int>
                },
                ...
             ]
          },
          {
 
-            a : <string>
+            a: <string>
 
-            b : [
+            b: [
                <string>,
                ...
             ]
 
-            tableSequence2 : [
+            tableSequence2: [
                {
 
-                  c : <int>
+                  c: <int>
                },
                ...
             ]
          }
       ]
 
-      tupleWithTable : [
+      tupleWithTable: [
          {
 
-            a : <string>
+            a: <string>
 
-            b : [
+            b: [
                <string>,
                ...
             ]
 
-            tableSequence2 : [
+            tableSequence2: [
                {
 
-                  c : <int>
+                  c: <int>
                },
                ...
             ]
@@ -178,21 +178,21 @@
          <int>
       ]
 
-      tupleWithVecTable : [
+      tupleWithVecTable: [
          [
             {
 
-               a : <string>
+               a: <string>
 
-               b : [
+               b: [
                   <string>,
                   ...
                ]
 
-               tableSequence2 : [
+               tableSequence2: [
                   {
 
-                     c : <int>
+                     c: <int>
                   },
                   ...
                ]
@@ -202,38 +202,38 @@
          <double>
       ]
 
-      tupleWithArrTable : [
+      tupleWithArrTable: [
          [
             {
 
-               a : <string>
+               a: <string>
 
-               b : [
+               b: [
                   <string>,
                   ...
                ]
 
-               tableSequence2 : [
+               tableSequence2: [
                   {
 
-                     c : <int>
+                     c: <int>
                   },
                   ...
                ]
             },
             {
 
-               a : <string>
+               a: <string>
 
-               b : [
+               b: [
                   <string>,
                   ...
                ]
 
-               tableSequence2 : [
+               tableSequence2: [
                   {
 
-                     c : <int>
+                     c: <int>
                   },
                   ...
                ]
@@ -242,21 +242,21 @@
          <double>
       ]
 
-      vecWithTupleTable : [
+      vecWithTupleTable: [
          [
             {
 
-               a : <string>
+               a: <string>
 
-               b : [
+               b: [
                   <string>,
                   ...
                ]
 
-               tableSequence2 : [
+               tableSequence2: [
                   {
 
-                     c : <int>
+                     c: <int>
                   },
                   ...
                ]
@@ -266,21 +266,21 @@
          ...
       ]
 
-      arrWithTupleTable : [
+      arrWithTupleTable: [
          [
             {
 
-               a : <string>
+               a: <string>
 
-               b : [
+               b: [
                   <string>,
                   ...
                ]
 
-               tableSequence2 : [
+               tableSequence2: [
                   {
 
-                     c : <int>
+                     c: <int>
                   },
                   ...
                ]
@@ -290,17 +290,17 @@
          [
             {
 
-               a : <string>
+               a: <string>
 
-               b : [
+               b: [
                   <string>,
                   ...
                ]
 
-               tableSequence2 : [
+               tableSequence2: [
                   {
 
-                     c : <int>
+                     c: <int>
                   },
                   ...
                ]
@@ -309,18 +309,18 @@
          ]
       ]
 
-      pset2 : {
+      pset2: {
 
          # this works
 
-         test : <string>
+         test: <string>
 
-         sequence : [
+         sequence: [
             <int>,
             ...
          ]
 
-         array : [
+         array: [
             <double>,
             <double>,
             <double>,

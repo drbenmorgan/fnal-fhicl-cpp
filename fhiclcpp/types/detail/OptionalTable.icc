@@ -2,35 +2,31 @@
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
 #include "fhiclcpp/types/detail/ValidateThenSet.h"
 
-#include <iostream>
-
 namespace fhicl {
 
   template <typename T>
-  Table<T>::Table(Name && name,
+  OptionalTable<T>::OptionalTable(Name && name,
                   Comment && comment )
-    : TableBase{std::move(name),std::move(comment),value_type::REQUIRED, this}
-    , value_()
+    : TableBase(std::move(name),std::move(comment), value_type::OPTIONAL, this)
   {
     fill_members();
     NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
-  Table<T>::Table(Name && name) : Table( std::move(name), Comment("") ) {}
+  OptionalTable<T>::OptionalTable(Name && name) : OptionalTable( std::move(name), Comment("") ) {}
 
   template <typename T>
-  Table<T>::Table()
-    : TableBase{Name::anonymous(),Comment(""),value_type::REQUIRED, this}
-    , value_()
+  OptionalTable<T>::OptionalTable()
+    : TableBase(Name::anonymous(),Comment(""),value_type::OPTIONAL, this)
   {
     fill_members();
     NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
-  Table<T>::Table(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
-    : TableBase{Name::anonymous(),Comment(""),value_type::REQUIRED, this}
+  OptionalTable<T>::OptionalTable(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
+    : TableBase(Name::anonymous(),Comment(""),value_type::OPTIONAL, this)
   {
     fill_members();
     validate_ParameterSet( pset, keysToIgnore );
@@ -39,7 +35,7 @@ namespace fhicl {
 
   template <typename T>
   void
-  Table<T>::validate_ParameterSet(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
+  OptionalTable<T>::validate_ParameterSet(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
   {
     detail::ValidateThenSet vs{pset, keysToIgnore};
     cet::for_all(members(), [&vs](auto m){ vs(m.get()); });
@@ -48,8 +44,8 @@ namespace fhicl {
 
   template <typename T>
   void
-  Table<T>::print_allowed_configuration(std::ostream& os,
-                                        std::string const&/* tab*/) const
+  OptionalTable<T>::print_allowed_configuration(std::ostream& os,
+                                                std::string const&/* tab*/) const
   {
     detail::PrintAllowedConfiguration pc{os};
     pc(this);
@@ -57,7 +53,7 @@ namespace fhicl {
 
   template <typename T>
   void
-  Table<T>::do_set_value(fhicl::ParameterSet const& pset, bool const /*trimParent*/)
+  OptionalTable<T>::do_set_value(fhicl::ParameterSet const& pset, bool const /*trimParent*/)
   {
     // Kind of tricky: we do not have the name of the current
     // parameter set.  A placeholder is often used (e.g. "<140>").
@@ -68,26 +64,21 @@ namespace fhicl {
     // the top-level pset.
     std::string const& rkey = key();
     std::string const& key  = rkey.substr( rkey.find_first_of(".")+1 );
-    pset_ = (key == rkey) ? pset : pset.get<fhicl::ParameterSet>(key,{});
+    if ( key == rkey ) {
+      pset_      = pset;
+      has_value_ = true;
+    }
+    else {
+      has_value_ = pset.get_if_present<fhicl::ParameterSet>(key, pset_);
+    }
   }
 
   template <typename T>
   void
-  Table<T>::fill_members()
+  OptionalTable<T>::fill_members()
   {
     for (auto const& elem : detail::ParameterSchemaRegistry::get_child_parameters(this))
       members_.push_back(elem.second);
-  }
-
-  template <typename T>
-  void
-  Table<T>::maybe_implicitly_default()
-  {
-    bool const implicitly_default = std::all_of(members_.begin(),
-                                                members_.end(),
-                                                [](auto p){ return p->has_default(); } );
-    if ( implicitly_default )
-      set_value_type(value_type::DEFAULT);
   }
 
 }

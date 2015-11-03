@@ -1,24 +1,22 @@
-#include "fhiclcpp/types/detail/ParameterRegistrySentry.h"
-
 namespace fhicl {
 
   template <typename T>
   Atom<T>::Atom(Name && name,
                 Comment && cmt )
-    : AtomBase(std::move(name), std::move(cmt), false, this)
+    : AtomBase(std::move(name), std::move(cmt), value_type::REQUIRED, this)
     , value_()
   {
-    detail::ParameterRegistrySentry();
+    NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
   Atom<T>::Atom(Name && name,
                 Comment && cmt,
                 T const& dflt_value )
-    : AtomBase(std::move(name), std::move(cmt), true, this)
+    : AtomBase(std::move(name), std::move(cmt), value_type::DEFAULT, this)
     , value_(dflt_value)
   {
-    detail::ParameterRegistrySentry();
+    NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
@@ -38,10 +36,10 @@ namespace fhicl {
 
   template <typename T>
   Atom<T>::Atom()
-    : AtomBase(Name::anonymous(), Comment(""), false, this)
+    : AtomBase(Name::anonymous(), Comment(""), value_type::REQUIRED, this)
     , value_()
   {
-    detail::ParameterRegistrySentry();
+    NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>

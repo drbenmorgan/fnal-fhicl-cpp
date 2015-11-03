@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_types_Atom_h
-#define fhiclcpp_types_Atom_h
+#ifndef fhiclcpp_types_OptionalAtom_h
+#define fhiclcpp_types_OptionalAtom_h
 
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Comment.h"
@@ -19,7 +19,7 @@ namespace fhicl {
 
   //========================================================
   template<typename T>
-  class Atom final : public detail::AtomBase {
+  class OptionalAtom final : public detail::AtomBase {
   public:
 
     static_assert(!tt::is_sequence_type<T>::value , NO_STD_CONTAINERS            );
@@ -29,36 +29,37 @@ namespace fhicl {
     //=====================================================
     // User-friendly
     // ... c'tors
-    explicit Atom(Name && name);
-
-    explicit Atom(Name && name, Comment && cmt );
-    explicit Atom(Name && name, T const& dflt_value );
-
-    explicit Atom(Name && name, Comment && cmt, T const& dflt_value );
-    explicit Atom(Name && name, T const& dflt_value, Comment && cmt );
+    explicit OptionalAtom(Name && name);
+    explicit OptionalAtom(Name && name, Comment && cmt );
 
     // ... Accessors
-    auto const & operator()() const { return value_; }
+    bool operator()(T& value) const {
+      if (has_value_) {
+        value = value_;
+        return true;
+      }
+      return false;
+    }
 
     // Expert-only
     using rtype = T;
 
-    Atom();
+    OptionalAtom();
 
     auto const & get_ftype() const { return value_; }
     auto       & get_ftype()       { return value_; }
 
   private:
-    T value_;
+    T value_ {};
+    bool has_value_ {false};
 
     std::string get_stringified_value() const override;
     void do_set_value( fhicl::ParameterSet const &, bool const ) override;
-
   };
 
 }
 
-#include "fhiclcpp/types/detail/Atom.icc"
+#include "fhiclcpp/types/detail/OptionalAtom.icc"
 
 #endif
 

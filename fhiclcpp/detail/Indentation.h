@@ -27,10 +27,22 @@ namespace fhicl {
         : indents_{{ std::string(iil*indent_increment,' ') }}
       {}
 
+      Indentation(std::string const& prefix)
+        : indents_{{prefix}}
+      {}
+
       std::string const & operator()() const { return indents_.top(); }
 
+      void modify_top(std::string const& s)
+      {
+        indents_.pop();
+        indents_.emplace(indents_.top() + s);
+      }
+
+      auto size() { return indents_.size(); }
+
       void pop () { indents_.pop() ; }
-      void push() { indents_.emplace( indents_.top().size()+indent_increment, ' ' ); }
+      void push() { indents_.emplace( indents_.top()+std::string(indent_increment, ' ' )); }
 
     private:
       static constexpr std::size_t indent_increment = 3u;

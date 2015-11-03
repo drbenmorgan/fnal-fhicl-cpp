@@ -1,4 +1,3 @@
-#include "fhiclcpp/types/detail/ParameterRegistrySentry.h"
 #include "fhiclcpp/types/detail/ostream_helpers.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
 #include "fhiclcpp/type_traits.h"
@@ -13,30 +12,29 @@ namespace fhicl {
   template<typename T, std::size_t SIZE>
   Sequence<T,SIZE>::Sequence(Name && name,
                              Comment && cmt )
-    : ParameterBase(std::move(name),std::move(cmt),false,par_type::SEQ_ARRAY,this)
+    : SequenceBase{std::move(name),std::move(cmt),value_type::REQUIRED,par_type::SEQ_ARRAY,this}
     , value_()
   {
-    detail::ParameterRegistrySentry s;
     finalize_elements();
+    NameStackRegistry::end_of_ctor();
   }
 
   template<typename T, std::size_t SIZE>
   Sequence<T,SIZE>::Sequence(Name && name,
                              Comment && cmt,
                              Sequence<T,SIZE> const& dflt )
-    : ParameterBase(std::move(name),std::move(cmt),true,par_type::SEQ_ARRAY,this)
+    : SequenceBase{std::move(name),std::move(cmt),value_type::DEFAULT,par_type::SEQ_ARRAY,this}
     , value_(dflt.value_)
   {
-    detail::ParameterRegistrySentry s;
     finalize_elements();
+    NameStackRegistry::end_of_ctor();
   }
 
   template<typename T, std::size_t SIZE>
   Sequence<T,SIZE>::Sequence (std::initializer_list<T> const & args)
-    : ParameterBase( Name::anonymous(), Comment(""), true, par_type::SEQ_ARRAY, this )
+    : SequenceBase{Name::anonymous(), Comment(""), value_type::DEFAULT, par_type::SEQ_ARRAY, this}
     , value_()
   {
-    detail::ParameterRegistrySentry s;
     std::size_t i{};
     for ( auto const & arg : args ) {
 
@@ -51,16 +49,17 @@ namespace fhicl {
       // system.
       value_.at(i) = tt::fhicl_type<T>{ Name::anonymous(), arg };
       ++i;
-    }
+   }
+    NameStackRegistry::end_of_ctor();
   }
 
   template<typename T, std::size_t SIZE>
   Sequence<T,SIZE>::Sequence()
-    : ParameterBase( Name::anonymous(), Comment(""),false,par_type::SEQ_ARRAY,this)
+    : SequenceBase{Name::anonymous(), Comment(""),value_type::REQUIRED,par_type::SEQ_ARRAY,this}
     , value_()
   {
-    detail::ParameterRegistrySentry s;
     finalize_elements();
+    NameStackRegistry::end_of_ctor();
   }
 
 
@@ -70,45 +69,42 @@ namespace fhicl {
   template<typename T>
   Sequence<T,-1>::Sequence(Name && name,
                            Comment && cmt )
-    : SeqVectorBase(std::move(name),std::move(cmt),false,par_type::SEQ_VECTOR,this)
-    , value_()
+    : SeqVectorBase{std::move(name), std::move(cmt), value_type::REQUIRED, this}
   {
-    detail::ParameterRegistrySentry s;
     value_.resize(1);
     finalize_elements();
+    NameStackRegistry::end_of_ctor();
   }
 
   template<typename T>
   Sequence<T,-1>::Sequence(Name && name,
                            Comment && cmt,
                            Sequence<T,-1> const & dflt )
-    : SeqVectorBase(std::move(name),std::move(cmt),true,par_type::SEQ_VECTOR,this)
+    : SeqVectorBase{std::move(name), std::move(cmt), value_type::DEFAULT, this}
     , value_(dflt.value_)
   {
-    detail::ParameterRegistrySentry s;
     finalize_elements();
+    NameStackRegistry::end_of_ctor();
   }
 
   template<typename T>
   Sequence<T,-1>::Sequence (std::initializer_list<T> const & args)
-    : SeqVectorBase( Name::anonymous(), Comment(""), true, par_type::SEQ_VECTOR, this )
-    , value_()
+    : SeqVectorBase{Name::anonymous(), Comment(""), value_type::DEFAULT, this}
   {
     static_assert(!tt::is_table<T>::value, NO_DEFAULTS_FOR_TABLE);
-    detail::ParameterRegistrySentry s;
     for ( auto const& arg : args ) {
       value_.emplace_back( Name::anonymous(), arg );
     }
+    NameStackRegistry::end_of_ctor();
   }
 
   template<typename T>
   Sequence<T,-1>::Sequence()
-    : SeqVectorBase( Name::anonymous(), Comment(""),false,par_type::SEQ_VECTOR, this)
-    , value_()
+    : SeqVectorBase{Name::anonymous(), Comment(""),value_type::REQUIRED, this}
   {
-    detail::ParameterRegistrySentry s;
     value_.resize(1);
     finalize_elements();
+    NameStackRegistry::end_of_ctor();
   }
 
 }

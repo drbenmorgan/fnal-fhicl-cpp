@@ -1,0 +1,104 @@
+#include "fhiclcpp/types/detail/remove_stale_keys.h"
+
+namespace fhicl {
+  namespace detail {
+
+    template <typename T>
+    void
+    SequenceBase::set_elements(T& t,
+                               ParameterBase & pb,
+                               std::string const& key_prefix,
+                               std::size_t const i)
+    {
+      auto & registry = ParameterSchemaRegistry::instance();
+      std::string const old_key = pb.key();
+      std::string const new_key = key_prefix + Name::array_index(i);
+
+      remove_stale_keys( t, pb.key() );
+      pb.set_key( new_key );
+      registry.emplace( pb.key(), &pb );
+
+      /*
+        Tables are special.  It is not possible to descend into the
+        individual member parameters and adjust their respective keys.
+        We must retrieve them manually through the registry interface.
+      */
+      if ( is_table( pb.parameter_type() ) ) {
+
+        std::string const key_format = Name::regex_safe( old_key ) + std::string("(.*)");
+        std::string const new_format = new_key + std::string("$1");
+
+        for ( auto const & pr : registry.get_parameters_by_key( old_key ) ) {
+          remove_stale_key( pr.first );
+          pr.second->set_key( std::regex_replace( pr.second->key(),
+                                                  std::regex( key_format ),
+                                                  new_format ) );
+          registry.emplace( pr.second->key(), pr.second );
+        }
+      }
+
+    }
+
+    template <typename T,std::size_t SZ>
+    void
+    SequenceBase::set_elements(std::array<T,SZ> & arr,
+                               ParameterBase & pb,
+                               std::string const& key_prefix,
+                               std::size_t const i)
+    {
+      auto & registry = ParameterSchemaRegistry::instance();
+      std::string const new_key = key_prefix + Name::array_index(i);
+
+      remove_stale_keys( arr, pb.key() );
+      pb.set_key( new_key );
+      registry.emplace( pb.key(), &pb );
+      std::size_t j{};
+      auto& sb = dynamic_cast<SequenceBase&>(pb);
+      sb.clear_elements();
+      for ( auto & elem : arr ) {
+        set_elements(elem.get_ftype(), elem, new_key,j++);
+        sb.append_to_elements(&elem);
+      }
+    }
+
+    template <typename T>
+    void
+    SequenceBase::set_elements(std::vector<T> & vec,
+                               ParameterBase & pb,
+                               std::string const& key_prefix,
+                               std::size_t const i)
+    {
+      auto & registry = ParameterSchemaRegistry::instance();
+
+      std::string const new_key = key_prefix + Name::array_index(i);
+      remove_stale_keys( vec, pb.key() );
+      pb.set_key( new_key );
+      registry.emplace( pb.key(), &pb );
+      std::size_t j{};
+      auto& sb = dynamic_cast<SequenceBase&>(pb);
+      sb.clear_elements();
+      for ( auto & elem : vec ) {
+        set_elements(elem.get_ftype(), elem, new_key,j++);
+        sb.append_to_elements(&elem);
+      }
+    }
+
+    template <typename ... TYPES>
+    void
+    SequenceBase::set_elements(std::tuple<TYPES...> & tuple,
+                               ParameterBase & pb,
+                               std::string const& key_prefix,
+                               std::size_t const i)
+    {
+      auto & registry = ParameterSchemaRegistry::instance();
+      std::string const new_key = key_prefix + Name::array_index(i);
+      remove_stale_keys( tuple, pb.key() );
+      pb.set_key( new_key );
+      registry.emplace( pb.key(), &pb );
+      auto& sb = dynamic_cast<SequenceBase&>(pb);
+      sb.clear_elements();
+      set_tuple_element<0>( tuple, sb, new_key);
+    }
+
+  }
+}

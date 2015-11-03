@@ -10,7 +10,7 @@
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
-#include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
+#include "fhiclcpp/types/detail/ParameterSchemaRegistry.h"
 
 #include <iostream>
 

@@ -19,7 +19,7 @@ namespace fhicl {
 
     inline void remove_stale_key(std::string const& key)
     {
-      detail::ParameterReferenceRegistry::instance().erase( key );
+      detail::ParameterSchemaRegistry::instance().erase( key );
     }
 
     template <typename T>
@@ -31,7 +31,7 @@ namespace fhicl {
     template <typename T,std::size_t SZ>
     void remove_stale_keys(std::array<T,SZ> const & arr, std::string const & key )
     {
-      ParameterReferenceRegistry::instance().erase( key );
+      ParameterSchemaRegistry::instance().erase( key );
       for ( auto const & elem : arr ) {
         remove_stale_keys( elem.get_ftype(), elem.key() );
       }
@@ -40,7 +40,7 @@ namespace fhicl {
     template <typename T>
     void remove_stale_keys(std::vector<T> const & vec, std::string const & key)
     {
-      ParameterReferenceRegistry::instance().erase( key );
+      ParameterSchemaRegistry::instance().erase( key );
       for ( auto const & elem : vec ) {
         remove_stale_keys( elem.get_ftype(), elem.key() );
       }
@@ -63,7 +63,7 @@ namespace fhicl {
     template <typename ... TYPES>
     void remove_stale_keys(std::tuple<TYPES...> const& tuple, std::string const& key)
     {
-      ParameterReferenceRegistry::instance().erase( key );
+      ParameterSchemaRegistry::instance().erase( key );
       remove_stale_tuple_key<0>( tuple );
     }
 

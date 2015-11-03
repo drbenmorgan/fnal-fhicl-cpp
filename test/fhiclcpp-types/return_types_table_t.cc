@@ -43,7 +43,7 @@
 #include "boost/test/auto_unit_test.hpp"
 
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
+#include "fhiclcpp/types/detail/ParameterSchemaRegistry.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Tuple.h"
 

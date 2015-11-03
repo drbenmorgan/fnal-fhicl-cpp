@@ -14,7 +14,7 @@
 #include "boost/test/test_tools.hpp"
 
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
+#include "fhiclcpp/types/detail/ParameterSchemaRegistry.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Tuple.h"
 
@@ -31,8 +31,8 @@ namespace {
   std::vector<std::string>
   key_map(ParameterBase const * pb)
   {
-    auto keys = ParameterReferenceRegistry::get_parameter_keys(pb);
-    ParameterReferenceRegistry::instance().clear();
+    auto keys = ParameterSchemaRegistry::get_parameter_keys(pb);
+    ParameterSchemaRegistry::instance().clear();
     return keys;
   }
 

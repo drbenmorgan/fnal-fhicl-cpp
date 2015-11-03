@@ -3,10 +3,8 @@
 
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
-#include "fhiclcpp/types/detail/ParameterBase.h"
-#include "fhiclcpp/types/detail/ParameterRegistrySentry.h"
-#include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
-#include "fhiclcpp/types/detail/set_element_keys.h"
+#include "fhiclcpp/types/detail/ParameterSchemaRegistry.h"
+#include "fhiclcpp/types/detail/SequenceBase.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
 #include "fhiclcpp/type_traits.h"
 
@@ -22,7 +20,7 @@ namespace fhicl {
   //
 
   template<typename ... TYPES>
-  class Tuple final : public detail::ParameterBase {
+  class Tuple final : public detail::SequenceBase {
   public:
 
     using ftype = std::tuple< tt::fhicl_type <TYPES>... >;
@@ -48,24 +46,32 @@ namespace fhicl {
     auto       & get_ftype()       { return value_; }
 
   private:
-    ftype value_;
 
     //=================================================================
     // aliases
     using TUPLE  = std::tuple<tt::fhicl_type<TYPES>...>;
     using UTUPLE = std::tuple<TYPES...>;
 
+    ftype value_;
+
+    void do_set_value(fhicl::ParameterSet const&, bool /*trimParents*/) override {}
+
     // finalizing tuple elements
     template <size_t I>
-    typename std::enable_if<(I >= std::tuple_size<TUPLE>::value)>::type
+    std::enable_if_t<(I >= std::tuple_size<TUPLE>::value)>
     finalize_tuple_elements(){}
 
     template <size_t I>
-    typename std::enable_if<(I < std::tuple_size<TUPLE>::value)>::type
+    std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
     finalize_tuple_elements()
     {
+      using elem_ftype = std::tuple_element_t<I,TUPLE>;
+      static_assert(!tt::is_table_fragment<elem_ftype>::value, NO_NESTED_TABLE_FRAGMENTS);
+      static_assert(!tt::is_optional_parameter<elem_ftype>::value, NO_OPTIONAL_TYPES );
+
       auto & elem = std::get<I>(value_);
-      set_element_keys(elem.get_ftype(), elem, key(), I);
+      set_elements(elem.get_ftype(), elem, key(), I);
+      append_to_elements(&elem);
       finalize_tuple_elements<I+1>();
     }
 
@@ -76,12 +82,12 @@ namespace fhicl {
 
     // filling tuple elements from default
     template <size_t I, typename UTUPLE>
-    typename std::enable_if<(I >= std::tuple_size<TUPLE>::value)>::type
+    std::enable_if_t<(I >= std::tuple_size<TUPLE>::value)>
     fill_tuple_element(UTUPLE const&)
     {}
 
     template <size_t I, typename UTUPLE>
-    typename std::enable_if<(I < std::tuple_size<TUPLE>::value)>::type
+    std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
     fill_tuple_element(UTUPLE const& utuple)
     {
 
@@ -97,7 +103,7 @@ namespace fhicl {
 
         Remove registered elements from default-c'tored value_
       */
-      using elem_utype = typename std::tuple_element<I,UTUPLE>::type;
+      using elem_utype = std::tuple_element_t<I,UTUPLE>;
       static_assert(!tt::is_table<elem_utype>::value, NO_DEFAULTS_FOR_TABLE);
       static_assert(!tt::is_sequence_type<elem_utype>::value, NO_STD_CONTAINERS);
 
@@ -113,19 +119,19 @@ namespace fhicl {
 
     // filling return type
     template <size_t I, typename rtype>
-    typename std::enable_if<(I >= std::tuple_size<TUPLE>::value)>::type
+    std::enable_if_t<(I >= std::tuple_size<TUPLE>::value)>
     fill_return_element(rtype &) const
     {}
 
     template <size_t I, typename rtype>
-    typename std::enable_if<(I < std::tuple_size<TUPLE>::value)>::type
+    std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
     fill_return_element(rtype & result) const
     {
       std::get<I>(result) = std::get<I>(value_)();
       fill_return_element<I+1>(result);
     }
 
-      void assemble_rtype(rtype & result) const
+    void assemble_rtype(rtype & result) const
     {
       fill_return_element<0>( result );
     }
@@ -137,40 +143,40 @@ namespace fhicl {
   template<typename ... TYPES>
   Tuple<TYPES...>::Tuple(Name && name,
                          Comment && comment)
-    : ParameterBase(std::move(name),comment,false,par_type::TUPLE,this)
+    : SequenceBase{std::move(name),std::move(comment),value_type::REQUIRED,par_type::TUPLE,this}
     , value_()
   {
-    detail::ParameterRegistrySentry s;
     finalize_elements();
+    NameStackRegistry::end_of_ctor();
   }
 
   template<typename ... TYPES>
   Tuple<TYPES...>::Tuple(Name && name,
                          Comment && comment,
                          Tuple<TYPES...> const& dflt )
-    : ParameterBase(std::move(name),comment,true,par_type::TUPLE,this)
+    : SequenceBase{std::move(name),std::move(comment),value_type::DEFAULT,par_type::TUPLE,this}
     , value_(dflt.value_)
   {
-    detail::ParameterRegistrySentry s;
     finalize_elements();
+    NameStackRegistry::end_of_ctor();
   }
 
   template<typename ... TYPES>
   Tuple<TYPES...>::Tuple()
-    : ParameterBase(Name::anonymous(),Comment(""),false,par_type::TUPLE,this)
+    : SequenceBase{Name::anonymous(),Comment(""),value_type::REQUIRED,par_type::TUPLE,this}
     , value_()
   {
-    detail::ParameterRegistrySentry s;
     finalize_elements();
+    NameStackRegistry::end_of_ctor();
   }
 
   template<typename ... TYPES>
   Tuple<TYPES...>::Tuple(TYPES const & ... args)
-    : ParameterBase(Name::anonymous(),Comment(""),false,par_type::TUPLE,this)
+    : SequenceBase{Name::anonymous(),Comment(""),value_type::REQUIRED,par_type::TUPLE,this}
     , value_()
   {
-    detail::ParameterRegistrySentry s;
     fill_tuple_elements( std::forward_as_tuple(args...) );
+    NameStackRegistry::end_of_ctor();
   }
 
   template<typename ... TYPES>
@@ -179,7 +185,7 @@ namespace fhicl {
   {
     rtype result;
     assemble_rtype(result);
-    detail::ParameterReferenceRegistry::instance().clear();
+    detail::ParameterSchemaRegistry::instance().clear();
     return result;
   }
 

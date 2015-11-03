@@ -1,16 +1,16 @@
 
-   pset : {
+   pset: {
 
       # this works
 
-      test : <string>
+      test: <string>
 
-      sequence : [
+      sequence: [
          <int>,
          ...
       ]
 
-      array : [
+      array: [
          <double>,
          <double>,
          <double>,

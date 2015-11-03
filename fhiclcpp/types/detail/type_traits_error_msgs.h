@@ -16,10 +16,18 @@
   "                .. Sequence<Sequence<int>,4u> ===> std::array <std::vector<int>,4u>\n" \
   "                .. etc.\n"
 
+#define OPTIONAL_FHICL_TYPES                    \
+  "                .. OptionalAtom<T>\n"                                \
+  "                .. OptionalSequence<T>\n"                            \
+  "                .. OptionalSequence<T,SZ>\n"                         \
+  "                .. OptionalTable<T>\n"                               \
+  "                .. OptionalTuple<T...>\n"
 
 #define FHICL_TYPES                                                     \
   "                .. Atom<T>\n"                                        \
   "                .. Sequence<T>\n"                                    \
+  "                .. Sequence<T,SZ>\n"                                 \
+  OPTIONAL_FHICL_TYPES                                                  \
   "                .. Table<T>\n"                                       \
   "                .. TableFragment<T>\n"                               \
   "                .. Tuple<T...>\n"
@@ -52,5 +60,11 @@
   "\n\n"                                                                \
   "fhiclcpp error: The template argument for a TableFragment must be\n" \
   "                a 'class' or a 'struct'.\n\n"
+
+#define NO_OPTIONAL_TYPES                                               \
+  "\n\n"                                                                \
+  "fhiclcpp error: The following optional parameters cannot be\n"       \
+  "                template arguments to any fhiclcpp types:\n\n" \
+  OPTIONAL_FHICL_TYPES
 
 #endif

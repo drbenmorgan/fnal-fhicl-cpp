@@ -1,31 +1,31 @@
 
-   pset : {
+   pset: {
 
-      flag : true  # default
+      flag: true  # default
 
-      value : 7  # default
+      value: 7  # default
 
-      string : "hi mom"  # default
+      string: "hi mom"  # default
 
-      pair : [
+      pair: [
          2.23457,  # default
          "Finally, I know what I'm doing."  # default
       ]
 
-      tuple : [
+      tuple: [
          5,  # default
          "some string",  # default
          16  # default
       ]
 
-      vecOfTuples : [
+      vecOfTuples: [
          [
             3,  # default
             27  # default
          ]
       ]
 
-      arrayOfTuples : [
+      arrayOfTuples: [
          [
             4,  # default
             15  # default
@@ -36,7 +36,7 @@
          ]
       ]
 
-      vecOfVecs : [
+      vecOfVecs: [
          [
             1,  # default
             3,  # default
@@ -44,14 +44,14 @@
          ]
       ]
 
-      vecOfArrays : [
+      vecOfArrays: [
          [
             1,  # default
             2  # default
          ]
       ]
 
-      arrayOfVecs : [
+      arrayOfVecs: [
          [
             1,  # default
             2,  # default
@@ -62,7 +62,7 @@
          ]
       ]
 
-      arrayOfArrays : [
+      arrayOfArrays: [
          [
             0,  # default
             2  # default
@@ -73,7 +73,7 @@
          ]
       ]
 
-      tupleWithVec : [
+      tupleWithVec: [
          [
             4.2,  # default
             7.3  # default
@@ -82,7 +82,7 @@
          5  # default
       ]
 
-      tupleWithArray : [
+      tupleWithArray: [
          [
             3.6,  # default
             5.3  # default
@@ -91,7 +91,7 @@
          5  # default
       ]
 
-      tupleWithTuple : [
+      tupleWithTuple: [
          [
             4,  # default
             5.9  # default
@@ -103,20 +103,20 @@
       # This should work now
       # double line even.
 
-      pset2 : {
+      pset2: {
 
-         test : "a"  # default
+         test: "a"  # default
 
          # Just to see if this works
 
-         sequence : [
+         sequence: [
             1,  # default
             3,  # default
             67,  # default
             5  # default
          ]
 
-         array : [
+         array: [
             1.4,  # default
             2.3,  # default
             4,  # default

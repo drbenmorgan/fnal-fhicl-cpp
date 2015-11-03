@@ -36,7 +36,7 @@
   A 'TableFragment' is not a fhiclcpp type, per se, since it does not
   represent a meaningful FHiCL construct.  It does not derive from
   ParameterBase and is therefore not registered by the
-  ParameterReferenceRegistry.
+  ParameterSchemaRegistry.
 */
 
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"

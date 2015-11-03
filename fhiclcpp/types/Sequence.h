@@ -5,13 +5,11 @@
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
-#include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
-#include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
-#include "fhiclcpp/types/detail/ParameterRegistrySentry.h"
+#include "fhiclcpp/types/detail/ParameterSchemaRegistry.h"
+#include "fhiclcpp/types/detail/SequenceBase.h"
 #include "fhiclcpp/types/detail/ostream_helpers.h"
 #include "fhiclcpp/types/detail/SeqVectorBase.h"
-#include "fhiclcpp/types/detail/set_element_keys.h"
 #include "fhiclcpp/type_traits.h"
 
 #include <array>
@@ -26,8 +24,11 @@ namespace fhicl {
   // e.g. Sequence<int,4> ====> std::array<int,4>
   //
   template<typename T, std::size_t SIZE = -1>
-  class Sequence final : public detail::ParameterBase {
+  class Sequence final : public detail::SequenceBase {
   public:
+
+    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS );
+    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES );
 
     using ftype = std::array< tt::fhicl_type <T>, SIZE >;
     using rtype = std::array< tt::return_type<T>, SIZE >;
@@ -74,18 +75,19 @@ namespace fhicl {
       // is called.  In principle, these should be removed whenever
       // the destructors are called.  But that may not be until the
       // end of some scope in which another registering call is made.
-      detail::ParameterReferenceRegistry::instance().clear();
+      detail::ParameterSchemaRegistry::instance().clear();
 
       return result;
     }
 
     auto operator()(std::size_t i) const {
       auto val = value_.at(i)();
-      detail::ParameterReferenceRegistry::instance().clear();
-      return val; }
+      detail::ParameterSchemaRegistry::instance().clear();
+      return val;
+    }
 
-    auto & get_ftype() { return value_; }
     auto const & get_ftype() const { return value_; }
+    auto       & get_ftype()       { return value_; }
 
   private:
 
@@ -94,11 +96,14 @@ namespace fhicl {
     void finalize_elements()
     {
       std::size_t i{};
+      clear_elements();
       for ( auto & elem : value_ ) {
-        set_element_keys( elem.get_ftype(), elem, key(), i++ );
+        set_elements( elem.get_ftype(), elem, key(), i++ );
+        this->append_to_elements(&elem);
       }
-
     }
+
+    void do_set_value(fhicl::ParameterSet const&, bool /*trimParents*/) override {}
 
   };
 
@@ -108,6 +113,9 @@ namespace fhicl {
   template<typename T>
   class Sequence<T,-1> final : public detail::SeqVectorBase {
   public:
+
+    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS );
+    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES );
 
     using ftype = std::vector< tt::fhicl_type <T> >;
     using rtype = std::vector< tt::return_type<T> >;
@@ -156,27 +164,31 @@ namespace fhicl {
       // In principle, these should be removed whenever the
       // destructors are called.  But that may not be until the end of
       // some scope in which another registering call is made.
-      detail::ParameterReferenceRegistry::instance().clear();
+      detail::ParameterSchemaRegistry::instance().clear();
 
       return result;
     }
     auto operator()(std::size_t i) const {
       auto val = value_.at(i)();
-      detail::ParameterReferenceRegistry::instance().clear();
+      detail::ParameterSchemaRegistry::instance().clear();
       return val;
     }
 
-    auto & get_ftype() { return value_; }
     auto const & get_ftype() const { return value_; }
+    auto       & get_ftype()       { return value_; }
 
   private:
-    ftype value_;
+
+    ftype value_ {};
 
     void finalize_elements()
     {
       std::size_t i{};
-      for ( auto & elem : value_ )
-        set_element_keys( elem.get_ftype(), elem, key(), i++ );
+      clear_elements();
+      for ( auto & elem : value_ ) {
+        set_elements( elem.get_ftype(), elem, key(), i++ );
+        append_to_elements(&elem);
+      }
     }
 
     // To be used only for reassigning keys when ParameterSet
@@ -188,6 +200,8 @@ namespace fhicl {
 
       finalize_elements();
     }
+
+    void do_set_value(fhicl::ParameterSet const&, bool /*trimParents*/) override {}
 
   };
 

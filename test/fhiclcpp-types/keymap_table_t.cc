@@ -13,7 +13,7 @@
 #include "boost/test/test_tools.hpp"
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
+#include "fhiclcpp/types/detail/ParameterSchemaRegistry.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
@@ -32,8 +32,8 @@ namespace {
   std::vector<std::string>
   key_map(ParameterBase const * pb)
   {
-    auto keys = ParameterReferenceRegistry::get_parameter_keys(pb);
-    ParameterReferenceRegistry::instance().clear();
+    auto keys = ParameterSchemaRegistry::get_parameter_keys(pb);
+    ParameterSchemaRegistry::instance().clear();
     return keys;
   }
 
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE( tuptable_in_seq_2_t )
 BOOST_AUTO_TEST_CASE( tablefragment_t )
 {
   TableFragment<S> test;
-  auto map = ParameterReferenceRegistry::get_parameters_by_key("");
+  auto map = ParameterSchemaRegistry::get_parameters_by_key("");
 
   std::vector<std::string> result;
   cet::transform_all( map, std::back_inserter(result),

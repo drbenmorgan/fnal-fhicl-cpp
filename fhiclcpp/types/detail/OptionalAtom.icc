@@ -1,0 +1,52 @@
+namespace fhicl {
+
+  template <typename T>
+  OptionalAtom<T>::OptionalAtom(Name && name,
+                Comment && cmt )
+    : AtomBase(std::move(name), std::move(cmt), value_type::OPTIONAL, this)
+  {
+    NameStackRegistry::end_of_ctor();
+  }
+
+  template <typename T>
+  OptionalAtom<T>::OptionalAtom(Name && name)
+    : OptionalAtom<T>::OptionalAtom( std::move(name), Comment("") )
+  {}
+
+  template <typename T>
+  OptionalAtom<T>::OptionalAtom()
+    : AtomBase(Name::anonymous(), Comment(""), value_type::OPTIONAL, this)
+  {
+    NameStackRegistry::end_of_ctor();
+  }
+
+  template <typename T>
+  std::string
+  OptionalAtom<T>::get_stringified_value() const
+  {
+    std::stringstream oss;
+    if ( has_value_ ) {
+      using namespace detail::yes_defaults;
+      oss << maybe_quotes<T>(value_) ;
+    }
+    else {
+      using namespace detail::no_defaults;
+      oss << expected_types<T>();
+    }
+    return oss.str();
+  }
+
+  template <typename T>
+  void
+  OptionalAtom<T>::do_set_value( fhicl::ParameterSet const & pset, bool const trimParent )
+  {
+    std::string const& rkey = key();
+    std::string const& key = trimParent ? rkey.substr( rkey.find_first_of(".")+1 ) : rkey;
+    has_value_ = pset.get_if_present<T>(key, value_);
+  }
+
+}
+
+// Local variables:
+// mode: c++
+// End:

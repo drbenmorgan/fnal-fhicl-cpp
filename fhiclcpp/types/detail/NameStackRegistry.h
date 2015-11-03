@@ -29,6 +29,11 @@ namespace fhicl {
       return names_.back();
     }
 
+    static void end_of_ctor()
+    {
+      instance().pop();
+    }
+
     void pop() {
       names_.pop_back();
     }

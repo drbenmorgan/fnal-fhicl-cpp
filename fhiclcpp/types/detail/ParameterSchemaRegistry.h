@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_types_detail_ParameterReferenceRegistry_h
-#define fhiclcpp_types_detail_ParameterReferenceRegistry_h
+#ifndef fhiclcpp_types_detail_ParameterSchemaRegistry_h
+#define fhiclcpp_types_detail_ParameterSchemaRegistry_h
 
 /*
   ----------------------------
@@ -7,7 +7,7 @@
   (not to be called by users)
   ----------------------------
 
-  The ParameterReferenceRegistry is a static container whose elements
+  The ParameterSchemaRegistry is a static container whose elements
   are pairs of:
 
      first  : key string
@@ -46,10 +46,7 @@
   Should a user then wish to create another Table<> and set the values
   of the corresponding elements, the pointers of the registry from the
   previous table could be invalid.  This should not be a problem, as
-  long as those pointers are never resolved.  Unfortunately, the
-  current ParameterReferenceRegistry::set_values() function loops over
-  all registered entries, introducing an opportunity for memory read
-  problems.
+  long as those pointers are never resolved.
 
   I have not found a good way to solve this problem, other than to
   clear the registry for each {Sequence,Tuple}<>::operator() call.
@@ -58,14 +55,10 @@
   key-required construction (i.e. not during default/copy/move
   construction or assignment).  Long story short:
 
-    FIXME: Specify 'set_values' for specific ParameterBase objects;
-           not looping over all keys.
-
     FIXME: revamp system so that only c'tor calls that require a Name()
            argument register the parameter.
- */
+*/
 
-#include "fhiclcpp/types/detail/ParameterBase.h"
 #include "cetlib/exempt_ptr.h"
 
 #include <list>
@@ -80,12 +73,14 @@ namespace fhicl {
 
   namespace detail {
 
-    class ParameterReferenceRegistry {
+    class ParameterBase;
+
+    class ParameterSchemaRegistry {
     public:
 
-      static ParameterReferenceRegistry& instance()
+      static ParameterSchemaRegistry& instance()
       {
-        static ParameterReferenceRegistry registry;
+        static ParameterSchemaRegistry registry;
         return registry;
       }
 
@@ -100,14 +95,13 @@ namespace fhicl {
 
       static ref_map::const_iterator find_parameter_by_key(key_string const& key);
 
-      static ref_map  get_parameters(ParameterBase const * pb);
-      static ref_map  get_child_parameters(ParameterBase const * pb);
+      static ref_map  get_parameters(ParameterBase const* pb);
+      static ref_map  get_child_parameters(ParameterBase const* pb);
       static ref_pair get_parameter_by_key (key_string const& key);
       static ref_map  get_parameters_by_key(key_string const& key);
       static ref_map  get_child_parameters_by_key(key_string const& key);
 
-      static std::vector<key_string> get_parameter_keys(ParameterBase const * pb);
-      static void get_keys_with_defaults(ParameterBase const * pb, std::set<key_string>& keys);
+      static std::vector<key_string> get_parameter_keys(ParameterBase const* pb);
       static void print_keys();
 
       // Non-static observers
@@ -119,11 +113,10 @@ namespace fhicl {
       void clear();
       void emplace(key_string const& key, base_ptr ptr);
       void erase  (key_string const& key);
-      void set_values(fhicl::ParameterSet const& pset, bool const trimParent);
 
     private:
 
-      ParameterReferenceRegistry(){}
+      ParameterSchemaRegistry() = default;
       ref_map parameters_;
 
     };

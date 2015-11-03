@@ -1,0 +1,78 @@
+namespace fhicl {
+
+  //==================================================================
+  // e.g. OptionalSequence<int,4> ====> std::array<int,4>
+  //
+  template<typename T, std::size_t SIZE>
+  OptionalSequence<T,SIZE>::OptionalSequence(Name && name,
+                                             Comment && cmt )
+    : SequenceBase(std::move(name),std::move(cmt),value_type::OPTIONAL,par_type::SEQ_ARRAY,this)
+    , value_()
+  {
+    finalize_elements();
+    NameStackRegistry::end_of_ctor();
+  }
+
+  template<typename T, std::size_t SIZE>
+  OptionalSequence<T,SIZE>::OptionalSequence()
+    : SequenceBase(Name::anonymous(), Comment(""),value_type::OPTIONAL,par_type::SEQ_ARRAY,this)
+    , value_()
+  {
+    finalize_elements();
+    NameStackRegistry::end_of_ctor();
+  }
+
+  template<typename T, std::size_t SIZE>
+  void
+  OptionalSequence<T,SIZE>::do_set_value(fhicl::ParameterSet const&,
+                                         bool const /*trimParents*/)
+  {
+    // We do not explicitly set the sequence values here as the
+    // individual elements are set one at a time.  However, this
+    // function is reached in the ValidateThenSet algorithm if the
+    // optional parameter is present.  Otherwise, this override is
+    // skipped.
+    has_value_ = true;
+  }
+
+
+  //==================================================================
+  // e.g. OptionalSequence<int> ====> std::vector<int>
+  //
+  template<typename T>
+  OptionalSequence<T,-1>::OptionalSequence(Name&& name,
+                                           Comment&& cmt )
+    : SeqVectorBase{std::move(name), std::move(cmt), value_type::OPTIONAL, this}
+  {
+    value_.resize(1);
+    finalize_elements();
+    NameStackRegistry::end_of_ctor();
+  }
+
+  template<typename T>
+  OptionalSequence<T,-1>::OptionalSequence()
+    : SeqVectorBase{Name::anonymous(), Comment(""),value_type::OPTIONAL, this}
+  {
+    value_.resize(1);
+    finalize_elements();
+    NameStackRegistry::end_of_ctor();
+  }
+
+  template<typename T>
+  void
+  OptionalSequence<T,-1>::do_set_value(fhicl::ParameterSet const&,
+                                       bool const /*trimParents*/)
+  {
+    // We do not explicitly set the sequence values here as the
+    // individual elements are set one at a time.  However, this
+    // function is reached in the ValidateThenSet algorithm if the
+    // optional parameter is present.  Otherwise, this override is
+    // skipped.
+    has_value_ = true;
+  }
+
+}
+
+// Local variables:
+// mode: c++
+// End:

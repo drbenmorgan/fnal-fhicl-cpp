@@ -2,8 +2,6 @@
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
 #include "fhiclcpp/types/detail/ValidateThenSet.h"
 
-#include <iostream>
-
 namespace fhicl {
 
   template <typename T>
@@ -13,6 +11,7 @@ namespace fhicl {
     , value_()
   {
     fill_members();
+    maybe_implicitly_default();
     NameStackRegistry::end_of_ctor();
   }
 
@@ -25,6 +24,7 @@ namespace fhicl {
     , value_()
   {
     fill_members();
+    maybe_implicitly_default();
     NameStackRegistry::end_of_ctor();
   }
 
@@ -33,6 +33,7 @@ namespace fhicl {
     : TableBase{Name::anonymous(),Comment(""),value_type::REQUIRED, this}
   {
     fill_members();
+    maybe_implicitly_default();
     validate_ParameterSet( pset, keysToIgnore );
     NameStackRegistry::end_of_ctor();
   }
@@ -41,7 +42,8 @@ namespace fhicl {
   void
   Table<T>::validate_ParameterSet(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
   {
-    detail::ValidateThenSet vs{pset, keysToIgnore};
+    pset_ = pset;
+    detail::ValidateThenSet vs{pset_, keysToIgnore};
     cet::for_all(members(), [&vs](auto m){ vs(m.get()); });
     vs.check_keys();
   }
@@ -67,8 +69,8 @@ namespace fhicl {
     // send pset.get<fhicl::ParameterSet>(key) is the key relative to
     // the top-level pset.
     std::string const& rkey = key();
-    std::string const& key  = rkey.substr( rkey.find_first_of(".")+1 );
-    pset_ = (key == rkey) ? pset : pset.get<fhicl::ParameterSet>(key,{});
+    std::string const& nkey = rkey.substr( rkey.find_first_of(".")+1 );
+    pset_ = (nkey == rkey) ? pset : pset.get<fhicl::ParameterSet>(nkey);
   }
 
   template <typename T>

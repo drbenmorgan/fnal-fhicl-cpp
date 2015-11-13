@@ -73,18 +73,16 @@ public:
   template< class T >
   bool get_if_present(std::string const & key, T & value) const;
   template< class T, class Via >
-  bool get_if_present(std::string const & key, T & value
-                      , T convert(Via const &)) const;
+  bool get_if_present(std::string const & key, T & value, T convert(Via const &)) const;
+
   template< class T >
   T get(std::string const & key) const;
   template< class T, class Via >
-  T get(std::string const & key
-        , T convert(Via const &)) const;
+  T get(std::string const & key, T convert(Via const &)) const;
   template< class T >
   T get(std::string const & key, T const & default_value) const;
   template< class T, class Via >
-  T get(std::string const & key, T const & default_value
-        , T convert(Via const &)) const;
+  T get(std::string const & key, T const & default_value, T convert(Via const &)) const;
 
   std::string get_src_info(std::string const& key) const;
 
@@ -127,9 +125,9 @@ private:
                  std::string const& key,
                  std::vector<std::string> & keys ) const;
 
- void assemble_table_(boost::any const & a,
-                      std::string const& key,
-                      std::vector<std::string> & keys ) const;
+  void assemble_table_(boost::any const & a,
+                       std::string const& key,
+                       std::vector<std::string> & keys ) const;
 
   void assemble_sequence_(boost::any const & a,
                           std::string const& key,
@@ -141,11 +139,11 @@ private:
 
   bool find_one_(std::string const & key) const;
 
-  bool
-  key_is_type_(std::string const & key,
-               std::function<bool (boost::any const &)> func) const;
+  bool key_is_type_(std::string const & key,
+                    std::function<bool (boost::any const &)> func) const;
 
-  void walk_( detail::ParameterSetWalker& psw) const;
+  bool descend_(std::vector<std::string> const& names, ParameterSet& ps) const;
+  void walk_(detail::ParameterSetWalker& psw) const;
 
 }; // ParameterSet
 
@@ -246,18 +244,9 @@ fhicl::ParameterSet::get_if_present(std::string const & key,
                                     T & value) const
 {
   auto keys = detail::get_names(key);
-
-  ParameterSet const* p {this};
-  ParameterSet pset;
-
-  for (auto const& table : keys.tables()) {
-    if (!p->get_one_(table, pset)){
-      return false;
-    }
-    p = &pset;
-  }
-  return p->get_one_(keys.last(), value);
-} // get_if_present<>()
+  ParameterSet ps;
+  return descend_(keys.tables(), ps) ? ps.get_one_(keys.last(), value) : false;
+}
 
 template< class T, class Via >
 bool
@@ -349,7 +338,6 @@ namespace fhicl {
 
       auto const seq = boost::any_cast<ps_sequence_t>(a);
       get_parameter( cend, std::next(subscript_it), seq[*subscript_it], value );
-
     }
 
   }

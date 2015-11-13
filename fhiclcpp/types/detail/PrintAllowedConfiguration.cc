@@ -7,7 +7,6 @@
 #include "fhiclcpp/types/detail/TableBase.h"
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
 
-#include <iostream>
 #include <iomanip>
 #include <regex>
 

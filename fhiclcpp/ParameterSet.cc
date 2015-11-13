@@ -199,19 +199,27 @@ ParameterSet::find_one_(std::string const & key) const
 }
 
 bool
+ParameterSet::descend_(std::vector<std::string> const& names,
+                       ParameterSet& ps) const
+{
+  ParameterSet const * p {this};
+  ParameterSet tmp;
+  for (auto const& table : names) {
+    if (!p->get_one_(table, tmp)) {
+      return false;
+    }
+    p = &tmp;
+  }
+  ps = *p; // Can't be 'tmp'.  Sometimes 'names' is empty.
+  return true;
+}
+
+bool
 ParameterSet::has_key(std::string const& key) const
 {
   auto keys = detail::get_names(key);
-  ParameterSet const *p {this};
-  ParameterSet pset;
-
-  for (auto const& table : keys.tables()) {
-    if (!p->get_one_(table, pset)){
-      return false;
-    }
-    p = &pset;
-  }
-  return p->find_one_(keys.last());
+  ParameterSet ps;
+  return descend_(keys.tables(), ps) ? ps.find_one_(keys.last()) : false;
 }
 
 // ----------------------------------------------------------------------

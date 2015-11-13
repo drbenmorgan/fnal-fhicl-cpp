@@ -1,3 +1,4 @@
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
@@ -10,6 +11,8 @@
 #include <iomanip>
 #include <regex>
 
+//====================================================================
+
 bool
 fhicl::detail::
 ValidateThenSet::before_action(ParameterBase* p)
@@ -17,16 +20,26 @@ ValidateThenSet::before_action(ParameterBase* p)
   // Check that key exists; allow defaulted or optional keys to be
   // absent.
   std::string const& rkey = p->key();
-  std::string const& key  = rkey.substr( rkey.find_first_of(".")+1 );
-  if ( !pset_.has_key(key) ) {
+  std::string const& k = rkey.substr( rkey.find_first_of(".")+1 );
+  if ( !pset_.has_key(k) && !cet::search_all(ignorableKeys_,k) ) {
     if ( !p->has_default() && !p->is_optional() ) {
       missingParameters_.emplace_back(p);
     }
     return false;
   }
-  userKeys_.erase(key);
+  userKeys_.erase(k);
   return true;
 }
+
+
+void
+fhicl::detail::
+ValidateThenSet::after_action(ParameterBase* p)
+{
+  p->set_value(pset_, true);
+}
+
+//====================================================================
 
 void
 fhicl::detail::
@@ -49,12 +62,7 @@ ValidateThenSet::enter_sequence(SequenceBase* s)
   v->resize_sequence(nElems);
 }
 
-void
-fhicl::detail::
-ValidateThenSet::after_action(ParameterBase* p)
-{
-  p->set_value(pset_, true);
-}
+//====================================================================
 
 namespace {
 

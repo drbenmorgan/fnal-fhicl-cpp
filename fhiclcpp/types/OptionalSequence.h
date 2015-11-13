@@ -13,7 +13,6 @@
 #include "fhiclcpp/type_traits.h"
 
 #include <array>
-#include <iostream>
 #include <string>
 #include <type_traits>
 

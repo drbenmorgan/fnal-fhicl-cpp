@@ -17,7 +17,7 @@ namespace fhicl {
     public:
 
       ValidateThenSet(fhicl::ParameterSet const& pset,
-                            std::set<std::string> const& keysToIgnore)
+                      std::set<std::string> const& keysToIgnore)
         : pset_{pset}
         , ignorableKeys_{keysToIgnore}
         , userKeys_{to_set(pset.get_all_keys())}

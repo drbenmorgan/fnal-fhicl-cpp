@@ -1,3 +1,4 @@
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/ostream_helpers.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
 #include "fhiclcpp/type_traits.h"
@@ -14,10 +15,10 @@ namespace fhicl {
                              Comment && cmt )
     : SequenceBase{std::move(name),std::move(cmt),value_type::REQUIRED,par_type::SEQ_ARRAY,this}
     , value_()
-  {
-    finalize_elements();
-    NameStackRegistry::end_of_ctor();
-  }
+    {
+      finalize_elements();
+      NameStackRegistry::end_of_ctor();
+    }
 
   template<typename T, std::size_t SIZE>
   Sequence<T,SIZE>::Sequence(Name && name,
@@ -25,42 +26,32 @@ namespace fhicl {
                              Sequence<T,SIZE> const& dflt )
     : SequenceBase{std::move(name),std::move(cmt),value_type::DEFAULT,par_type::SEQ_ARRAY,this}
     , value_(dflt.value_)
-  {
-    finalize_elements();
-    NameStackRegistry::end_of_ctor();
-  }
+    {
+      finalize_elements();
+      NameStackRegistry::end_of_ctor();
+    }
 
   template<typename T, std::size_t SIZE>
-  Sequence<T,SIZE>::Sequence (std::initializer_list<T> const & args)
+  Sequence<T,SIZE>::Sequence (std::initializer_list<T>  args)
     : SequenceBase{Name::anonymous(), Comment(""), value_type::DEFAULT, par_type::SEQ_ARRAY, this}
     , value_()
-  {
-    std::size_t i{};
-    for ( auto const & arg : args ) {
-
-      // One of the downsides of automatic registration of
-      // default-c'tored elements is that if you want to override
-      // the values later (as in the case with std::array or
-      // std::tuple), you need to first remove the entries of the
-      // registered empty elements and reassign.  Ideally, I
-      // wouldn't have to do this, but could reuse those map
-      // entries, but at the moment, I can't see a straightforward
-      // way without rewriting a significant portion of the entires
-      // system.
-      value_.at(i) = tt::fhicl_type<T>{ Name::anonymous(), arg };
-      ++i;
-   }
-    NameStackRegistry::end_of_ctor();
-  }
+    {
+      std::size_t i{};
+      for (auto const & arg : args) {
+        value_.at(i) = tt::fhicl_type<T>{ Name::anonymous(), arg };
+        ++i;
+      }
+      NameStackRegistry::end_of_ctor();
+    }
 
   template<typename T, std::size_t SIZE>
   Sequence<T,SIZE>::Sequence()
     : SequenceBase{Name::anonymous(), Comment(""),value_type::REQUIRED,par_type::SEQ_ARRAY,this}
     , value_()
-  {
-    finalize_elements();
-    NameStackRegistry::end_of_ctor();
-  }
+    {
+      // do NOT finalize elements for default sequence!
+      NameStackRegistry::end_of_ctor();
+    }
 
 
   //==================================================================
@@ -82,28 +73,29 @@ namespace fhicl {
                            Sequence<T,-1> const & dflt )
     : SeqVectorBase{std::move(name), std::move(cmt), value_type::DEFAULT, this}
     , value_(dflt.value_)
-  {
-    finalize_elements();
-    NameStackRegistry::end_of_ctor();
-  }
+    {
+      finalize_elements();
+      NameStackRegistry::end_of_ctor();
+    }
 
   template<typename T>
-  Sequence<T,-1>::Sequence (std::initializer_list<T> const & args)
+  Sequence<T,-1>::Sequence (std::initializer_list<T> args)
     : SeqVectorBase{Name::anonymous(), Comment(""), value_type::DEFAULT, this}
   {
     static_assert(!tt::is_table<T>::value, NO_DEFAULTS_FOR_TABLE);
-    for ( auto const& arg : args ) {
-      value_.emplace_back( Name::anonymous(), arg );
-    }
+    cet::transform_all(args, std::back_inserter(value_),
+                       [](T const& t) {
+                         return tt::fhicl_type<T>{Name::anonymous(), t};
+                       } );
     NameStackRegistry::end_of_ctor();
   }
 
   template<typename T>
   Sequence<T,-1>::Sequence()
-    : SeqVectorBase{Name::anonymous(), Comment(""),value_type::REQUIRED, this}
+    : SeqVectorBase{Name::anonymous(), Comment(""), value_type::REQUIRED, this}
   {
     value_.resize(1);
-    finalize_elements();
+    // do NOT finalize elements for default sequence!
     NameStackRegistry::end_of_ctor();
   }
 

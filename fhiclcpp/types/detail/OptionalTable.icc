@@ -37,7 +37,8 @@ namespace fhicl {
   void
   OptionalTable<T>::validate_ParameterSet(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
   {
-    detail::ValidateThenSet vs{pset, keysToIgnore};
+    pset_ = pset;
+    detail::ValidateThenSet vs{pset_, keysToIgnore};
     cet::for_all(members(), [&vs](auto m){ vs(m.get()); });
     vs.check_keys();
   }

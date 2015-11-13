@@ -77,8 +77,9 @@ namespace fhicl {
   void
   Table<T>::fill_members()
   {
-    for (auto const& elem : detail::ParameterSchemaRegistry::get_child_parameters(this))
+    for (auto const& elem : detail::ParameterSchemaRegistry::get_child_parameters(this)) {
       members_.push_back(elem.second);
+    }
   }
 
   template <typename T>

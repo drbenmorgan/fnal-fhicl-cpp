@@ -39,7 +39,7 @@
     (    {
     (
     (       composer: <string>
-
+    (
     (       # Symphony number/nickname pair
     (
     (     ( aSymphonyMoniker: [
@@ -50,7 +50,7 @@
     (    {
     (
     (       composer: <string>
-
+    (
     (       # Symphony number/nickname pair
     (
     (     ( aSymphonyMoniker: [
@@ -61,7 +61,7 @@
     (    {
     (
     (       composer: <string>
-
+    (
     (       # Symphony number/nickname pair
     (
     (     ( aSymphonyMoniker: [
@@ -72,7 +72,7 @@
     (    {
     (
     (       composer: <string>
-
+    (
     (       # Symphony number/nickname pair
     (
     (     ( aSymphonyMoniker: [

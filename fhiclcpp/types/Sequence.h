@@ -57,7 +57,7 @@ namespace fhicl {
        'Sequence(std::array<T,SIZE> const & vec)' constructor is
        necessary.
     */
-    Sequence(std::initializer_list<T> const & args);
+    Sequence(std::initializer_list<T> args);
 
     Sequence();
 
@@ -69,20 +69,11 @@ namespace fhicl {
       for ( auto const& elem : value_ ) {
         result.at(i++) = elem();
       }
-
-      // FIXME: If the rtype contains a Table<>, then additional keys
-      // will be added to the registry whenever 'rtype result;' above
-      // is called.  In principle, these should be removed whenever
-      // the destructors are called.  But that may not be until the
-      // end of some scope in which another registering call is made.
-      detail::ParameterSchemaRegistry::instance().clear();
-
       return result;
     }
 
     auto operator()(std::size_t i) const {
       auto val = value_.at(i)();
-      detail::ParameterSchemaRegistry::instance().clear();
       return val;
     }
 
@@ -144,7 +135,7 @@ namespace fhicl {
        'Sequence(std::vector<T> const & vec)' constructor is
        necessary.
     */
-    Sequence(std::initializer_list<T> const & args);
+    Sequence(std::initializer_list<T> args);
 
     Sequence();
 
@@ -158,19 +149,10 @@ namespace fhicl {
       rtype result;
       for ( auto const& elem : value_ )
         result.push_back( elem() );
-
-      // FIXME: If the rtype contains a Table<>, then additional keys
-      // will be added to the registry whenever 'push_back' is called.
-      // In principle, these should be removed whenever the
-      // destructors are called.  But that may not be until the end of
-      // some scope in which another registering call is made.
-      detail::ParameterSchemaRegistry::instance().clear();
-
       return result;
     }
     auto operator()(std::size_t i) const {
       auto val = value_.at(i)();
-      detail::ParameterSchemaRegistry::instance().clear();
       return val;
     }
 

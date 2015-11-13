@@ -90,19 +90,6 @@ namespace fhicl {
     std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
     fill_tuple_element(UTUPLE const& utuple)
     {
-
-      /*
-        One of the downsides of automatic registration of
-        default-c'tored elements is that if you want to override the
-        values later (as in the case with std::array or std::tuple),
-        you need to first remove the entries of the registered empty
-        elements and reassign.  Ideally, I wouldn't have to do this,
-        but could reuse those map entries, but at the moment, I can't
-        see a straightforward way without rewriting a significant
-        portion of the entire system.
-
-        Remove registered elements from default-c'tored value_
-      */
       using elem_utype = std::tuple_element_t<I,UTUPLE>;
       static_assert(!tt::is_table<elem_utype>::value, NO_DEFAULTS_FOR_TABLE);
       static_assert(!tt::is_sequence_type<elem_utype>::value, NO_STD_CONTAINERS);
@@ -166,7 +153,7 @@ namespace fhicl {
     : SequenceBase{Name::anonymous(),Comment(""),value_type::REQUIRED,par_type::TUPLE,this}
     , value_()
   {
-    finalize_elements();
+    // do NOT finalize elements for default sequence!
     NameStackRegistry::end_of_ctor();
   }
 
@@ -185,7 +172,6 @@ namespace fhicl {
   {
     rtype result;
     assemble_rtype(result);
-    detail::ParameterSchemaRegistry::instance().clear();
     return result;
   }
 

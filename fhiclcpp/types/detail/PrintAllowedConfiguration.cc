@@ -87,7 +87,7 @@ bool
 PrintAllowedConfiguration::before_action(ParameterBase const* p)
 {
   if ( !p->comment().empty() ) {
-    buffer_ << '\n';
+    buffer_ << non_whitespace(indent_(), indent_.size()) << '\n';
     for(auto const& line : cet::split_by_regex(p->comment(), "\n"))
       buffer_ << indent_() << "# " << line << '\n';
   }

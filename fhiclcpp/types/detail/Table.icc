@@ -51,9 +51,9 @@ namespace fhicl {
   template <typename T>
   void
   Table<T>::print_allowed_configuration(std::ostream& os,
-                                        std::string const&/* tab*/) const
+                                        std::string const& tab) const
   {
-    detail::PrintAllowedConfiguration pc{os};
+    detail::PrintAllowedConfiguration pc{os, false, tab};
     pc(this);
   }
 

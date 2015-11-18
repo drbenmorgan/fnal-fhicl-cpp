@@ -1,4 +1,5 @@
 #include "cetlib/container_algorithms.h"
+#include "cetlib/trim.h"
 #include "fhiclcpp/detail/printing_helpers.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
@@ -61,7 +62,7 @@ namespace {
     return result;
   }
 
-  std::string non_whitespace(std::string s, std::size_t const sz)
+  std::string non_whitespace(std::string const& s, std::size_t const sz)
   {
 
     // To support denoting optional tables, we sometimes print an
@@ -74,7 +75,7 @@ namespace {
     // parameters, so there's no reason to include any prefixes that
     // might be on the lowest-level indent (corresponding to sz == 1).
 
-    return sz > 1 ? s.erase( s.find_last_not_of(' ')+1 ) : "";
+    return sz > 1 ? cet::trim_right_copy(s," ") : "";
   }
 
 }

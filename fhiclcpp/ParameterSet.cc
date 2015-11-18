@@ -57,24 +57,6 @@ namespace {
     return ParameterSetRegistry::get(psid);
   }
 
-  bool find_parameter(cit_size_t const cend,
-                      cit_size_t const subscript_it,
-                      boost::any const a)
-  {
-    if ( subscript_it == cend ){
-      // If we got this far, that means the element must exist,
-      // otherwise the previous recursive 'find_parameter' call would
-      // have returned false.
-      return true;
-    }
-
-    auto const seq = boost::any_cast<ps_sequence_t>(a);
-
-    return
-      *subscript_it < seq.size() ?
-      find_parameter( cend, std::next(subscript_it), seq[*subscript_it] )
-      : false ;
-  }
 }
 
 // ======================================================================
@@ -174,28 +156,19 @@ ParameterSet::get_all_keys() const
 }
 
 bool
-ParameterSet::find_one_(std::string const & key) const
+ParameterSet::find_one_(std::string const & simple_key) const
 {
-  // Replace (e.g.) "name[2]" with "name,2", then split by ','
-  static std::regex const r("\\[(\\d+)\\]");
-  auto tokens = cet::split_by_regex( std::regex_replace(key, r, ",$1" ), ",");
+  auto skey = detail::get_sequence_indices(simple_key);
 
-  std::string const name = tokens.front();
-
-  map_iter_t it = mapping_.find(name);
+  map_iter_t it = mapping_.find(skey.name());
   if (it == mapping_.end()) {
     return false;
   }
 
-  std::vector<std::size_t> seq_indices;
-  std::for_each( tokens.cbegin()+1, tokens.cend(),
-                 [&seq_indices](std::string const& str_ind)
-                 {seq_indices.push_back( std::stoul(str_ind) );}
-                 );
-
-  return find_parameter(seq_indices.cend(),
-                        seq_indices.cbegin(),
-                        it->second);
+  auto a = it->second;
+  return detail::find_an_any(skey.indices().cbegin(),
+                             skey.indices().cend(),
+                             a);
 }
 
 bool
@@ -319,14 +292,23 @@ bool
 ParameterSet::key_is_type_(std::string const & key,
                            std::function<bool (boost::any const &)> func) const
 {
-  if (key.find('.') != std::string::npos) {
-    throw fhicl::exception(unimplemented,
-                           "is_{table,sequence,atom}() for nested key.");
+  auto split_keys = detail::get_names(key);
+  ParameterSet ps;
+  if ( !descend_(split_keys.tables(), ps) ) {
+    throw exception(error::cant_find, key);
   }
-  map_iter_t it = mapping_.find(key);
-  if (it == mapping_.end())
-  { throw exception(error::cant_find, key); }
-  return func(it->second);
+
+  auto skey = detail::get_sequence_indices(split_keys.last());
+
+  map_iter_t it = ps.mapping_.find(skey.name());
+  if (it == ps.mapping_.end()) {
+    throw exception(error::cant_find, key);
+  }
+
+  auto a = it->second;
+  return detail::find_an_any(skey.indices().cbegin(), skey.indices().cend(), a)
+    ? func(a)
+    : throw exception(error::cant_find, key);
 }
 
 // ======================================================================

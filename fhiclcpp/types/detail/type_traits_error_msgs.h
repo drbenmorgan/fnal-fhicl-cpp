@@ -16,12 +16,13 @@
   "                .. Sequence<Sequence<int>,4u> ===> std::array <std::vector<int>,4u>\n" \
   "                .. etc.\n"
 
-#define OPTIONAL_FHICL_TYPES                    \
+#define OPTIONAL_FHICL_TYPES                                            \
   "                .. OptionalAtom<T>\n"                                \
   "                .. OptionalSequence<T>\n"                            \
   "                .. OptionalSequence<T,SZ>\n"                         \
   "                .. OptionalTable<T>\n"                               \
-  "                .. OptionalTuple<T...>\n"
+  "                .. OptionalTuple<T...>\n"                            \
+  "                .. OptionalTupleAs<T(U...)>\n"
 
 #define FHICL_TYPES                                                     \
   "                .. Atom<T>\n"                                        \

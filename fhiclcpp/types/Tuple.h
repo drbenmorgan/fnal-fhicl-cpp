@@ -23,8 +23,8 @@ namespace fhicl {
   class Tuple final : public detail::SequenceBase {
   public:
 
-    using ftype = std::tuple< tt::fhicl_type <TYPES>... >;
     using rtype = std::tuple< tt::return_type<TYPES>... >;
+    using ftype = std::tuple< tt::fhicl_type <TYPES>... >;
 
     explicit Tuple(Name && name, Comment && cmt );
     explicit Tuple(Name && name, Comment && cmt, Tuple<TYPES...> const& dflt );
@@ -71,7 +71,7 @@ namespace fhicl {
 
       auto & elem = std::get<I>(value_);
       set_elements(elem.get_ftype(), elem, key(), I);
-      append_to_elements(&elem);
+      append_to_elements( ptr_to_base(elem) );
       finalize_tuple_elements<I+1>();
     }
 

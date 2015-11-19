@@ -60,7 +60,7 @@ namespace fhicl {
 
       auto & elem = std::get<I>(value_);
       set_elements(elem.get_ftype(), elem, key(), I);
-      append_to_elements(&elem);
+      append_to_elements( ptr_to_base(elem) );
       finalize_tuple_elements<I+1>();
     }
 

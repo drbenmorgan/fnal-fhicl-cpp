@@ -49,6 +49,15 @@ cet_test(return_types_t          USE_BOOST_UNIT)
 cet_test(return_types_table_t    USE_BOOST_UNIT)
 cet_test(return_value_defaults_t USE_BOOST_UNIT)
 
+cet_test(tupleAs_t USE_BOOST_UNIT
+  DATAFILES
+  tupleAs_t.fcl
+  )
+
+cet_test(print_tupleAs_t
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/print_tupleAs_t-ref.txt"
+  )
+
 cet_test(print_allowed_configuration_t
   REF "${CMAKE_CURRENT_SOURCE_DIR}/print_allowed_configuration_t-ref.txt"
   )

@@ -45,7 +45,9 @@ namespace fhicl {
       PSRSentry(std::string const& key, ParameterBase* pb)
         : key_(key)
       {
-        if (pb) ParameterSchemaRegistry::instance().emplace(key_, pb);
+        if (pb) {
+          ParameterSchemaRegistry::instance().emplace(pb);
+        }
       }
 
       ~PSRSentry()
@@ -98,6 +100,17 @@ namespace fhicl {
       PSRSentry sentry_;
 
     };
+
+    //===================================================================
+    inline ParameterBase* ptr_to_base(ParameterBase& pb)
+    {
+      return &pb;
+    }
+
+    inline ParameterBase const* ptr_to_base(ParameterBase const& pb)
+    {
+      return &pb;
+    }
 
   }
 }

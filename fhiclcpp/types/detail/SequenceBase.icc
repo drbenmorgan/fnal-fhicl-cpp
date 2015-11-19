@@ -16,8 +16,7 @@ namespace fhicl {
       std::string const new_key = key_prefix + Name::array_index(i);
 
       remove_stale_keys( t, pb.key() );
-      pb.set_key( new_key );
-      registry.emplace( pb.key(), &pb );
+      registry.update_parameter(pb, new_key);
 
       /*
         Tables are special.  It is not possible to descend into the
@@ -31,10 +30,10 @@ namespace fhicl {
 
         for ( auto const& pr : registry.get_parameters_by_key( old_key ) ) {
           remove_stale_key( pr.first );
-          pr.second->set_key( std::regex_replace( pr.second->key(),
-                                                  std::regex( key_format ),
-                                                  new_format ) );
-          registry.emplace( pr.second->key(), pr.second );
+          auto new_key = std::regex_replace( pr.second->key(),
+                                             std::regex(key_format),
+                                             new_format );
+          registry.update_parameter(*pr.second, new_key);
         }
       }
 
@@ -51,14 +50,13 @@ namespace fhicl {
       std::string const new_key = key_prefix + Name::array_index(i);
 
       remove_stale_keys( arr, pb.key() );
-      pb.set_key( new_key );
-      registry.emplace( pb.key(), &pb );
+      registry.update_parameter(pb, new_key);
       std::size_t j{};
       auto& sb = dynamic_cast<SequenceBase&>(pb);
       sb.clear_elements();
       for ( auto & elem : arr ) {
         set_elements(elem.get_ftype(), elem, new_key,j++);
-        sb.append_to_elements(&elem);
+        sb.append_to_elements( ptr_to_base(elem) );
       }
     }
 
@@ -73,14 +71,13 @@ namespace fhicl {
 
       std::string const new_key = key_prefix + Name::array_index(i);
       remove_stale_keys( vec, pb.key() );
-      pb.set_key( new_key );
-      registry.emplace( pb.key(), &pb );
+      registry.update_parameter(pb, new_key);
       std::size_t j{};
       auto& sb = dynamic_cast<SequenceBase&>(pb);
       sb.clear_elements();
       for ( auto & elem : vec ) {
         set_elements(elem.get_ftype(), elem, new_key,j++);
-        sb.append_to_elements(&elem);
+        sb.append_to_elements( ptr_to_base(elem) );
       }
     }
 
@@ -94,8 +91,7 @@ namespace fhicl {
       auto & registry = ParameterSchemaRegistry::instance();
       std::string const new_key = key_prefix + Name::array_index(i);
       remove_stale_keys( tuple, pb.key() );
-      pb.set_key( new_key );
-      registry.emplace( pb.key(), &pb );
+      registry.update_parameter(pb, new_key);
       auto& sb = dynamic_cast<SequenceBase&>(pb);
       sb.clear_elements();
       set_tuple_element<0>( tuple, sb, new_key);

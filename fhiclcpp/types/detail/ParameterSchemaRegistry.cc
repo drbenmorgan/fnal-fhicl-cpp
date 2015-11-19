@@ -1,3 +1,4 @@
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/ParameterSchemaRegistry.h"
@@ -24,7 +25,7 @@ namespace fhicl {
     }
 
     ref_map
-    ParameterSchemaRegistry::get_parameters(ParameterBase const * pb)
+    ParameterSchemaRegistry::get_parameters(ParameterBase const* pb)
     {
       return get_parameters_by_key( pb->key() );
     }
@@ -32,17 +33,12 @@ namespace fhicl {
     ref_pair
     ParameterSchemaRegistry::get_parameter_by_key(key_string const& key)
     {
-      ref_pair emptyResult;
-      for ( auto & keyPtrPr : instance().parameters_ ) {
-        if ( keyPtrPr.first == key ) {
-          return keyPtrPr;
-        }
-      }
-      return emptyResult;
+      auto it = instance().find_parameter_by_key(key);
+      return it != instance().parameters_.end() ? *it : ref_pair{};
     }
 
     ref_map
-    ParameterSchemaRegistry::get_child_parameters(ParameterBase const * pb)
+    ParameterSchemaRegistry::get_child_parameters(ParameterBase const* pb)
     {
       return get_child_parameters_by_key( pb->key() );
     }
@@ -58,15 +54,14 @@ namespace fhicl {
       par_type const pt = p.second->parameter_type();
 
       std::regex const r =
-        is_sequence(pt) ? std::regex( Name::regex_safe(key) + R"(\[\d+\])") :
-        is_table(pt)    ? std::regex( Name::regex_safe(key) + R"(\.\w+)" )  : std::regex();
+        is_sequence(pt) ? std::regex{Name::regex_safe(key) + R"(\[\d+\])"} :
+        is_table(pt)    ? std::regex{Name::regex_safe(key) + R"(\.\w+)" }  : std::regex{};
 
-      for ( auto const & keyPtrPr : instance().get_parameters_by_key(key) ) {
-        key_string const k = keyPtrPr.first;
-        if ( std::regex_match(k,r) )
-          result.emplace_back( keyPtrPr );
-      }
-
+      cet::copy_if_all( instance().get_parameters_by_key(key),
+                        std::inserter(result, result.begin()),
+                        [&r](auto const& pr) {
+                          return std::regex_match(pr.first, r);
+                        } );
       return result;
     }
 
@@ -74,10 +69,11 @@ namespace fhicl {
     ParameterSchemaRegistry::get_parameters_by_key(key_string const& key)
     {
       ref_map result;
-      for ( auto const & keyPtrPr : instance().parameters_ ) {
-        if ( keyPtrPr.first.find(key) != key_string::npos )
-          result.emplace_back( keyPtrPr );
-      }
+      cet::copy_if_all( instance().parameters_,
+                        std::inserter(result, result.begin()),
+                        [&key](auto const & pr) {
+                          return pr.first.find(key) != key_string::npos;
+                        } );
       return result;
     }
 
@@ -85,8 +81,11 @@ namespace fhicl {
     ParameterSchemaRegistry::get_parameter_keys(ParameterBase const * pb)
     {
       std::vector<key_string> result;
-      for ( auto & keyPtrPr : instance().get_parameters(pb) )
-        result.push_back( keyPtrPr.first );
+      cet::transform_all( instance().get_parameters(pb),
+                          std::back_inserter(result),
+                          [](auto const& p) {
+                            return p.first;
+                          } );
       return result;
     }
 
@@ -94,8 +93,11 @@ namespace fhicl {
     ParameterSchemaRegistry::print_keys()
     {
       std::cout << " Current ParameterSchemaRegistry keys " << std::endl;
-      for ( auto const& param : instance().get_parameters_by_key("") )
-        std::cout << " " << param.first << std::endl;
+      cet::transform_all( instance().get_parameters_by_key(""),
+                          std::ostream_iterator<std::string>(std::cout,"\n"),
+                          [](auto const& p) {
+                            return " "+p.first;
+                          } );
     }
 
     bool ParameterSchemaRegistry::empty() const
@@ -109,9 +111,17 @@ namespace fhicl {
     }
 
     void
-    ParameterSchemaRegistry::emplace(key_string const& key, base_ptr ptr)
+    ParameterSchemaRegistry::emplace(ParameterBase* p)
     {
-      parameters_.emplace_back(key, ptr);
+      parameters_.emplace_back(p->key(), p);
+    }
+
+    void
+    ParameterSchemaRegistry::update_parameter(ParameterBase& pb, std::string const& key)
+    {
+      auto p = ptr_to_base(pb);
+      p->set_key(key);
+      parameters_.emplace_back(p->key(), p);
     }
 
     void

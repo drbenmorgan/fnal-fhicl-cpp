@@ -73,7 +73,7 @@ namespace fhicl {
       clear_elements();
       for ( auto & elem : value_ ) {
         set_elements( elem.get_ftype(), elem, key(), i++ );
-        this->append_to_elements(&elem);
+        append_to_elements( ptr_to_base(elem) );
       }
     }
 
@@ -132,7 +132,7 @@ namespace fhicl {
       clear_elements();
       for ( auto & elem : value_ ) {
         set_elements( elem.get_ftype(), elem, key(), i++ );
-        this->append_to_elements(&elem);
+        append_to_elements( ptr_to_base(elem) );
       }
     }
 

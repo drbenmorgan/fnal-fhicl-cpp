@@ -34,11 +34,11 @@ namespace fhicl {
     using rtype = std::array< tt::return_type<T>, SIZE >;
 
     explicit Sequence(Name && name, Comment && cmt );
-    explicit Sequence(Name && name, Comment && cmt, Sequence<T,SIZE> const& dflt );
+    explicit Sequence(Name && name, Comment && cmt, Sequence<T,SIZE> const& dflt);
 
-    explicit Sequence(Name && name) : Sequence( std::move(name), Comment("") ) {}
-    explicit Sequence(Name && name, Sequence<T,SIZE> const & dflt ) : Sequence( std::move(name), Comment(""), dflt ){}
-    explicit Sequence(Name && name, Sequence<T,SIZE> const & dflt, Comment && cmt ) : Sequence( std::move(name), std::move(cmt), dflt ){}
+    explicit Sequence(Name && name) : Sequence{std::move(name), Comment("")} {}
+    explicit Sequence(Name && name, Sequence<T,SIZE> const & dflt ) : Sequence{std::move(name), Comment(""), dflt} {}
+    explicit Sequence(Name && name, Sequence<T,SIZE> const & dflt, Comment && cmt) : Sequence{std::move(name), std::move(cmt), dflt} {}
 
     /* Default value support
 
@@ -73,8 +73,7 @@ namespace fhicl {
     }
 
     auto operator()(std::size_t i) const {
-      auto val = value_.at(i)();
-      return val;
+      return value_.at(i)();
     }
 
     auto const & get_ftype() const { return value_; }
@@ -90,7 +89,7 @@ namespace fhicl {
       clear_elements();
       for ( auto & elem : value_ ) {
         set_elements( elem.get_ftype(), elem, key(), i++ );
-        this->append_to_elements(&elem);
+        append_to_elements( ptr_to_base(elem) );
       }
     }
 
@@ -111,12 +110,12 @@ namespace fhicl {
     using ftype = std::vector< tt::fhicl_type <T> >;
     using rtype = std::vector< tt::return_type<T> >;
 
-    explicit Sequence(Name && name, Comment && cmt );
-    explicit Sequence(Name && name, Comment && cmt, Sequence<T,-1>  const & dflt );
+    explicit Sequence(Name && name, Comment && cmt);
+    explicit Sequence(Name && name, Comment && cmt, Sequence<T,-1>  const & dflt);
 
-    explicit Sequence(Name && name) : Sequence( std::move(name), Comment("") ) {}
-    explicit Sequence(Name && name, Sequence<T,-1> const & dflt) : Sequence( std::move(name), Comment(""), dflt ){}
-    explicit Sequence(Name && name, Sequence<T,-1> const & dflt, Comment && cmt ) : Sequence( std::move(name), std::move(cmt), dflt ){}
+    explicit Sequence(Name && name) : Sequence{std::move(name), Comment("")} {}
+    explicit Sequence(Name && name, Sequence<T,-1> const & dflt) : Sequence{std::move(name), Comment(""), dflt} {}
+    explicit Sequence(Name && name, Sequence<T,-1> const & dflt, Comment && cmt) : Sequence{std::move(name), std::move(cmt), dflt} {}
 
     /* Default value support
 
@@ -147,13 +146,14 @@ namespace fhicl {
 
     auto operator()() const {
       rtype result;
-      for ( auto const& elem : value_ )
-        result.push_back( elem() );
+      cet::transform_all(value_, std::back_inserter(result),
+                         [](auto const& e){
+                           return e();
+                         } );
       return result;
     }
     auto operator()(std::size_t i) const {
-      auto val = value_.at(i)();
-      return val;
+      return value_.at(i)();
     }
 
     auto const & get_ftype() const { return value_; }
@@ -169,7 +169,7 @@ namespace fhicl {
       clear_elements();
       for ( auto & elem : value_ ) {
         set_elements( elem.get_ftype(), elem, key(), i++ );
-        append_to_elements(&elem);
+        append_to_elements( ptr_to_base(elem) );
       }
     }
 

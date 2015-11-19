@@ -74,7 +74,7 @@ namespace fhicl {
       {
         auto & elem = std::get<I>(tuple);
         set_elements( elem.get_ftype(), elem, key_prefix, I );
-        sb.append_to_elements(&elem);
+        sb.append_to_elements( ptr_to_base(elem) );
         set_tuple_element<I+1>(tuple, sb, key_prefix);
       }
 

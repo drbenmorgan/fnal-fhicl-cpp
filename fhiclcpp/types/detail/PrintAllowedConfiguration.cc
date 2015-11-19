@@ -93,11 +93,20 @@ PrintAllowedConfiguration::before_action(ParameterBase const* p)
       buffer_ << indent_() << "# " << line << '\n';
   }
 
-  if ( !is_sequence_element(p->key()) )
+  if ( !is_sequence_element(p->key()) ) {
     buffer_ << non_whitespace(indent_(), indent_.size()) << '\n';
 
-  if ( p->is_optional() ) {
-    indent_.modify_top(" ( ");
+    // In general, optional parameters cannot be template arguments to
+    // sequences.  However, the implementation for 'TupleAs' uses
+    // OptionalTuple<...> as the holding type of the sequence
+    // elements.  In the case where we have Sequence< TupleAs<> >, the
+    // TupleAs entries will be prefaced with '(', and we don't want
+    // that.  Therefore, we modify the top indentation fragment only
+    // if the parameter is not a sequence element.
+
+    if ( p->is_optional() ) {
+      indent_.modify_top(" ( ");
+    }
   }
 
   mps_.emplace(p, showParentsForFirstParam_, indent_);

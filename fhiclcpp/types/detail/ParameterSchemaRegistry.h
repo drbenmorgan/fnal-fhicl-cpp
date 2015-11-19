@@ -111,7 +111,8 @@ namespace fhicl {
       // Modifiers
 
       void clear();
-      void emplace(key_string const& key, base_ptr ptr);
+      void emplace(ParameterBase* pb);
+      void update_parameter(ParameterBase& pb, std::string const& newKey);
       void erase  (key_string const& key);
 
     private:

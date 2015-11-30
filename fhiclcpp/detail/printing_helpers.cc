@@ -50,7 +50,7 @@ std::string detail::printed_suffix(std::string const& key, std::size_t const sz)
   if (sz == -1u) return result;
 
   std::smatch m;
-  if ( std::regex_match(key, m, std::regex{R"(.*\[(\d)\])"} ) && std::stoul(m[1]) != sz-1 ) {
+  if ( std::regex_match(key, m, std::regex{R"(.*\[(\d+)\])"} ) && std::stoul(m[1]) != sz-1 ) {
     result = ",";
   }
   return result;

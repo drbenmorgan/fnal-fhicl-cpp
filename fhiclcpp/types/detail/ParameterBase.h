@@ -25,7 +25,6 @@
 
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
-#include "fhiclcpp/types/detail/ParameterSchemaRegistry.h"
 
 #include <string>
 
@@ -34,28 +33,6 @@ namespace fhicl {
   class ParameterSet;
 
   namespace detail {
-
-    //========================================================
-    class PSRSentry {
-
-      std::string key_;
-
-    public:
-
-      PSRSentry(std::string const& key, ParameterBase* pb)
-        : key_(key)
-      {
-        if (pb) {
-          ParameterSchemaRegistry::instance().emplace(pb);
-        }
-      }
-
-      ~PSRSentry()
-      {
-        ParameterSchemaRegistry::instance().erase(key_);
-      }
-
-    };
 
     //========================================================
     class ParameterBase {
@@ -71,10 +48,8 @@ namespace fhicl {
       ParameterBase(Name const & name,
                     Comment const & comment,
                     value_type const vt,
-                    par_type const type,
-                    ParameterBase* pb)
+                    par_type const type)
         : mdata_{name, comment, vt, type}
-        , sentry_{mdata_.key(), pb}
       {}
 
       virtual ~ParameterBase() = default;
@@ -87,30 +62,12 @@ namespace fhicl {
       void set_value_type(value_type const vt) { mdata_.set_value_type(vt); }
       void set_key(std::string const& key) { mdata_.set_key(key); }
 
-
-    protected:
-      // ParameterBase& operator=(ParameterBase const&) = default;
-      // ParameterBase& operator=(ParameterBase&&) = default;
-
     private:
 
       virtual void do_set_value(fhicl::ParameterSet const&, bool trimParents) = 0;
 
       ParameterMetadata mdata_;
-      PSRSentry sentry_;
-
     };
-
-    //===================================================================
-    inline ParameterBase* ptr_to_base(ParameterBase& pb)
-    {
-      return &pb;
-    }
-
-    inline ParameterBase const* ptr_to_base(ParameterBase const& pb)
-    {
-      return &pb;
-    }
 
   }
 }

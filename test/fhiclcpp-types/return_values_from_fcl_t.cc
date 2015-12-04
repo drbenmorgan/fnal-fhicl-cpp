@@ -18,6 +18,7 @@
 #include "fhiclcpp/types/Tuple.h"
 
 #include "test/fhiclcpp-types/FixtureBase.h"
+#include "test/fhiclcpp-types/TestMacros.h"
 
 #include <iostream>
 #include <string>
@@ -71,8 +72,7 @@ BOOST_AUTO_TEST_CASE( seq_vector )
 {
   auto ref = { 3, 5, 8 };
   auto val = config().vec();
-  BOOST_CHECK_EQUAL_COLLECTIONS( val.begin(), val.end(),
-                                 ref.begin(), ref.end() );
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
 }
 
 // [3] Sequence<T,SZ>
@@ -80,8 +80,7 @@ BOOST_AUTO_TEST_CASE( seq_array )
 {
   auto ref = { 4, 9 };
   auto val = config().arr();
-  BOOST_CHECK_EQUAL_COLLECTIONS( val.begin(), val.end(),
-                                 ref.begin(), ref.end() );
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
 }
 
 // [4] Tuple<T...>
@@ -97,8 +96,7 @@ BOOST_AUTO_TEST_CASE( tuple_with_vector )
 {
   auto ref = { 4, 1, 4, 67, 89 };
   auto val = config().tupWithVec.get<0>();
-  BOOST_CHECK_EQUAL_COLLECTIONS( ref.begin(), ref.end(),
-                                 val.begin(), val.end() );
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
 
   BOOST_CHECK_CLOSE_FRACTION( config().tupWithVec.get<1>(), 4.56789, tolerance );
   BOOST_CHECK_EQUAL( config().tupWithVec.get<2>(), false   );
@@ -109,8 +107,7 @@ BOOST_AUTO_TEST_CASE( tuple_with_array )
 {
   auto ref = { 5, 16 };
   auto val = config().tupWithArr.get<0>();
-  BOOST_CHECK_EQUAL_COLLECTIONS( ref.begin(), ref.end(),
-                                 val.begin(), val.end() );
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
 
   BOOST_CHECK_CLOSE_FRACTION( config().tupWithArr.get<1>(), 46.9, tolerance );
   BOOST_CHECK_EQUAL( config().tupWithArr.get<2>(), true );
@@ -166,15 +163,13 @@ BOOST_AUTO_TEST_CASE( vec_of_vecs )
 
   for ( auto const& val : config().vecOfVec() ) {
     auto ref = *it++;
-    BOOST_CHECK_EQUAL_COLLECTIONS( val.begin(), val.end(),
-                                   ref.begin(), ref.end());
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 
   size_t i{};
   for ( auto const& ref : ref_vec ) {
     auto val = config().vecOfVec(i++);
-    BOOST_CHECK_EQUAL_COLLECTIONS( val.begin(), val.end(),
-                                   ref.begin(), ref.end());
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 }
 
@@ -187,8 +182,7 @@ BOOST_AUTO_TEST_CASE( vec_of_arrs )
 
   for ( auto const& val : config().vecOfArr() ) {
     auto ref = *it++;
-    BOOST_CHECK_EQUAL_COLLECTIONS( val.begin(), val.end(),
-                                   ref.begin(), ref.end());
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 }
 
@@ -200,8 +194,7 @@ BOOST_AUTO_TEST_CASE( arr_of_vecs )
 
   for ( auto const& val : config().arrOfVec() ) {
     auto ref = *it++;
-    BOOST_CHECK_EQUAL_COLLECTIONS( val.begin(), val.end(),
-                                   ref.begin(), ref.end());
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 }
 
@@ -213,8 +206,7 @@ BOOST_AUTO_TEST_CASE( arr_of_arrs )
 
   for ( auto const& val : config().arrOfArr() ) {
     auto ref = *it++;
-    BOOST_CHECK_EQUAL_COLLECTIONS( val.begin(), val.end(),
-                                   ref.begin(), ref.end());
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 }
 

@@ -1,46 +1,43 @@
+#include "fhiclcpp/detail/printing_helpers.h"
+
 namespace fhicl {
 
   template <typename T>
-  Atom<T>::Atom(Name && name,
-                Comment && cmt )
-    : AtomBase(std::move(name), std::move(cmt), value_type::REQUIRED, this)
-    , value_()
+  Atom<T>::Atom(Name&& name,
+                Comment&& comment )
+    : AtomBase{std::move(name), std::move(comment), value_type::REQUIRED}
+    , RegisterIfTableMember{this}
+    , value_{std::make_shared<T>()}
   {
     NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
-  Atom<T>::Atom(Name && name,
-                Comment && cmt,
+  Atom<T>::Atom(Name&& name,
+                Comment&& comment,
                 T const& dflt_value )
-    : AtomBase(std::move(name), std::move(cmt), value_type::DEFAULT, this)
-    , value_(dflt_value)
+    : AtomBase{std::move(name), std::move(comment), value_type::DEFAULT}
+    , RegisterIfTableMember{this}
+    , value_{std::make_shared<T>(dflt_value)}
   {
     NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
-  Atom<T>::Atom(Name && name)
+  Atom<T>::Atom(Name&& name)
     : Atom<T>::Atom( std::move(name), Comment("") )
   {}
 
   template <typename T>
-  Atom<T>::Atom(Name && name, T const& dflt_value)
+  Atom<T>::Atom(Name&& name, T const& dflt_value)
     : Atom<T>::Atom( std::move(name), Comment(""), dflt_value )
   {}
 
   template <typename T>
-  Atom<T>::Atom(Name && name, T const& dflt_value, Comment && cmt)
-    : Atom<T>::Atom( std::move(name), std::move(cmt), dflt_value )
+  Atom<T>::Atom(Name&& name, T const& dflt_value, Comment&& comment)
+    : Atom<T>::Atom( std::move(name), std::move(comment), dflt_value )
   {}
 
-  template <typename T>
-  Atom<T>::Atom()
-    : AtomBase(Name::anonymous(), Comment(""), value_type::REQUIRED, this)
-    , value_()
-  {
-    NameStackRegistry::end_of_ctor();
-  }
 
   template <typename T>
   std::string
@@ -49,7 +46,7 @@ namespace fhicl {
     std::stringstream oss;
     if ( has_default() ) {
       using namespace detail::yes_defaults;
-      oss << maybe_quotes<T>(value_) ;
+      oss << maybe_quotes<T>(*value_) ;
     }
     else {
       using namespace detail::no_defaults;
@@ -66,9 +63,9 @@ namespace fhicl {
     std::string const& key = trimParent ? rkey.substr( rkey.find_first_of(".")+1 ) : rkey;
 
     if ( has_default() )
-      pset.get_if_present<T>( key, value_ );
+      pset.get_if_present<T>( key, *value_ );
     else
-      value_ = pset.get<T>( key );
+      value_ = std::make_shared<T>(pset.get<T>( key ));
   }
 
 }

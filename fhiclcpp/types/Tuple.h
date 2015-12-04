@@ -1,17 +1,40 @@
 #ifndef fhiclcpp_types_Tuple_h
 #define fhiclcpp_types_Tuple_h
 
+#include "fhiclcpp/detail/printing_helpers.h"
+#include "fhiclcpp/type_traits.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
-#include "fhiclcpp/types/detail/ParameterSchemaRegistry.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
-#include "fhiclcpp/type_traits.h"
 
+#include <memory>
 #include <string>
 #include <utility>
 
 namespace fhicl {
+
+  namespace tuple_detail {
+
+    template <typename ... DEFAULTS>
+    class ValueHolder {
+    public:
+      ValueHolder(DEFAULTS ... defaults)
+        : holder_{ std::forward_as_tuple(defaults...) }
+      {}
+
+      ValueHolder(std::tuple<DEFAULTS...> const& tup)
+        : holder_{tup}
+      {}
+
+      template<std::size_t I>
+      auto const& get() const { return std::get<I>(holder_); }
+
+    private:
+      std::tuple<DEFAULTS...> holder_;
+    };
+
+  }
 
   class ParameterSet;
 
@@ -20,30 +43,27 @@ namespace fhicl {
   //
 
   template<typename ... TYPES>
-  class Tuple final : public detail::SequenceBase {
+  class Tuple final :
+    public  detail::SequenceBase,
+    private detail::RegisterIfTableMember {
   public:
 
+    using dtype = tuple_detail::ValueHolder< typename tt::fhicl_type<TYPES>::dtype ... >;
     using rtype = std::tuple< tt::return_type<TYPES>... >;
-    using ftype = std::tuple< tt::fhicl_type <TYPES>... >;
+    using ftype = std::tuple< std::shared_ptr<tt::fhicl_type<TYPES>>...  >;
 
-    explicit Tuple(Name && name, Comment && cmt );
-    explicit Tuple(Name && name, Comment && cmt, Tuple<TYPES...> const& dflt );
+    explicit Tuple(Name&& name);
+    explicit Tuple(Name&& name, Comment&& comment );
 
-    explicit Tuple(Name && name) : Tuple( std::move(name), Comment("") ) {}
-    explicit Tuple(Name && name, Tuple<TYPES...> const& dflt ) : Tuple( std::move(name), Comment(""), dflt ) {}
-    explicit Tuple(Name && name, Tuple<TYPES...> const& dflt, Comment && cmt ) : Tuple( std::move(name), std::move(cmt), dflt ) {}
-
-    Tuple(TYPES const & ... args);
-
-    Tuple();
+    // c'tors supporting defaults;
+    explicit Tuple(Name&& name, dtype const& defaults);
+    explicit Tuple(Name&& name, dtype const& defaults, Comment&& comment);
+    explicit Tuple(Name&& name, Comment&& comment, dtype const& defaults);
 
     auto operator()() const;
 
     template<std::size_t I>
-    auto get() const { return std::get<I>(value_)(); }
-
-    auto const & get_ftype() const { return value_; }
-    auto       & get_ftype()       { return value_; }
+    auto get() const { return (*std::get<I>(value_))(); }
 
   private:
 
@@ -54,56 +74,107 @@ namespace fhicl {
 
     ftype value_;
 
+    std::size_t get_size() const override { return std::tuple_size<ftype>(); }
+
     void do_set_value(fhicl::ParameterSet const&, bool /*trimParents*/) override {}
 
-    // finalizing tuple elements
-    template <size_t I>
-    std::enable_if_t<(I >= std::tuple_size<TUPLE>::value)>
-    finalize_tuple_elements(){}
+    //===================================================================
+    // iterate over tuple elements
+    using PW_non_const = detail::ParameterWalker<tt::const_flavor::require_non_const>;
+    using PW_const = detail::ParameterWalker<tt::const_flavor::require_const>;
 
-    template <size_t I>
-    std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
-    finalize_tuple_elements()
+    void visit_element(PW_non_const&){}
+
+    template <typename E, typename ... T>
+    void visit_element(PW_non_const& pw, E& elem, T& ... others)
     {
-      using elem_ftype = std::tuple_element_t<I,TUPLE>;
+      static_assert(!tt::is_table_fragment<E>::value, NO_NESTED_TABLE_FRAGMENTS);
+      static_assert(!tt::is_optional_parameter<E>::value, NO_OPTIONAL_TYPES );
+      pw(*elem);
+      visit_element(pw, others...);
+    }
+
+    template <std::size_t ... I>
+    void iterate_over_tuple(PW_non_const& pw, std::index_sequence<I...>)
+    {
+      visit_element(pw, std::get<I>(value_)...);
+    }
+
+    void do_walk_elements(PW_non_const& pw)
+    {
+      iterate_over_tuple(pw, std::index_sequence_for<TYPES...>{});
+    }
+
+    void visit_element(PW_const&) const {}
+
+    template <typename E, typename ... T>
+    void visit_element(PW_const& pw, E const& elem, T const& ... others) const
+    {
+      static_assert(!tt::is_table_fragment<E>::value, NO_NESTED_TABLE_FRAGMENTS);
+      static_assert(!tt::is_optional_parameter<E>::value, NO_OPTIONAL_TYPES );
+      pw(*elem);
+      visit_element(pw, others...);
+    }
+
+    template <std::size_t ... I>
+    void iterate_over_tuple(PW_const& pw, std::index_sequence<I...>) const
+    {
+      visit_element(pw, std::get<I>(value_)...);
+    }
+
+    void do_walk_elements(PW_const& pw) const
+    {
+      iterate_over_tuple(pw, std::index_sequence_for<TYPES...>{});
+    }
+
+    //===============================================================
+    // finalizing tuple elements
+    void finalize_tuple_elements(std::size_t){}
+
+    template <typename E, typename ... T>
+    void finalize_tuple_elements(std::size_t i, E& elem, T& ... others)
+    {
+      using elem_ftype = typename E::element_type;
       static_assert(!tt::is_table_fragment<elem_ftype>::value, NO_NESTED_TABLE_FRAGMENTS);
       static_assert(!tt::is_optional_parameter<elem_ftype>::value, NO_OPTIONAL_TYPES );
 
-      auto & elem = std::get<I>(value_);
-      set_elements(elem.get_ftype(), elem, key(), I);
-      append_to_elements( ptr_to_base(elem) );
-      finalize_tuple_elements<I+1>();
+      elem = std::make_shared<elem_ftype>( Name::sequence_element(i) );
+      finalize_tuple_elements(++i, others...);
     }
 
-    void finalize_elements()
+    template <std::size_t ... I>
+    void finalize_elements(std::index_sequence<I...>)
     {
-      finalize_tuple_elements<0>();
+      finalize_tuple_elements(0, std::get<I>(value_)...);
     }
 
+
+    //===================================================================
     // filling tuple elements from default
-    template <size_t I, typename UTUPLE>
+    template <size_t I>
     std::enable_if_t<(I >= std::tuple_size<TUPLE>::value)>
-    fill_tuple_element(UTUPLE const&)
+    fill_tuple_element(dtype const&)
     {}
 
-    template <size_t I, typename UTUPLE>
+    template <size_t I>
     std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
-    fill_tuple_element(UTUPLE const& utuple)
+    fill_tuple_element(dtype const& defaults)
     {
       using elem_utype = std::tuple_element_t<I,UTUPLE>;
       static_assert(!tt::is_table<elem_utype>::value, NO_DEFAULTS_FOR_TABLE);
       static_assert(!tt::is_sequence_type<elem_utype>::value, NO_STD_CONTAINERS);
 
       auto & elem = std::get<I>(value_);
-      elem = tt::fhicl_type<elem_utype>( Name::anonymous(), std::get<I>(utuple) );
-      fill_tuple_element<I+1>(utuple);
+      elem = std::make_shared<tt::fhicl_type<elem_utype>>( Name::sequence_element(I), defaults.get<I>() );
+      fill_tuple_element<I+1>(defaults);
     }
 
-    void fill_tuple_elements(UTUPLE const& utuple)
+    void fill_tuple_elements(dtype const& default_values)
     {
-      fill_tuple_element<0>( utuple );
+      fill_tuple_element<0>(default_values);
     }
 
+    //===================================================================
     // filling return type
     template <size_t I, typename rtype>
     std::enable_if_t<(I >= std::tuple_size<TUPLE>::value)>
@@ -114,7 +185,7 @@ namespace fhicl {
     std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
     fill_return_element(rtype & result) const
     {
-      std::get<I>(result) = std::get<I>(value_)();
+      std::get<I>(result) = (*std::get<I>(value_))();
       fill_return_element<I+1>(result);
     }
 
@@ -127,42 +198,40 @@ namespace fhicl {
 
   //================= IMPLEMENTATION =========================
   //
+  template<typename...TYPES>
+  Tuple<TYPES...>::Tuple(Name&& name)
+    : Tuple( std::move(name), Comment("") )
+  {}
+
   template<typename ... TYPES>
-  Tuple<TYPES...>::Tuple(Name && name,
-                         Comment && comment)
-    : SequenceBase{std::move(name),std::move(comment),value_type::REQUIRED,par_type::TUPLE,this}
-    , value_()
+  Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment)
+    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED, par_type::TUPLE}
+    , RegisterIfTableMember{this}
   {
-    finalize_elements();
+    finalize_elements(std::index_sequence_for<TYPES...>{});
     NameStackRegistry::end_of_ctor();
   }
 
-  template<typename ... TYPES>
-  Tuple<TYPES...>::Tuple(Name && name,
-                         Comment && comment,
-                         Tuple<TYPES...> const& dflt )
-    : SequenceBase{std::move(name),std::move(comment),value_type::DEFAULT,par_type::TUPLE,this}
-    , value_(dflt.value_)
-  {
-    finalize_elements();
-    NameStackRegistry::end_of_ctor();
-  }
+  // c'tors supporting defaults
 
   template<typename ... TYPES>
-  Tuple<TYPES...>::Tuple()
-    : SequenceBase{Name::anonymous(),Comment(""),value_type::REQUIRED,par_type::TUPLE,this}
-    , value_()
-  {
-    // do NOT finalize elements for default sequence!
-    NameStackRegistry::end_of_ctor();
-  }
+  Tuple<TYPES...>::Tuple(Name&& name, dtype const& defaults)
+    : Tuple( std::move(name), Comment(""), defaults )
+  {}
 
   template<typename ... TYPES>
-  Tuple<TYPES...>::Tuple(TYPES const & ... args)
-    : SequenceBase{Name::anonymous(),Comment(""),value_type::REQUIRED,par_type::TUPLE,this}
-    , value_()
+  Tuple<TYPES...>::Tuple(Name&& name,
+                         dtype const& defaults,
+                         Comment&& comment)
+    : Tuple{std::move(name), std::move(comment), defaults}
+  {}
+
+  template<typename ... TYPES>
+  Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, dtype const& defaults)
+    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED, par_type::TUPLE}
+    , RegisterIfTableMember{this}
   {
-    fill_tuple_elements( std::forward_as_tuple(args...) );
+    fill_tuple_elements(defaults);
     NameStackRegistry::end_of_ctor();
   }
 

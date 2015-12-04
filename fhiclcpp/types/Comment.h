@@ -6,7 +6,7 @@
 namespace fhicl {
 
   struct Comment{
-    explicit Comment(const char* cmt = "") : value(cmt) {}
+    explicit Comment(const char* comment = "") : value(comment) {}
     std::string value;
   };
 

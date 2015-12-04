@@ -19,12 +19,12 @@ namespace fhicl {
       ParameterMetadata() = default;
 
       ParameterMetadata(Name const& name = Name(),
-                        Comment const& cmt = Comment(""),
+                        Comment const& comment = Comment(""),
                         value_type const valType = value_type::NTYPES,
                         par_type const parType = par_type::NTYPES)
         : key_{NameStackRegistry::instance().full_key(name.value)}
         , name_{name.value}
-        , comment_{cmt.value}
+        , comment_{comment.value}
         , valType_{valType}
         , parType_{parType}
       {}

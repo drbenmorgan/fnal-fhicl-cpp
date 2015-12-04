@@ -7,7 +7,7 @@
 #include "fhiclcpp/types/detail/AtomBase.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
-#include "fhiclcpp/types/detail/ParameterSchemaRegistry.h"
+#include "fhiclcpp/types/detail/TableMemberRegistry.h"
 #include "fhiclcpp/types/detail/ostream_helpers.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
 #include "fhiclcpp/type_traits.h"
@@ -19,7 +19,9 @@ namespace fhicl {
 
   //========================================================
   template<typename T>
-  class OptionalAtom final : public detail::AtomBase {
+  class OptionalAtom final :
+    public  detail::AtomBase,
+    private detail::RegisterIfTableMember {
   public:
 
     static_assert(!tt::is_sequence_type<T>::value , NO_STD_CONTAINERS            );
@@ -29,8 +31,8 @@ namespace fhicl {
     //=====================================================
     // User-friendly
     // ... c'tors
-    explicit OptionalAtom(Name && name);
-    explicit OptionalAtom(Name && name, Comment && cmt );
+    explicit OptionalAtom(Name&& name);
+    explicit OptionalAtom(Name&& name, Comment&& comment);
 
     // ... Accessors
     bool operator()(T& value) const {
@@ -45,9 +47,6 @@ namespace fhicl {
     using rtype = T;
 
     OptionalAtom();
-
-    auto const & get_ftype() const { return value_; }
-    auto       & get_ftype()       { return value_; }
 
   private:
     T value_ {};

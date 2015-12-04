@@ -6,6 +6,7 @@
 
 #include "fhiclcpp/types/OptionalTupleAs.h"
 #include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TupleAs.h"
 
 #include <iostream>

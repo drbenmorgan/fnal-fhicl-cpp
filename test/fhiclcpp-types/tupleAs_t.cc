@@ -76,7 +76,7 @@ namespace {
     OptionalTupleAs< Person(string, unsigned) > person1 { Name("person1") };
     TupleAs< Person(string, unsigned) > person2 { Name("person2"), Person{"Jon",97}};
     TupleAs< ToVector(int, Sequence<int>) > toVector { Name("toVector") };
-    Sequence< TupleAs< Person(string, unsigned) > > people { Name("people"), { Person{"Abe",113} } };
+    Sequence< TupleAs< Person(string, unsigned) > > people { Name("people") };
   };
 
   struct Fixture : fhiclcpp_types::FixtureBase<Config> {

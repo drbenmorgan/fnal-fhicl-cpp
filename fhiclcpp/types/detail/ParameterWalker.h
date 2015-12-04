@@ -79,11 +79,6 @@
 namespace fhicl {
   namespace detail {
 
-    class AtomBase;
-    class ParameterBase;
-    class SequenceBase;
-    class TableBase;
-
     template <tt::const_flavor C>
     class ParameterWalker {
     public:
@@ -91,82 +86,85 @@ namespace fhicl {
       ParameterWalker() = default;
       virtual ~ParameterWalker() = default;
 
-      void operator()(tt::maybe_const_t<ParameterBase,C>*);
+      void operator()(tt::maybe_const_t<ParameterBase,C>&);
 
-      bool do_before_action(tt::maybe_const_t<ParameterBase,C>* p) { return before_action(p); }
-      void do_after_action (tt::maybe_const_t<ParameterBase,C>* p) { after_action(p); }
+      bool do_before_action(tt::maybe_const_t<ParameterBase,C>& p) { return before_action(p); }
+      void do_after_action (tt::maybe_const_t<ParameterBase,C>& p) { after_action(p); }
 
-      void do_enter_table(tt::maybe_const_t<TableBase,C>* t) { enter_table(t); }
-      void do_exit_table (tt::maybe_const_t<TableBase,C>* t) { exit_table(t); }
+      void do_enter_table(tt::maybe_const_t<TableBase,C>& t) { enter_table(t); }
+      void do_exit_table (tt::maybe_const_t<TableBase,C>& t) { exit_table(t); }
 
-      void do_enter_sequence(tt::maybe_const_t<SequenceBase,C>* s) { enter_sequence(s); }
-      void do_exit_sequence (tt::maybe_const_t<SequenceBase,C>* s) { exit_sequence(s); }
+      void do_enter_sequence(tt::maybe_const_t<SequenceBase,C>& s) { enter_sequence(s); }
+      void do_exit_sequence (tt::maybe_const_t<SequenceBase,C>& s) { exit_sequence(s); }
 
-      void do_atom(tt::maybe_const_t<AtomBase,C>* p) { atom(p); }
+      void do_atom(tt::maybe_const_t<AtomBase,C>& a) { atom(a); }
 
     private:
 
-      virtual void enter_table(tt::maybe_const_t<TableBase,C>*) = 0;
-      virtual void enter_sequence(tt::maybe_const_t<SequenceBase,C>*) = 0;
-      virtual void atom(tt::maybe_const_t<AtomBase,C>*) = 0;
+      virtual void enter_table(tt::maybe_const_t<TableBase,C>&) = 0;
+      virtual void enter_sequence(tt::maybe_const_t<SequenceBase,C>&) = 0;
+      virtual void atom(tt::maybe_const_t<AtomBase,C>&) = 0;
 
-      virtual bool before_action(tt::maybe_const_t<ParameterBase,C>*){ return true; }
-      virtual void after_action(tt::maybe_const_t<ParameterBase,C>*){}
-      virtual void exit_table(tt::maybe_const_t<TableBase,C>*){}
-      virtual void exit_sequence(tt::maybe_const_t<SequenceBase,C>*){}
+      virtual bool before_action(tt::maybe_const_t<ParameterBase,C>&){ return true; }
+      virtual void after_action(tt::maybe_const_t<ParameterBase,C>&){}
+      virtual void exit_table(tt::maybe_const_t<TableBase,C>&){}
+      virtual void exit_sequence(tt::maybe_const_t<SequenceBase,C>&){}
 
     };
 
     //=============================================================================
     // IMPLEMENTATION BELOW
 
-    template <typename T, tt::const_flavor C>
-    auto getPtr(tt::maybe_const_t<ParameterBase,C>* p)
-    {
-      tt::maybe_const_t<T,C>* ptr = dynamic_cast<tt::maybe_const_t<T,C>*>(p);
-      if (!ptr) {
-        std::ostringstream err_msg;
-        err_msg << "Error when converting from ParameterBase* to "
-                << cet::demangle_symbol( typeid(T*).name() ) << "\n"
-                << "in " << __func__ << "\n"
-                << "Please contact artists@fnal.gov";
-        throw fhicl::exception(fhicl::error::cant_happen, err_msg.str());
-      }
-      return ptr;
-    }
+    // template <typename T, tt::const_flavor C>
+    // auto getPtr(tt::maybe_const_t<ParameterBase,C>* p)
+    // {
+    //   tt::maybe_const_t<T,C>* ptr = dynamic_cast<tt::maybe_const_t<T,C>*>(p);
+    //   if (!ptr) {
+    //     std::ostringstream err_msg;
+    //     err_msg << "Error when converting from ParameterBase* to "
+    //             << cet::demangle_symbol( typeid(T*).name() ) << "\n"
+    //             << "in " << __func__ << "\n"
+    //             << "Please contact artists@fnal.gov";
+    //     throw fhicl::exception(fhicl::error::cant_happen, err_msg.str());
+    //   }
+    //   return ptr;
+    // }
 
     template<tt::const_flavor C>
     void
-    ParameterWalker<C>::operator()(tt::maybe_const_t<ParameterBase,C>* p)
+    ParameterWalker<C>::operator()(tt::maybe_const_t<ParameterBase,C>& p)
     {
-      if (p == nullptr || !do_before_action(p))
+      if (!do_before_action(p))
         return;
 
-      fhicl::par_type const pt = p->parameter_type();
+      fhicl::par_type const pt = p.parameter_type();
 
       auto& tw = *this;
 
       if (is_table(pt)) {
-        tt::maybe_const_t<TableBase,C>* t = getPtr<TableBase,C>(p);
+        using maybe_const_table = tt::maybe_const_t<TableBase,C>;
+        maybe_const_table& t = dynamic_cast<maybe_const_table&>(p);
         do_enter_table(t);
-        cet::for_all(t->members(), [&tw](auto m){tw(m.get());});
+        cet::for_all(t.members(), [&tw](auto m){tw(*m);});
         do_exit_table(t);
       }
       else if (is_sequence(pt)) {
-        tt::maybe_const_t<SequenceBase,C>* s = getPtr<SequenceBase,C>(p);
+        using maybe_const_sequence = tt::maybe_const_t<SequenceBase,C>;
+        maybe_const_sequence& s = dynamic_cast<maybe_const_sequence&>(p);
         do_enter_sequence(s);
-        cet::for_all(s->elements(), [&tw](auto e){tw(e.get());});
+        s.walk_elements(tw);
         do_exit_sequence(s);
       }
       else {
-        tt::maybe_const_t<AtomBase,C>* a = getPtr<AtomBase,C>(p);
+        using maybe_const_atom = tt::maybe_const_t<AtomBase,C>;
+        maybe_const_atom& a = dynamic_cast<maybe_const_atom&>(p);
         do_atom(a);
       }
 
       do_after_action(p);
     }
 
-}
+  }
 }
 
 #endif

@@ -9,7 +9,6 @@
 #include "boost/test/auto_unit_test.hpp"
 
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/detail/ParameterSchemaRegistry.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/TableFragment.h"
 #include "fhiclcpp/types/Tuple.h"
@@ -30,7 +29,6 @@ namespace {
   void require_type_as(T& t)
   {
     auto rt = t();
-    ParameterSchemaRegistry::instance().clear();
     BOOST_CHECK( (std::is_same<R,decltype(rt)>::value) );
   }
 

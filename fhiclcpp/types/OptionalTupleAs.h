@@ -25,8 +25,8 @@ namespace fhicl {
   public:
 
     explicit OptionalTupleAs(Name&& name,
-                             Comment&& cmt)
-      : tupleObj_{std::move(name), conversion_comment(std::move(cmt))}
+                             Comment&& comment)
+      : tupleObj_{std::move(name), conversion_comment(std::move(comment))}
     {}
 
     explicit OptionalTupleAs(Name&& name) : OptionalTupleAs(std::move(name), Comment("") ) {}
@@ -52,11 +52,11 @@ namespace fhicl {
 
     OptionalTuple<ARGS...> tupleObj_;
 
-    Comment conversion_comment(Comment&& cmt) const
+    Comment conversion_comment(Comment&& comment) const
     {
       std::string const preface  = "N.B. The following sequence is converted to type:";
       std::string const name     = "        '"+cet::demangle(typeid(T).name()) +"'";
-      std::string const user_comment = cmt.value.empty() ? "" : "\n\n"+cmt.value;
+      std::string const user_comment = comment.value.empty() ? "" : "\n\n"+comment.value;
 
       std::ostringstream oss;
       oss << preface << '\n'

@@ -26,21 +26,22 @@ namespace fhicl {
   class TupleAs<T(ARGS...)> {
   public:
 
+    using dtype    = T;
     using via_type = typename OptionalTuple<ARGS...>::rtype;
     using rtype    = T;
     using ftype    = typename OptionalTuple<ARGS...>::ftype;
 
     explicit TupleAs(Name&& name,
-                     Comment&& cmt)
-      : tupleObj_{std::move(name), conversion_comment(std::move(cmt))}
+                     Comment&& comment)
+      : tupleObj_{std::move(name), conversion_comment(std::move(comment))}
     {
       tupleObj_.set_value_type(value_type::REQUIRED);
     }
 
     explicit TupleAs(Name&& name,
-                     Comment&& cmt,
+                     Comment&& comment,
                      T const& t)
-      : tupleObj_{std::move(name), conversion_comment(std::move(cmt),t)}
+      : tupleObj_{std::move(name), conversion_comment(std::move(comment),t)}
       , t_{std::make_shared<T>(t)}
     {
       tupleObj_.set_value_type(value_type::DEFAULT);
@@ -48,7 +49,7 @@ namespace fhicl {
 
     explicit TupleAs(Name&& name) : TupleAs{std::move(name), Comment("")} {}
     explicit TupleAs(Name&& name, T const& t) : TupleAs{std::move(name), Comment(""), t} {}
-    explicit TupleAs(Name&& name, T const& t, Comment&& cmt) : TupleAs{std::move(name), std::move(cmt), t} {}
+    explicit TupleAs(Name&& name, T const& t, Comment&& comment) : TupleAs{std::move(name), std::move(comment), t} {}
 
     template<std::size_t ...I>
     T fill(via_type const& via, std::index_sequence<I...>) const
@@ -56,32 +57,27 @@ namespace fhicl {
       return T{std::get<I>(via)...};
     }
 
+    auto key() const { return tupleObj_.key(); }
+
     T operator()() const {
       via_type via;
       return tupleObj_(via) ? fill(via, std::index_sequence_for<ARGS...>{}) : tupleObj_.has_default()
-        ? *t_ : throw fhicl::exception(cant_find); // fix this exception category!
+                            ? *t_ : throw fhicl::exception(cant_find); // fix this exception category!
     }
 
     //=================================================================
     // expert only
 
-    // The following functions are necessary for the 'set_elements'
-    // call if a user ever does Sequence< TupleAs<> >
-    TupleAs() : TupleAs{Name::anonymous()} {}
-
-    //    TupleAs(T const& t) : tupleObj_{}, t_{std::make_shared<T>(t)} {}
-
-    auto & get_ftype() { return tupleObj_.get_ftype(); }
-    detail::ParameterBase * ptr_to_base() { return &tupleObj_; }
-
-    operator detail::ParameterBase&() { return tupleObj_; } // Allows implicit conversion from TupleAs to ParameterBase
+    operator detail::ParameterBase&() { return tupleObj_; } // Allows implicit conversion from
+                                                            // TupleAs to ParameterBase (necessary
+                                                            // for ParameterWalker)
 
   private:
     OptionalTuple<ARGS...> tupleObj_;
     std::shared_ptr<T> t_ {}; // shared instead of unique to allowed Sequence<TupleAs<>> objects.
 
-    Comment conversion_comment(Comment&& cmt) const;
-    Comment conversion_comment(Comment&& cmt, T const& t) const;
+    Comment conversion_comment(Comment&& comment) const;
+    Comment conversion_comment(Comment&& comment, T const& t) const;
 
   };
 
@@ -89,11 +85,11 @@ namespace fhicl {
   // IMPLEMENTATION
 
   template <typename T, typename ... ARGS>
-  Comment TupleAs<T(ARGS...)>::conversion_comment(Comment&& cmt) const
+  Comment TupleAs<T(ARGS...)>::conversion_comment(Comment&& comment) const
   {
     std::string const preface  = "N.B. The following sequence is converted to type:";
     std::string const name     = "        '"+cet::demangle(typeid(T).name()) +"'";
-    std::string const user_comment = cmt.value.empty() ? "" : "\n\n"+cmt.value;
+    std::string const user_comment = comment.value.empty() ? "" : "\n\n"+comment.value;
 
     std::ostringstream oss;
     oss << preface << '\n'
@@ -106,12 +102,6 @@ namespace fhicl {
   //=================================================================
   // metaprogramming necessary for determining if provided type 'T'
   // has an 'std::ostream& operator<<(std::ostream&, T const&)' defined
-
-  template <typename T, typename ... ARGS>
-  detail::ParameterBase* ptr_to_base(TupleAs<T(ARGS...)> & ta)
-  {
-    return ta.ptr_to_base();
-  }
 
   namespace has_insertion_operator_impl {
     typedef char no;
@@ -162,7 +152,7 @@ namespace fhicl {
   //===============================================================================
 
   template <typename T, typename ... ARGS>
-  Comment TupleAs<T(ARGS...)>::conversion_comment(Comment&& cmt, T const& t) const
+  Comment TupleAs<T(ARGS...)>::conversion_comment(Comment&& comment, T const& t) const
   {
     std::string const preface  = "N.B. The following sequence is converted to type:";
     std::string const name     = "        '"+cet::demangle(typeid(T).name()) +"'";
@@ -170,7 +160,7 @@ namespace fhicl {
     std::conditional_t< has_insertion_operator<T>::value, YesInsert, NoInsert>
       stringified_default;
 
-    std::string const user_comment = cmt.value.empty() ? "" : "\n\n"+cmt.value;
+    std::string const user_comment = comment.value.empty() ? "" : "\n\n"+comment.value;
 
     std::ostringstream oss;
     oss << preface << '\n'

@@ -16,9 +16,8 @@ namespace fhicl {
 
       TableBase(Name const & name,
                 Comment const & comment,
-                value_type const vt,
-                ParameterBase* pb)
-        : ParameterBase{name, comment, vt, par_type::TABLE, pb}
+                value_type const vt)
+        : ParameterBase{name, comment, vt, par_type::TABLE}
       {}
 
       std::vector<cet::exempt_ptr<ParameterBase>> const& members() const

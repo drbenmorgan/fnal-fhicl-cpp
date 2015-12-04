@@ -20,12 +20,12 @@ namespace fhicl {
     class MaybeDisplayParent {
     public:
 
-      MaybeDisplayParent(ParameterBase const* p,
+      MaybeDisplayParent(ParameterBase const& p,
                          bool const showParents,
                          Indentation& ind)
         : show_(showParents)
         , fullPayload_()
-        , names_( showParents ? get_parents(p->key()) : std::vector<std::string>{} )
+        , names_( showParents ? get_parents(p.key()) : std::vector<std::string>{} )
         , closingBraces_()
         , indent_{ind}
       {
@@ -105,10 +105,10 @@ namespace fhicl {
         return std::vector<std::string>( parents.begin()+1, parents.end() );
       }
 
-      bool is_sequence_element(ParameterBase const* p)
+      bool is_sequence_element(ParameterBase const& p)
       {
-        auto pos = p->key().find_last_of("]");
-        return pos != std::string::npos && pos == p->key().size()-1;
+        auto pos = p.key().find_last_of("]");
+        return pos != std::string::npos && pos == p.key().size()-1;
       }
 
     };

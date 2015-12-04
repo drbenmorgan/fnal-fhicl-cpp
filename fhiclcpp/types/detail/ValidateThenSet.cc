@@ -1,5 +1,6 @@
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
+#include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
@@ -15,15 +16,15 @@
 
 bool
 fhicl::detail::
-ValidateThenSet::before_action(ParameterBase* p)
+ValidateThenSet::before_action(ParameterBase& p)
 {
   // Check that key exists; allow defaulted or optional keys to be
   // absent.
-  std::string const& rkey = p->key();
+  std::string const& rkey = p.key();
   std::string const& k = rkey.substr( rkey.find_first_of(".")+1 );
   if ( !pset_.has_key(k) && !cet::search_all(ignorableKeys_,k) ) {
-    if ( !p->has_default() && !p->is_optional() ) {
-      missingParameters_.emplace_back(p);
+    if ( !p.has_default() && !p.is_optional() ) {
+      missingParameters_.emplace_back(&p);
     }
     return false;
   }
@@ -34,18 +35,18 @@ ValidateThenSet::before_action(ParameterBase* p)
 
 void
 fhicl::detail::
-ValidateThenSet::after_action(ParameterBase* p)
+ValidateThenSet::after_action(ParameterBase& p)
 {
-  p->set_value(pset_, true);
+  p.set_value(pset_, true);
 }
 
 //====================================================================
 
 void
 fhicl::detail::
-ValidateThenSet::enter_sequence(SequenceBase* s)
+ValidateThenSet::enter_sequence(SequenceBase& s)
 {
-  auto* v = dynamic_cast<SeqVectorBase*>(s);
+  auto* v = dynamic_cast<SeqVectorBase*>(&s);
   if ( v == nullptr ) return;
 
   // If the parameter is an unbounded sequence, we need to resize it
@@ -124,7 +125,7 @@ namespace {
       // If the key is nested (e.g. pset1.pset2[0] ), show the
       // parents
       PrintAllowedConfiguration pc {oss, show_parents(p->key()), prefix};
-      pc(p.get());
+      pc(*p);
 
     }
     oss << "\n";

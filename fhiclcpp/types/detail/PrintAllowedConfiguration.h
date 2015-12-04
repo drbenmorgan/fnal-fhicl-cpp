@@ -38,16 +38,16 @@ namespace fhicl {
       std::unordered_set<std::string> keysWithEllipses_;
       bool showParentsForFirstParam_;
 
-      bool before_action(ParameterBase const*) override;
-      void after_action(ParameterBase const*) override;
+      bool before_action(ParameterBase const&) override;
+      void after_action(ParameterBase const&) override;
 
-      void enter_table(TableBase const*) override;
-      void exit_table (TableBase const*) override;
+      void enter_table(TableBase const&) override;
+      void exit_table (TableBase const&) override;
 
-      void enter_sequence(SequenceBase const*) override;
-      void exit_sequence(SequenceBase const*) override;
+      void enter_sequence(SequenceBase const&) override;
+      void exit_sequence(SequenceBase const&) override;
 
-      void atom(AtomBase const*) override;
+      void atom(AtomBase const&) override;
 
     };
 

@@ -28,12 +28,12 @@ namespace fhicl {
 
     private:
 
-      bool before_action(ParameterBase* p) override;
-      void after_action (ParameterBase* p) override;
-      void enter_sequence(SequenceBase* p) override;
+      bool before_action(ParameterBase& p) override;
+      void after_action (ParameterBase& p) override;
+      void enter_sequence(SequenceBase& p) override;
 
-      void enter_table(TableBase*) override {}
-      void atom(AtomBase*) override {}
+      void enter_table(TableBase&) override {}
+      void atom(AtomBase&) override {}
 
       ParameterSet const& pset_;
       std::set<std::string> ignorableKeys_;

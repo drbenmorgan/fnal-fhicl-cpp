@@ -16,12 +16,6 @@ namespace {
     return !src_info.empty() && src_info != UNKNOWN_SRC;
   }
 
-  inline bool is_sequence_element(std::string const& key)
-  {
-    auto pos = key.find_last_of( sequence::closing_brace() );
-    return pos != std::string::npos && pos == key.size()-1;
-  }
-
 }
 
 //==================================================================

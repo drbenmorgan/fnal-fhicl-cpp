@@ -1,38 +1,29 @@
 #include "cetlib/container_algorithms.h"
+#include "fhiclcpp/detail/printing_helpers.h"
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
 #include "fhiclcpp/types/detail/ValidateThenSet.h"
+#include "fhiclcpp/types/detail/validationException.h"
 
 namespace fhicl {
 
   template <typename T>
-  Table<T>::Table(Name && name,
-                  Comment && comment )
-    : TableBase{std::move(name),std::move(comment),value_type::REQUIRED, this}
-    , value_()
+  Table<T>::Table(Name&& name,
+                  Comment&& comment )
+    : TableBase{std::move(name), std::move(comment), value_type::REQUIRED}
+    , RegisterIfTableMember{this}
   {
-    fill_members();
     maybe_implicitly_default();
     NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
-  Table<T>::Table(Name && name) : Table( std::move(name), Comment("") ) {}
-
-  template <typename T>
-  Table<T>::Table()
-    : TableBase{Name::anonymous(),Comment(""),value_type::REQUIRED, this}
-    , value_()
-  {
-    fill_members();
-    maybe_implicitly_default();
-    NameStackRegistry::end_of_ctor();
-  }
+  Table<T>::Table(Name&& name) : Table( std::move(name), Comment("") ) {}
 
   template <typename T>
   Table<T>::Table(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
-    : TableBase{Name::anonymous(),Comment(""),value_type::REQUIRED, this}
+    : TableBase{Name("<top_level>"), Comment(""), value_type::REQUIRED}
+    , RegisterIfTableMember{this}
   {
-    fill_members();
     maybe_implicitly_default();
     validate_ParameterSet( pset, keysToIgnore );
     NameStackRegistry::end_of_ctor();
@@ -44,8 +35,16 @@ namespace fhicl {
   {
     pset_ = pset;
     detail::ValidateThenSet vs{pset_, keysToIgnore};
-    cet::for_all(members(), [&vs](auto m){ vs(m.get()); });
-    vs.check_keys();
+    cet::for_all(members(), [&vs](auto m){ vs(*m); });
+
+    try {
+      vs.check_keys();
+    }
+    catch(fhicl::detail::validationException const&) {
+      NameStackRegistry::instance().clear();
+      throw;
+    }
+
   }
 
   template <typename T>
@@ -54,7 +53,7 @@ namespace fhicl {
                                         std::string const& tab) const
   {
     detail::PrintAllowedConfiguration pc{os, false, tab};
-    pc(this);
+    pc(*this);
   }
 
   template <typename T>
@@ -62,7 +61,7 @@ namespace fhicl {
   Table<T>::do_set_value(fhicl::ParameterSet const& pset, bool const /*trimParent*/)
   {
     // Kind of tricky: we do not have the name of the current
-    // parameter set.  A placeholder is often used (e.g. "<140>").
+    // parameter set.  A placeholder is often used (e.g. "<top_level>").
     // Fortunately, since the pset is passed in, we can just assign to
     // it for a top-level ParameterSet.  However, for nested parameter
     // sets, we need to trim off the placeholder, and then the key we
@@ -71,15 +70,6 @@ namespace fhicl {
     std::string const& rkey = key();
     std::string const& nkey = rkey.substr( rkey.find_first_of(".")+1 );
     pset_ = (nkey == rkey) ? pset : pset.get<fhicl::ParameterSet>(nkey);
-  }
-
-  template <typename T>
-  void
-  Table<T>::fill_members()
-  {
-    for (auto const& elem : detail::ParameterSchemaRegistry::get_child_parameters(this)) {
-      members_.push_back(elem.second);
-    }
   }
 
   template <typename T>

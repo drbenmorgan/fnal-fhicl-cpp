@@ -3,6 +3,7 @@
 
 #include "fhiclcpp/exception.h"
 
+#include <iostream>
 #include <regex>
 #include <string>
 #include <vector>
@@ -25,13 +26,21 @@ namespace fhicl {
       return full_key_();
     }
 
-    std::string current() {
+    bool empty() const {
+      return names_.empty();
+    }
+
+    std::string current() const {
       return names_.back();
     }
 
     static void end_of_ctor()
     {
       instance().pop();
+    }
+
+    void clear() {
+      names_.clear();
     }
 
     void pop() {

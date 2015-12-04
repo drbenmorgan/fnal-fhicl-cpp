@@ -2,11 +2,10 @@
 #define fhiclcpp_types_OptionalSequence_h
 
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
-#include "fhiclcpp/types/detail/ParameterSchemaRegistry.h"
+#include "fhiclcpp/types/detail/TableMemberRegistry.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
 #include "fhiclcpp/types/detail/ostream_helpers.h"
 #include "fhiclcpp/types/detail/SeqVectorBase.h"
@@ -23,58 +22,51 @@ namespace fhicl {
   //==================================================================
   // e.g. OptionalSequence<int,4> ====> std::array<int,4>
   //
-  template<typename T, std::size_t SIZE = -1>
-  class OptionalSequence final : public detail::SequenceBase {
+  template<typename T, std::size_t N = -1>
+  class OptionalSequence final :
+    public  detail::SequenceBase,
+    private detail::RegisterIfTableMember {
   public:
 
     static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS );
     static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES );
 
-    using ftype = std::array< tt::fhicl_type <T>, SIZE >;
-    using rtype = std::array< tt::return_type<T>, SIZE >;
+    using ftype = std::array< std::shared_ptr< tt::fhicl_type<T> >, N >;
+    using rtype = std::array< tt::return_type<T>, N >;
 
-    explicit OptionalSequence(Name && name, Comment && cmt );
-    explicit OptionalSequence(Name && name) : OptionalSequence( std::move(name), Comment("") ) {}
-
-    OptionalSequence();
+    explicit OptionalSequence(Name&& name);
+    explicit OptionalSequence(Name&& name, Comment&& comment);
 
     bool operator()(rtype& t) const {
 
       if (!has_value_) return false;
 
       rtype result = { tt::return_type<T>() };
-      std::size_t i{};
-
-      for ( auto const& elem : value_ )
-        result.at(i++) = elem();
+      cet::transform_all(value_,
+                         result.begin(),
+                         [](auto const& elem){
+                           return (*elem)();
+                         } );
 
       std::swap(result, t);
-
-      // FIXME: If the rtype contains a Table<>, then additional keys
-      // will be added to the registry whenever 'push_back' is called.
-      // In principle, these should be removed whenever the
-      // destructors are called.  But that may not be until the end of
-      // some scope in which another registering call is made.
-      detail::ParameterSchemaRegistry::instance().clear();
       return true;
     }
-
-    auto const & get_ftype() const { return value_; }
-    auto       & get_ftype()       { return value_; }
 
   private:
 
     ftype value_;
     bool has_value_ {false};
 
-    void finalize_elements()
+    std::size_t get_size() const override { return value_.size(); }
+
+    void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_non_const>& pw) override
     {
-      std::size_t i{};
-      clear_elements();
-      for ( auto & elem : value_ ) {
-        set_elements( elem.get_ftype(), elem, key(), i++ );
-        append_to_elements( ptr_to_base(elem) );
-      }
+      cet::for_all(value_, [&pw](auto& e){ pw(*e); } );
+    }
+
+    void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_const>& pw) const override
+    {
+      cet::for_all(value_, [&pw](auto const& e){ pw(*e); } );
     }
 
     void do_set_value(fhicl::ParameterSet const&, bool const trimParents) override;
@@ -85,66 +77,80 @@ namespace fhicl {
   // e.g. OptionalSequence<int> ====> std::vector<int>
   //
   template<typename T>
-  class OptionalSequence<T,-1> final : public detail::SeqVectorBase {
+  class OptionalSequence<T,-1> final :
+    public  detail::SeqVectorBase,
+    private detail::RegisterIfTableMember {
   public:
 
     static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS );
     static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES );
 
-    using ftype = std::vector< tt::fhicl_type <T> >;
+    using ftype = std::vector< std::shared_ptr<tt::fhicl_type<T>> >;
     using rtype = std::vector< tt::return_type<T> >;
 
-    explicit OptionalSequence(Name && name, Comment && cmt );
-    explicit OptionalSequence(Name && name) : OptionalSequence( std::move(name), Comment("") ) {}
-
-    OptionalSequence();
+    explicit OptionalSequence(Name&& name);
+    explicit OptionalSequence(Name&& name, Comment&& comment);
 
     bool operator()(rtype& t) const {
 
       if (!has_value_) return false;
 
       rtype result;
-      for ( auto const& elem : value_ )
-        result.push_back( elem() );
+      cet::transform_all(value_, std::back_inserter(result),
+                         [](auto const& e){
+                           return (*e)();
+                         } );
 
       std::swap(result, t);
-
-      // FIXME: If the rtype contains a Table<>, then additional keys
-      // will be added to the registry whenever 'push_back' is called.
-      // In principle, these should be removed whenever the
-      // destructors are called.  But that may not be until the end of
-      // some scope in which another registering call is made.
-      detail::ParameterSchemaRegistry::instance().clear();
       return true;
     }
 
-    auto const & get_ftype() const { return value_; }
-    auto       & get_ftype()       { return value_; }
-
   private:
 
-    ftype value_ {};
+    ftype value_;
     bool has_value_ {false};
-
-    void finalize_elements()
-    {
-      std::size_t i{};
-      clear_elements();
-      for ( auto & elem : value_ ) {
-        set_elements( elem.get_ftype(), elem, key(), i++ );
-        append_to_elements( ptr_to_base(elem) );
-      }
-    }
 
     // To be used only for reassigning keys when ParameterSet
     // validation is being performed.
-    void do_resize_sequence(std::size_t i) override
+    void do_resize_sequence(std::size_t n) override
     {
-      value_.clear();
-      value_.resize(i);
+      if ( n < value_.size() ) {
+        value_.resize(n);
+      }
+      else if ( n > value_.size() ) {
 
-      finalize_elements();
+        std::string key_fragment {key()};
+        // When emplacing a new element, do not include in the key
+        // argument the current name-stack stem--it will
+        // automatically be prepended.
+        auto const& nsr = NameStackRegistry::instance();
+        if ( !nsr.empty() ) {
+          std::string const& current_stem = nsr.current();
+          std::size_t const pos =
+            key_fragment.find(current_stem) != std::string::npos ?
+            current_stem.size()+1ul : // + 1ul to account for the '.'
+            0ul;
+          key_fragment.replace(0ul, pos, "");
+        }
+
+        for ( auto i = value_.size(); i != n; ++i ) {
+          value_.emplace_back(new tt::fhicl_type<T>{ Name::sequence_element(key_fragment, i) });
+        }
+      }
     }
+
+    std::size_t get_size() const override { return value_.size(); }
+
+    void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_non_const>& pw) override
+    {
+      cet::for_all(value_, [&pw](auto& e){ pw(*e); } );
+    }
+
+    void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_const>& pw) const override
+    {
+      cet::for_all(value_, [&pw](auto const& e){ pw(*e); } );
+    }
+
 
     void do_set_value(fhicl::ParameterSet const&, bool const trimParents) override;
 

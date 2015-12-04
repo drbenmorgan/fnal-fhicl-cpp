@@ -10,11 +10,10 @@ namespace fhicl {
     class SeqVectorBase : public SequenceBase {
     public:
 
-      SeqVectorBase(Name && name,
-                    Comment && comment,
-                    value_type const vt,
-                    ParameterBase* pb)
-        : SequenceBase{std::move(name), std::move(comment), vt, par_type::SEQ_VECTOR, pb}
+      SeqVectorBase(Name&& name,
+                    Comment&& comment,
+                    value_type const vt)
+        : SequenceBase{std::move(name), std::move(comment), vt, par_type::SEQ_VECTOR}
       {}
 
       void resize_sequence(std::size_t const sz)

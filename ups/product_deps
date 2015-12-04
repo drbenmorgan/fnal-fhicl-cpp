@@ -8,7 +8,7 @@ product		version
 cetlib		v1_17_01
 sqlite		v3_08_10_02
 
-cetbuildtools	v4_18_00	-	only_for_build
+cetbuildtools	v4_18_01	-	only_for_build
 end_product_list
 
 

@@ -150,7 +150,6 @@ namespace fhicl {  namespace detail {
       static void decode_tuple_entry( ps_sequence_t const &, TUPLE & );
     };
 
-    template<>
     template<typename TUPLE>    // tuple support
     struct per_entry<0,TUPLE> {
       static void decode_tuple_entry( ps_sequence_t const &, TUPLE & );
@@ -317,7 +316,6 @@ fhicl::detail::decode( boost::any const & a, std::vector<T> & result )
 
 //====================================================================
 // per-entry decode base
-template <>
 template <typename TUPLE>
 void
 fhicl::detail::per_entry<0,TUPLE>::decode_tuple_entry( fhicl::detail::ps_sequence_t const& vec, TUPLE & result )

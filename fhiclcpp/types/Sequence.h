@@ -138,12 +138,6 @@ namespace fhicl {
     explicit Sequence(Name&& name, dtype const& defaults, Comment&& comment);
     explicit Sequence(Name&& name, Comment&& comment, dtype const& defaults);
 
-    static Sequence<T> make_empty() {
-      Sequence<T> result;
-      result.resize_sequence(0ul);
-      return result;
-    }
-
     auto operator()() const {
       rtype result;
       cet::transform_all(value_, std::back_inserter(result),

@@ -4,6 +4,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Comment.h"
 #include "fhiclcpp/types/Name.h"
+#include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
@@ -35,14 +36,15 @@ namespace fhicl {
     // ... c'tors
     explicit Atom(Name&& name);
     explicit Atom(Name&& name, Comment&& comment);
+    explicit Atom(Name&& name, Comment&& comment, std::function<bool()> useIf);
 
     // ... c'tors supporting defaults
     explicit Atom(Name&& name, T const& dflt_value);
-    explicit Atom(Name&& name, T const& dflt_value, Comment&& comment);
     explicit Atom(Name&& name, Comment&& comment, T const& dflt_value);
+    explicit Atom(Name&& name, Comment&& comment, std::function<bool()> useIf, T const& dflt_value);
 
     // ... Accessors
-    auto const & operator()() const { return *value_; }
+    auto const& operator()() const { return *value_; }
 
     // Expert-only
     using dtype = T;

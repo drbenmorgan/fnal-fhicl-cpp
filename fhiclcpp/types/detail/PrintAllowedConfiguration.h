@@ -20,9 +20,12 @@ namespace fhicl {
 
       PrintAllowedConfiguration(std::ostream& os,
                                 bool const showParents = false,
-                                std::string const& prefix = std::string(3,' '))
+                                std::string const& prefix = std::string(3,' '),
+                                bool const stlf = false)
         : buffer_{os}
         , indent_{prefix}
+        , suppressTopLevelFormatting_{stlf}
+        , cachedTopLevelParameter_{}
         , mps_{}
         , keysWithCommas_{}
         , keysWithEllipses_{}
@@ -33,6 +36,8 @@ namespace fhicl {
 
       std::ostream& buffer_;
       Indentation indent_;
+      bool suppressTopLevelFormatting_;
+      std::string cachedTopLevelParameter_;
       std::stack<MaybeDisplayParent> mps_;
       std::unordered_set<std::string> keysWithCommas_;
       std::unordered_set<std::string> keysWithEllipses_;
@@ -48,6 +53,23 @@ namespace fhicl {
       void exit_sequence(SequenceBase const&) override;
 
       void atom(AtomBase const&) override;
+
+      void cacheTopLevelParameter(ParameterBase const& p)
+      {
+        if ( cachedTopLevelParameter_ == "" )
+          cachedTopLevelParameter_ = p.key();
+      }
+
+      void maybeReleaseTopLevelParameter(ParameterBase const& p)
+      {
+        if (p.key() == cachedTopLevelParameter_)
+          cachedTopLevelParameter_ = "";
+      }
+
+      bool suppressFormat(ParameterBase const& p)
+      {
+        return p.key() == cachedTopLevelParameter_;
+      }
 
     };
 

@@ -7,9 +7,12 @@
 namespace fhicl {
 
   template <typename T>
+  Table<T>::Table(Name&& name) : Table{std::move(name), Comment("")} {}
+
+  template <typename T>
   Table<T>::Table(Name&& name,
-                  Comment&& comment )
-    : TableBase{std::move(name), std::move(comment), value_type::REQUIRED}
+                  Comment&& comment)
+    : TableBase{std::move(name), std::move(comment), value_type::REQUIRED, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     maybe_implicitly_default();
@@ -17,11 +20,19 @@ namespace fhicl {
   }
 
   template <typename T>
-  Table<T>::Table(Name&& name) : Table( std::move(name), Comment("") ) {}
+  Table<T>::Table(Name&& name,
+                  Comment&& comment,
+                  std::function<bool()> maybeUse)
+    : TableBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, maybeUse}
+    , RegisterIfTableMember{this}
+  {
+    maybe_implicitly_default();
+    NameStackRegistry::end_of_ctor();
+  }
 
   template <typename T>
   Table<T>::Table(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
-    : TableBase{Name("<top_level>"), Comment(""), value_type::REQUIRED}
+    : TableBase{Name("<top_level>"), Comment(""), value_type::REQUIRED, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     maybe_implicitly_default();

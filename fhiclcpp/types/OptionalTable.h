@@ -4,6 +4,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Comment.h"
 #include "fhiclcpp/types/Name.h"
+#include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
@@ -33,7 +34,8 @@ namespace fhicl {
     // User-friendly
     // ... c'tors
     explicit OptionalTable(Name&& name);
-    explicit OptionalTable(Name&& name, Comment&& comment );
+    explicit OptionalTable(Name&& name, Comment&& comment);
+    explicit OptionalTable(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
     OptionalTable(ParameterSet const& pset, std::set<std::string> const & keysToIgnore );
 
     // ... Accessors

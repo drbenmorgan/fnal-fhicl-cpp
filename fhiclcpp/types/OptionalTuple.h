@@ -3,6 +3,7 @@
 
 #include "fhiclcpp/detail/printing_helpers.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/TableMemberRegistry.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
@@ -29,8 +30,9 @@ namespace fhicl {
     using ftype = std::tuple< std::shared_ptr< tt::fhicl_type<TYPES> >... >;
     using rtype = std::tuple< tt::return_type<TYPES>... >;
 
-    explicit OptionalTuple(Name&& name, Comment&& comment );
-    explicit OptionalTuple(Name&& name) : OptionalTuple( std::move(name), Comment("") ) {}
+    explicit OptionalTuple(Name&& name);
+    explicit OptionalTuple(Name&& name, Comment&& comment);
+    explicit OptionalTuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
     bool operator()(rtype&) const;
 
@@ -152,9 +154,22 @@ namespace fhicl {
   //================= IMPLEMENTATION =========================
   //
   template<typename ... TYPES>
-  OptionalTuple<TYPES...>::OptionalTuple(Name&& name,
-                                         Comment&& comment)
-    : SequenceBase{std::move(name), std::move(comment), value_type::OPTIONAL, par_type::TUPLE}
+  OptionalTuple<TYPES...>::OptionalTuple(Name&& name)
+    : OptionalTuple{std::move(name), Comment("")}
+  {}
+
+  template<typename ... TYPES>
+  OptionalTuple<TYPES...>::OptionalTuple(Name&& name, Comment&& comment)
+    : SequenceBase{std::move(name), std::move(comment), value_type::OPTIONAL, par_type::TUPLE, detail::AlwaysUse()}
+    , RegisterIfTableMember{this}
+  {
+    finalize_elements(std::index_sequence_for<TYPES...>{});
+    NameStackRegistry::end_of_ctor();
+  }
+
+  template<typename ... TYPES>
+  OptionalTuple<TYPES...>::OptionalTuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse)
+    : SequenceBase{std::move(name), std::move(comment), value_type::OPTIONAL_CONDITIONAL, par_type::TUPLE, maybeUse}
     , RegisterIfTableMember{this}
   {
     finalize_elements(std::index_sequence_for<TYPES...>{});

@@ -1,0 +1,24 @@
+Running 3 test cases...
+Missing parameters:
+
+ -    num2: <int>
+
+ -    parameters: {
+ -
+ -       # N.B. The following sequence is converted to type:
+ -       #         'fhicl::Vec'
+ -       #      with a default value of:
+ -       #         Half-lengths are: (1, 2, 3)
+ -
+ -       halfLengths: [
+ -          <int>,
+ -          <int>,
+ -          <int>
+ -       ]
+ -
+ -     ( boxName: <string>
+ -
+ -       material: <string>
+ -    }
+
+

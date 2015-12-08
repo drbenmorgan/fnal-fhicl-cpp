@@ -4,6 +4,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Comment.h"
 #include "fhiclcpp/types/Name.h"
+#include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
@@ -33,6 +34,7 @@ namespace fhicl {
     // ... c'tors
     explicit OptionalAtom(Name&& name);
     explicit OptionalAtom(Name&& name, Comment&& comment);
+    explicit OptionalAtom(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
     // ... Accessors
     bool operator()(T& value) const {

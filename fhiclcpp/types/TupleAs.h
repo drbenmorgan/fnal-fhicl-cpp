@@ -3,6 +3,7 @@
 
 #include "fhiclcpp/types/OptionalTuple.h"
 #include "fhiclcpp/types/Tuple.h"
+#include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
@@ -32,11 +33,12 @@ namespace fhicl {
 
     explicit TupleAs(Name&& name);
     explicit TupleAs(Name&& name, Comment&& comment);
+    explicit TupleAs(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
     // c'tors supporting default values
     explicit TupleAs(Name&& name, T const& t);
-    explicit TupleAs(Name&& name, T const& t, Comment&& comment);
     explicit TupleAs(Name&& name, Comment&& comment, T const& t);
+    explicit TupleAs(Name&& name, Comment&& comment, std::function<bool()> maybeUse, T const& t);
 
     template<std::size_t ...I>
     T fill(via_type const& via, std::index_sequence<I...>) const
@@ -76,20 +78,25 @@ namespace fhicl {
 
   template <typename T, typename ... ARGS>
   TupleAs<T(ARGS...)>::TupleAs(Name&& name,
-                              Comment&& comment)
+                               Comment&& comment)
     : tupleObj_{std::move(name), conversion_comment(std::move(comment))}
   {
     tupleObj_.set_value_type(value_type::REQUIRED);
+  }
+
+  template <typename T, typename ... ARGS>
+  TupleAs<T(ARGS...)>::TupleAs(Name&& name,
+                               Comment&& comment,
+                               std::function<bool()> maybeUse)
+    : tupleObj_{std::move(name), conversion_comment(std::move(comment)), maybeUse}
+  {
+    tupleObj_.set_value_type(value_type::REQUIRED_CONDITIONAL);
   }
 
     // c'tors supporting default values
   template <typename T, typename ... ARGS>
   TupleAs<T(ARGS...)>::TupleAs(Name&& name, T const& t)
     : TupleAs{std::move(name), Comment(""), t} {}
-
-  template <typename T, typename ... ARGS>
-  TupleAs<T(ARGS...)>::TupleAs(Name&& name, T const& t, Comment&& comment)
-    : TupleAs{std::move(name), std::move(comment), t} {}
 
   template <typename T, typename ... ARGS>
   TupleAs<T(ARGS...)>::TupleAs(Name&& name,
@@ -99,6 +106,17 @@ namespace fhicl {
     , t_{std::make_shared<T>(t)}
   {
     tupleObj_.set_value_type(value_type::DEFAULT);
+  }
+
+  template <typename T, typename ... ARGS>
+  TupleAs<T(ARGS...)>::TupleAs(Name&& name,
+                               Comment&& comment,
+                               std::function<bool()> maybeUse,
+                               T const& t)
+    : tupleObj_{std::move(name), conversion_comment(std::move(comment),t), maybeUse}
+    , t_{std::make_shared<T>(t)}
+  {
+    tupleObj_.set_value_type(value_type::DEFAULT_CONDITIONAL);
   }
 
   template <typename T, typename ... ARGS>

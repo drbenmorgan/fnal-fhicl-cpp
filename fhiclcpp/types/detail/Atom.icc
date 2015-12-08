@@ -4,8 +4,8 @@ namespace fhicl {
 
   template <typename T>
   Atom<T>::Atom(Name&& name,
-                Comment&& comment )
-    : AtomBase{std::move(name), std::move(comment), value_type::REQUIRED}
+                Comment&& comment)
+    : AtomBase{std::move(name), std::move(comment), value_type::REQUIRED, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
     , value_{std::make_shared<T>()}
   {
@@ -15,8 +15,31 @@ namespace fhicl {
   template <typename T>
   Atom<T>::Atom(Name&& name,
                 Comment&& comment,
-                T const& dflt_value )
-    : AtomBase{std::move(name), std::move(comment), value_type::DEFAULT}
+                std::function<bool()> maybeUse)
+    : AtomBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, maybeUse}
+    , RegisterIfTableMember{this}
+    , value_{std::make_shared<T>()}
+  {
+    NameStackRegistry::end_of_ctor();
+  }
+
+  template <typename T>
+  Atom<T>::Atom(Name&& name,
+                Comment&& comment,
+                T const& dflt_value)
+    : AtomBase{std::move(name), std::move(comment), value_type::DEFAULT, detail::AlwaysUse()}
+    , RegisterIfTableMember{this}
+    , value_{std::make_shared<T>(dflt_value)}
+  {
+    NameStackRegistry::end_of_ctor();
+  }
+
+  template <typename T>
+  Atom<T>::Atom(Name&& name,
+                Comment&& comment,
+                std::function<bool()> maybeUse,
+                T const& dflt_value)
+    : AtomBase{std::move(name), std::move(comment), value_type::DEFAULT_CONDITIONAL, maybeUse}
     , RegisterIfTableMember{this}
     , value_{std::make_shared<T>(dflt_value)}
   {
@@ -25,19 +48,13 @@ namespace fhicl {
 
   template <typename T>
   Atom<T>::Atom(Name&& name)
-    : Atom<T>::Atom( std::move(name), Comment("") )
+    : Atom{std::move(name), Comment("")}
   {}
 
   template <typename T>
   Atom<T>::Atom(Name&& name, T const& dflt_value)
-    : Atom<T>::Atom( std::move(name), Comment(""), dflt_value )
+    : Atom{std::move(name), Comment(""), dflt_value}
   {}
-
-  template <typename T>
-  Atom<T>::Atom(Name&& name, T const& dflt_value, Comment&& comment)
-    : Atom<T>::Atom( std::move(name), std::move(comment), dflt_value )
-  {}
-
 
   template <typename T>
   std::string

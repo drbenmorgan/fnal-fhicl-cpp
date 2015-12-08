@@ -2,6 +2,7 @@
 #define fhiclcpp_types_OptionalSequence_h
 
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
@@ -36,6 +37,7 @@ namespace fhicl {
 
     explicit OptionalSequence(Name&& name);
     explicit OptionalSequence(Name&& name, Comment&& comment);
+    explicit OptionalSequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
     bool operator()(rtype& t) const {
 
@@ -90,6 +92,7 @@ namespace fhicl {
 
     explicit OptionalSequence(Name&& name);
     explicit OptionalSequence(Name&& name, Comment&& comment);
+    explicit OptionalSequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
     bool operator()(rtype& t) const {
 

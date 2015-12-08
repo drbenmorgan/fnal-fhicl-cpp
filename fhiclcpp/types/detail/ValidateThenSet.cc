@@ -18,6 +18,10 @@ bool
 fhicl::detail::
 ValidateThenSet::before_action(ParameterBase& p)
 {
+  // 'ConfigPredicate' condition must be satisfied to continue.
+  if (!p.should_use())
+    return false;
+
   // Check that key exists; allow defaulted or optional keys to be
   // absent.
   std::string const& rkey = p.key();
@@ -28,7 +32,14 @@ ValidateThenSet::before_action(ParameterBase& p)
     }
     return false;
   }
-  userKeys_.erase(k);
+
+  if (!userKeys_.erase(k)) {
+    std::ostringstream err_msg;
+    err_msg << "The name '" << p.name() << "' (full key '" << k << "')\n"
+            << "has been specified more than once.  This is allowed only for\n"
+            << "parameters that have been declared using 'ConfigPredicate'.";
+    throw detail::validationException( err_msg.str().c_str() );
+  }
   return true;
 }
 
@@ -124,7 +135,7 @@ namespace {
 
       // If the key is nested (e.g. pset1.pset2[0] ), show the
       // parents
-      PrintAllowedConfiguration pc {oss, show_parents(p->key()), prefix};
+      PrintAllowedConfiguration pc {oss, show_parents(p->key()), prefix, true};
       pc(*p);
 
     }

@@ -4,6 +4,7 @@
 #include "fhiclcpp/detail/printing_helpers.h"
 #include "fhiclcpp/type_traits.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
@@ -60,12 +61,13 @@ namespace fhicl {
     using ftype = std::tuple< std::shared_ptr<tt::fhicl_type<TYPES>>...  >;
 
     explicit Tuple(Name&& name);
-    explicit Tuple(Name&& name, Comment&& comment );
+    explicit Tuple(Name&& name, Comment&& comment);
+    explicit Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
     // c'tors supporting defaults;
     explicit Tuple(Name&& name, dtype const& defaults);
-    explicit Tuple(Name&& name, dtype const& defaults, Comment&& comment);
     explicit Tuple(Name&& name, Comment&& comment, dtype const& defaults);
+    explicit Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults);
 
     auto operator()() const;
 
@@ -207,12 +209,21 @@ namespace fhicl {
   //
   template<typename...TYPES>
   Tuple<TYPES...>::Tuple(Name&& name)
-    : Tuple( std::move(name), Comment("") )
+    : Tuple{std::move(name), Comment("")}
   {}
 
   template<typename ... TYPES>
   Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment)
-    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED, par_type::TUPLE}
+    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED, par_type::TUPLE, detail::AlwaysUse()}
+    , RegisterIfTableMember{this}
+  {
+    finalize_elements(std::index_sequence_for<TYPES...>{});
+    NameStackRegistry::end_of_ctor();
+  }
+
+  template<typename ... TYPES>
+  Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse)
+    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, par_type::TUPLE, maybeUse}
     , RegisterIfTableMember{this}
   {
     finalize_elements(std::index_sequence_for<TYPES...>{});
@@ -223,26 +234,29 @@ namespace fhicl {
 
   template<typename ... TYPES>
   Tuple<TYPES...>::Tuple(Name&& name, dtype const& defaults)
-    : Tuple( std::move(name), Comment(""), defaults )
-  {}
-
-  template<typename ... TYPES>
-  Tuple<TYPES...>::Tuple(Name&& name,
-                         dtype const& defaults,
-                         Comment&& comment)
-    : Tuple{std::move(name), std::move(comment), defaults}
+    : Tuple{std::move(name), Comment(""), defaults}
   {}
 
   template<typename ... TYPES>
   Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, dtype const& defaults)
-    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED, par_type::TUPLE}
+    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED, par_type::TUPLE, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     fill_tuple_elements(defaults);
     NameStackRegistry::end_of_ctor();
   }
 
+
   template<typename ... TYPES>
+  Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults)
+    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, par_type::TUPLE, maybeUse}
+    , RegisterIfTableMember{this}
+  {
+    fill_tuple_elements(defaults);
+    NameStackRegistry::end_of_ctor();
+  }
+
+ template<typename ... TYPES>
   auto
   Tuple<TYPES...>::operator()() const
   {

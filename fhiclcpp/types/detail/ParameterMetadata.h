@@ -33,7 +33,18 @@ namespace fhicl {
       std::string name()        const { return name_; }
       std::string comment()     const { return comment_;}
       bool        has_default() const { return valType_ == value_type::DEFAULT; }
-      bool        is_optional() const { return valType_ == value_type::OPTIONAL; }
+
+      bool        is_optional() const {
+        return
+          valType_ == value_type::OPTIONAL ||
+          valType_ == value_type::OPTIONAL_CONDITIONAL;
+      }
+      bool        is_conditional() const {
+        return
+          valType_ == value_type::REQUIRED_CONDITIONAL ||
+          valType_ == value_type::OPTIONAL_CONDITIONAL ||
+          valType_ == value_type::DEFAULT_CONDITIONAL;
+      }
       par_type    type()        const { return parType_; }
 
       void set_key( std::string const& key ) {

@@ -12,8 +12,9 @@ namespace fhicl {
 
       SeqVectorBase(Name&& name,
                     Comment&& comment,
-                    value_type const vt)
-        : SequenceBase{std::move(name), std::move(comment), vt, par_type::SEQ_VECTOR}
+                    value_type const vt,
+                    std::function<bool()> maybeUse)
+        : SequenceBase{std::move(name), std::move(comment), vt, par_type::SEQ_VECTOR, maybeUse}
       {}
 
       void resize_sequence(std::size_t const sz)

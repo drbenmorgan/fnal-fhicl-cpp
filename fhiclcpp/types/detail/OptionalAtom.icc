@@ -3,18 +3,28 @@
 namespace fhicl {
 
   template <typename T>
+  OptionalAtom<T>::OptionalAtom(Name&& name)
+    : OptionalAtom<T>::OptionalAtom(std::move(name), Comment(""))
+  {}
+
+  template <typename T>
   OptionalAtom<T>::OptionalAtom(Name&& name,
                                 Comment&& comment )
-    : AtomBase{std::move(name), std::move(comment), value_type::OPTIONAL}
+    : AtomBase{std::move(name), std::move(comment), value_type::OPTIONAL, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
-  OptionalAtom<T>::OptionalAtom(Name&& name)
-    : OptionalAtom<T>::OptionalAtom(std::move(name), Comment(""))
-  {}
+  OptionalAtom<T>::OptionalAtom(Name&& name,
+                                Comment&& comment,
+                                std::function<bool()> maybeUse)
+    : AtomBase{std::move(name), std::move(comment), value_type::OPTIONAL_CONDITIONAL, maybeUse}
+    , RegisterIfTableMember{this}
+  {
+    NameStackRegistry::end_of_ctor();
+  }
 
   template <typename T>
   std::string

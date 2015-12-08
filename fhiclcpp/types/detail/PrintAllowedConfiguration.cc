@@ -78,6 +78,15 @@ namespace {
     return sz > 1 ? cet::trim_right_copy(s," ") : "";
   }
 
+  auto string_repeat(std::size_t const n, std::string const& s)
+  {
+    std::string result;
+    for ( std::size_t i{}; i!=n ; ++i )
+      result += s;
+    return result;
+  }
+
+
 }
 
 using namespace fhicl::detail;
@@ -87,10 +96,26 @@ using namespace fhicl::detail;
 bool
 PrintAllowedConfiguration::before_action(ParameterBase const& p)
 {
-  if ( !p.comment().empty() ) {
-    buffer_ << non_whitespace(indent_(), indent_.size()) << '\n';
-    for(auto const& line : cet::split_by_regex(p.comment(), "\n"))
-      buffer_ << indent_() << "# " << line << '\n';
+
+  if (suppressTopLevelFormatting_)
+    cacheTopLevelParameter(p);
+
+  if (!suppressFormat(p)) {
+
+    if ( p.is_conditional() ) {
+      buffer_ << '\n';
+      indent_.modify_top("┌"+string_repeat(30,"─"));
+      buffer_ << non_whitespace(indent_(), indent_.size()) << '\n';
+      indent_.modify_top("│  ");
+    }
+
+    if ( !p.comment().empty() ) {
+      if ( !p.is_conditional() )
+        buffer_ << non_whitespace(indent_(), indent_.size()) << '\n';
+      for(auto const& line : cet::split_by_regex(p.comment(), "\n"))
+        buffer_ << indent_() << "# " << line << '\n';
+    }
+
   }
 
   if ( !is_sequence_element(p.key()) ) {
@@ -104,9 +129,13 @@ PrintAllowedConfiguration::before_action(ParameterBase const& p)
     // that.  Therefore, we modify the top indentation fragment only
     // if the parameter is not a sequence element.
 
-    if ( p.is_optional() ) {
-      indent_.modify_top(" ( ");
+      if ( p.is_optional() ) {
+        if ( p.is_conditional() )
+          indent_.modify_top("|( ");
+        else
+          indent_.modify_top(" ( ");
     }
+
   }
 
   mps_.emplace(p, showParentsForFirstParam_, indent_);
@@ -128,12 +157,21 @@ PrintAllowedConfiguration::after_action(ParameterBase const& p)
   if ( p.has_default() && p.parameter_type() == par_type::ATOM )
     buffer_ << "  # default";
 
-  if ( p.is_optional() ) {
-    indent_.modify_top(std::string(3,' '));
+  if ( !suppressFormat(p) ) {
+
+    if ( p.is_conditional() ) {
+      indent_.modify_top("└"+string_repeat(30,"─"));
+      buffer_ << '\n' << indent_();
+      indent_.modify_top(std::string(3,' '));
+    }
+    else if ( p.is_optional() ) {
+      indent_.modify_top(std::string(3,' '));
+    }
+
   }
 
-  buffer_ << '\n'
-          << mps_.top().closing_braces();
+  maybeReleaseTopLevelParameter(p);
+  buffer_ << '\n' << mps_.top().closing_braces();
   mps_.pop();
 }
 

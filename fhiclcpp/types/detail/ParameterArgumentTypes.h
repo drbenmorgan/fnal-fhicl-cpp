@@ -20,7 +20,15 @@ namespace fhicl {
       pt == par_type::TUPLE;
   }
 
-  enum class value_type { REQUIRED, DEFAULT, OPTIONAL, NTYPES };
+  enum class value_type {
+    REQUIRED,
+    REQUIRED_CONDITIONAL,
+    DEFAULT,
+    DEFAULT_CONDITIONAL,
+    OPTIONAL,
+    OPTIONAL_CONDITIONAL,
+    NTYPES
+  };
 
 }
 

@@ -4,6 +4,7 @@
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/type_traits.h"
 #include "fhiclcpp/types/Atom.h"
+#include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
@@ -72,12 +73,13 @@ namespace fhicl {
     using rtype = std::array<tt::return_type<T>, N>;
 
     explicit Sequence(Name&& name);
-    explicit Sequence(Name&& name, Comment&& comment );
+    explicit Sequence(Name&& name, Comment&& comment);
+    explicit Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
     // c'tors that support defaults
     explicit Sequence(Name&& name, dtype const& defaults);
-    explicit Sequence(Name&& name, dtype const& defaults, Comment&& comment);
     explicit Sequence(Name&& name, Comment&& comment, dtype const& defaults);
+    explicit Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults);
 
     auto operator()() const {
 
@@ -132,11 +134,12 @@ namespace fhicl {
 
     explicit Sequence(Name&& name);
     explicit Sequence(Name&& name, Comment&& comment);
+    explicit Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
     // c'tors supporting default values
     explicit Sequence(Name&& name, dtype const& defaults);
-    explicit Sequence(Name&& name, dtype const& defaults, Comment&& comment);
     explicit Sequence(Name&& name, Comment&& comment, dtype const& defaults);
+    explicit Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults);
 
     auto operator()() const {
       rtype result;

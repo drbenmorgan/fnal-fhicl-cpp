@@ -2,6 +2,7 @@
 #define fhiclcpp_types_OptionalTupleAs_h
 
 #include "fhiclcpp/types/OptionalTuple.h"
+#include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
@@ -24,12 +25,9 @@ namespace fhicl {
   class OptionalTupleAs<T(ARGS...)> {
   public:
 
-    explicit OptionalTupleAs(Name&& name,
-                             Comment&& comment)
-      : tupleObj_{std::move(name), conversion_comment(std::move(comment))}
-    {}
-
-    explicit OptionalTupleAs(Name&& name) : OptionalTupleAs(std::move(name), Comment("") ) {}
+    explicit OptionalTupleAs(Name&& name);
+    explicit OptionalTupleAs(Name&& name, Comment&& comment);
+    explicit OptionalTupleAs(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
     template<std::size_t ...I>
     T fill(typename OptionalTuple<ARGS...>::rtype const& via,
@@ -67,6 +65,28 @@ namespace fhicl {
     }
 
   };
+
+  //==================================================================
+  // IMPLEMENTATION
+
+  template <typename T, typename ... ARGS>
+  OptionalTupleAs<T(ARGS...)>::OptionalTupleAs(Name&& name)
+    : OptionalTupleAs{std::move(name), Comment("")}
+  {}
+
+  template <typename T, typename ... ARGS>
+  OptionalTupleAs<T(ARGS...)>::OptionalTupleAs(Name&& name,
+                                               Comment&& comment)
+    : tupleObj_{std::move(name), conversion_comment(std::move(comment))}
+  {}
+
+  template <typename T, typename ... ARGS>
+  OptionalTupleAs<T(ARGS...)>::OptionalTupleAs(Name&& name,
+                                               Comment&& comment,
+                                               std::function<bool()> maybeUse)
+    : tupleObj_{std::move(name), conversion_comment(std::move(comment)), maybeUse}
+  {}
+
 }
 
 #endif

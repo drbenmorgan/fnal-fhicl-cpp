@@ -54,6 +54,14 @@ cet_test(tupleAs_t USE_BOOST_UNIT
   tupleAs_t.fcl
   )
 
+cet_test(conditional_t USE_BOOST_UNIT
+  DATAFILES
+  cond_01_t.fcl
+  cond_02_t.fcl
+  cond_03_t.fcl
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/conditional_t-ref.txt"
+  )
+
 cet_test(print_tupleAs_t
   REF "${CMAKE_CURRENT_SOURCE_DIR}/print_tupleAs_t-ref.txt"
   )
@@ -68,6 +76,10 @@ cet_test(print_allowed_configuration_optionalParameters_t
 
 cet_test(print_allowed_configuration_tableFragment_t
   REF "${CMAKE_CURRENT_SOURCE_DIR}/print_allowed_configuration_tableFragment_t-ref.txt"
+  )
+
+cet_test(print_allowed_configuration_conditional_t
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/print_allowed_configuration_conditional_t-ref.txt"
   )
 
 cet_test(print_allowed_configuration_defaults_t

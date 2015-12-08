@@ -1,9 +1,6 @@
 #ifndef fhiclcpp_detail_Indentation_h
 #define fhiclcpp_detail_Indentation_h
 
-#include <stack>
-#include <string>
-
 // =========================================================
 //
 // Indentation
@@ -11,11 +8,13 @@
 // Used for providing appropriate indentation for
 // ParameterSet::to_indented_string.
 //
-//
 // The 'pop' and 'push' commands must be used symmetrically.
 //
-//
 // =========================================================
+
+#include <cassert>
+#include <stack>
+#include <string>
 
 namespace fhicl {
   namespace detail {
@@ -35,8 +34,14 @@ namespace fhicl {
 
       void modify_top(std::string const& s)
       {
-        indents_.pop();
-        indents_.emplace(indents_.top() + s);
+        assert(!indents_.empty());
+        if (indents_.size() == 1ul) {
+          indents_.top() = s;
+        }
+        else {
+          indents_.pop();
+          indents_.emplace(indents_.top()+s);
+        }
       }
 
       auto size() { return indents_.size(); }

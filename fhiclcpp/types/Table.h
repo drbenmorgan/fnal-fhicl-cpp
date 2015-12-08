@@ -20,7 +20,7 @@ namespace fhicl {
 
   //========================================================
   template<typename T>
-  class Table :
+  class Table final :
     public  detail::TableBase,
     private detail::RegisterIfTableMember {
   public:

@@ -20,7 +20,7 @@ namespace fhicl {
 
   //========================================================
   template<typename T>
-  class OptionalTable :
+  class OptionalTable final :
     public  detail::TableBase,
     private detail::RegisterIfTableMember {
   public:

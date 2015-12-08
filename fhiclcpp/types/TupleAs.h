@@ -21,7 +21,6 @@ namespace fhicl {
   template<typename T, typename ... ARGS>
   class TupleAs;
 
-
   template<typename T, typename ... ARGS>
   class TupleAs<T(ARGS...)> {
   public:
@@ -31,33 +30,19 @@ namespace fhicl {
     using rtype    = T;
     using ftype    = typename OptionalTuple<ARGS...>::ftype;
 
-    explicit TupleAs(Name&& name,
-                     Comment&& comment)
-      : tupleObj_{std::move(name), conversion_comment(std::move(comment))}
-    {
-      tupleObj_.set_value_type(value_type::REQUIRED);
-    }
+    explicit TupleAs(Name&& name);
+    explicit TupleAs(Name&& name, Comment&& comment);
 
-    explicit TupleAs(Name&& name,
-                     Comment&& comment,
-                     T const& t)
-      : tupleObj_{std::move(name), conversion_comment(std::move(comment),t)}
-      , t_{std::make_shared<T>(t)}
-    {
-      tupleObj_.set_value_type(value_type::DEFAULT);
-    }
-
-    explicit TupleAs(Name&& name) : TupleAs{std::move(name), Comment("")} {}
-    explicit TupleAs(Name&& name, T const& t) : TupleAs{std::move(name), Comment(""), t} {}
-    explicit TupleAs(Name&& name, T const& t, Comment&& comment) : TupleAs{std::move(name), std::move(comment), t} {}
+    // c'tors supporting default values
+    explicit TupleAs(Name&& name, T const& t);
+    explicit TupleAs(Name&& name, T const& t, Comment&& comment);
+    explicit TupleAs(Name&& name, Comment&& comment, T const& t);
 
     template<std::size_t ...I>
     T fill(via_type const& via, std::index_sequence<I...>) const
     {
       return T{std::get<I>(via)...};
     }
-
-    auto key() const { return tupleObj_.key(); }
 
     T operator()() const {
       via_type via;
@@ -71,8 +56,8 @@ namespace fhicl {
     operator detail::ParameterBase&() { return tupleObj_; } // Allows implicit conversion from
                                                             // TupleAs to ParameterBase (necessary
                                                             // for ParameterWalker)
-
   private:
+
     OptionalTuple<ARGS...> tupleObj_;
     std::shared_ptr<T> t_ {}; // shared instead of unique to allowed Sequence<TupleAs<>> objects.
 
@@ -83,6 +68,38 @@ namespace fhicl {
 
   //==================================================================
   // IMPLEMENTATION
+
+  template <typename T, typename ... ARGS>
+  TupleAs<T(ARGS...)>::TupleAs(Name&& name)
+    : TupleAs{std::move(name), Comment("")}
+  {}
+
+  template <typename T, typename ... ARGS>
+  TupleAs<T(ARGS...)>::TupleAs(Name&& name,
+                              Comment&& comment)
+    : tupleObj_{std::move(name), conversion_comment(std::move(comment))}
+  {
+    tupleObj_.set_value_type(value_type::REQUIRED);
+  }
+
+    // c'tors supporting default values
+  template <typename T, typename ... ARGS>
+  TupleAs<T(ARGS...)>::TupleAs(Name&& name, T const& t)
+    : TupleAs{std::move(name), Comment(""), t} {}
+
+  template <typename T, typename ... ARGS>
+  TupleAs<T(ARGS...)>::TupleAs(Name&& name, T const& t, Comment&& comment)
+    : TupleAs{std::move(name), std::move(comment), t} {}
+
+  template <typename T, typename ... ARGS>
+  TupleAs<T(ARGS...)>::TupleAs(Name&& name,
+                               Comment&& comment,
+                               T const& t)
+    : tupleObj_{std::move(name), conversion_comment(std::move(comment),t)}
+    , t_{std::make_shared<T>(t)}
+  {
+    tupleObj_.set_value_type(value_type::DEFAULT);
+  }
 
   template <typename T, typename ... ARGS>
   Comment TupleAs<T(ARGS...)>::conversion_comment(Comment&& comment) const

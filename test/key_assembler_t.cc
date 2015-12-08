@@ -5,6 +5,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
+#include "test/TestMacros.h"
 
 #include <set>
 #include <string>
@@ -52,10 +53,8 @@ BOOST_AUTO_TEST_CASE( t1 )
   };
   std::set<std::string> sorted_ref { ref.begin(), ref.end() };
 
-  BOOST_CHECK_EQUAL_COLLECTIONS( sorted_keys.begin(), sorted_keys.end(),
-                                 sorted_ref.begin() , sorted_ref.end() );
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(sorted_keys, sorted_ref);
 
 }
 
 BOOST_AUTO_TEST_SUITE_END()
-

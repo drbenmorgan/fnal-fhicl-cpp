@@ -22,6 +22,7 @@
 #include "fhiclcpp/types/Tuple.h"
 
 #include "test/fhiclcpp-types/FixtureBase.h"
+#include "test/TestMacros.h"
 
 #include <iostream>
 #include <string>
@@ -100,8 +101,7 @@ BOOST_AUTO_TEST_CASE( optSeqVector_t2 )
   std::array<int,4> intList;
   auto ref = {1,2,4,8};
   BOOST_CHECK( config().list2(intList) );
-  BOOST_CHECK_EQUAL_COLLECTIONS( intList.begin(), intList.end(),
-                                 ref.begin(), ref.end() );
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(intList, ref);
 }
 
 // [5] OptionalSequence<T>
@@ -113,8 +113,7 @@ BOOST_AUTO_TEST_CASE( optSeqVector_t3 )
   decltype(intLists) const ref { {0,1}, {1,2}, {2,4}, {3,8} };
   std::size_t i{};
   for ( auto const& list : intLists ) {
-    BOOST_CHECK_EQUAL_COLLECTIONS( list.begin(), list.end(),
-                                   ref[i].begin(), ref[i].end() );
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(list, ref[i]);
     ++i;
   }
 }

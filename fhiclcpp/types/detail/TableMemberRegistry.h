@@ -1,6 +1,35 @@
 #ifndef fhiclcpp_types_detail_TableMemberRegistry_h
 #define fhiclcpp_types_detail_TableMemberRegistry_h
 
+/*
+
+  'TableMemberRegistry' exists solely because C++ does not have the
+  reflection facilities required to return the members of a struct or
+  class, which is needed to walk through the members of a table.  For
+  example, consider the following struct and associated Table<S>
+  object:
+
+    struct S {
+       Atom<int>     n { Name("num") };
+       Sequence<int> l { Name("list") };
+    };
+    Table<S> t { Name("t") };
+
+  C++ does not have the ability to return the list of data members for
+  the struct 'S'.  The registration system below, however, does do
+  this by taking the Name values above ("num" and "list"), and emplacing
+  them into a container corresponding to the table members associated with 't'.
+
+  The way this registry is used is via private inheritance of a
+  'RegisterIfTableMember' auxiliary class.  Each fhiclcpp parameter
+  type (Atom, Sequence, etc.), inherits from the auxiliary class.  
+
+  If the C++ reflection facilities improve to the level that a
+  struct's or class's members can be returned (either at compile-time,
+  or run-time), this registry should be removed.
+
+*/
+
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/detail/printing_helpers.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"

@@ -18,7 +18,7 @@
 #include "fhiclcpp/types/Tuple.h"
 
 #include "test/fhiclcpp-types/FixtureBase.h"
-#include "test/fhiclcpp-types/TestMacros.h"
+#include "test/TestMacros.h"
 
 #include <iostream>
 #include <string>

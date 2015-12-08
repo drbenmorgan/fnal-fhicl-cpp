@@ -16,6 +16,13 @@ namespace fhicl {
 
   namespace tuple_detail {
 
+    // Auxiliary struct for accepting either
+    //
+    //  (1) {1, false, "Henry"}
+    //  (2) std::tuple<int,bool,string>{2, true, "Hannah"}
+    //
+    // default values for Sequence<T,N>
+
     template <typename ... DEFAULTS>
     class ValueHolder {
     public:

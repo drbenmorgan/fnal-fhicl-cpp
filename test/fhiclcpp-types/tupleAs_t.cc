@@ -14,6 +14,7 @@
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/TupleAs.h"
 #include "test/fhiclcpp-types/FixtureBase.h"
+#include "test/TestMacros.h"
 
 #include <array>
 #include <iostream>
@@ -77,6 +78,7 @@ namespace {
     TupleAs< Person(string, unsigned) > person2 { Name("person2"), Person{"Jon",97}};
     TupleAs< ToVector(int, Sequence<int>) > toVector { Name("toVector") };
     Sequence< TupleAs< Person(string, unsigned) > > people { Name("people") };
+    Sequence< TupleAs< Person(string, unsigned) > > kids { Name("kids"), std::vector<Person>{{"Billy",10}, {"Susie",14}} };
   };
 
   struct Fixture : fhiclcpp_types::FixtureBase<Config> {
@@ -107,19 +109,24 @@ BOOST_AUTO_TEST_CASE( tupleAs_default_value )
 BOOST_AUTO_TEST_CASE( tupleAs_toVector )
 {
   ToVector const& v = config().toVector();
-  auto const ref = {5, 10, 15, 20};
-  BOOST_CHECK_EQUAL_COLLECTIONS( v.value_.begin(), v.value_.end(),
-                                 ref.begin(), ref.end() );
+  auto const& ref = {5, 10, 15, 20};
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(v.value_, ref);
 }
 
 BOOST_AUTO_TEST_CASE( tupleAs_inSequence )
 {
   auto const& people = config().people();
-  array<Person,5u> const ref {
+  auto const& ref {
     Person{"Alice", 1}, Person{"Bob", 2}, Person{"Charlie", 3}, Person{"Danielle", 4}, Person{"Edgar", 5 }
   };
-  BOOST_CHECK_EQUAL_COLLECTIONS( people.begin(), people.end(),
-                                 ref.begin(), ref.end() );
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(people, ref);
+}
+
+BOOST_AUTO_TEST_CASE( tupleAs_inSequence_2 )
+{
+  auto const& people = config().kids();
+  auto const& ref { Person{"Billy",10}, Person{"Susie",14} };
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(people, ref);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

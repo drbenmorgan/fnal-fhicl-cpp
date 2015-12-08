@@ -1,4 +1,5 @@
 #include "cetlib/container_algorithms.h"
+#include "cetlib/demangle.h"
 #include "fhiclcpp/detail/printing_helpers.h"
 #include "fhiclcpp/types/detail/TableMemberRegistry.h"
 #include "fhiclcpp/types/detail/ostream_helpers.h"

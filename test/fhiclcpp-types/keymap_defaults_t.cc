@@ -17,7 +17,7 @@
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Tuple.h"
 #include "test/fhiclcpp-types/KeyMap.h"
-#include "test/fhiclcpp-types/TestMacros.h"
+#include "test/TestMacros.h"
 
 #include <iostream>
 #include <string>

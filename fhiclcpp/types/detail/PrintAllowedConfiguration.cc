@@ -131,7 +131,7 @@ PrintAllowedConfiguration::before_action(ParameterBase const& p)
 
       if ( p.is_optional() ) {
         if ( p.is_conditional() )
-          indent_.modify_top("|( ");
+          indent_.modify_top("│( ");
         else
           indent_.modify_top(" ( ");
     }

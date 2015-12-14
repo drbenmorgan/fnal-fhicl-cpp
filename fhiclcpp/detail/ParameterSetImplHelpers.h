@@ -2,7 +2,6 @@
 #define fhiclcpp_define_ParameterSetImplHelpers_h
 
 #include "boost/algorithm/string.hpp"
-#include "cetlib/container_algorithms.h"
 #include "cetlib/split_by_regex.h"
 #include "fhiclcpp/exception.h"
 
@@ -81,10 +80,11 @@ namespace fhicl {
       tokens.erase( tokens.begin() );
 
       std::vector<std::size_t> indices;
-      cet::transform_all( tokens, std::back_inserter(indices),
-                          [](std::string const& index) {
-                            return std::stoul(index);
-                          } );
+      std::transform( tokens.cbegin(), tokens.cend(),
+                      std::back_inserter(indices),
+                      [](std::string const& index) {
+                        return std::stoul(index);
+                      } );
 
       return SequenceKey{name, indices};
     }

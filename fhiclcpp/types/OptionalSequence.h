@@ -1,6 +1,7 @@
 #ifndef fhiclcpp_types_OptionalSequence_h
 #define fhiclcpp_types_OptionalSequence_h
 
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
@@ -12,6 +13,7 @@
 #include "fhiclcpp/types/detail/SeqVectorBase.h"
 #include "fhiclcpp/type_traits.h"
 
+#include <algorithm>
 #include <array>
 #include <string>
 #include <type_traits>
@@ -44,11 +46,11 @@ namespace fhicl {
       if (!has_value_) return false;
 
       rtype result = { tt::return_type<T>() };
-      cet::transform_all(value_,
-                         result.begin(),
-                         [](auto const& elem){
-                           return (*elem)();
-                         } );
+      std::transform(value_.cbegin(), value_.cend(),
+                     result.begin(),
+                     [](auto const& elem){
+                       return (*elem)();
+                     } );
 
       std::swap(result, t);
       return true;
@@ -99,10 +101,11 @@ namespace fhicl {
       if (!has_value_) return false;
 
       rtype result;
-      cet::transform_all(value_, std::back_inserter(result),
-                         [](auto const& e){
-                           return (*e)();
-                         } );
+      std::transform(value_.cbegin(), value_.cend(),
+                     std::back_inserter(result),
+                     [](auto const& e){
+                       return (*e)();
+                     } );
 
       std::swap(result, t);
       return true;

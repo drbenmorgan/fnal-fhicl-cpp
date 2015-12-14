@@ -4,7 +4,6 @@
 //
 // ======================================================================
 
-#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/detail/KeyAssembler.h"
@@ -12,6 +11,7 @@
 #include "fhiclcpp/detail/PrettifierAnnotated.h"
 #include "fhiclcpp/detail/PrettifierPrefixAnnotated.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <regex>
@@ -131,8 +131,9 @@ vector<string>
 ParameterSet::get_names() const
 {
   vector<string> keys;
-  cet::transform_all( mapping_, std::back_inserter(keys),
-                      [](auto const& pr){ return pr.first; } );
+  std::transform( mapping_.cbegin(), mapping_.cend(),
+                  std::back_inserter(keys),
+                  [](auto const& pr){ return pr.first; } );
   return keys;
 }
 

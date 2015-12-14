@@ -13,6 +13,7 @@
 #include "fhiclcpp/types/detail/ostream_helpers.h"
 #include "fhiclcpp/types/detail/SeqVectorBase.h"
 
+#include <algorithm>
 #include <array>
 #include <initializer_list>
 #include <memory>
@@ -84,11 +85,11 @@ namespace fhicl {
     auto operator()() const {
 
       rtype result = { tt::return_type<T>() };
-      cet::transform_all(value_,
-                         result.begin(),
-                         [](auto const& elem){
-                           return (*elem)();
-                         } );
+      std::transform(value_.cbegin(), value_.cend(),
+                     result.begin(),
+                     [](auto const& elem){
+                       return (*elem)();
+                     } );
       return result;
     }
 
@@ -143,10 +144,11 @@ namespace fhicl {
 
     auto operator()() const {
       rtype result;
-      cet::transform_all(value_, std::back_inserter(result),
-                         [](auto const& e){
-                           return (*e)();
-                         } );
+      std::transform(value_.cbegin(), value_.cend(),
+                     std::back_inserter(result),
+                     [](auto const& e){
+                       return (*e)();
+                     } );
       return result;
     }
 

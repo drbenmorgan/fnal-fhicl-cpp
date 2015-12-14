@@ -94,4 +94,9 @@ pset : {
       ]
    ]
 
+   #inline table
+   atom: 10
+   sequence: [20, 200]
+   tuple: [ 10, "tup", false ]
+
 }

@@ -4,8 +4,7 @@
 //
 // ======================================================================
 
-#include "cpp0x/detail/config"
-
+#include "cetlib/compiler_macros.h"
 #include "fhiclcpp/parse.h"
 
 #include "boost/any.hpp"
@@ -32,7 +31,6 @@
 #include "cetlib/canonical_string.h"
 #include "cetlib/include.h"
 #include "cetlib/includer.h"
-#include "cpp0x/string"
 #include "fhiclcpp/detail/binding_modifier.h"
 #include "fhiclcpp/exception.h"
 #include "fhiclcpp/extended_value.h"
@@ -427,7 +425,7 @@ namespace {
           << "\n";
     }
     sequence_t const & incoming = boost::any_cast<sequence_t const &>(xval.value);
-#if GCC_IS_AT_LEAST(4,9,0) /* Compiler supports C++2011 signature for ranged vector::insert() */
+#if GCC_IS_AT_LEAST(4,9,0) || defined(__clang__) /* Compiler supports C++2011 signature for ranged vector::insert() */
     auto it = v.insert(v.end(), incoming.cbegin(), incoming.cend());
 #else
     v.insert(v.end(), incoming.cbegin(), incoming.cend());

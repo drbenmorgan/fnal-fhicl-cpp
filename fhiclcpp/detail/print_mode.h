@@ -3,8 +3,8 @@
 
 namespace fhicl {
   namespace detail {
-    
-    enum class print_mode { raw, annotated, parsable };
+
+    enum class print_mode { raw, annotated, prefix_annotated };
 
   }
 }

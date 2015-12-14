@@ -1,6 +1,7 @@
 #ifndef fhiclcpp_detail_AtomBase_h
 #define fhiclcpp_detail_AtomBase_h
 
+#include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 
 namespace fhicl {
@@ -15,25 +16,19 @@ namespace fhicl {
 
       AtomBase(Name const & name,
                Comment const & comment,
-               bool const hasDefault,
-               par_type const type,
-               ParameterBase* pb)
-        : ParameterBase( name, comment, hasDefault, type, pb ) {}
+               value_type const vt,
+               std::function<bool()> maybeUse)
+        : ParameterBase{name, comment, vt, par_type::ATOM, maybeUse}
+      {}
 
       std::string stringified_value() const
       {
         return get_stringified_value();
       }
 
-      void set_value(fhicl::ParameterSet const& pset, bool const trimParents)
-      {
-        do_set_value(pset,trimParents);
-      }
-
     private:
 
       virtual std::string get_stringified_value() const = 0;
-      virtual void do_set_value(fhicl::ParameterSet const&, bool const) = 0;
 
     };
 

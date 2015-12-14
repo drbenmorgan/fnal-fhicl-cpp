@@ -1,41 +1,9 @@
 // ======================================================================
 //
-// test static_types return values with defaults
-
-/* The purpose of this test is to verify that types 1-13 below return
-   the correct values
-
-   In what follows, ’T’ represents a type supported by an Atom<>
-   and ’S’ represents an explicitly constructed struct that may
-   contain Atom<>, Sequence<>, Tuple<>, or Table<> objects.
-
-   [ 1] Atom<T>;
-   [ 2] Sequence<T>
-   [ 3] Sequence<T,SZ>
-   [ 4] Tuple<T...>
-   [ 5] Tuple< Sequence<T>, U...>
-   [ 6] Tuple< Sequence<T,SZ>, U...>
-   [ 7] Tuple< Tuple<T...>,U...>
-   [ 8] Sequence< Tuple<T...> >
-   [ 9] Sequence< Tuple<T...>, SZ >
-   [10] Sequence< Sequence<T> >
-   [11] Sequence< Sequence<T,SZ> >
-   [12] Sequence< Sequence<T>, SZ >
-   [13] Sequence< Sequence<T,SZ>, SZ >
-
-   14-21 cannot support default arguments (since Table<> cannot have a default)
-
-   [14] Table<S>
-   [15] Sequence< Table<S> >
-   [16] Sequence< Table<S>, SZ >
-   [17] Tuple< Table<S>, U... >
-   [18] Tuple< Sequence< Table<S> >, U... >
-   [19] Tuple< Sequence< Table<S>, SZ>, U... >
-   [20] Sequence< Tuple< Table<S>, U... > >
-   [21] Sequence< Tuple< Table<S>, U... >, SZ>
-
- */
-
+// test types return values with defaults:
+//
+//   verify that types 1-13 below return the correct values
+//
 // ======================================================================
 
 #define BOOST_TEST_MODULE ( return value defaults )
@@ -44,9 +12,9 @@
 #include "boost/test/test_tools.hpp"
 
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Tuple.h"
+#include "test/TestMacros.h"
 
 #include <iostream>
 #include <string>
@@ -56,7 +24,7 @@ using namespace fhicl;
 using namespace fhicl::detail;
 using namespace std;
 
-BOOST_AUTO_TEST_SUITE( static_types_return_value_defaults_test )
+BOOST_AUTO_TEST_SUITE( types_return_value_defaults_test )
 
 // [1] Atom<T>
 BOOST_AUTO_TEST_CASE( one_atom_t )
@@ -71,8 +39,7 @@ BOOST_AUTO_TEST_CASE( one_sequence_t )
   auto ref = {1,2,4};
   Sequence<int> test { Name("sequence"), ref };
   auto rval = test();
-  BOOST_CHECK_EQUAL_COLLECTIONS( rval.begin(), rval.end(),
-                                 ref.begin(), ref.end());
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(rval, ref);
   std::size_t i{};
   for ( auto const& elem : ref )
     BOOST_CHECK_EQUAL( elem, test(i++) );
@@ -85,8 +52,7 @@ BOOST_AUTO_TEST_CASE( one_sequence_2_t )
   auto ref = {5,7};
   Sequence<int,2> test { Name("sequence"), ref };
   auto rval = test();
-  BOOST_CHECK_EQUAL_COLLECTIONS( rval.begin(), rval.end(),
-                                 ref.begin(), ref.end());
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(rval, ref);
 
   std::size_t i{};
   for ( auto const& elem : ref )
@@ -109,8 +75,7 @@ BOOST_AUTO_TEST_CASE( seq_in_tuple_t )
   auto ref = {1,3,5};
   Tuple< Sequence<int>,double,bool> test { Name("tuple"), { ref, 4.6, true } };
   auto rval = test.get<0>();
-  BOOST_CHECK_EQUAL_COLLECTIONS( rval.begin(), rval.end(),
-                                 ref.begin(), ref.end() );
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(rval, ref);
   BOOST_CHECK_EQUAL( test.get<1>(), 4.6  );
   BOOST_CHECK_EQUAL( test.get<2>(), true );
 }
@@ -118,11 +83,10 @@ BOOST_AUTO_TEST_CASE( seq_in_tuple_t )
 // [6] Tuple< Sequence<T,SZ>, U...>
 BOOST_AUTO_TEST_CASE( bounded_seq_in_tuple_t )
 {
-  auto ref = {9,15};
-  Tuple< Sequence<int,2>,double,bool> test { Name("tuple"), { ref, 0.2, false} };
+  auto ref = {9, 15};
+  Tuple< Sequence<int,2>,double,bool> test { Name("tuple"), {ref, 0.2, false} };
   auto rval = test.get<0>();
-  BOOST_CHECK_EQUAL_COLLECTIONS( rval.begin(), rval.end(),
-                                 ref.begin(), ref.end() );
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(rval, ref);
   BOOST_CHECK_EQUAL( test.get<1>(), 0.2   );
   BOOST_CHECK_EQUAL( test.get<2>(), false );
 }
@@ -175,15 +139,13 @@ BOOST_AUTO_TEST_CASE( seq_in_seq_t )
   std::size_t i{};
   for ( auto const& val : test() ) {
     auto ref = ref_vec.at(i++);
-    BOOST_CHECK_EQUAL_COLLECTIONS( val.begin(), val.end(),
-                                   ref.begin(), ref.end());
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 
   i = 0ul;
   for ( auto const& ref : ref_vec ) {
     auto val = test(i++);
-    BOOST_CHECK_EQUAL_COLLECTIONS( val.begin(), val.end(),
-                                   ref.begin(), ref.end());
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 }
 
@@ -196,8 +158,7 @@ BOOST_AUTO_TEST_CASE( seq_2_in_seq_t )
   std::size_t i{};
   for ( auto const& val : test() ) {
     auto ref = ref_vec.at(i++);
-    BOOST_CHECK_EQUAL_COLLECTIONS( val.begin(), val.end(),
-                                   ref.begin(), ref.end());
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 }
 
@@ -210,8 +171,7 @@ BOOST_AUTO_TEST_CASE( seq_in_seq_2_t )
   std::size_t i{};
   for ( auto const& val : test() ) {
     auto ref = ref_vec.at(i++);
-    BOOST_CHECK_EQUAL_COLLECTIONS( val.begin(), val.end(),
-                                   ref.begin(), ref.end());
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 }
 
@@ -224,8 +184,7 @@ BOOST_AUTO_TEST_CASE( seq_2_in_seq_2_t )
   std::size_t i{};
   for ( auto const& val : test() ) {
     auto ref = ref_vec.at(i++);
-    BOOST_CHECK_EQUAL_COLLECTIONS( val.begin(), val.end(),
-                                   ref.begin(), ref.end());
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 }
 BOOST_AUTO_TEST_SUITE_END()

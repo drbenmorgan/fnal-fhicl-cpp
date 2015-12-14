@@ -1,6 +1,6 @@
 // ======================================================================
 //
-// test static_types return type for tables
+// test types return type for tables
 
 /* The purpose of this test is to verify that types 14-21 below return
    the correct types.
@@ -43,8 +43,8 @@
 #include "boost/test/auto_unit_test.hpp"
 
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
 #include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/Tuple.h"
 
 #include <iostream>
@@ -58,7 +58,7 @@ using namespace std;
 namespace {
 
   template<typename R, typename T>
-  void require_type_as( T& t)
+  void require_type_as( T& t [[gnu::unused]])
   {
     auto rt = t();
     BOOST_CHECK( (std::is_same<R,decltype(rt)>::value) );
@@ -72,7 +72,7 @@ namespace {
 
 }
 
-BOOST_AUTO_TEST_SUITE( static_types_return_types_tables )
+BOOST_AUTO_TEST_SUITE( types_return_types_tables )
 
 // [14] Table<S>
 BOOST_AUTO_TEST_CASE( table_t )

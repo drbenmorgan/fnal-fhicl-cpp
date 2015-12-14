@@ -1,41 +1,7 @@
 // ======================================================================
 //
-// test static_types keymap
-
-/* The purpose of this test is to verify that types 1-13 below return
-   the correct types.
-
-   In what follows, ’T’ represents a type supported by an Atom<>
-   and ’S’ represents an explicitly constructed struct that may
-   contain Atom<>, Sequence<>, Tuple<>, or Table<> objects.
-
-   [ 1] Atom<T>;
-   [ 2] Sequence<T>
-   [ 3] Sequence<T,SZ>
-   [ 4] Tuple<T...>
-   [ 5] Tuple< Sequence<T>, U...>
-   [ 6] Tuple< Sequence<T,SZ>, U...>
-   [ 7] Tuple< Tuple<T...>,U...>
-   [ 8] Sequence< Tuple<T...> >
-   [ 9] Sequence< Tuple<T...>, SZ >
-   [10] Sequence< Sequence<T> >
-   [11] Sequence< Sequence<T,SZ> >
-   [12] Sequence< Sequence<T>, SZ >
-   [13] Sequence< Sequence<T,SZ>, SZ >
-
-   14-21 cannot support default arguments (since Table<> cannot have a default)
-
-   [14] Table<S>
-   [15] Sequence< Table<S> >
-   [16] Sequence< Table<S>, SZ >
-   [17] Tuple< Table<S>, U... >
-   [18] Tuple< Sequence< Table<S> >, U... >
-   [19] Tuple< Sequence< Table<S>, SZ>, U... >
-   [20] Sequence< Tuple< Table<S>, U... > >
-   [21] Sequence< Tuple< Table<S>, U... >, SZ>
-
- */
-
+// test types keymap: verify that types 1-13 return the correct types.
+//
 // ======================================================================
 
 #define BOOST_TEST_MODULE ( return types test )
@@ -43,8 +9,8 @@
 #include "boost/test/auto_unit_test.hpp"
 
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
 #include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/TableFragment.h"
 #include "fhiclcpp/types/Tuple.h"
 
 #include <array>
@@ -63,13 +29,12 @@ namespace {
   void require_type_as(T& t)
   {
     auto rt = t();
-    ParameterReferenceRegistry::instance().clear();
     BOOST_CHECK( (std::is_same<R,decltype(rt)>::value) );
   }
 
 }
 
-BOOST_AUTO_TEST_SUITE( static_types_return_types_test )
+BOOST_AUTO_TEST_SUITE( types_return_types_test )
 
 // [1] Atom<T>
 BOOST_AUTO_TEST_CASE( one_atom_t )

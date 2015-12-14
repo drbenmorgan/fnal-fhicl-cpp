@@ -1,21 +1,21 @@
 #ifndef fhiclcpp_types_detail_SeqVectorBase_h
 #define fhiclcpp_types_detail_SeqVectorBase_h
 
-#include "fhiclcpp/types/detail/ParameterBase.h"
+#include "fhiclcpp/types/detail/SequenceBase.h"
 
 namespace fhicl {
   namespace detail {
 
     //========================================================
-    class SeqVectorBase : public ParameterBase {
+    class SeqVectorBase : public SequenceBase {
     public:
 
-      SeqVectorBase(Name && name,
-                    Comment && comment,
-                    bool const hasDefault,
-                    par_type const type,
-                    ParameterBase* pb)
-        : ParameterBase( name, comment, hasDefault, type, pb ) {}
+      SeqVectorBase(Name&& name,
+                    Comment&& comment,
+                    value_type const vt,
+                    std::function<bool()> maybeUse)
+        : SequenceBase{std::move(name), std::move(comment), vt, par_type::SEQ_VECTOR, maybeUse}
+      {}
 
       void resize_sequence(std::size_t const sz)
       {

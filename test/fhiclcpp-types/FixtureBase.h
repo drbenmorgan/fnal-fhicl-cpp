@@ -10,7 +10,6 @@
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
-#include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
 
 #include <iostream>
 
@@ -20,8 +19,8 @@ namespace fhiclcpp_types {
   struct FixtureBase {
 
     FixtureBase(std::string const& filename)
-      : pset( get_pset(filename) )
-      , config( pset.get<fhicl::ParameterSet>("pset"), {} )
+      : pset{ get_pset(filename) }
+      , config{ pset.get<fhicl::ParameterSet>("pset"), {} }
     {}
 
     fhicl::ParameterSet pset;

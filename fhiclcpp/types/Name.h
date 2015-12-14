@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_Name_h
-#define fhiclcpp_Name_h
+#ifndef fhiclcpp_types_Name_h
+#define fhiclcpp_types_Name_h
 
 #include <regex>
 #include <string>
@@ -11,20 +11,14 @@ namespace fhicl {
     explicit Name(std::string const& name = "") : value(name) {}
     std::string value;
 
-    enum class bracket { SQUARE, ANGLE, NTYPES };
-
-    static Name anonymous()
+    static inline Name sequence_element(std::size_t i)
     {
-      static std::size_t i{};
-      return Name( array_index(i++, bracket::ANGLE) );
+      return Name{ index(i) };
     }
 
-    static inline std::string array_index(std::size_t i, bracket const bkt = bracket::SQUARE)
+    static inline Name sequence_element(std::string const& key_stem, std::size_t i)
     {
-      std::string const prefix = bkt == bracket::SQUARE ? std::string("[") : std::string("<");
-      std::string const suffix = bkt == bracket::SQUARE ? std::string("]") : std::string(">");
-      std::string const index  = prefix + std::to_string(i) + suffix;
-      return index;
+      return Name{ key_stem + index(i) };
     }
 
     /*
@@ -36,6 +30,14 @@ namespace fhicl {
     {
       return std::regex_replace( key, std::regex("\\[|\\]"), "\\$&" );
     }
+
+  private:
+
+    static inline std::string index(std::size_t i)
+    {
+      return "[" + std::to_string(i) + "]";
+    }
+
 
   };
 

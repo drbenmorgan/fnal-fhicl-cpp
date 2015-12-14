@@ -33,13 +33,8 @@ ValidateThenSet::before_action(ParameterBase& p)
     return false;
   }
 
-  if (!userKeys_.erase(k)) {
-    std::ostringstream err_msg;
-    err_msg << "The name '" << p.name() << "' (full key '" << k << "')\n"
-            << "has been specified more than once.  This is allowed only for\n"
-            << "parameters that have been declared using 'ConfigPredicate'.";
-    throw detail::validationException( err_msg.str().c_str() );
-  }
+  // Do we need to find way to handle if 'k' has already been deleted?
+  userKeys_.erase(k);
   return true;
 }
 

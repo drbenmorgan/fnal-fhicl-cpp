@@ -32,7 +32,12 @@ namespace fhicl {
       std::string key()         const { return key_; }
       std::string name()        const { return name_; }
       std::string comment()     const { return comment_;}
-      bool        has_default() const { return valType_ == value_type::DEFAULT; }
+
+      bool        has_default() const {
+        return
+          valType_ == value_type::DEFAULT ||
+          valType_ == value_type::DEFAULT_CONDITIONAL;
+      }
 
       bool        is_optional() const {
         return

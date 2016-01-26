@@ -4,7 +4,6 @@
 #include "cetlib/demangle.h"
 
 #include <ostream>
-#include <regex>
 #include <string>
 
 namespace fhicl {
@@ -44,12 +43,7 @@ namespace fhicl {
   namespace detail {
     namespace no_defaults {
 
-      inline std::string stripped_typename( std::string const& fullName )
-      {
-        // Remove 'std::' from fullName
-        std::string const strippedName = std::regex_replace(fullName, std::regex("std::"), "" );
-        return strippedName;
-      }
+      std::string stripped_typename( std::string const& fullName );
 
       inline std::string padded_string( std::string const& tnToPad )
       {

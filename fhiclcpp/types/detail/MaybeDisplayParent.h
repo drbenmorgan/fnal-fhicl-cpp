@@ -2,12 +2,11 @@
 #define fhiclcpp_types_detail_MaybeDisplayParent_h
 
 #include "cetlib/exempt_ptr.h"
-#include "cetlib/split_by_regex.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
+#include "fhiclcpp/detail/Indentation.h"
 
 #include <cctype>
 #include <sstream>
-#include <regex>
 #include <vector>
 
 //===================================================================================
@@ -93,17 +92,7 @@ namespace fhicl {
       std::vector<std::string> closingBraces_;
       Indentation& indent_;
 
-      std::vector<std::string> get_parents(std::string const& k){
-        std::regex const r_index {"\\[(\\d+)\\]"};
-        std::vector<std::string> parents;
-        for ( auto const& key : cet::split_by_regex( k, "\\." ) )
-          for ( auto const& token : cet::split_by_regex( std::regex_replace(key, r_index, ",$1" ), ",") )
-            parents.push_back( token );
-
-        // Skip first key, which is something like "<0>" in the context
-        // whenever this function is called.
-        return std::vector<std::string>( parents.begin()+1, parents.end() );
-      }
+      std::vector<std::string> get_parents(std::string const& k);
 
       bool is_sequence_element(ParameterBase const& p)
       {

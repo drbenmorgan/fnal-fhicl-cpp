@@ -38,9 +38,8 @@
 */
 
 #include "fhiclcpp/exception.h"
-
+#include <numeric>
 #include <iostream>
-#include <regex>
 #include <string>
 #include <vector>
 
@@ -49,15 +48,7 @@ namespace fhicl {
   class NameStackRegistry {
   public:
 
-    std::string full_key(std::string const & key)
-    {
-      if ( names_.empty() ||
-           std::regex_match(key,std::regex{R"(\[(\d+)\])"})) // Sequence elements
-        names_.emplace_back(key);
-      else
-        names_.emplace_back("."+key);
-      return full_key_();
-    }
+    std::string full_key(std::string const & key);
 
     bool empty() const {
       return names_.empty();

@@ -6,7 +6,7 @@
 
 #define BOOST_TEST_MODULE ( return types test )
 
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"

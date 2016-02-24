@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE ( ParameterSetRegistry_t )
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/make_ParameterSet.h"

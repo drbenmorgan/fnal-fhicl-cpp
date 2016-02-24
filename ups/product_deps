@@ -5,7 +5,7 @@ fcldir -
 #
 # define product/version pairs
 product		version
-cetlib		v1_17_02
+cetlib		v1_17_03
 sqlite		v3_08_10_02
 
 cetbuildtools	v4_18_02	-	only_for_build

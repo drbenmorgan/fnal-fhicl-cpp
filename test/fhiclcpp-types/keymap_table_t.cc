@@ -9,7 +9,7 @@
 
 #define BOOST_TEST_MODULE ( keymap test with tables )
 
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Table.h"

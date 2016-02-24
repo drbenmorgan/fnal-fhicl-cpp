@@ -6,7 +6,7 @@
 
 #define BOOST_TEST_MODULE ( values test )
 
-#include "boost/test/auto_unit_test.hpp"
+#include "cetlib/quiet_unit_test.hpp"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include <complex>

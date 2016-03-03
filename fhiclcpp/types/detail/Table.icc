@@ -89,7 +89,9 @@ namespace fhicl {
   {
     bool const implicitly_default = std::all_of(members_.begin(),
                                                 members_.end(),
-                                                [](auto p){ return p->has_default(); } );
+                                                [](auto p){
+                                                  return p->has_default() || p->is_optional(); }
+                                                );
     if ( implicitly_default )
       set_value_type(value_type::DEFAULT);
   }

@@ -14,7 +14,7 @@
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Tuple.h"
-#include "test/TestMacros.h"
+#include "cetlib/test_macros.h"
 
 #include <iostream>
 #include <string>
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE( one_sequence_t )
   auto ref = {1,2,4};
   Sequence<int> test { Name("sequence"), ref };
   auto rval = test();
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(rval, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(rval, ref);
   std::size_t i{};
   for ( auto const& elem : ref )
     BOOST_CHECK_EQUAL( elem, test(i++) );
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE( one_sequence_2_t )
   auto ref = {5,7};
   Sequence<int,2> test { Name("sequence"), ref };
   auto rval = test();
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(rval, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(rval, ref);
 
   std::size_t i{};
   for ( auto const& elem : ref )
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( seq_in_tuple_t )
   auto ref = {1,3,5};
   Tuple< Sequence<int>,double,bool> test { Name("tuple"), { ref, 4.6, true } };
   auto rval = test.get<0>();
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(rval, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(rval, ref);
   BOOST_CHECK_EQUAL( test.get<1>(), 4.6  );
   BOOST_CHECK_EQUAL( test.get<2>(), true );
 }
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( bounded_seq_in_tuple_t )
   auto ref = {9, 15};
   Tuple< Sequence<int,2>,double,bool> test { Name("tuple"), {ref, 0.2, false} };
   auto rval = test.get<0>();
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(rval, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(rval, ref);
   BOOST_CHECK_EQUAL( test.get<1>(), 0.2   );
   BOOST_CHECK_EQUAL( test.get<2>(), false );
 }
@@ -139,13 +139,13 @@ BOOST_AUTO_TEST_CASE( seq_in_seq_t )
   std::size_t i{};
   for ( auto const& val : test() ) {
     auto ref = ref_vec.at(i++);
-    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
+    CET_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 
   i = 0ul;
   for ( auto const& ref : ref_vec ) {
     auto val = test(i++);
-    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
+    CET_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 }
 
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( seq_2_in_seq_t )
   std::size_t i{};
   for ( auto const& val : test() ) {
     auto ref = ref_vec.at(i++);
-    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
+    CET_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 }
 
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( seq_in_seq_2_t )
   std::size_t i{};
   for ( auto const& val : test() ) {
     auto ref = ref_vec.at(i++);
-    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
+    CET_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 }
 
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE( seq_2_in_seq_2_t )
   std::size_t i{};
   for ( auto const& val : test() ) {
     auto ref = ref_vec.at(i++);
-    FHICLCPP_CHECK_EQUAL_COLLECTIONS(val, ref);
+    CET_CHECK_EQUAL_COLLECTIONS(val, ref);
   }
 }
 BOOST_AUTO_TEST_SUITE_END()

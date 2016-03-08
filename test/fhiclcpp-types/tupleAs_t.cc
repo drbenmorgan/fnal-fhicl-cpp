@@ -14,7 +14,7 @@
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/TupleAs.h"
 #include "test/fhiclcpp-types/FixtureBase.h"
-#include "test/TestMacros.h"
+#include "cetlib/test_macros.h"
 
 #include <array>
 #include <iostream>
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( tupleAs_toVector )
 {
   ToVector const& v = config().toVector();
   auto const& ref = {5, 10, 15, 20};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(v.value_, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(v.value_, ref);
 }
 
 BOOST_AUTO_TEST_CASE( tupleAs_inSequence )
@@ -119,14 +119,14 @@ BOOST_AUTO_TEST_CASE( tupleAs_inSequence )
   auto const& ref {
     Person{"Alice", 1}, Person{"Bob", 2}, Person{"Charlie", 3}, Person{"Danielle", 4}, Person{"Edgar", 5 }
   };
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(people, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(people, ref);
 }
 
 BOOST_AUTO_TEST_CASE( tupleAs_inSequence_2 )
 {
   auto const& people = config().kids();
   auto const& ref { Person{"Billy",10}, Person{"Susie",14} };
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(people, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(people, ref);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

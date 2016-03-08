@@ -14,7 +14,7 @@
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Tuple.h"
 #include "test/fhiclcpp-types/KeyMap.h"
-#include "test/TestMacros.h"
+#include "cetlib/test_macros.h"
 
 #include <iostream>
 #include <string>
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE( one_atom_t )
 {
   auto map = KeyMap::get<Atom<int>>("atom");
   auto ref = {"atom"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [2] Sequence<T>
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE( one_sequence_t )
   auto map = KeyMap::get<Sequence<int>>("sequence");
   auto ref = {"sequence",
               "sequence[0]"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [3] Sequence<T,SZ>
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( one_sequence_2_t )
   auto ref = {"sequence",
               "sequence[0]",
               "sequence[1]"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [4] Tuple<T...>
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( one_tuple_t )
               "tuple[0]",
               "tuple[1]",
               "tuple[2]"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [5] Tuple< Sequence<T>, U...>
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( seq_in_tuple_t )
               "tuple[0][0]",
               "tuple[1]",
               "tuple[2]"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [6] Tuple< Sequence<T,SZ>, U...>
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( bounded_seq_in_tuple_t )
               "tuple[0][1]",
               "tuple[1]",
               "tuple[2]"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [7] Tuple< Tuple<T...>, U...>
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( tuple_in_tuple_t )
               "tuple[0][1]",
               "tuple[1]",
               "tuple[2]"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [8] Sequence< Tuple<T...> >
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( tuple_in_seq_t )
               "seqtuple[0]",
               "seqtuple[0][0]",
               "seqtuple[0][1]"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [9] Sequence< Tuple<T...>, SZ >
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( tuple_in_seq_2_t )
               "seqtuple[1]",
               "seqtuple[1][0]",
               "seqtuple[1][1]"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [10] Sequence< Sequence<T> >
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( seq_in_seq_t )
   auto ref = {"seqseq",
               "seqseq[0]",
               "seqseq[0][0]"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [11] Sequence< Sequence<T,SZ> >
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( seq_2_in_seq_t )
               "seqseq[0]",
               "seqseq[0][0]",
               "seqseq[0][1]"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [12] Sequence< Sequence<T,SZ> >
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( seq_in_seq_2_t )
               "seqseq[0][0]",
               "seqseq[1]",
               "seqseq[1][0]"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [13] Sequence< Sequence<T,SZ>, SZ >
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( seq_2_in_seq_2_t )
               "seqseq[1]",
               "seqseq[1][0]",
               "seqseq[1][1]"};
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+  CET_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

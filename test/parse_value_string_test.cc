@@ -30,8 +30,6 @@ bool
           , string const & wanted
           )
 {
-  typedef  pair<string,string>  string_pair;
-
   extended_value result;
   string unparsed;
   if( ! parse_value_string(input, result, unparsed) ) {

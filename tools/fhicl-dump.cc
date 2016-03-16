@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 
   os << "# Produced from '"<< argv[0] << "' using:\n"
      << "#   Input  : " << opts.input_filename << '\n'
-     << "#   Policy : " << cet::demangle_symbol(typeid(*policy).name()) << '\n'
+     << "#   Policy : " << cet::demangle_symbol(typeid(decltype(*policy)).name()) << '\n'
      << "#   Path   : \"" << opts.lookup_path << "\"\n\n"
      << pset.to_indented_string(0, opts.mode);
 

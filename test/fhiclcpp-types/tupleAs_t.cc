@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( tupleAs_toVector )
 BOOST_AUTO_TEST_CASE( tupleAs_inSequence )
 {
   auto const& people = config().people();
-  auto const& ref {
+  auto const& ref = {
     Person{"Alice", 1}, Person{"Bob", 2}, Person{"Charlie", 3}, Person{"Danielle", 4}, Person{"Edgar", 5 }
   };
   FHICLCPP_CHECK_EQUAL_COLLECTIONS(people, ref);
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( tupleAs_inSequence )
 BOOST_AUTO_TEST_CASE( tupleAs_inSequence_2 )
 {
   auto const& people = config().kids();
-  auto const& ref { Person{"Billy",10}, Person{"Susie",14} };
+  auto const& ref = { Person{"Billy",10}, Person{"Susie",14} };
   FHICLCPP_CHECK_EQUAL_COLLECTIONS(people, ref);
 }
 

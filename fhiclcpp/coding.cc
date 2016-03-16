@@ -34,13 +34,6 @@ static inline  std::string
 }
 
 static inline  ps_atom_t
-  literal_nil( )
-{
-  static  std::string  literal_nil("nil");
-  return literal_nil;
-}
-
-static inline  ps_atom_t
   literal_true( )
 {
   static  std::string  literal_true("true");

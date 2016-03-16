@@ -699,6 +699,12 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
                         ref(s)) ]
        )
     > lit('}');
+// Clang does not like this (multiple unsequenced modifications to '_val' [-Werror,-Wunsequenced])
+// TEMPORARILY wrap until validity checked
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunsequenced"
+#endif
   value =
     ((iter_pos >> vp.nil    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), NIL     , qi::_2, qi::_1, ref(s)) ] |
      (iter_pos >> vp.boolean) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), BOOL    , qi::_2, qi::_1, ref(s)) ] |
@@ -717,6 +723,9 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
      (iter_pos >> sequence ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), SEQUENCE, qi::_2, qi::_1, ref(s)) ] |
      (iter_pos >> table    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), TABLE   , qi::_2, qi::_1, ref(s)) ]
     );
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
   prolog =
     lit("BEGIN_PROLOG") [ phx::bind(rebool, ref(in_prolog), true) ]
     >> *((iter_pos >> qualname >> fhicl::binding >> value

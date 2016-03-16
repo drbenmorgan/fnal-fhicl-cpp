@@ -19,22 +19,22 @@
 
 namespace fhicl {
 
-  template <typename T> struct Atom;
-  template <typename T> struct OptionalAtom;
+  template <typename T> class Atom;
+  template <typename T> class OptionalAtom;
 
-  template <typename T> struct Table;
-  template <typename T> struct OptionalTable;
+  template <typename T> class Table;
+  template <typename T> class OptionalTable;
 
-  template <typename T> struct TableFragment;
+  template <typename T> class TableFragment;
 
-  template <typename ... ARGS> struct Tuple;
-  template <typename ... ARGS> struct OptionalTuple;
+  template <typename ... ARGS> class Tuple;
+  template <typename ... ARGS> class OptionalTuple;
 
-  template <typename T, std::size_t SZ> struct Sequence;
-  template <typename T, std::size_t SZ> struct OptionalSequence;
+  template <typename T, std::size_t SZ> class Sequence;
+  template <typename T, std::size_t SZ> class OptionalSequence;
 
-  template <typename T, typename ... ARGS> struct TupleAs;
-  template <typename T, typename ... ARGS> struct OptionalTupleAs;
+  template <typename T, typename ... ARGS> class TupleAs;
+  template <typename T, typename ... ARGS> class OptionalTupleAs;
 
 }
 

@@ -13,7 +13,7 @@ link_libraries(fhiclcpp
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
 
-cet_test_env("FHICL_FILE_PATH=.")
+cet_test_env("FHICL_FILE_PATH=${CMAKE_CURRENT_SOURCE_DIR}:.")
 
 add_subdirectory( fhiclcpp-types )
 
@@ -35,14 +35,23 @@ cet_test(get_sequence_elements_t USE_BOOST_UNIT
 cet_test(equalTest USE_BOOST_UNIT)
 cet_test(failer DATAFILES test_config_fail.fcl)
 cet_test(fhicl-config_t NO_AUTO)
-cet_test(fhicl-expand_test.sh PREBUILT)
-cet_test(fhicl-expand_test_path.sh PREBUILT)
-cet_test(issue_0923_t.sh PREBUILT
+cet_test(fhicl-expand_test.sh HANDBUILT
+  TEST_EXEC ${CMAKE_CURRENT_SOURCE_DIR}/fhicl-expand_test.sh
+  TEST_PROPERTIES ENVIRONMENT PATH=$<TARGET_FILE_DIR:fhicl-expand>:$ENV{PATH}
+  )
+cet_test(fhicl-expand_test_path.sh HANDBUILT
+  TEST_EXEC ${CMAKE_CURRENT_SOURCE_DIR}/fhicl-expand_test_path.sh
+  TEST_PROPERTIES ENVIRONMENT PATH=$<TARGET_FILE_DIR:fhicl-expand>:$ENV{PATH}
+  )
+
+cet_test(issue_0923_t.sh HANDBUILT
+  TEST_EXEC ${CMAKE_CURRENT_SOURCE_DIR}/issue_0923_t.sh
   DATAFILES
   issue_0923a.fcl
   issue_0923b.fcl
   issue_0923_ref.txt
   DEPENDENCIES fhicl-config_t
+  TEST_PROPERTIES ENVIRONMENT PATH=$<TARGET_FILE_DIR:fhicl-config_t>:$ENV{PATH}
 )
 cet_test(key_assembler_t USE_BOOST_UNIT)
 cet_test(parse_document_test USE_BOOST_UNIT)
@@ -74,7 +83,7 @@ FILE(GLOB testFail RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "testFiles/fail/*_fail.f
 FOREACH(test_file ${testPass})
   GET_FILENAME_COMPONENT(test_file_stem ${test_file} NAME_WE)
   cet_test(${test_file_stem} HANDBUILT
-           TEST_EXEC test_suite
+    TEST_EXEC $<TARGET_FILE:test_suite>
            TEST_ARGS ${test_file}
            #DATAFILES ${test_file}
            TEST_PROPERTIES ENVIRONMENT FHICL_FILE_PATH=${CMAKE_CURRENT_SOURCE_DIR}
@@ -83,7 +92,7 @@ ENDFOREACH()
 FOREACH(test_file ${testFail})
   GET_FILENAME_COMPONENT(test_file_stem ${test_file} NAME_WE)
   cet_test(${test_file_stem} HANDBUILT
-           TEST_EXEC test_suite
+    TEST_EXEC $<TARGET_FILE:test_suite>
            TEST_ARGS ${test_file}
            #DATAFILES ${test_file}
            TEST_PROPERTIES WILL_FAIL true
@@ -94,13 +103,13 @@ ENDFOREACH()
 cet_test(save-restore_t NO_AUTO)
 
 cet_test(save-restore-ab HANDBUILT
-  TEST_EXEC save-restore_t
+  TEST_EXEC $<TARGET_FILE:save-restore_t>
   TEST_ARGS ab.fcl
   DATAFILES issue-2737-fcl/ab.fcl
 )
 
 cet_test(save-restore-ba HANDBUILT
-  TEST_EXEC save-restore_t
+  TEST_EXEC $<TARGET_FILE:save-restore_t>
   TEST_ARGS ba.fcl
   DATAFILES issue-2737-fcl/ba.fcl
 )

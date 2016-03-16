@@ -14,42 +14,44 @@
 #  make install
 #  make package (builds distribution tarfile)
 
-cmake_minimum_required( VERSION 2.8 )  # use cmake 2.8 or later
-
-project(fhiclcpp)
+cmake_minimum_required(VERSION 3.3)
+project(fhiclcpp VERSION 3.18.3)
 
 # cetbuildtools contains our cmake modules
-set( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
-if( NOT CETBUILDTOOLS_VERSION )
-  message( FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules" )
-endif()
-set( CMAKE_MODULE_PATH $ENV{CETBUILDTOOLS_DIR}/Modules ${CMAKE_MODULE_PATH} )
+# - Cetbuildtools, version2
+find_package(cetbuildtools2 0.1.0 REQUIRED)
+set(CMAKE_MODULE_PATH ${cetbuildtools2_MODULE_PATH})
+include(CetInstallDirs)
+include(CetCMakeSettings)
+include(CetCompilerSettings)
 
-include(CetCMakeEnv)
-cet_cmake_env()
-
-cet_set_compiler_flags(DIAGS VIGILANT
-  WERROR
-  NO_UNDEFINED
-  EXTRA_FLAGS -pedantic
+# C++ Standard Config
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(cetlib_COMPILE_FEATURES
+  cxx_auto_type
+  cxx_generic_lambdas
   )
-cet_report_compiler_flags()
-
 
 # these are minimum required versions, not the actual product versions
-find_ups_product (cetbuildtools v4_14_01)
-find_ups_product( cetlib v1_09_00 )
-find_ups_product( sqlite v3_07_15_00 )
-find_ups_boost(v1_50_0)
+find_package(cetlib 1.17 REQUIRED)
+find_package(Boost 1.60 REQUIRED unit_test_framework program_options)
 
-# SQLite
-cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
+#find_package(sqlite 3.7.15 REQUIRED)
+find_path(SQLITE_INCLUDE_DIRS sqlite3.h)
+find_library(SQLITE_LIBRARY sqlite3)
+add_library(SQLite::SQLite UNKNOWN IMPORTED)
+set_target_properties(SQLite::SQLite PROPERTIES
+  IMPORTED_LOCATION "${SQLITE_LIBRARY}"
+  IMPORTED_INTERFACE_INCLUDE_DIRECTORIES "${SQLITE_INCLUDE_DIRS}")
+
 
 # source code
-add_subdirectory( fhiclcpp )
-add_subdirectory( ups )
-add_subdirectory( test )
-add_subdirectory( tools )
+add_subdirectory(fhiclcpp)
+add_subdirectory(tools)
+#add_subdirectory( ups )
+if(BUILD_TESTING)
+  add_subdirectory(test)
+endif()
 
 # packaging utility
-include(UseCPack)
+#include(UseCPack)

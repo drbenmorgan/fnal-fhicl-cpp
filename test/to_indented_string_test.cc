@@ -9,6 +9,7 @@
 #include "cetlib/quiet_unit_test.hpp"
 #include "fhiclcpp/ParameterSet.h"
 #include <functional>
+#include <numeric>
 #include <string>
 
 using namespace fhicl;

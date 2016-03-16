@@ -109,7 +109,7 @@ namespace fhicl {
       visit_element(pw, std::get<I>(value_)...);
     }
 
-    void do_walk_elements(PW_non_const& pw)
+    void do_walk_elements(PW_non_const& pw) override
     {
       iterate_over_tuple(pw, std::index_sequence_for<TYPES...>{});
     }
@@ -131,7 +131,7 @@ namespace fhicl {
       visit_element(pw, std::get<I>(value_)...);
     }
 
-    void do_walk_elements(PW_const& pw) const
+    void do_walk_elements(PW_const& pw) const override
     {
       iterate_over_tuple(pw, std::index_sequence_for<TYPES...>{});
     }
@@ -174,7 +174,7 @@ namespace fhicl {
       static_assert(!tt::is_sequence_type<elem_utype>::value, NO_STD_CONTAINERS);
 
       auto & elem = std::get<I>(value_);
-      elem = std::make_shared<tt::fhicl_type<elem_utype>>( Name::sequence_element(I), defaults.get<I>() );
+      elem = std::make_shared<tt::fhicl_type<elem_utype>>( Name::sequence_element(I), defaults.template get<I>() );
       fill_tuple_element<I+1>(defaults);
     }
 

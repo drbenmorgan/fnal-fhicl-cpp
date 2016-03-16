@@ -23,7 +23,7 @@ namespace fhicl {
   //==================================================================
   // e.g. OptionalSequence<int,4> ====> std::array<int,4>
   //
-  template<typename T, std::size_t N = -1>
+  template<typename T, std::size_t N = static_cast<std::size_t>(-1)>
   class OptionalSequence final :
     public  detail::SequenceBase,
     private detail::RegisterIfTableMember {
@@ -79,7 +79,7 @@ namespace fhicl {
   // e.g. OptionalSequence<int> ====> std::vector<int>
   //
   template<typename T>
-  class OptionalSequence<T,-1> final :
+  class OptionalSequence<T, static_cast<std::size_t>(-1)> final :
     public  detail::SeqVectorBase,
     private detail::RegisterIfTableMember {
   public:

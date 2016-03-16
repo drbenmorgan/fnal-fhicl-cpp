@@ -37,7 +37,7 @@ namespace fhicl {
     }
 
     bool operator()(T& result) const {
-      typename OptionalTuple<ARGS...>::rtype const& via;
+      typename OptionalTuple<ARGS...>::rtype const via;
       if ( tupleObj_(via) ) {
         auto tmp = fill(via, std::index_sequence_for<ARGS...>{});
         std::swap(result, tmp);

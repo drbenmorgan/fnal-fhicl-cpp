@@ -6,7 +6,7 @@
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/parse.h"
-#include "test/TestMacros.h"
+#include "cetlib/test_macros.h"
 
 #include <iostream>
 #include <string>
@@ -46,11 +46,11 @@ BOOST_AUTO_TEST_CASE( element_container_lookup )
 {
   auto vec0 = pset.get<std::vector<int>>("vv[0]");
   auto ref0 = { 1, 2, 3 };
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(vec0, ref0);
+  CET_CHECK_EQUAL_COLLECTIONS(vec0, ref0);
 
   auto vec1 = pset.get<std::vector<int>>("vv[1]");
   auto ref1 = { 2, 3, 4 };
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(vec1, ref1);
+  CET_CHECK_EQUAL_COLLECTIONS(vec1, ref1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

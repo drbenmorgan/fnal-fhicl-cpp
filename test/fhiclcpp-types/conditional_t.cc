@@ -6,7 +6,7 @@
 #include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/types/Table.h"
 #include "test/fhiclcpp-types/CondConfig.h"
-#include "test/TestMacros.h"
+#include "cetlib/test_macros.h"
 
 #include <iostream>
 #include <string>
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( cond_03_t )
   BOOST_CHECK_EQUAL(table().shape(), "box");
   auto ref = {4,9,2};
   auto hls = table().boxParams().halfLengths();
-  FHICLCPP_CHECK_EQUAL_COLLECTIONS(hls(), ref);
+  CET_CHECK_EQUAL_COLLECTIONS(hls(), ref);
   BOOST_CHECK_EQUAL(table().boxParams().material(), "Wood");
   std::string name;
   BOOST_CHECK_EQUAL(table().boxParams().boxName(name), true);

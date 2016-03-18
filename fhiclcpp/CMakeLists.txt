@@ -95,14 +95,78 @@ target_include_directories(fhiclcpp
    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
    )
-target_include_directories(fhiclcpp SYSTEM PUBLIC ${Boost_INCLUDE_DIRS})
-
 target_link_libraries(fhiclcpp PUBLIC
   cetlib::cetlib
   SQLite::SQLite
+  Boost::boost
   )
 
 # - Static
-#add_library(fhiclcpp-static STATIC ${fhiclcpp_SOURCES})
-#set_target_properties(fhiclcpp-static PROPERTIES OUTPUT_NAME fhiclcpp)
+add_library(fhiclcpp-static STATIC ${fhiclcpp_SOURCES})
+set_target_properties(fhiclcpp-static PROPERTIES OUTPUT_NAME fhiclcpp)
+target_include_directories(fhiclcpp-static
+  PUBLIC
+   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+   )
+target_link_libraries(fhiclcpp-static PUBLIC
+  cetlib::cetlib
+  SQLite::SQLite
+  Boost::boost
+  )
+
+# - Install
+# Targets
+install(TARGETS fhiclcpp fhiclcpp-static
+  EXPORT ${PROJECT_NAME}Targets
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
+
+# Headers
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}"
+  FILES_MATCHING PATTERN "*.h" PATTERN "*.icc"
+  )
+
+# Support files
+#-----------------------------------------------------------------------
+# Create exports file(s)
+include(CMakePackageConfigHelpers)
+
+# - Common to both trees
+write_basic_package_version_file(
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+  COMPATIBILITY SameMajorVersion
+  )
+
+# - Build tree (EXPORT only for now, config file needs some thought,
+#   dependent on the use of multiconfig)
+export(
+  EXPORT ${PROJECT_NAME}Targets
+  NAMESPACE fhiclcpp::
+  FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake"
+  )
+
+# - Install tree
+configure_package_config_file("${PROJECT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
+  "${PROJECT_BINARY_DIR}/InstallCMakeFiles/${PROJECT_NAME}Config.cmake"
+  INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+  PATH_VARS CMAKE_INSTALL_INCLUDEDIR
+  )
+
+install(
+  FILES
+    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+    "${PROJECT_BINARY_DIR}/InstallCMakeFiles/${PROJECT_NAME}Config.cmake"
+  DESTINATION
+    "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+    )
+
+install(
+  EXPORT ${PROJECT_NAME}Targets
+  NAMESPACE fhiclcpp::
+  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+  )
 

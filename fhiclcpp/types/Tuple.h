@@ -174,7 +174,7 @@ namespace fhicl {
       static_assert(!tt::is_sequence_type<elem_utype>::value, NO_STD_CONTAINERS);
 
       auto & elem = std::get<I>(value_);
-      elem = std::make_shared<tt::fhicl_type<elem_utype>>( Name::sequence_element(I), defaults.get<I>() );
+      elem = std::make_shared<tt::fhicl_type<elem_utype>>( Name::sequence_element(I), defaults.template get<I>() );
       fill_tuple_element<I+1>(defaults);
     }
 

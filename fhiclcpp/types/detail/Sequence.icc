@@ -87,12 +87,12 @@ namespace fhicl {
   // e.g. Sequence<int> ====> std::vector<int>
   //
   template<typename T>
-  Sequence<T,-1>::Sequence(Name&& name)
+  Sequence<T,-1ull>::Sequence(Name&& name)
     : Sequence{std::move(name), Comment("")}
     {}
 
   template<typename T>
-  Sequence<T,-1>::Sequence(Name&& name, Comment&& comment)
+  Sequence<T,-1ull>::Sequence(Name&& name, Comment&& comment)
     : SeqVectorBase{std::move(name), std::move(comment), value_type::REQUIRED, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
     , value_{std::make_shared<tt::fhicl_type<T>>(Name::sequence_element(0ul))}
@@ -101,7 +101,7 @@ namespace fhicl {
     }
 
   template<typename T>
-  Sequence<T,-1>::Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse)
+  Sequence<T,-1ull>::Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse)
     : SeqVectorBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, maybeUse}
     , RegisterIfTableMember{this}
     , value_{std::make_shared<tt::fhicl_type<T>>(Name::sequence_element(0ul))}
@@ -111,12 +111,12 @@ namespace fhicl {
 
   // c'tors that support defaults
   template<typename T>
-  Sequence<T,-1>::Sequence(Name&& name, dtype const& defaults)
+  Sequence<T,-1ull>::Sequence(Name&& name, dtype const& defaults)
     : Sequence{std::move(name), Comment(""), defaults}
     {}
 
   template<typename T>
-  Sequence<T,-1>::Sequence (Name&& name, Comment&& comment, dtype const& defaults)
+  Sequence<T,-1ull>::Sequence (Name&& name, Comment&& comment, dtype const& defaults)
     : SeqVectorBase{std::move(name), std::move(comment), value_type::DEFAULT, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
@@ -131,7 +131,7 @@ namespace fhicl {
 
 
   template<typename T>
-  Sequence<T,-1>::Sequence (Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults)
+  Sequence<T,-1ull>::Sequence (Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults)
     : SeqVectorBase{std::move(name), std::move(comment), value_type::DEFAULT_CONDITIONAL, maybeUse}
     , RegisterIfTableMember{this}
   {

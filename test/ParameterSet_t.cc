@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(is_key_to) {
 
   int const i {37};
   std::vector<int> const js {3,2,67};
-  fhicl::ParameterSet const t;
+  fhicl::ParameterSet const t {};
   fhicl::ParameterSet p;
   p.put("i" ,i);
   p.put("js",js);

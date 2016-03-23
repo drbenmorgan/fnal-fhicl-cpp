@@ -109,7 +109,7 @@ namespace fhicl {
       visit_element(pw, std::get<I>(value_)...);
     }
 
-    void do_walk_elements(PW_non_const& pw)
+    void do_walk_elements(PW_non_const& pw) override
     {
       iterate_over_tuple(pw, std::index_sequence_for<TYPES...>{});
     }
@@ -131,7 +131,7 @@ namespace fhicl {
       visit_element(pw, std::get<I>(value_)...);
     }
 
-    void do_walk_elements(PW_const& pw) const
+    void do_walk_elements(PW_const& pw) const override
     {
       iterate_over_tuple(pw, std::index_sequence_for<TYPES...>{});
     }

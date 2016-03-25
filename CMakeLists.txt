@@ -70,11 +70,11 @@ find_package_handle_standard_args(SQLite
 
 add_library(SQLite::SQLite UNKNOWN IMPORTED)
 set_target_properties(SQLite::SQLite PROPERTIES
-  IMPORTED_LOCATION "${SQLITE_LIBRARY}"
-  IMPORTED_INTERFACE_INCLUDE_DIRECTORIES "${SQLITE_INCLUDE_DIRS}")
+  IMPORTED_LOCATION "${SQLite_LIBRARY}"
+  IMPORTED_INTERFACE_INCLUDE_DIRECTORIES "${SQLite_INCLUDE_DIRS}")
 add_executable(SQLite::SQLiteExecutable IMPORTED)
 set_target_properties(SQLite::SQLiteExecutable PROPERTIES
-  IMPORTED_LOCATION "${SQLITE_EXECUTABLE}")
+  IMPORTED_LOCATION "${SQLite_EXECUTABLE}")
 #-----------------------------------------------------------------------
 # FINDSQLITE END
 #-----------------------------------------------------------------------

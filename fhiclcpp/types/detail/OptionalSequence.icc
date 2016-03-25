@@ -57,12 +57,12 @@ namespace fhicl {
   //
 
   template<typename T>
-  OptionalSequence<T,static_cast<std::size_t>(-1)>::OptionalSequence(Name&& name)
+  OptionalSequence<T,-1ull>::OptionalSequence(Name&& name)
     : OptionalSequence{std::move(name), Comment("")}
   {}
 
   template<typename T>
-  OptionalSequence<T,static_cast<std::size_t>(-1)>::OptionalSequence(Name&& name,
+  OptionalSequence<T,-1ull>::OptionalSequence(Name&& name,
                                            Comment&& comment)
     : SeqVectorBase{std::move(name), std::move(comment), value_type::OPTIONAL, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
@@ -72,7 +72,7 @@ namespace fhicl {
   }
 
   template<typename T>
-  OptionalSequence<T,static_cast<std::size_t>(-1)>::OptionalSequence(Name&& name,
+  OptionalSequence<T,-1ull>::OptionalSequence(Name&& name,
                                            Comment&& comment,
                                            std::function<bool()> maybeUse)
     : SeqVectorBase{std::move(name), std::move(comment), value_type::OPTIONAL_CONDITIONAL, maybeUse}
@@ -84,7 +84,7 @@ namespace fhicl {
 
   template<typename T>
   void
-  OptionalSequence<T,static_cast<std::size_t>(-1)>::do_set_value(fhicl::ParameterSet const&,
+  OptionalSequence<T,-1ull>::do_set_value(fhicl::ParameterSet const&,
                                        bool const /*trimParents*/)
   {
     // We do not explicitly set the sequence values here as the

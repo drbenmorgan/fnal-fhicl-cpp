@@ -20,10 +20,10 @@
 #include "boost/spirit/include/qi.hpp"
 #include "boost/spirit/include/qi_no_skip.hpp"
 #include "boost/spirit/include/support_istream_iterator.hpp"
-#ifndef __clang__
-#pragma GCC diagnostic ignored "-pedantic"
-#else
+#ifdef __clang__
 #pragma clang diagnostic ignored "-Wpedantic"
+#else
+#pragma GCC diagnostic ignored "-pedantic"
 #endif
 #include "boost/spirit/repository/home/qi/primitive/iter_pos.hpp"
 #pragma GCC diagnostic pop
@@ -659,7 +659,7 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
   sequence =
     lit('[')
     > -(((value [ phx::bind(seq_insert_value, ref(qi::_1), _val) ])
-         | (iter_pos >> ( lit("@sequence::") > noskip_qualname )
+         | ((iter_pos >> lit("@sequence::")) > noskip_qualname
            ) [ phx::bind(&seq_insert_sequence<iter_t>,
                          ref(qi::_2),
                          ref(tbl),
@@ -668,7 +668,7 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
                          qi::_1,
                          ref(s)) ]))
     > *(lit(',') > ((value [ phx::bind(seq_insert_value, ref(qi::_1), _val) ])
-                    | (iter_pos >> ( lit("@sequence::") > noskip_qualname )
+                    | ((iter_pos >> lit("@sequence::")) > noskip_qualname
                       ) [ phx::bind(&seq_insert_sequence<iter_t>,
                                     ref(qi::_2),
                                     ref(tbl),
@@ -689,7 +689,7 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
                       ref(s)) ]
         | (iter_pos >> name >> (lit(':') > lit("@erase"))
           ) [ phx::bind(&map_erase_loc<iter_t>, ref(qi::_2), _val, qi::_1, ref(s)) ]
-        | (iter_pos >> ( lit("@table::") > noskip_qualname )
+        | ((iter_pos >> lit("@table::")) > noskip_qualname
           ) [ phx::bind(&insert_table_in_table<iter_t>,
                         ref(qi::_2),
                         ref(tbl),
@@ -732,7 +732,7 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
          ) [ phx::bind(&tbl_insert<iter_t>, ref(qi::_2), qi::_3, ref(qi::_4), ref(tbl), qi::_1, ref(s)) ]
          | (iter_pos >> qualname >> (lit(':') > lit("@erase"))
            ) [ phx::bind(&tbl_erase<iter_t>, qi::_2, ref(tbl), ref(in_prolog), qi::_1, ref(s)) ]
-         | (iter_pos >> ( lit("@table::") > noskip_qualname )
+         | ((iter_pos >> lit("@table::")) > noskip_qualname
            ) [ phx::bind(&insert_table<iter_t>,
                          qi::_2, ref(tbl), ref(in_prolog),
                          qi::_1, ref(s)) ]
@@ -743,7 +743,7 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
                   ) [ phx::bind(&tbl_insert<iter_t>, ref(qi::_2), qi::_3, ref(qi::_4), ref(tbl), qi::_1, ref(s)) ]
                   | (iter_pos >> qualname >> (lit(':') > lit("@erase"))
                     ) [ phx::bind(&tbl_erase<iter_t>, qi::_2, ref(tbl), ref(in_prolog), qi::_1, ref(s)) ]
-                  | (iter_pos >> ( lit("@table::") > noskip_qualname )
+                  | ((iter_pos >> lit("@table::")) > noskip_qualname
                     ) [ phx::bind(&insert_table<iter_t>,
                                   qi::_2, ref(tbl), ref(in_prolog),
                                   qi::_1, ref(s)) ]

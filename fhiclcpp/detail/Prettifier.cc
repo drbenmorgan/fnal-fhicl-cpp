@@ -64,11 +64,11 @@ Prettifier::exit_sequence(std::string const& key,
                           boost::any const&)
 {
   indent_.pop();
+  pop_size_();
   buffer_ << maybe_indent_(seq_size_)
           << sequence::closing_brace()
           << printed_suffix(key, seq_size_)
           << nl();
-  pop_size_();
 }
 
 //==========================================================================

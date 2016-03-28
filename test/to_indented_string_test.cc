@@ -199,4 +199,39 @@ BOOST_AUTO_TEST_CASE( sequence_printout )
 
 }
 
+BOOST_AUTO_TEST_CASE( nested_sequence_printout )
+{
+  using intv = std::vector<int>;
+  using intvs = std::vector<intv>;
+  intv v(4,0);
+  std::iota(v.begin(), v.end(), 1);
+  intvs nested {v};
+
+  v.push_back(5);
+  nested.push_back(v);
+  ParameterSet p;
+  p.put<intvs>("nested", nested);
+
+  ParameterSet pset;
+  pset.put<ParameterSet>("p", p);
+  BOOST_CHECK_EQUAL( to_ind_str(pset),
+                     "p: {\n"
+                     "   nested: [\n"
+                     "      [\n"
+                     "         1,\n"
+                     "         2,\n"
+                     "         3,\n"
+                     "         4\n"
+                     "      ],\n"
+                     "      [\n"
+                     "         1,\n"
+                     "         2,\n"
+                     "         3,\n"
+                     "         4,\n"
+                     "         5\n"
+                     "      ]\n"
+                     "   ]\n"
+                     "}\n");
+
+}
 BOOST_AUTO_TEST_SUITE_END()

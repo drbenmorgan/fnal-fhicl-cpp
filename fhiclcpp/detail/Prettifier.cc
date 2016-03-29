@@ -3,15 +3,21 @@
 #include "fhiclcpp/detail/Indentation.h"
 #include "fhiclcpp/detail/printing_helpers.h"
 
+#include <limits>
+
 using namespace fhicl;
 using namespace fhicl::detail;
+
+namespace {
+  constexpr auto size_t_max = std::numeric_limits<std::size_t>::max();
+}
 
 //==========================================================================
 
 Prettifier::Prettifier(unsigned const initial_indent_level)
   : buffer_()
   , indent_{initial_indent_level}
-  , sequence_sizes_{{-1u}}
+  , sequence_sizes_{{size_t_max}}
   , seq_size_{ sequence_sizes_.top() }
   , table_size_{0u}
 {}
@@ -63,9 +69,18 @@ void
 Prettifier::exit_sequence(std::string const& key,
                           boost::any const&)
 {
+  // FIXME: To support a printout like:
+  //
+  //   empty: []
+  //
+  // We need to first capture the size of the sequence (0) before we
+  // call pop_size_().  However, for non-empty sequences (I think...)
+  // pop_size_ needs to be called before we determine if an
+  // indentation should take place.  This needs to be cleaned up.
+  bool const empty_sequence = seq_size_ == 0;
   indent_.pop();
   pop_size_();
-  buffer_ << maybe_indent_(seq_size_)
+  buffer_ << (empty_sequence ? "" : maybe_indent_(seq_size_) )
           << sequence::closing_brace()
           << printed_suffix(key, seq_size_)
           << nl();

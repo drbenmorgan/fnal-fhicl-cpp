@@ -1,5 +1,6 @@
 #include "fhiclcpp/detail/printing_helpers.h"
 
+#include <limits>
 #include <regex>
 
 using namespace fhicl;
@@ -15,6 +16,8 @@ namespace {
   {
     return !src_info.empty() && src_info != UNKNOWN_SRC;
   }
+
+  constexpr auto size_t_max = std::numeric_limits<std::size_t>::max();
 
 }
 
@@ -41,7 +44,7 @@ std::string detail::printed_suffix(std::string const& key, std::size_t const sz)
 {
   std::string result;
 
-  if (sz == -1u) return result;
+  if (sz == size_t_max) return result;
 
   std::smatch m;
   if ( std::regex_match(key, m, std::regex{R"(.*\[(\d+)\])"} ) && std::stoul(m[1]) != sz-1 ) {

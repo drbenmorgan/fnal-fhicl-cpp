@@ -199,6 +199,22 @@ BOOST_AUTO_TEST_CASE( sequence_printout )
 
 }
 
+BOOST_AUTO_TEST_CASE( nested_sequence_printout_empty )
+{
+  using intv = std::vector<int>;
+  using intvs = std::vector<intv>;
+  intvs nested;
+  ParameterSet p;
+  p.put<intvs>("empty", nested);
+
+  ParameterSet pset;
+  pset.put<ParameterSet>("p", p);
+  BOOST_CHECK_EQUAL( to_ind_str(pset),
+                     "p: {\n"
+                     "   empty: []\n"
+                     "}\n");
+}
+
 BOOST_AUTO_TEST_CASE( nested_sequence_printout )
 {
   using intv = std::vector<int>;

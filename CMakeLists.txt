@@ -35,49 +35,7 @@ set(cetlib_COMPILE_FEATURES
 # these are minimum required versions, not the actual product versions
 find_package(cetlib 1.17 REQUIRED)
 find_package(Boost 1.60 REQUIRED unit_test_framework program_options)
-
-#find_package(sqlite 3.7.15 REQUIRED)
-#-----------------------------------------------------------------------
-# FindSQLite - to be refactored...
-#-----------------------------------------------------------------------
-find_path(SQLite_INCLUDE_DIRS sqlite3.h)
-find_library(SQLite_LIBRARY sqlite3)
-find_program(SQLite_EXECUTABLE sqlite3)
-
-if(EXISTS "${SQLite_EXECUTABLE}")
-  execute_process(
-    COMMAND "${SQLite_EXECUTABLE}" --version
-    OUTPUT_VARIABLE SQLite_VERSION
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-  # sqlite3 program outputs "version date time hash"
-  # so only take version part
-  string(REGEX REPLACE " .*$" "" SQLite_VERSION ${SQLite_VERSION})
-endif()
-
-#-----------------------------------------------------------------------
-# Handle standard args
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(SQLite
-  FOUND_VAR
-    SQLite_FOUND
-  REQUIRED_VARS
-    SQLite_INCLUDE_DIRS
-    SQLite_LIBRARY
-  VERSION_VAR
-    SQLite_VERSION
-    )
-
-add_library(SQLite::SQLite UNKNOWN IMPORTED)
-set_target_properties(SQLite::SQLite PROPERTIES
-  IMPORTED_LOCATION "${SQLite_LIBRARY}"
-  IMPORTED_INTERFACE_INCLUDE_DIRECTORIES "${SQLite_INCLUDE_DIRS}")
-add_executable(SQLite::SQLiteExecutable IMPORTED)
-set_target_properties(SQLite::SQLiteExecutable PROPERTIES
-  IMPORTED_LOCATION "${SQLite_EXECUTABLE}")
-#-----------------------------------------------------------------------
-# FINDSQLITE END
-#-----------------------------------------------------------------------
+find_package(SQLite 3.7.15 REQUIRED)
 
 # source code
 add_subdirectory(fhiclcpp)

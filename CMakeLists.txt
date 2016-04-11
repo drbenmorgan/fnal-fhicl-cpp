@@ -19,11 +19,7 @@ cmake_minimum_required( VERSION 2.8 )  # use cmake 2.8 or later
 project(fhiclcpp)
 
 # cetbuildtools contains our cmake modules
-set( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
-if( NOT CETBUILDTOOLS_VERSION )
-  message( FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules" )
-endif()
-set( CMAKE_MODULE_PATH $ENV{CETBUILDTOOLS_DIR}/Modules ${CMAKE_MODULE_PATH} )
+find_package(cetbuildtools REQUIRED)
 
 include(CetCMakeEnv)
 cet_cmake_env()

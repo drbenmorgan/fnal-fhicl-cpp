@@ -18,3 +18,5 @@ cet_make(
 
 install_headers(SUBDIRS types types/detail)
 install_source(SUBDIRS types types/detail)
+# Testing
+add_subdirectory(test)

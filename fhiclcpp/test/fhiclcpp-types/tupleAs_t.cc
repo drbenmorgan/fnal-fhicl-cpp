@@ -13,7 +13,7 @@
 #include "fhiclcpp/types/OptionalTupleAs.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/TupleAs.h"
-#include "test/fhiclcpp-types/FixtureBase.h"
+#include "fhiclcpp/test/fhiclcpp-types/FixtureBase.h"
 #include "cetlib/test_macros.h"
 
 #include <array>

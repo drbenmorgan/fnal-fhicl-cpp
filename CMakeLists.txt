@@ -44,7 +44,6 @@ cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
 # source code
 add_subdirectory( fhiclcpp )
 add_subdirectory( ups )
-add_subdirectory( test )
 add_subdirectory( tools )
 
 # packaging utility

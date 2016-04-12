@@ -1,6 +1,6 @@
 #include "cetlib/demangle.h"
 #include "fhiclcpp/type_traits.h"
-#include "test/type_traits_old.h"
+#include "fhiclcpp/test/type_traits_old.h"
 
 #include <cassert>
 #include <cstdint>

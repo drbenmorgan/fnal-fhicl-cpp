@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 set(fhiclcpp_SOURCES
   DatabaseSupport.cc

@@ -17,7 +17,7 @@
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Tuple.h"
 
-#include "test/fhiclcpp-types/FixtureBase.h"
+#include "fhiclcpp/test/fhiclcpp-types/FixtureBase.h"
 #include "cetlib/test_macros.h"
 
 #include <iostream>

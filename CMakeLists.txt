@@ -15,7 +15,7 @@
 #  make package (builds distribution tarfile)
 
 cmake_minimum_required(VERSION 3.3)
-project(fhiclcpp VERSION 3.18.3)
+project(fhiclcpp VERSION 3.18.4)
 
 # cetbuildtools contains our cmake modules
 # - Cetbuildtools, version2
@@ -40,10 +40,6 @@ find_package(SQLite 3.7.15 REQUIRED)
 # source code
 add_subdirectory(fhiclcpp)
 add_subdirectory(tools)
-#add_subdirectory( ups )
-if(BUILD_TESTING)
-  add_subdirectory(test)
-endif()
 
 #-----------------------------------------------------------------------
 # Documentation

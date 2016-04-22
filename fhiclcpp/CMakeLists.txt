@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 set(fhiclcpp_SOURCES
   DatabaseSupport.cc
@@ -169,4 +170,9 @@ install(
   NAMESPACE fhiclcpp::
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
   )
+
+# Testing
+if(BUILD_TESTING)
+  add_subdirectory(test)
+endif()
 

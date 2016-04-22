@@ -13,7 +13,7 @@
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Tuple.h"
-#include "test/fhiclcpp-types/KeyMap.h"
+#include "fhiclcpp/test/fhiclcpp-types/KeyMap.h"
 #include "cetlib/test_macros.h"
 
 #include <iostream>

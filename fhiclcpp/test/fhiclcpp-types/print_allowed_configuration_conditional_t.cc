@@ -1,5 +1,5 @@
 #include "fhiclcpp/types/Table.h"
-#include "test/fhiclcpp-types/CondConfig.h"
+#include "fhiclcpp/test/fhiclcpp-types/CondConfig.h"
 #include <iostream>
 
 using namespace fhicl;

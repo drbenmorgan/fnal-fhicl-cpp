@@ -342,7 +342,7 @@ split(std::string const & name) const
   std::vector<std::string> result;
   boost::algorithm::split(result
                           , name
-                          , boost::algorithm::is_any_of(".[]")
+                          , boost::algorithm::is_any_of(shims::isSnippetMode()?"[]":".[]")
                          );
   return result;
 }

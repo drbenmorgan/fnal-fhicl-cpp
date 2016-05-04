@@ -11,6 +11,7 @@
 #include "cpp0x/string"
 #include "fhiclcpp/Protection.h"
 #include "fhiclcpp/fwd.h"
+#include "stdmap_shims.h"
 
 #include <map>
 #include <vector>
@@ -32,7 +33,7 @@ public:
   typedef  std::string                            atom_t;
   typedef  std::pair<std::string, std::string>    complex_t;
   typedef  std::vector<extended_value>            sequence_t;
-  typedef  std::map<std::string, extended_value>  table_t;
+  typedef  shims::map<std::string, extended_value>  table_t;
 
   extended_value()
     : in_prolog( false )

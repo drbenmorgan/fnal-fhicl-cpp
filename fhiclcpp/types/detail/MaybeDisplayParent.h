@@ -105,7 +105,7 @@ namespace fhicl {
   }
 }
 
-#endif
+#endif /* fhiclcpp_types_detail_MaybeDisplayParent_h */
 
 // Local variables:
 // mode: c++

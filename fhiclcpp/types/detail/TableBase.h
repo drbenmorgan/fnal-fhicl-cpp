@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_detail_TableBase_h
-#define fhiclcpp_detail_TableBase_h
+#ifndef fhiclcpp_types_detail_TableBase_h
+#define fhiclcpp_types_detail_TableBase_h
 
 #include "cetlib/exempt_ptr.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
@@ -35,7 +35,8 @@ namespace fhicl {
   }
 }
 
-#endif
+#endif /* fhiclcpp_types_detail_TableBase_h */
+
 // Local variables:
 // mode: c++
 // End:

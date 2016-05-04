@@ -72,7 +72,7 @@ namespace fhicl {
 
     } } } // fhicl::detail::no_defaults
 
-#endif
+#endif /* fhiclcpp_types_detail_ostream_helpers_h */
 
 // Local variables:
 // mode : c++

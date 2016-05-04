@@ -96,7 +96,7 @@ namespace fhicl {
   }
 }
 
-#endif
+#endif /* fhiclcpp_detail_KeyAssembler_h */
 
 // Local variables:
 // mode: c++

@@ -117,7 +117,7 @@ namespace fhicl {
   }
 }
 
-#endif
+#endif /* fhiclcpp_types_detail_TableMemberRegistry_h */
 
   // Local variables:
   // mode: c++

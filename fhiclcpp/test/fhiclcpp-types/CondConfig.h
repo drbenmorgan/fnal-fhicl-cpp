@@ -62,7 +62,7 @@ namespace fhicl {
 
 }
 
-#endif
+#endif /* fhiclcpp_test_fhiclcpp_types_CondConfig_h */
 
 // Local variables:
 // mode: c++

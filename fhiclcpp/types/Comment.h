@@ -12,7 +12,7 @@ namespace fhicl {
 
 }
 
-#endif
+#endif /* fhiclcpp_types_Comment_h */
 
 // Local variables:
 // mode: c++

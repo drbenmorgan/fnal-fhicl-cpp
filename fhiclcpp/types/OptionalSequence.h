@@ -163,7 +163,7 @@ namespace fhicl {
 
 #include "fhiclcpp/types/detail/OptionalSequence.icc"
 
-#endif
+#endif /* fhiclcpp_types_OptionalSequence_h */
 
 // Local variables:
 // mode: c++

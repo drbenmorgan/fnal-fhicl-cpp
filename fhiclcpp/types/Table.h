@@ -72,7 +72,7 @@ namespace fhicl {
 
 #include "fhiclcpp/types/detail/Table.icc"
 
-#endif
+#endif /* fhiclcpp_types_Table_h */
 
 // Local variables:
 // mode: c++

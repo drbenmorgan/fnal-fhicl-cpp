@@ -27,7 +27,7 @@ namespace fhicl {
 }
 
 
-#endif
+#endif /* fhiclcpp_types_ConfigPredicate_h */
 
 // Local variables:
 // mode: c++

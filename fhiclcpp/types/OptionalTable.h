@@ -79,7 +79,7 @@ namespace fhicl {
 
 #include "fhiclcpp/types/detail/OptionalTable.icc"
 
-#endif
+#endif /* fhiclcpp_types_OptionalTable_h */
 
 // Local variables:
 // mode: c++

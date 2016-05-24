@@ -75,6 +75,14 @@ namespace fhicl {
 
   };
 
+  template <typename T, typename U>
+  inline decltype(auto) operator<<(T&& t, OptionalTable<U> const& u)
+  {
+    std::ostringstream oss;
+    u.print_allowed_configuration(oss);
+    return std::forward<T>(t) << oss.str();
+  }
+
 }
 
 #include "fhiclcpp/types/detail/OptionalTable.icc"

@@ -106,3 +106,5 @@ cet_test(return_table_values_from_fcl_t USE_BOOST_UNIT
   DATAFILES
   return_table_values_from_fcl_t.fcl
   )
+
+cet_test(table_insertionOperator_t USE_BOOST_UNIT)

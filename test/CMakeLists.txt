@@ -131,3 +131,5 @@ cet_test(fhicl-write-db-test HANDBUILT
   PASS_REGULAR_EXPRESSION "^3\n$"
   )
 
+cet_test(parse_shimmeddocument_test USE_BOOST_UNIT)
+

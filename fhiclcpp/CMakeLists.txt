@@ -10,7 +10,7 @@ cet_make(
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_REGEX_LIBRARY}
   WITH_STATIC_LIBRARY
-  SUBDIRS 
+  SUBDIRS
   detail
   types
   types/detail

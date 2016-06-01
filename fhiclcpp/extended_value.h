@@ -8,14 +8,13 @@
 // ======================================================================
 
 #include "boost/any.hpp"
-#include "cpp0x/string"
 #include "fhiclcpp/Protection.h"
 #include "fhiclcpp/fwd.h"
 #include "stdmap_shims.h"
 
 #include <map>
-#include <vector>
 #include <string>
+#include <vector>
 
 // ----------------------------------------------------------------------
 

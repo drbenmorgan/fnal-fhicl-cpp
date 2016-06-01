@@ -16,37 +16,54 @@ namespace fhicl {
     class ParameterMetadata {
     public:
 
-      ParameterMetadata()
-        : key_()
-        , comment_()
-        , hasDefault_(false)
-        , type_(par_type::NTYPES)
-      {
-      }
+      ParameterMetadata() = default;
 
       ParameterMetadata(Name const& name = Name(),
-                        Comment const& cmt = Comment(""),
-                        bool const hasDefault = false,
+                        Comment const& comment = Comment(""),
+                        value_type const valType = value_type::NTYPES,
                         par_type const parType = par_type::NTYPES)
-        : key_( NameStackRegistry::instance().full_key(name.value) )
-        , comment_(cmt.value)
-        , hasDefault_(hasDefault)
-        , type_(parType)
+        : key_{NameStackRegistry::instance().full_key(name.value)}
+        , name_{name.value}
+        , comment_{comment.value}
+        , valType_{valType}
+        , parType_{parType}
       {}
 
       std::string key()         const { return key_; }
+      std::string name()        const { return name_; }
       std::string comment()     const { return comment_;}
-      bool        has_default() const { return hasDefault_; }
-      par_type    type()        const { return type_; }
 
-      void set_key( std::string const& key ) { key_ = key; }
-      void set_default_flag( bool const flag ) { hasDefault_ = flag; }
+      bool        has_default() const {
+        return
+          valType_ == value_type::DEFAULT ||
+          valType_ == value_type::DEFAULT_CONDITIONAL;
+      }
+
+      bool        is_optional() const {
+        return
+          valType_ == value_type::OPTIONAL ||
+          valType_ == value_type::OPTIONAL_CONDITIONAL;
+      }
+      bool        is_conditional() const {
+        return
+          valType_ == value_type::REQUIRED_CONDITIONAL ||
+          valType_ == value_type::OPTIONAL_CONDITIONAL ||
+          valType_ == value_type::DEFAULT_CONDITIONAL;
+      }
+      par_type    type()        const { return parType_; }
+
+      void set_key( std::string const& key ) {
+        key_  = key;
+        name_ = key.substr( key.find_last_of(".")+1 );
+      }
+      void set_value_type( value_type const vt ) { valType_ = vt; }
 
     private:
-      std::string key_;
-      std::string comment_;
-      bool hasDefault_;
-      par_type type_;
+      std::string key_ {};
+      std::string name_ {};
+      std::string comment_ {};
+      value_type  valType_ { value_type::NTYPES };
+      par_type    parType_ { par_type::NTYPES };
 
     };
 

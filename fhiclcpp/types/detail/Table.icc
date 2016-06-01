@@ -1,43 +1,61 @@
+#include "cetlib/container_algorithms.h"
+#include "fhiclcpp/detail/printing_helpers.h"
+#include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
+#include "fhiclcpp/types/detail/ValidateThenSet.h"
+#include "fhiclcpp/types/detail/validationException.h"
+
 namespace fhicl {
 
   template <typename T>
-  Table<T>::Table(Name && name,
-                  Comment && comment )
-    : ParameterBase(std::move(name),std::move(comment),false,par_type::TABLE,this)
-    , value_()
+  Table<T>::Table(Name&& name) : Table{std::move(name), Comment("")} {}
+
+  template <typename T>
+  Table<T>::Table(Name&& name,
+                  Comment&& comment)
+    : TableBase{std::move(name), std::move(comment), value_type::REQUIRED, detail::AlwaysUse()}
+    , RegisterIfTableMember{this}
   {
-    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
-    detail::ParameterRegistrySentry();
+    maybe_implicitly_default();
+    NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
-  Table<T>::Table(Name && name) : Table( std::move(name), Comment("") ) {}
-
-  template <typename T>
-  Table<T>::Table()
-    : ParameterBase(Name::anonymous(),Comment(""),false,par_type::TABLE,this)
-    , value_()
+  Table<T>::Table(Name&& name,
+                  Comment&& comment,
+                  std::function<bool()> maybeUse)
+    : TableBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, maybeUse}
+    , RegisterIfTableMember{this}
   {
-    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
-    detail::ParameterRegistrySentry();
+    maybe_implicitly_default();
+    NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
   Table<T>::Table(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
-    : ParameterBase(Name::anonymous(),Comment(""),false,par_type::TABLE,this)
-    , value_()
+    : TableBase{Name("<top_level>"), Comment(""), value_type::REQUIRED, detail::AlwaysUse()}
+    , RegisterIfTableMember{this}
   {
-    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
-    detail::ParameterRegistrySentry();
+    maybe_implicitly_default();
     validate_ParameterSet( pset, keysToIgnore );
-    set_PSet( pset );
+    NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
   void
   Table<T>::validate_ParameterSet(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
   {
-    detail::validate_ParameterSet( this, pset, keysToIgnore );
+    pset_ = pset;
+    detail::ValidateThenSet vs{pset_, keysToIgnore};
+    cet::for_all(members(), [&vs](auto m){ vs(*m); });
+
+    try {
+      vs.check_keys();
+    }
+    catch(fhicl::detail::validationException const&) {
+      NameStackRegistry::instance().clear();
+      throw;
+    }
+
   }
 
   template <typename T>
@@ -45,7 +63,35 @@ namespace fhicl {
   Table<T>::print_allowed_configuration(std::ostream& os,
                                         std::string const& tab) const
   {
-    detail::print_allowed_configuration(key(), os, false, tab);
+    detail::PrintAllowedConfiguration pc{os, false, tab};
+    pc(*this);
+  }
+
+  template <typename T>
+  void
+  Table<T>::do_set_value(fhicl::ParameterSet const& pset, bool const /*trimParent*/)
+  {
+    // Kind of tricky: we do not have the name of the current
+    // parameter set.  A placeholder is often used (e.g. "<top_level>").
+    // Fortunately, since the pset is passed in, we can just assign to
+    // it for a top-level ParameterSet.  However, for nested parameter
+    // sets, we need to trim off the placeholder, and then the key we
+    // send pset.get<fhicl::ParameterSet>(key) is the key relative to
+    // the top-level pset.
+    std::string const& rkey = key();
+    std::string const& nkey = rkey.substr( rkey.find_first_of(".")+1 );
+    pset_ = (nkey == rkey) ? pset : pset.get<fhicl::ParameterSet>(nkey);
+  }
+
+  template <typename T>
+  void
+  Table<T>::maybe_implicitly_default()
+  {
+    bool const implicitly_default = std::all_of(members_.begin(),
+                                                members_.end(),
+                                                [](auto p){ return p->has_default(); } );
+    if ( implicitly_default )
+      set_value_type(value_type::DEFAULT);
   }
 
 }

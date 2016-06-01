@@ -1,7 +1,7 @@
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/detail/Indentation.h"
-#include "fhiclcpp/detail/PrettifierParsable.h"
+#include "fhiclcpp/detail/PrettifierPrefixAnnotated.h"
 #include "fhiclcpp/detail/printing_helpers.h"
 
 using namespace fhicl;
@@ -9,7 +9,7 @@ using namespace fhicl::detail;
 
 //===================================================================
 
-PrettifierParsable::PrettifierParsable()
+PrettifierPrefixAnnotated::PrettifierPrefixAnnotated()
   : buffer_()
   , indent_{}
   , info_()
@@ -20,7 +20,7 @@ PrettifierParsable::PrettifierParsable()
 
 //==========================================================================
 void
-PrettifierParsable::before_action(key_t const& key, any_t const&, ParameterSet const* ps)
+PrettifierPrefixAnnotated::before_action(key_t const& key, any_t const&, ParameterSet const* ps)
 {
   info_ = ps->get_src_info(key);
 }
@@ -28,11 +28,11 @@ PrettifierParsable::before_action(key_t const& key, any_t const&, ParameterSet c
 //==========================================================================
 
 void
-PrettifierParsable::enter_table(std::string const& key, boost::any const &)
+PrettifierPrefixAnnotated::enter_table(std::string const& key, boost::any const &)
 {
   buffer_ << print_full_key_(key)
           << nl()
-          << print_parsable_info( info_ )
+          << print_prefix_annotated_info( info_ )
           << nl()
           << indent_()
           << table::printed_prefix(key)
@@ -42,7 +42,7 @@ PrettifierParsable::enter_table(std::string const& key, boost::any const &)
 }
 
 void
-PrettifierParsable::exit_table(std::string const& key, boost::any const &)
+PrettifierPrefixAnnotated::exit_table(std::string const& key, boost::any const &)
 {
   name_stack_.pop_back();
   indent_.pop();
@@ -55,13 +55,13 @@ PrettifierParsable::exit_table(std::string const& key, boost::any const &)
 //==========================================================================
 
 void
-PrettifierParsable::enter_sequence(std::string const& key,
+PrettifierPrefixAnnotated::enter_sequence(std::string const& key,
                                     boost::any const& a)
 {
   push_size_(a);
   buffer_ << print_full_key_(key)
           << nl()
-          << print_parsable_info( info_ )
+          << print_prefix_annotated_info( info_ )
           << nl()
           << indent_()
           << sequence::printed_prefix(key)
@@ -70,7 +70,7 @@ PrettifierParsable::enter_sequence(std::string const& key,
 }
 
 void
-PrettifierParsable::exit_sequence(std::string const& key,
+PrettifierPrefixAnnotated::exit_sequence(std::string const& key,
                                    boost::any const&)
 {
   indent_.pop();
@@ -84,11 +84,11 @@ PrettifierParsable::exit_sequence(std::string const& key,
 //==========================================================================
 
 void
-PrettifierParsable::atom(std::string const& key, boost::any const & a)
+PrettifierPrefixAnnotated::atom(std::string const& key, boost::any const & a)
 {
   buffer_ << print_full_key_(key)
           << nl()
-          << print_parsable_info( info_ )
+          << print_prefix_annotated_info( info_ )
           << nl()
           << indent_()
           << atom::printed_prefix(key)
@@ -100,21 +100,21 @@ PrettifierParsable::atom(std::string const& key, boost::any const & a)
 //=========================================================================
 
 void
-PrettifierParsable::push_size_(boost::any const& a)
+PrettifierPrefixAnnotated::push_size_(boost::any const& a)
 {
   sequence_sizes_.emplace( boost::any_cast<ps_sequence_t>(a).size() );
   curr_size_ = sequence_sizes_.top();
 }
 
 void
-PrettifierParsable::pop_size_()
+PrettifierPrefixAnnotated::pop_size_()
 {
   sequence_sizes_.pop();
   curr_size_ = sequence_sizes_.top();
 }
 
 std::string
-PrettifierParsable::print_full_key_(name_t const& name) const
+PrettifierPrefixAnnotated::print_full_key_(name_t const& name) const
 {
   std::ostringstream os;
   os << "#KEY|";

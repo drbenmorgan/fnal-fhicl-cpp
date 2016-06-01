@@ -17,11 +17,11 @@
 namespace fhicl {
   namespace detail {
 
-    inline std::string nl() { return "\n"; }
+    inline std::string nl(std::size_t i = 1) { return std::string(i,'\n'); }
 
     std::string printed_suffix(std::string const& key, std::size_t const sz);
 
-    std::string print_parsable_info(std::string const& curr_info);
+    std::string print_prefix_annotated_info(std::string const& curr_info);
 
     std::string print_annotated_info(std::string const& curr_info,
                                      std::string const& cached_info);
@@ -41,6 +41,20 @@ namespace fhicl {
     namespace atom {
       std::string printed_prefix(std::string const& key);
       std::string value(boost::any const&);
+    }
+
+    inline bool is_sequence_element(std::string const& key)
+    {
+      auto pos = key.find_last_of( sequence::closing_brace() );
+      return pos != std::string::npos && pos == key.size()-1;
+    }
+
+    inline bool is_table_member(std::string const& key)
+    {
+      auto pos1 = key.find_last_of(".") ;
+      if ( pos1 == std::string::npos ) return false;
+
+      return is_sequence_element(key) ? false : true;
     }
 
   }

@@ -1,104 +1,119 @@
-#ifndef fhiclcpp_Sequence_h
-#define fhiclcpp_Sequence_h
+#ifndef fhiclcpp_types_Sequence_h
+#define fhiclcpp_types_Sequence_h
 
+#include "cetlib/container_algorithms.h"
+#include "fhiclcpp/type_traits.h"
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
-#include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
-#include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
-#include "fhiclcpp/types/detail/ParameterRegistrySentry.h"
+#include "fhiclcpp/types/detail/ParameterWalker.h"
+#include "fhiclcpp/types/detail/SequenceBase.h"
 #include "fhiclcpp/types/detail/ostream_helpers.h"
 #include "fhiclcpp/types/detail/SeqVectorBase.h"
-#include "fhiclcpp/types/detail/set_element_keys.h"
-#include "fhiclcpp/type_traits.h"
 
+#include <algorithm>
 #include <array>
+#include <initializer_list>
+#include <memory>
 #include <string>
 #include <type_traits>
 
 namespace fhicl {
+
+  namespace sequence_detail {
+
+    // Auxiliary struct for accepting either
+    //
+    //  (1)                  {1, 3, 5}   or
+    //  (2) std::array<int,3>{2, 4, 6}
+    //
+    // default values for Sequence<T,N>
+
+    template <typename T>
+    class ValueHolder {
+    public:
+
+      ValueHolder(std::initializer_list<T> list)
+        : holder_{list}
+      {}
+
+      template <std::size_t N>
+      ValueHolder(std::array<T,N> const& array)
+        : holder_(array.cbegin(), array.cend())
+      {}
+
+      auto  begin() const { return holder_.cbegin(); }
+      auto  end()   const { return holder_.cend(); }
+      auto cbegin() const { return holder_.cbegin(); }
+      auto cend()   const { return holder_.cend(); }
+
+    private:
+      std::vector<T> holder_;
+    };
+
+  }
 
   class ParameterSet;
 
   //==================================================================
   // e.g. Sequence<int,4> ====> std::array<int,4>
   //
-  template<typename T, std::size_t SIZE = -1>
-  class Sequence final : public detail::ParameterBase {
+  template<typename T, std::size_t N = -1>
+  class Sequence final :
+    public  detail::SequenceBase,
+    private detail::RegisterIfTableMember {
   public:
 
-    using ftype = std::array< tt::fhicl_type <T>, SIZE >;
-    using rtype = std::array< tt::return_type<T>, SIZE >;
+    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS );
+    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES );
 
-    explicit Sequence(Name && name, Comment && cmt );
-    explicit Sequence(Name && name, Comment && cmt, Sequence<T,SIZE> const& dflt );
+    using dtype = sequence_detail::ValueHolder<typename tt::fhicl_type<T>::dtype>;
+    using ftype = std::array<std::shared_ptr<tt::fhicl_type<T>>, N>;
+    using rtype = std::array<tt::return_type<T>, N>;
 
-    explicit Sequence(Name && name) : Sequence( std::move(name), Comment("") ) {}
-    explicit Sequence(Name && name, Sequence<T,SIZE> const & dflt ) : Sequence( std::move(name), Comment(""), dflt ){}
-    explicit Sequence(Name && name, Sequence<T,SIZE> const & dflt, Comment && cmt ) : Sequence( std::move(name), std::move(cmt), dflt ){}
+    explicit Sequence(Name&& name);
+    explicit Sequence(Name&& name, Comment&& comment);
+    explicit Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
-    /* Default value support
-
-       Two properties regarding the following constructor are
-       motivated due to nested default value support (e.g.):
-
-       Sequence< Sequence< int, 2>, 2> { { 1, 2}, { 3, 4} };
-
-       1. The constructor cannot be 'explicit' since the inner-nested
-       initializer lists need to be implicitly converted to type
-       std::initializer_list.
-
-       2. The template argument must be 'T' and cannot be
-       'tt::return_type<T>'; otherwise the return type for
-       Sequence<int> is an std::array<int,2> and an additional
-       'Sequence(std::array<T,SIZE> const & vec)' constructor is
-       necessary.
-    */
-    Sequence(std::initializer_list<T> const & args);
-
-    Sequence();
+    // c'tors that support defaults
+    explicit Sequence(Name&& name, dtype const& defaults);
+    explicit Sequence(Name&& name, Comment&& comment, dtype const& defaults);
+    explicit Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults);
 
     auto operator()() const {
 
       rtype result = { tt::return_type<T>() };
-      std::size_t i{};
-
-      for ( auto const& elem : value_ ) {
-        result.at(i++) = elem();
-      }
-
-      // FIXME: If the rtype contains a Table<>, then additional keys
-      // will be added to the registry whenever 'rtype result;' above
-      // is called.  In principle, these should be removed whenever
-      // the destructors are called.  But that may not be until the
-      // end of some scope in which another registering call is made.
-      detail::ParameterReferenceRegistry::instance().clear();
-
+      std::transform(value_.cbegin(), value_.cend(),
+                     result.begin(),
+                     [](auto const& elem){
+                       return (*elem)();
+                     } );
       return result;
     }
 
     auto operator()(std::size_t i) const {
-      auto val = value_.at(i)();
-      detail::ParameterReferenceRegistry::instance().clear();
-      return val; }
-
-    auto & get_ftype() { return value_; }
-    auto const & get_ftype() const { return value_; }
+      return (*value_.at(i))();
+    }
 
   private:
 
     ftype value_;
 
-    void finalize_elements()
-    {
-      std::size_t i{};
-      for ( auto & elem : value_ ) {
-        set_element_keys( elem.get_ftype(), elem, key(), i++ );
-      }
+    std::size_t get_size() const override { return value_.size(); }
 
+    void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_non_const>& pw) override
+    {
+      cet::for_all(value_, [&pw](auto& e){ pw(*e); } );
     }
+
+    void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_const>& pw) const override
+    {
+      cet::for_all(value_, [&pw](auto const& e){ pw(*e); } );
+    }
+
+    void do_set_value(fhicl::ParameterSet const&, bool /*trimParents*/) override {}
 
   };
 
@@ -106,88 +121,87 @@ namespace fhicl {
   // e.g. Sequence<int> ====> std::vector<int>
   //
   template<typename T>
-  class Sequence<T,-1> final : public detail::SeqVectorBase {
+  class Sequence<T,-1> final :
+    public  detail::SeqVectorBase,
+    private detail::RegisterIfTableMember {
   public:
 
-    using ftype = std::vector< tt::fhicl_type <T> >;
+    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS );
+    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES );
+
+    using dtype = std::vector< typename tt::fhicl_type<T>::dtype >;
+    using ftype = std::vector< std::shared_ptr<tt::fhicl_type<T>> >;
     using rtype = std::vector< tt::return_type<T> >;
 
-    explicit Sequence(Name && name, Comment && cmt );
-    explicit Sequence(Name && name, Comment && cmt, Sequence<T,-1>  const & dflt );
+    explicit Sequence(Name&& name);
+    explicit Sequence(Name&& name, Comment&& comment);
+    explicit Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
-    explicit Sequence(Name && name) : Sequence( std::move(name), Comment("") ) {}
-    explicit Sequence(Name && name, Sequence<T,-1> const & dflt) : Sequence( std::move(name), Comment(""), dflt ){}
-    explicit Sequence(Name && name, Sequence<T,-1> const & dflt, Comment && cmt ) : Sequence( std::move(name), std::move(cmt), dflt ){}
-
-    /* Default value support
-
-       Two properties regarding the following constructor are
-       motivated due to nested default value support (e.g.):
-
-       Sequence< Sequence< int > > { { 1, 2}, { 3, 4} };
-
-       1. The constructor cannot be 'explicit' since the inner-nested
-       initializer lists need to be implicitly converted to type
-       std::initializer_list.
-
-       2. The template argument must be 'T' and cannot be
-       'tt::return_type<T>'; otherwise the return type for
-       Sequence<int> is an std::vector<int> and an additional
-       'Sequence(std::vector<T> const & vec)' constructor is
-       necessary.
-    */
-    Sequence(std::initializer_list<T> const & args);
-
-    Sequence();
-
-    static Sequence<T> make_empty() {
-      Sequence<T> result;
-      result.resize_sequence(0ul);
-      return result;
-    }
+    // c'tors supporting default values
+    explicit Sequence(Name&& name, dtype const& defaults);
+    explicit Sequence(Name&& name, Comment&& comment, dtype const& defaults);
+    explicit Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults);
 
     auto operator()() const {
       rtype result;
-      for ( auto const& elem : value_ )
-        result.push_back( elem() );
-
-      // FIXME: If the rtype contains a Table<>, then additional keys
-      // will be added to the registry whenever 'push_back' is called.
-      // In principle, these should be removed whenever the
-      // destructors are called.  But that may not be until the end of
-      // some scope in which another registering call is made.
-      detail::ParameterReferenceRegistry::instance().clear();
-
+      std::transform(value_.cbegin(), value_.cend(),
+                     std::back_inserter(result),
+                     [](auto const& e){
+                       return (*e)();
+                     } );
       return result;
     }
-    auto operator()(std::size_t i) const {
-      auto val = value_.at(i)();
-      detail::ParameterReferenceRegistry::instance().clear();
-      return val;
-    }
 
-    auto & get_ftype() { return value_; }
-    auto const & get_ftype() const { return value_; }
+    auto operator()(std::size_t i) const {
+      return (*value_.at(i))();
+    }
 
   private:
-    ftype value_;
 
-    void finalize_elements()
-    {
-      std::size_t i{};
-      for ( auto & elem : value_ )
-        set_element_keys( elem.get_ftype(), elem, key(), i++ );
-    }
+    ftype value_;
 
     // To be used only for reassigning keys when ParameterSet
     // validation is being performed.
-    void do_resize_sequence(std::size_t i) override
+    void do_resize_sequence(std::size_t n) override
     {
-      value_.clear();
-      value_.resize(i);
+      if ( n < value_.size() ) {
+        value_.resize(n);
+      }
+      else if ( n > value_.size() ) {
 
-      finalize_elements();
+        std::string key_fragment {key()};
+        // When emplacing a new element, do not include in the key
+        // argument the current name-stack stem--it will
+        // automatically be prepended.
+        auto const& nsr = NameStackRegistry::instance();
+        if ( !nsr.empty() ) {
+          std::string const& current_stem = nsr.current();
+          std::size_t const pos =
+            key_fragment.find(current_stem) != std::string::npos ?
+            current_stem.size()+1ul : // + 1ul to account for the '.'
+            0ul;
+          key_fragment.replace(0ul, pos, "");
+        }
+
+        for ( auto i = value_.size(); i != n; ++i ) {
+          value_.emplace_back(new tt::fhicl_type<T>{ Name::sequence_element(key_fragment, i) });
+        }
+      }
     }
+
+    std::size_t get_size() const override { return value_.size(); }
+
+    void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_non_const>& pw) override
+    {
+      cet::for_all(value_, [&pw](auto& e){ pw(*e); } );
+    }
+
+    void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_const>& pw) const override
+    {
+      cet::for_all(value_, [&pw](auto const& e){ pw(*e); } );
+    }
+
+    void do_set_value(fhicl::ParameterSet const&, bool /*trimParents*/) override {}
 
   };
 

@@ -7,14 +7,13 @@
 //
 // ======================================================================
 
-#include "boost/algorithm/string.hpp"
 #include "boost/any.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/numeric/conversion/cast.hpp"
 #include "cetlib/demangle.h"
-#include "cetlib/split_by_regex.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/coding.h"
+#include "fhiclcpp/detail/ParameterSetImplHelpers.h"
 #include "fhiclcpp/detail/ParameterSetWalker.h"
 #include "fhiclcpp/detail/deprecation_msgs.h"
 #include "fhiclcpp/detail/encode_extended_value.h"
@@ -25,7 +24,6 @@
 #include "fhiclcpp/fwd.h"
 
 #include <cctype>
-#include <regex>
 #include <map>
 #include <sstream>
 #include <string>
@@ -63,28 +61,26 @@ public:
   [[deprecated(GET_PSET_KEYS_MSG)]] std::vector<std::string> get_pset_keys() const { return get_pset_names(); }
 
   std::vector<std::string> get_all_keys() const;
-  // Key must be local to this parameter set: no nesting.
+
+  // retrievers (nested key OK):
   bool has_key(std::string const & key) const;
   bool is_key_to_table(std::string const & key) const;
   bool is_key_to_sequence(std::string const & key) const;
   bool is_key_to_atom(std::string const & key) const;
 
-  // retrievers (nested key OK):
   template< class T >
   bool get_if_present(std::string const & key, T & value) const;
   template< class T, class Via >
-  bool get_if_present(std::string const & key, T & value
-                      , T convert(Via const &)) const;
+  bool get_if_present(std::string const & key, T & value, T convert(Via const &)) const;
+
   template< class T >
   T get(std::string const & key) const;
   template< class T, class Via >
-  T get(std::string const & key
-        , T convert(Via const &)) const;
+  T get(std::string const & key, T convert(Via const &)) const;
   template< class T >
   T get(std::string const & key, T const & default_value) const;
   template< class T, class Via >
-  T get(std::string const & key, T const & default_value
-        , T convert(Via const &)) const;
+  T get(std::string const & key, T const & default_value, T convert(Via const &)) const;
 
   std::string get_src_info(std::string const& key) const;
 
@@ -123,26 +119,17 @@ private:
   std::string stringify_(boost::any const & a,
                          bool compact = false) const;
 
-  void assemble_(boost::any const & a,
-                 std::string const& key,
-                 std::vector<std::string> & keys ) const;
-
- void assemble_table_(boost::any const & a,
-                      std::string const& key,
-                      std::vector<std::string> & keys ) const;
-
-  void assemble_sequence_(boost::any const & a,
-                          std::string const& key,
-                          std::vector<std::string> & keys ) const;
+  bool key_is_type_(std::string const & key,
+                    std::function<bool (boost::any const &)> func) const;
 
   // Local retrieval only.
   template< class T >
   bool get_one_(std::string const & key, T & value) const;
 
-  bool
-  key_is_type_(std::string const & key,
-               std::function<bool (boost::any const &)> func) const;
-  void walk_( detail::ParameterSetWalker& psw) const;
+  bool find_one_(std::string const & key) const;
+
+  bool descend_(std::vector<std::string> const& names, ParameterSet& ps) const;
+  void walk_(detail::ParameterSetWalker& psw) const;
 
 }; // ParameterSet
 
@@ -162,17 +149,6 @@ fhicl::ParameterSet::
 to_compact_string() const
 {
   return to_string_(true);
-}
-
-inline
-bool
-fhicl::ParameterSet::
-has_key(std::string const & key) const
-{
-  if (key.find('.') != std::string::npos) {
-    throw fhicl::exception(unimplemented, "has_key() for nested key.");
-  }
-  return mapping_.find(key) != mapping_.end();
 }
 
 inline
@@ -250,49 +226,22 @@ fhicl::ParameterSet::put_or_replace_compatible(std::string const & key,
 
 template< class T >
 bool
-fhicl::ParameterSet::get_if_present(std::string const & key
-                                    , T & value
-                                   ) const
+fhicl::ParameterSet::get_if_present(std::string const & key,
+                                    T & value) const
 {
-  typedef std::vector<std::string> Keys;
-  Keys keys;
-  boost::algorithm::split(keys,
-                          key,
-                          boost::algorithm::is_any_of(".")
-                          );
-
-  Keys::iterator b = keys.begin()
-                     , e = keys.end()
-                           , r = b;
-  for (; b != e; ++b)
-    if (! b->empty())
-    { *r++ = *b; }
-  keys.erase(r, e);
-  if (keys.empty())
-  { throw fhicl::exception(cant_find, "vacuous key"); }
-  ParameterSet const * p = this;
-  ParameterSet pset;
-  for (b = keys.begin(), e = keys.end() - 1; b != e; ++b) {
-    std::string const & this_key = *b;
-
-    if (! p->get_one_(this_key, pset)){
-      return false;
-    }
-
-    p = & pset;
-  }
-  return p->get_one_(keys.back(), value);
-} // get_if_present<>()
+  auto keys = detail::get_names(key);
+  ParameterSet ps;
+  return descend_(keys.tables(), ps) ? ps.get_one_(keys.last(), value) : false;
+}
 
 template< class T, class Via >
 bool
-fhicl::ParameterSet::get_if_present(std::string const & key
-                                    , T & result
-                                    , T convert(Via const &)
-                                   ) const
+fhicl::ParameterSet::get_if_present(std::string const & key,
+                                    T & result,
+                                    T convert(Via const &)) const
 {
   Via go_between;
-  if (! get_if_present(key, go_between))
+  if (!get_if_present(key, go_between))
   { return false; }
   result = convert(go_between);
   return true;
@@ -309,9 +258,8 @@ fhicl::ParameterSet::get(std::string const & key) const
 
 template< class T, class Via >
 T
-fhicl::ParameterSet::get(std::string const & key
-                         , T convert(Via const &)
-                        ) const
+fhicl::ParameterSet::get(std::string const & key,
+                         T convert(Via const &) )const
 {
   T result;
   return get_if_present(key, result, convert)
@@ -321,9 +269,8 @@ fhicl::ParameterSet::get(std::string const & key
 
 template< class T >
 T
-fhicl::ParameterSet::get(std::string const & key
-                         , T const & default_value
-                        ) const
+fhicl::ParameterSet::get(std::string const & key,
+                         T const & default_value) const
 {
   T result;
   return get_if_present(key, result) ? result
@@ -332,10 +279,9 @@ fhicl::ParameterSet::get(std::string const & key
 
 template< class T, class Via >
 T
-fhicl::ParameterSet::get(std::string const & key
-                         , T const & default_value
-                         , T convert(Via const &)
-                        ) const
+fhicl::ParameterSet::get(std::string const & key,
+                         T const & default_value,
+                         T convert(Via const &) ) const
 {
   T result;
   return get_if_present(key, result, convert)
@@ -359,60 +305,26 @@ fhicl::ParameterSet::operator != (ParameterSet const & other) const
 
 // ----------------------------------------------------------------------
 
-namespace fhicl {
-  namespace detail {
-
-    using cit_size_t = std::vector<std::size_t>::const_iterator;
-
-    template< class T >
-    void
-    get_parameter(cit_size_t const cend,
-                  cit_size_t const subscript_it,
-                  boost::any const a,
-                  T & value)
-    {
-      if ( subscript_it == cend ){
-        decode(a,value);
-        return;
-      }
-
-      auto const seq = boost::any_cast<ps_sequence_t>(a);
-      get_parameter( cend, std::next(subscript_it), seq[*subscript_it], value );
-
-    }
-  }
-}
-
 template< class T >
 bool
 fhicl::ParameterSet::get_one_(std::string const & key,
                               T & value) const
 try
 {
-  using detail::decode;
+  auto skey = detail::get_sequence_indices(key);
 
-  // Replace (e.g.) "name[2]" with "name,2", then split by ','
-  static std::regex const r("\\[(\\d+)\\]");
-  auto tokens = cet::split_by_regex( std::regex_replace(key, r, ",$1" ), ",");
-
-  std::string const name = tokens.front();
-
-  map_iter_t it = mapping_.find(name);
+  map_iter_t it = mapping_.find(skey.name());
   if (it == mapping_.end()) {
     return false;
   }
 
-  std::vector<std::size_t> seq_indices;
-  std::for_each( tokens.cbegin()+1, tokens.cend(),
-                 [&seq_indices](std::string const& str_ind)
-                 { seq_indices.push_back( std::stoul(str_ind) ); }
-                 );
+  auto a = it->second;
+  if ( !detail::find_an_any(skey.indices().cbegin(), skey.indices().cend(), a) ) {
+    throw fhicl::exception(error::cant_find);
+  }
 
-  detail::get_parameter( seq_indices.cend(),
-                         seq_indices.cbegin(),
-                         it->second,
-                         value );
-
+  using detail::decode;
+  decode(a, value);
   return true;
 }
 catch (fhicl::exception const & e)

@@ -16,12 +16,6 @@ namespace {
     return !src_info.empty() && src_info != UNKNOWN_SRC;
   }
 
-  inline bool is_sequence_element(std::string const& key)
-  {
-    auto pos = key.find_last_of( sequence::closing_brace() );
-    return pos != std::string::npos && pos == key.size()-1;
-  }
-
 }
 
 //==================================================================
@@ -35,7 +29,7 @@ std::string detail::print_annotated_info(std::string const& curr_info,
   return tag+printed_info;
 }
 
-std::string detail::print_parsable_info(std::string const& info)
+std::string detail::print_prefix_annotated_info(std::string const& info)
 {
   std::string const printed_info = allowed_info(info) ? info : "";
   return "#SRC|"+printed_info+"|";
@@ -50,8 +44,7 @@ std::string detail::printed_suffix(std::string const& key, std::size_t const sz)
   if (sz == -1u) return result;
 
   std::smatch m;
-  if ( std::regex_match(key, m, std::regex{R"(.*\[(\d)\])"} ) &&
-       std::stoul(m[1]) != sz-1 ) {
+  if ( std::regex_match(key, m, std::regex{R"(.*\[(\d+)\])"} ) && std::stoul(m[1]) != sz-1 ) {
     result = ",";
   }
   return result;

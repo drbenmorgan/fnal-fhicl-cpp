@@ -1,52 +1,22 @@
 // ======================================================================
 //
-// test static_types keymap for tables
-
-/* The purpose of this test is to verify that types 14-21 below create
-   the correct key maps for ParameterSet validation.
-
-   In what follows, ’T’ represents a type supported by an Atom<>
-   and ’S’ represents an explicitly constructed struct that may
-   contain Atom<>, Sequence<>, Tuple<>, or Table<> objects.
-
-   [ 1] Atom<T>;
-   [ 2] Sequence<T>
-   [ 3] Sequence<T,SZ>
-   [ 4] Tuple<T...>
-   [ 5] Tuple< Sequence<T>, U...>
-   [ 6] Tuple< Sequence<T,SZ>, U...>
-   [ 7] Tuple< Tuple<T...>,U...>
-   [ 8] Sequence< Tuple<T...> >
-   [ 9] Sequence< Tuple<T...>, SZ >
-   [10] Sequence< Sequence<T> >
-   [11] Sequence< Sequence<T,SZ> >
-   [12] Sequence< Sequence<T>, SZ >
-   [13] Sequence< Sequence<T,SZ>, SZ >
-
-   14-21 cannot support default arguments (since Table<> cannot have a default)
-
-   [14] Table<S>
-   [15] Sequence< Table<S> >
-   [16] Sequence< Table<S>, SZ >
-   [17] Tuple< Table<S>, U... >
-   [18] Tuple< Sequence< Table<S> >, U... >
-   [19] Tuple< Sequence< Table<S>, SZ>, U... >
-   [20] Sequence< Tuple< Table<S>, U... > >
-   [21] Sequence< Tuple< Table<S>, U... >, SZ>
-
- */
-
+// test types keymap for tables:
+//
+//   The purpose of this test is to verify that types 14-21 below create
+//   the correct key maps for ParameterSet validation.
+//
 // ======================================================================
 
 #define BOOST_TEST_MODULE ( keymap test with tables )
 
 #include "boost/test/auto_unit_test.hpp"
-#include "boost/test/test_tools.hpp"
-
 #include "fhiclcpp/types/Atom.h"
-#include "fhiclcpp/types/detail/ParameterReferenceRegistry.h"
 #include "fhiclcpp/types/Sequence.h"
+#include "fhiclcpp/types/Table.h"
+#include "fhiclcpp/types/TableFragment.h"
 #include "fhiclcpp/types/Tuple.h"
+#include "test/fhiclcpp-types/KeyMap.h"
+#include "test/TestMacros.h"
 
 #include <iostream>
 #include <string>
@@ -58,14 +28,6 @@ using namespace std;
 
 namespace {
 
-  std::vector<std::string>
-  key_map(ParameterBase const * pb)
-  {
-    auto keys = ParameterReferenceRegistry::get_parameter_keys(pb);
-    ParameterReferenceRegistry::instance().clear();
-    return keys;
-  }
-
   struct S {
     Atom<int> test { Name("atom") };
     Sequence<int,2> seq { Name("sequence") };
@@ -74,13 +36,12 @@ namespace {
 
 }
 
-BOOST_AUTO_TEST_SUITE( static_types_keymap_test )
+BOOST_AUTO_TEST_SUITE( types_keymap_test )
 
 // [14] Table<S>
 BOOST_AUTO_TEST_CASE( table_t )
 {
-  Table<S> test { Name("table") };
-  auto map = key_map(&test);
+  auto map = KeyMap::get<Table<S>>("table");
   auto ref = {"table",
               "table.atom",
               "table.sequence",
@@ -90,15 +51,14 @@ BOOST_AUTO_TEST_CASE( table_t )
               "table.tuple[0]",
               "table.tuple[1]",
               "table.tuple[2]"};
-  BOOST_CHECK_EQUAL_COLLECTIONS( map.begin(), map.end(),
-                                 ref.begin(), ref.end());
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [15] Sequence< Table<S> >
 BOOST_AUTO_TEST_CASE( table_in_seq_t )
 {
-  Sequence< Table<S> > test { Name("seqtable") };
-  auto map = key_map(&test);
+  auto map = KeyMap::get< Sequence< Table<S> >>("seqtable");
+
   auto ref = {"seqtable",
               "seqtable[0]",
               "seqtable[0].atom",
@@ -109,15 +69,13 @@ BOOST_AUTO_TEST_CASE( table_in_seq_t )
               "seqtable[0].tuple[0]",
               "seqtable[0].tuple[1]",
               "seqtable[0].tuple[2]"};
-  BOOST_CHECK_EQUAL_COLLECTIONS( map.begin(), map.end(),
-                                 ref.begin(), ref.end());
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [16] Sequence< Table<S>,2 >
 BOOST_AUTO_TEST_CASE( table_in_seq_2_t )
 {
-  Sequence< Table<S>, 2 > test { Name("seqtable") };
-  auto map = key_map(&test);
+  auto map = KeyMap::get<Sequence< Table<S>, 2 >>("seqtable");
   auto ref = {"seqtable",
               "seqtable[0]",
               "seqtable[0].atom",
@@ -137,15 +95,13 @@ BOOST_AUTO_TEST_CASE( table_in_seq_2_t )
               "seqtable[1].tuple[0]",
               "seqtable[1].tuple[1]",
               "seqtable[1].tuple[2]"};
-  BOOST_CHECK_EQUAL_COLLECTIONS( map.begin(), map.end(),
-                                 ref.begin(), ref.end());
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [17] Tuple< Table<S>, U... >
 BOOST_AUTO_TEST_CASE( table_in_tuple_t )
 {
-  Tuple< Table<S>, int, double > test { Name("tuptable") };
-  auto map = key_map(&test);
+  auto map = KeyMap::get<Tuple< Table<S>, int, double >>("tuptable");
   auto ref = {"tuptable",
               "tuptable[0]",
               "tuptable[0].atom",
@@ -158,15 +114,13 @@ BOOST_AUTO_TEST_CASE( table_in_tuple_t )
               "tuptable[0].tuple[2]",
               "tuptable[1]",
               "tuptable[2]"};
-  BOOST_CHECK_EQUAL_COLLECTIONS( map.begin(), map.end(),
-                                 ref.begin(), ref.end());
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [18] Tuple< Sequence< Table<S> >, U... >
 BOOST_AUTO_TEST_CASE( seqtable_in_tuple_t )
 {
-  Tuple< Sequence< Table<S> >, int, double > test { Name("seqtuptable") };
-  auto map = key_map(&test);
+  auto map = KeyMap::get<Tuple< Sequence< Table<S> >, int, double >>("seqtuptable");
   auto ref = {"seqtuptable",
               "seqtuptable[0]",
               "seqtuptable[0][0]",
@@ -180,15 +134,13 @@ BOOST_AUTO_TEST_CASE( seqtable_in_tuple_t )
               "seqtuptable[0][0].tuple[2]",
               "seqtuptable[1]",
               "seqtuptable[2]"};
-  BOOST_CHECK_EQUAL_COLLECTIONS( map.begin(), map.end(),
-                                 ref.begin(), ref.end());
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [19] Tuple< Sequence< Table<S>, SZ >, U... >
 BOOST_AUTO_TEST_CASE( seqtable_2_in_tuple_t )
 {
-  Tuple< Sequence< Table<S>, 2 >, int, double > test { Name("seqtuptable") };
-  auto map = key_map(&test);
+  auto map = KeyMap::get<Tuple< Sequence< Table<S>, 2 >, int, double >>("seqtuptable");
   auto ref = {"seqtuptable",
               "seqtuptable[0]",
               "seqtuptable[0][0]",
@@ -211,15 +163,13 @@ BOOST_AUTO_TEST_CASE( seqtable_2_in_tuple_t )
               "seqtuptable[0][1].tuple[2]",
               "seqtuptable[1]",
               "seqtuptable[2]"};
-  BOOST_CHECK_EQUAL_COLLECTIONS( map.begin(), map.end(),
-                                 ref.begin(), ref.end());
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [20] Sequence< Tuple< Table<S>, U... > >
 BOOST_AUTO_TEST_CASE( tuptable_in_seq_t )
 {
-  Sequence< Tuple< Table<S>, int, double > > test { Name("tupseqtable") };
-  auto map = key_map(&test);
+  auto map = KeyMap::get<Sequence< Tuple< Table<S>, int, double > >>("tupseqtable");
   auto ref = {"tupseqtable",
               "tupseqtable[0]",
               "tupseqtable[0][0]",
@@ -233,15 +183,13 @@ BOOST_AUTO_TEST_CASE( tuptable_in_seq_t )
               "tupseqtable[0][0].tuple[2]",
               "tupseqtable[0][1]",
               "tupseqtable[0][2]"};
-  BOOST_CHECK_EQUAL_COLLECTIONS( map.begin(), map.end(),
-                                 ref.begin(), ref.end());
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
 }
 
 // [21] Sequence< Tuple< Table<S>, U... >, SZ >
 BOOST_AUTO_TEST_CASE( tuptable_in_seq_2_t )
 {
-  Sequence< Tuple< Table<S>, int, double >, 2 > test { Name("tupseqtable") };
-  auto map = key_map(&test);
+  auto map = KeyMap::get<Sequence< Tuple< Table<S>, int, double >, 2 >>("tupseqtable");
   auto ref = {"tupseqtable",
               "tupseqtable[0]",
               "tupseqtable[0][0]",
@@ -267,8 +215,30 @@ BOOST_AUTO_TEST_CASE( tuptable_in_seq_2_t )
               "tupseqtable[1][0].tuple[2]",
               "tupseqtable[1][1]",
               "tupseqtable[1][2]" };
-  BOOST_CHECK_EQUAL_COLLECTIONS( map.begin(), map.end(),
-                                 ref.begin(), ref.end());
+  FHICLCPP_CHECK_EQUAL_COLLECTIONS(map, ref);
+}
+
+// [21] Sequence< Tuple< Table<S>, U... >, SZ >
+BOOST_AUTO_TEST_CASE( tablefragment_t )
+{
+  TableFragment<S> tf;
+  BOOST_CHECK_EQUAL( tf().test.key() , "atom");
+
+  {
+    KeyMap km;
+    km(tf().seq);
+    auto mapseq = km.result();
+    auto refseq = {"sequence", "sequence[0]", "sequence[1]"};
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(mapseq, refseq);
+  }
+
+  {
+    KeyMap km;
+    km(tf().tuple);
+    auto maptup = km.result();
+    auto reftup = {"tuple", "tuple[0]", "tuple[1]", "tuple[2]"};
+    FHICLCPP_CHECK_EQUAL_COLLECTIONS(maptup, reftup);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

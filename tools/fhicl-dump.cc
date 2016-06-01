@@ -5,7 +5,7 @@
 // ======================================================================
 
 #include "boost/program_options.hpp"
-
+#include "cetlib/demangle.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/detail/print_mode.h"
 #include "fhiclcpp/intermediate_table.h"
@@ -32,6 +32,7 @@ namespace {
 
   struct Options {
     print_mode mode{print_mode::raw};
+    bool       quiet{false};
     string     output_filename;
     string     input_filename;
     int        lookup_policy{};
@@ -58,17 +59,34 @@ int main(int argc, char* argv[])
     opts = process_arguments( argc, argv );
   }
   catch(cet::exception const& e) {
-    if ( e.category() == help       ) return 0;
-    if ( e.category() == processing ) { std::cerr << e.what() << '\n'; return 1; }
-    if ( e.category() == config     ) { std::cerr << e.what() << '\n'; return 2; }
+    if ( e.category() == help       ) return 1;
+    if ( e.category() == processing ) { std::cerr << e.what() << '\n'; return 2; }
+    if ( e.category() == config     ) { std::cerr << e.what() << '\n'; return 3; }
   }
 
   auto const policy = get_policy(opts.lookup_policy, opts.lookup_path);
-  auto const pset   = form_pset(opts.input_filename, *policy);
+
+  ParameterSet pset;
+  try {
+    pset = form_pset(opts.input_filename, *policy);
+  }
+  catch(cet::exception const& e) {
+    std::cerr << e.what() << '\n'; return 4;
+  }
+  catch(...) {
+    std::cerr << "Unknown exception\n"; return 5;
+  }
+
+  if (opts.quiet) return 0;
 
   std::ofstream ofs { opts.output_filename };
   std::ostream &os = opts.output_filename.empty() ? std::cout : ofs;
-  os << pset.to_indented_string(0, opts.mode);
+
+  os << "# Produced from '"<< argv[0] << "' using:\n"
+     << "#   Input  : " << opts.input_filename << '\n'
+     << "#   Policy : " << cet::demangle_symbol(typeid(*policy).name()) << '\n'
+     << "#   Path   : \"" << opts.lookup_path << "\"\n\n"
+     << pset.to_indented_string(0, opts.mode);
 
 }
 
@@ -82,16 +100,17 @@ namespace {
 
     Options opts;
 
-    bool annotate{false};
-    bool parsable{false};
+    bool annotated{false};
+    bool prefix_annotated{false};
 
     bpo::options_description desc("fhicl-dump [-c] <file>\nOptions");
     desc.add_options()
       ( "help,h", "produce this help message")
       ( "config,c", bpo::value<std::string>(&opts.input_filename), "input file" )
       ( "output,o", bpo::value<std::string>(&opts.output_filename), "output file (default is STDOUT)")
-      ( "annotated,a", bpo::bool_switch(&annotate)->default_value(false,"false"), "include source location annotations")
-      ( "parsable", bpo::bool_switch(&parsable)->default_value(false,"false"), "include parsable source location annotations (mutually exclusive with 'annotated' option)")
+      ( "annotated,a", bpo::bool_switch(&annotated)->default_value(false,"false"), "include source location annotations")
+      ( "prefix-annotated", bpo::bool_switch(&prefix_annotated)->default_value(false,"false"), "include source location annotations on line preceding parameter assignment (mutually exclusive with 'annotated' option)")
+      ( "quiet,q", "suppress output to STDOUT")
       ( "lookup-policy,l" ,
         bpo::value<int>(&opts.lookup_policy)->default_value(1),
         "lookup policy code:"
@@ -125,14 +144,21 @@ namespace {
       throw cet::exception(help);
     }
 
-    if ( annotate && parsable ) {
-      std::ostringstream err_stream;
-      err_stream << "Cannot specify both '--annotated' and '--parsable' options.\n";
-      throw cet::exception(config) << err_stream.str();
+    if ( vm.count("quiet") ) {
+      if ( annotated || prefix_annotated ) {
+        throw cet::exception(config)
+          << "Cannot specify both '--quiet' and '--(prefix-)annotated' options.\n";
+      }
+      opts.quiet = true;
     }
 
-    if ( annotate ) opts.mode = print_mode::annotated;
-    if ( parsable ) opts.mode = print_mode::parsable;
+    if ( annotated && prefix_annotated ) {
+      throw cet::exception(config)
+        << "Cannot specify both '--annotated' and '--prefix-annotated' options.\n";
+    }
+
+    if ( annotated )        opts.mode = print_mode::annotated;
+    if ( prefix_annotated ) opts.mode = print_mode::prefix_annotated;
 
     if ( !vm.count("config") ) {
       std::ostringstream err_stream;
@@ -147,8 +173,6 @@ namespace {
   std::unique_ptr<cet::filepath_maker>
   get_policy(int const lookup_policy, std::string const& lookup_path)
   {
-    std::cerr << "Policy is " << lookup_policy
-              << "; path is \"" << lookup_path << "\"\n";
     switch( lookup_policy ) {
     case 0: return std::make_unique<cet::filepath_maker>();
     case 1: return std::make_unique<cet::filepath_lookup>(lookup_path);

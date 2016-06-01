@@ -1,52 +1,60 @@
-#include "fhiclcpp/types/detail/ParameterRegistrySentry.h"
+#include "fhiclcpp/detail/printing_helpers.h"
 
 namespace fhicl {
 
   template <typename T>
-  Atom<T>::Atom(Name && name,
-                Comment && cmt )
-    : AtomBase(std::move(name), std::move(cmt), false, par_type::ATOM, this)
-    , value_()
+  Atom<T>::Atom(Name&& name,
+                Comment&& comment)
+    : AtomBase{std::move(name), std::move(comment), value_type::REQUIRED, detail::AlwaysUse()}
+    , RegisterIfTableMember{this}
+    , value_{std::make_shared<T>()}
   {
-    static_assert(!tt::is_sequence_type<T>::value, NO_CONTAINERS_IN_ATOM);
-    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_ATOM);
-    detail::ParameterRegistrySentry();
+    NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
-  Atom<T>::Atom(Name && name,
-                Comment && cmt,
-                T const& dflt_value )
-    : AtomBase(std::move(name), std::move(cmt), true, par_type::ATOM, this)
-    , value_(dflt_value)
+  Atom<T>::Atom(Name&& name,
+                Comment&& comment,
+                std::function<bool()> maybeUse)
+    : AtomBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, maybeUse}
+    , RegisterIfTableMember{this}
+    , value_{std::make_shared<T>()}
   {
-    static_assert(!tt::is_sequence_type<T>::value, NO_CONTAINERS_IN_ATOM);
-    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_ATOM);
-    detail::ParameterRegistrySentry();
+    NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
-  Atom<T>::Atom(Name && name)
-    : Atom<T>::Atom( std::move(name), Comment("") )
-  {}
-
-  template <typename T>
-  Atom<T>::Atom(Name && name, T const& dflt_value)
-    : Atom<T>::Atom( std::move(name), Comment(""), dflt_value )
-  {}
-
-  template <typename T>
-  Atom<T>::Atom(Name && name, T const& dflt_value, Comment && cmt)
-    : Atom<T>::Atom( std::move(name), std::move(cmt), dflt_value )
-  {}
-
-  template <typename T>
-  Atom<T>::Atom()
-    : AtomBase(Name::anonymous(), Comment(""), false, par_type::ATOM, this)
-    , value_()
+  Atom<T>::Atom(Name&& name,
+                Comment&& comment,
+                T const& dflt_value)
+    : AtomBase{std::move(name), std::move(comment), value_type::DEFAULT, detail::AlwaysUse()}
+    , RegisterIfTableMember{this}
+    , value_{std::make_shared<T>(dflt_value)}
   {
-    detail::ParameterRegistrySentry();
+    NameStackRegistry::end_of_ctor();
   }
+
+  template <typename T>
+  Atom<T>::Atom(Name&& name,
+                Comment&& comment,
+                std::function<bool()> maybeUse,
+                T const& dflt_value)
+    : AtomBase{std::move(name), std::move(comment), value_type::DEFAULT_CONDITIONAL, maybeUse}
+    , RegisterIfTableMember{this}
+    , value_{std::make_shared<T>(dflt_value)}
+  {
+    NameStackRegistry::end_of_ctor();
+  }
+
+  template <typename T>
+  Atom<T>::Atom(Name&& name)
+    : Atom{std::move(name), Comment("")}
+  {}
+
+  template <typename T>
+  Atom<T>::Atom(Name&& name, T const& dflt_value)
+    : Atom{std::move(name), Comment(""), dflt_value}
+  {}
 
   template <typename T>
   std::string
@@ -55,7 +63,7 @@ namespace fhicl {
     std::stringstream oss;
     if ( has_default() ) {
       using namespace detail::yes_defaults;
-      oss << maybe_quotes<T>(value_) ;
+      oss << maybe_quotes<T>(*value_) ;
     }
     else {
       using namespace detail::no_defaults;
@@ -72,9 +80,9 @@ namespace fhicl {
     std::string const& key = trimParent ? rkey.substr( rkey.find_first_of(".")+1 ) : rkey;
 
     if ( has_default() )
-      pset.get_if_present<T>( key, value_ );
+      pset.get_if_present<T>( key, *value_ );
     else
-      value_ = pset.get<T>( key );
+      value_ = std::make_shared<T>(pset.get<T>( key ));
   }
 
 }

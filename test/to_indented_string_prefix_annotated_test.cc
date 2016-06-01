@@ -1,6 +1,6 @@
 // ======================================================================
 //
-// test of to_indented_string with annotations
+// test of to_indented_string with prefixed annotations
 //
 // ======================================================================
 
@@ -41,7 +41,7 @@ int main()
   pset.put_or_replace<int>("some_number",8);
   pset.put_or_replace<double>("double",234.6);
 
-  std::cout << pset.to_indented_string(0,fhicl::detail::print_mode::parsable)
+  std::cout << pset.to_indented_string(0,fhicl::detail::print_mode::prefix_annotated)
             << std::endl;
 
 }

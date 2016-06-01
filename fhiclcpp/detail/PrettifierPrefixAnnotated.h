@@ -1,22 +1,24 @@
-#ifndef fhiclcpp_detail_PrettifierParsable_h
-#define fhiclcpp_detail_PrettifierParsable_h
+#ifndef fhiclcpp_detail_PrettifierPrefixAnnotated_h
+#define fhiclcpp_detail_PrettifierPrefixAnnotated_h
 
 /*
   ======================================================================
 
-  PrettifierParsable
+  PrettifierPrefixAnnotated
 
   ======================================================================
 
   Class used when
 
-    'ParameterSet::to_indented_string(unsigned,print_mode::parsable)'
+    'ParameterSet::to_indented_string(unsigned,print_mode::prefix_annotated)'
 
-  is called.  This class provides a parsable string representing
-  the entire (nested) contents of a ParameterSet object, as well as
-  annotations that describe in what FHiCL configuration file, and in
-  what line of that file, the particular parameter was set or
-  reassigned.
+  is called.  This class provides a string representing the entire
+  (nested) contents of a ParameterSet object, as well as annotations
+  that describe in what FHiCL configuration file, and in what line of
+  that file, the particular parameter was set or reassigned.  This
+  version provides annotations on the line preceding the parameter
+  assignment, which can help users who wish to parse the stringified
+  representation with their own scripts.
 
   Currently supported format:
   ===========================
@@ -82,7 +84,7 @@
   lines below it.  The '#SRC|*|' tag specifies the annotation
   associated with the parameter one line below it.  The vertical bars
   are provided so that empty source annotations are still parsable by
-  the parsing code.
+  a user's script.
 
   Maintenance notes:
   ==================
@@ -145,26 +147,26 @@ namespace fhicl {
 
   namespace detail {
 
-    class PrettifierParsable : public ParameterSetWalker {
+    class PrettifierPrefixAnnotated : public ParameterSetWalker {
     public:
 
       using name_t = std::string;
 
-      PrettifierParsable();
+      PrettifierPrefixAnnotated();
 
       std::string result() const { return buffer_.str(); }
 
     private:
 
-      virtual void before_action (key_t const&, any_t const&, ParameterSet const*) override;
+      void before_action (key_t const&, any_t const&, ParameterSet const*) override;
 
-      virtual void enter_table   (key_t const&, any_t const&) override;
-      virtual void enter_sequence(key_t const&, any_t const&) override;
+      void enter_table   (key_t const&, any_t const&) override;
+      void enter_sequence(key_t const&, any_t const&) override;
 
-      virtual void exit_table    (key_t const&, any_t const&) override;
-      virtual void exit_sequence (key_t const&, any_t const&) override;
+      void exit_table    (key_t const&, any_t const&) override;
+      void exit_sequence (key_t const&, any_t const&) override;
 
-      virtual void atom(key_t const&, any_t const&) override;
+      void atom(key_t const&, any_t const&) override;
 
       void push_size_(any_t const&);
       void pop_size_();
@@ -187,4 +189,3 @@ namespace fhicl {
 // Local variables:
 // mode: c++
 // End:
-

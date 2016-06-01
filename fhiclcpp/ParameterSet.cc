@@ -4,14 +4,14 @@
 //
 // ======================================================================
 
-#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/detail/KeyAssembler.h"
 #include "fhiclcpp/detail/Prettifier.h"
 #include "fhiclcpp/detail/PrettifierAnnotated.h"
-#include "fhiclcpp/detail/PrettifierParsable.h"
+#include "fhiclcpp/detail/PrettifierPrefixAnnotated.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <regex>
@@ -58,6 +58,7 @@ namespace {
   }
 
 }
+
 
 // ======================================================================
 
@@ -115,9 +116,9 @@ ParameterSet::to_string_(bool compact) const
   { return result; }
   map_iter_t it = mapping_.begin();
   result.append(it->first)
-  .append(1, ':')
-  .append(stringify_(it->second, compact))
-  ;
+    .append(1, ':')
+    .append(stringify_(it->second, compact))
+    ;
   for (map_iter_t const e = mapping_.end(); ++it != e;)
     result.append(1, ' ')
     .append(it->first)
@@ -131,10 +132,9 @@ vector<string>
 ParameterSet::get_names() const
 {
   vector<string> keys;
-  keys.reserve(mapping_.size());
-  for (auto const& pr : mapping_ ) {
-    keys.push_back(pr.first);
-  }
+  std::transform( mapping_.cbegin(), mapping_.cend(),
+                  std::back_inserter(keys),
+                  [](auto const& pr){ return pr.first; } );
   return keys;
 }
 
@@ -155,6 +155,46 @@ ParameterSet::get_all_keys() const
   KeyAssembler ka;
   walk_(ka);
   return ka.result();
+}
+
+bool
+ParameterSet::find_one_(std::string const & simple_key) const
+{
+  auto skey = detail::get_sequence_indices(simple_key);
+
+  map_iter_t it = mapping_.find(skey.name());
+  if (it == mapping_.end()) {
+    return false;
+  }
+
+  auto a = it->second;
+  return detail::find_an_any(skey.indices().cbegin(),
+                             skey.indices().cend(),
+                             a);
+}
+
+bool
+ParameterSet::descend_(std::vector<std::string> const& names,
+                       ParameterSet& ps) const
+{
+  ParameterSet const * p {this};
+  ParameterSet tmp;
+  for (auto const& table : names) {
+    if (!p->get_one_(table, tmp)) {
+      return false;
+    }
+    p = &tmp;
+  }
+  ps = *p; // Can't be 'tmp'.  Sometimes 'names' is empty.
+  return true;
+}
+
+bool
+ParameterSet::has_key(std::string const& key) const
+{
+  auto keys = detail::get_names(key);
+  ParameterSet ps;
+  return descend_(keys.tables(), ps) ? ps.find_one_(keys.last()) : false;
 }
 
 // ----------------------------------------------------------------------
@@ -254,14 +294,23 @@ bool
 ParameterSet::key_is_type_(std::string const & key,
                            std::function<bool (boost::any const &)> func) const
 {
-  if (key.find('.') != std::string::npos) {
-    throw fhicl::exception(unimplemented,
-                           "is_{table,sequence,atom}() for nested key.");
+  auto split_keys = detail::get_names(key);
+  ParameterSet ps;
+  if ( !descend_(split_keys.tables(), ps) ) {
+    throw exception(error::cant_find, key);
   }
-  map_iter_t it = mapping_.find(key);
-  if (it == mapping_.end())
-  { throw exception(error::cant_find, key); }
-  return func(it->second);
+
+  auto skey = detail::get_sequence_indices(split_keys.last());
+
+  map_iter_t it = ps.mapping_.find(skey.name());
+  if (it == ps.mapping_.end()) {
+    throw exception(error::cant_find, key);
+  }
+
+  auto a = it->second;
+  return detail::find_an_any(skey.indices().cbegin(), skey.indices().cend(), a)
+    ? func(a)
+    : throw exception(error::cant_find, key);
 }
 
 // ======================================================================
@@ -306,29 +355,16 @@ namespace fhicl {
   template<>
   void
   ParameterSet::put(std::string const & key, fhicl::extended_value const & value)
-    try
-      {
-        using detail::encode;
-        insert_(key, boost::any(encode(value)));
-        fill_src_info(value,key,srcMapping_);
-      }
-    catch (boost::bad_lexical_cast const & e)
-      {
-        throw fhicl::exception(cant_insert, key) << e.what();
-      }
-    catch (boost::bad_numeric_cast const & e)
-      {
-        throw fhicl::exception(cant_insert, key) << e.what();
-      }
-    catch (fhicl::exception const & e)
-      {
-        throw fhicl::exception(cant_insert, key, e);
-      }
-    catch (std::exception const & e)
-      {
-        throw fhicl::exception(cant_insert, key) << e.what();
-      }
+  {
 
+    auto insert = [this,&key,&value](){
+      using detail::encode;
+      insert_(key, boost::any(encode(value)));
+      fill_src_info(value,key,srcMapping_);
+    };
+
+    detail::try_insert(insert, key);
+  }
 }
 
 // ======================================================================
@@ -420,8 +456,8 @@ ParameterSet::to_indented_string(unsigned const initial_indent_level,
     result = p.result();
     break;
   }
-  case print_mode::parsable : {
-    PrettifierParsable p;
+  case print_mode::prefix_annotated : {
+    PrettifierPrefixAnnotated p;
     walk_( p );
     result = p.result();
     break;

@@ -9,7 +9,7 @@ cet_enable_asserts()
 
 # Identify libraries to be linked:
 link_libraries(fhiclcpp
-  ${Boost_FILESYSTEM_LIBRARY} 
+  ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
 
@@ -54,11 +54,11 @@ cet_test(to_indented_string_annotated_test
   issue-7788/to_indented_string_annotated_prolog.fcl
   REF "${CMAKE_CURRENT_SOURCE_DIR}/issue-7788/to_indented_string_annotated_test-ref.txt"
   )
-cet_test(to_indented_string_parsable_test
+cet_test(to_indented_string_prefix_annotated_test
   DATAFILES
   issue-7788/to_indented_string_annotated_test.fcl
   issue-7788/to_indented_string_annotated_prolog.fcl
-  REF "${CMAKE_CURRENT_SOURCE_DIR}/to_indented_string_parsable_test-ref.txt"
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/to_indented_string_prefix_annotated_test-ref.txt"
   )
 cet_test(to_string_test
   DATAFILES Sample.cfg

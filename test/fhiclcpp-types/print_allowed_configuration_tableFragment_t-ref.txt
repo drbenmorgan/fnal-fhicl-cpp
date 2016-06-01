@@ -1,0 +1,20 @@
+
+   pset: {
+
+      # this works
+
+      test: <string>
+
+      sequence: [
+         <int>,
+         ...
+      ]
+
+      array: [
+         <double>,
+         <double>,
+         <double>,
+         <double>,
+         <double>
+      ]
+   }

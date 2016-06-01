@@ -63,6 +63,16 @@ namespace fhicl {
         std::string value;
       };
 
+      // std::string is an expected_type but may be demangled to full
+      // typename when inline namespaces are used (libc++, gcc5)
+      // Specialize expected_types for this type
+      template <>
+      struct expected_types<std::string> {
+        expected_types() : value("std::string") {
+          value = padded_string( stripped_typename( value ) );
+        }
+        std::string value;
+      };
 
       template <typename T>
       std::ostream& operator<<(std::ostream& os, expected_types<T>&& et)
@@ -72,7 +82,7 @@ namespace fhicl {
 
     } } } // fhicl::detail::no_defaults
 
-#endif
+#endif /* fhiclcpp_types_detail_ostream_helpers_h */
 
 // Local variables:
 // mode : c++

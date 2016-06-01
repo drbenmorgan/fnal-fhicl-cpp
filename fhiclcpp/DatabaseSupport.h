@@ -1,5 +1,5 @@
-#ifndef FHICLCPP_DATABASE_SUPPORT
-#define FHICLCPP_DATABASE_SUPPORT
+#ifndef fhiclcpp_DatabaseSupport_h
+#define fhiclcpp_DatabaseSupport_h
 
 #include <string>
 #include <vector>
@@ -39,4 +39,8 @@ namespace fhicl
 
 
 
-#endif
+#endif /* fhiclcpp_DatabaseSupport_h */
+
+// Local Variables:
+// mode: c++
+// End:

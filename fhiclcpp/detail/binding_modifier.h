@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_binding_modifier_h
-#define fhiclcpp_binding_modifier_h
+#ifndef fhiclcpp_detail_binding_modifier_h
+#define fhiclcpp_detail_binding_modifier_h
 namespace fhicl {
   namespace detail {
     enum class binding_modifier : unsigned char
@@ -16,7 +16,7 @@ namespace fhicl {
   }
 }
 
-#endif /* fhiclcpp_binding_modifier_h */
+#endif /* fhiclcpp_detail_binding_modifier_h */
 
 // Local Variables:
 // mode: c++

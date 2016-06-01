@@ -62,7 +62,7 @@ namespace fhicl {
 
 #include "fhiclcpp/types/detail/OptionalAtom.icc"
 
-#endif
+#endif /* fhiclcpp_types_OptionalAtom_h */
 
 // Local variables:
 // mode: c++

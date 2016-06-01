@@ -207,7 +207,7 @@ namespace fhicl {
 
 #include "fhiclcpp/types/detail/Sequence.icc"
 
-#endif
+#endif /* fhiclcpp_types_Sequence_h */
 
 // Local variables:
 // mode: c++

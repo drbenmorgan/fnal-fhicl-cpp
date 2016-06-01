@@ -141,7 +141,7 @@ namespace fhicl {
   }
 }
 
-#endif
+#endif /* fhiclcpp_detail_PrettifierAnnotated_h */
 
 // Local variables:
 // mode: c++

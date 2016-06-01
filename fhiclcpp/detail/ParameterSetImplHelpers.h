@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_define_ParameterSetImplHelpers_h
-#define fhiclcpp_define_ParameterSetImplHelpers_h
+#ifndef fhiclcpp_detail_ParameterSetImplHelpers_h
+#define fhiclcpp_detail_ParameterSetImplHelpers_h
 
 #include "boost/algorithm/string.hpp"
 #include "cetlib/container_algorithms.h"
@@ -118,7 +118,7 @@ namespace fhicl {
   }
 }
 
-#endif
+#endif /* fhiclcpp_detail_ParameterSetImplHelpers_h */
 
 // Local variables:
 // mode: c++

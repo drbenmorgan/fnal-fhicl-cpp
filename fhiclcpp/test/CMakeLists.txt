@@ -132,4 +132,3 @@ cet_test(fhicl-write-db-test HANDBUILT
   )
 
 cet_test(parse_shimmeddocument_test USE_BOOST_UNIT)
-  

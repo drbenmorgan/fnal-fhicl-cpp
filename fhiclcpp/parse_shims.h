@@ -8,7 +8,7 @@
 namespace shims {
 
 inline auto lit(char arg){
-  return ::boost::spirit::qi::lit(arg);  
+  return ::boost::spirit::qi::lit(arg);
 }
 
 inline auto lit(std::string arg) {

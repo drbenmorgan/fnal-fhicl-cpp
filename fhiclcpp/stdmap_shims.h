@@ -13,7 +13,7 @@
 #include "fhiclcpp/parse_shims_opts.h"
 
 namespace shims {
-  
+
 template <class Key, class T, class Compare = std::less<Key>, class Allocator = std::allocator<std::pair<const Key, T>>>
 struct map {
   using mapmap_t = typename std::map<const Key, T, Compare, Allocator>;
@@ -29,7 +29,7 @@ struct map {
                 "type mismatch for size_type");
 
   using size_type= typename mapmap_t::size_type;
-  
+
   using iterator_tag = std::input_iterator_tag;
   struct iterator_tuple {
     typename mapmap_t::iterator mapmap_iter;
@@ -166,7 +166,7 @@ struct map {
           i++;
         }
       }
-      
+
       return erase_count;
     } else {
       return _maps.mapmap.erase(key);

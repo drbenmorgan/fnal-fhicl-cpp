@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(iterator_comparisons_1)
   BOOST_CHECK(table.begin() == table.end());
   BOOST_CHECK(ctable.begin() == table.end());
   BOOST_CHECK(table.begin() == ctable.end());
-  table.emplace("string1", "string");
+  table.emplace("string1",extended_value{false,STRING,"string"});
   BOOST_CHECK(table.cbegin() != table.cend());
   BOOST_CHECK(table.cbegin() != table.end());
   BOOST_CHECK(table.begin() != table.end());

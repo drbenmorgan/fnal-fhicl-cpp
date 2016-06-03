@@ -1,5 +1,5 @@
 #define BOOST_TEST_MODULE ( table_t_iterator_t )
-#include "cetlib/quiet_unit_test.hpp"
+#include "boost/test/auto_unit_test.hpp"
 
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/ParameterSet.h"

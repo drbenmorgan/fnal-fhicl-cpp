@@ -718,7 +718,7 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
      (iter_pos >> vp.id    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), TABLEID , qi::_2, qi::_1, ref(s)) ] |
      (iter_pos >> sequence ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), SEQUENCE, qi::_2, qi::_1, ref(s)) ] |
      (iter_pos >> table    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), TABLE   , qi::_2, qi::_1, ref(s)) ] |
-     (iter_pos >> vp.catchall ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), STRING  , qi::_2, qi::_1, ref(s)) ] 
+     (iter_pos >> vp.catchall ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), STRING  , qi::_2, qi::_1, ref(s)) ]
     );
   prolog =
     lit("BEGIN_PROLOG") [ phx::bind(rebool, ref(in_prolog), true) ]

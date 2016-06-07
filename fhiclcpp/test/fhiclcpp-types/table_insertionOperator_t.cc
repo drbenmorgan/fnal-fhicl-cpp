@@ -6,7 +6,6 @@
 
 #define BOOST_TEST_MODULE ( table_insertionOperator_t )
 
-#include "boost/test/test_tools.hpp"
 #include "cetlib/demangle.h"
 #include "cetlib/quiet_unit_test.hpp"
 #include "cetlib/test_macros.h"

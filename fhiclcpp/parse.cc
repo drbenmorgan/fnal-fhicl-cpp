@@ -290,12 +290,16 @@ namespace {
     set_protection(name, m, value);
     auto const i = t.find(name);
     if (i != t.end()) {
-      if (value.protection > Protection::NONE) {
+      auto existing_protection = i->second.protection;
+      if (value.protection > existing_protection) {
         throw fhicl::exception(fhicl::error::protection_violation)
           << '"'
           << name
-          << "\" cannot be assigned with protection if it already exists\n"
-          << "(previous definition on "
+          << "\" Attempt to increase protection from "
+          << to_string(existing_protection)
+          << " to "
+          << to_string(value.protection)
+          << "\n(previous definition on "
           << i->second.pretty_src_info()
           << ")\n";
       }
@@ -363,6 +367,19 @@ namespace {
       auto & element = t[incoming_item->first];
       if (!element.is_a(fhicl::UNKNOWN)) {
         // Already exists.
+        auto incoming_protection = incoming_item->second.protection;
+        if (incoming_protection > element.protection {
+          throw fhicl::exception(fhicl::error::protection_violation)
+            << '"'
+            << name
+            << "\" Attempt to increase protection from "
+            << to_string(element.protection)
+            << " to "
+            << to_string(incoming_protection)
+            << "\nduring table merge (previous definition on "
+            << i->second.pretty_src_info()
+            << ")\n";
+        }
         switch (element.protection) {
         case Protection::NONE:
           break;

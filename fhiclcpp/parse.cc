@@ -293,9 +293,9 @@ namespace {
       auto existing_protection = i->second.protection;
       if (value.protection > existing_protection) {
         throw fhicl::exception(fhicl::error::protection_violation)
-          << '"'
+          << "Inserting name "
           << name
-          << "\" Attempt to increase protection from "
+          << " would increase protection from "
           << to_string(existing_protection)
           << " to "
           << to_string(value.protection)
@@ -368,16 +368,16 @@ namespace {
       if (!element.is_a(fhicl::UNKNOWN)) {
         // Already exists.
         auto incoming_protection = incoming_item->second.protection;
-        if (incoming_protection > element.protection {
+        if (incoming_protection > element.protection) {
           throw fhicl::exception(fhicl::error::protection_violation)
-            << '"'
-            << name
-            << "\" Attempt to increase protection from "
+            << "@table::" << name << ": inserting name "
+            << incoming_item->first
+            << " would increase protection from "
             << to_string(element.protection)
             << " to "
             << to_string(incoming_protection)
-            << "\nduring table merge (previous definition on "
-            << i->second.pretty_src_info()
+            << "\n(previous definition on "
+            << element.pretty_src_info()
             << ")\n";
         }
         switch (element.protection) {
@@ -389,7 +389,10 @@ namespace {
           throw fhicl::exception(fhicl::error::protection_violation)
             << "@table::" << name << ": inserting name "
             << incoming_item->first
-            << "would violate protection on existing item.\n";
+            << "would violate protection on existing item"
+            << "\n(previous definition on "
+            << element.pretty_src_info()
+            << ")\n";
         }
       }
       element = incoming_item->second;

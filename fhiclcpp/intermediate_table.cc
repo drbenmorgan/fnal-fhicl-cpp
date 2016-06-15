@@ -266,13 +266,13 @@ pre_insert_(std::string const & name,
     { t.erase(it); }
   }
   auto located = locate_(name);
-  if ((value.protection > Protection::NONE) &&
-      ! located.first->is_a(NIL)) {
+  if ((!located.first->is_a(NIL)) &&
+      value.protection > located.first->protection) {
     throw exception(protection_violation)
       << '"'
       << name
-      << "\" cannot be assigned with protection if it already exists\n"
-      << "(previous definition on "
+      << "\" cannot be assigned with increased protection"
+      << "\n(previous definition on "
       << (located.first)->pretty_src_info()
       << ")\n";
   }

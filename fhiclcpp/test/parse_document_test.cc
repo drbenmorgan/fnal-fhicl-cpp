@@ -409,7 +409,8 @@ BOOST_AUTO_TEST_CASE(protect_ignore_04)
     "x @protect_ignore: 33\n"
     ;
   intermediate_table tbl;
-  PV_EXCEPTION;
+  parse_document(doc, tbl);
+  BOOST_CHECK_EQUAL(tbl.get<std::size_t>("x"), 29ul);
 }
 
 BOOST_AUTO_TEST_CASE(protect_ignore_05)
@@ -421,7 +422,8 @@ BOOST_AUTO_TEST_CASE(protect_ignore_05)
     "END_PROLOG\n"
     ;
   intermediate_table tbl;
-  PV_EXCEPTION;
+  parse_document(doc, tbl);
+  BOOST_CHECK_EQUAL(tbl.get<std::size_t>("x"), 29ul);
 }
 
 BOOST_AUTO_TEST_CASE(protect_ignore_06)
@@ -472,7 +474,8 @@ BOOST_AUTO_TEST_CASE(protect_ignore_09)
     "a.x @protect_ignore: 33\n"
     ;
   intermediate_table tbl;
-  PV_EXCEPTION;
+  parse_document(doc, tbl);
+  BOOST_CHECK_EQUAL(tbl.get<std::size_t>("a.x"), 29ul);
 }
 
 BOOST_AUTO_TEST_CASE(protect_ignore_10)
@@ -484,7 +487,8 @@ BOOST_AUTO_TEST_CASE(protect_ignore_10)
     "END_PROLOG\n"
     ;
   intermediate_table tbl;
-  PV_EXCEPTION;
+  parse_document(doc, tbl);
+  BOOST_CHECK_EQUAL(tbl.get<std::size_t>("a.x"), 29ul);
   }
 
 BOOST_AUTO_TEST_CASE(protect_ignore_11)
@@ -534,7 +538,8 @@ BOOST_AUTO_TEST_CASE(protect_ignore_14)
     "a @protect_ignore: { x : 33 }\n"
     ;
   intermediate_table tbl;
-  PV_EXCEPTION;
+  parse_document(doc, tbl);
+  BOOST_CHECK_EQUAL(tbl.get<std::size_t>("a.x"), 29ul);
 }
 
 BOOST_AUTO_TEST_CASE(protect_ignore_15)
@@ -546,7 +551,8 @@ BOOST_AUTO_TEST_CASE(protect_ignore_15)
     "END_PROLOG\n"
     ;
   intermediate_table tbl;
-  PV_EXCEPTION;
+  parse_document(doc, tbl);
+  BOOST_CHECK_EQUAL(tbl.get<std::size_t>("a.x"), 29ul);
   }
 
 BOOST_AUTO_TEST_CASE(protect_ignore_16)
@@ -612,6 +618,26 @@ BOOST_AUTO_TEST_CASE(protect_ignore_20)
   intermediate_table tbl;
   parse_document(doc, tbl);
   BOOST_CHECK_EQUAL(tbl.get<std::size_t>("a.b.x"), 33ul);
+}
+
+BOOST_AUTO_TEST_CASE(protect_ignore_21)
+{
+  std::string const doc =
+    "a : { x : 29 }\n"
+    "a.x @protect_ignore: 33\n";
+  intermediate_table tbl;
+  PV_EXCEPTION;
+}
+
+BOOST_AUTO_TEST_CASE(protect_ignore_22)
+{
+  std::string const doc =
+    "BEGIN_PROLOG\n"
+    "a : { x : 29 }\n"
+    "a.x @protect_ignore: 33\n"
+    "END_PROLOG\n";
+  intermediate_table tbl;
+  PV_EXCEPTION;
 }
 
 BOOST_AUTO_TEST_CASE(protect_error_01)

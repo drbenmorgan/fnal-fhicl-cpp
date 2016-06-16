@@ -189,7 +189,7 @@ namespace fhicl {
 
 }
 
-#endif
+#endif /* fhiclcpp_types_OptionalTuple_h */
 
 // Local variables:
 // mode: c++

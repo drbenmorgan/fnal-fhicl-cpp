@@ -57,7 +57,7 @@ namespace fhicl {
   }
 }
 
-#endif
+#endif /* fhiclcpp_detail_Indentation_h */
 
 // Local variables:
 // mode: c++

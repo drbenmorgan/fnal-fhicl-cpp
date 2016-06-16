@@ -16,7 +16,7 @@ using boost::any_cast;
 std::string
   fhicl::extended_value::to_string( ) const
 {
-  if( in_prolog )
+  if( in_prolog && !shims::isSnippetMode())
     return "";
 
   switch( tag )  {
@@ -48,8 +48,8 @@ std::string
       table_t t = any_cast<table_t>(value);
       string s("{");
       string sep;
-      for( table_t::const_iterator b  = t.begin()
-                                 , e  = t.end()
+      for( table_t::const_iterator b  = t.cbegin()
+                                 , e  = t.cend()
                                  , it = b; it != e; ++it ) {
         s.append(sep)
          .append( it->first + ':' + it->second.to_string() );

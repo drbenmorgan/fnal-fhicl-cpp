@@ -10,8 +10,6 @@
 #define BOOST_TEST_MODULE ( return table values from fcl )
 
 #include "cetlib/quiet_unit_test.hpp"
-#include "boost/test/floating_point_comparison.hpp"
-#include "boost/test/test_tools.hpp"
 
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"

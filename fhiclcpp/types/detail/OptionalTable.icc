@@ -56,7 +56,7 @@ namespace fhicl {
                                                 std::string const&/* tab*/) const
   {
     detail::PrintAllowedConfiguration pc{os};
-    pc(this);
+    pc(*this);
   }
 
   template <typename T>

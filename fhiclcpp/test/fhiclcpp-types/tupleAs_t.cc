@@ -7,7 +7,6 @@
 #define BOOST_TEST_MODULE ( tupleAs test )
 
 #include "cetlib/quiet_unit_test.hpp"
-#include "boost/test/test_tools.hpp"
 #include "cetlib/demangle.h"
 
 #include "fhiclcpp/types/OptionalTupleAs.h"

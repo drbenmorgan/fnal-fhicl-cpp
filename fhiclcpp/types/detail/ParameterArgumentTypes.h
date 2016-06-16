@@ -32,7 +32,7 @@ namespace fhicl {
 
 }
 
-#endif
+#endif /* fhiclcpp_types_detail_ParameterArgumentTypes_h */
 
 // Local variables:
 // mode: c++

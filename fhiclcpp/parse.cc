@@ -41,6 +41,7 @@
 #include "fhiclcpp/intermediate_table.h"
 #include "fhiclcpp/tokens.h"
 
+#include "fhiclcpp/parse_shims.h"
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -60,7 +61,7 @@ using boost::spirit::repository::qi::iter_pos;
 using qi::_val;
 using qi::eol;
 using qi::lexeme;
-using qi::lit;
+using namespace shims; //using qi::lit; /*moved to parse_shims.h*/
 using qi::no_skip;
 using qi::raw;
 using qi::skip;
@@ -74,6 +75,7 @@ using atom_t = extended_value::atom_t;
 using complex_t = extended_value::complex_t;
 using sequence_t = extended_value::sequence_t;
 using table_t = extended_value::table_t;
+
 
 // ----------------------------------------------------------------------
 
@@ -288,12 +290,16 @@ namespace {
     set_protection(name, m, value);
     auto const i = t.find(name);
     if (i != t.end()) {
-      if (value.protection > Protection::NONE) {
+      auto existing_protection = i->second.protection;
+      if (value.protection > existing_protection) {
         throw fhicl::exception(fhicl::error::protection_violation)
-          << '"'
+          << "Inserting name "
           << name
-          << "\" cannot be assigned with protection if it already exists\n"
-          << "(previous definition on "
+          << " would increase protection from "
+          << to_string(existing_protection)
+          << " to "
+          << to_string(value.protection)
+          << "\n(previous definition on "
           << i->second.pretty_src_info()
           << ")\n";
       }
@@ -361,6 +367,19 @@ namespace {
       auto & element = t[incoming_item->first];
       if (!element.is_a(fhicl::UNKNOWN)) {
         // Already exists.
+        auto incoming_protection = incoming_item->second.protection;
+        if (incoming_protection > element.protection) {
+          throw fhicl::exception(fhicl::error::protection_violation)
+            << "@table::" << name << ": inserting name "
+            << incoming_item->first
+            << " would increase protection from "
+            << to_string(element.protection)
+            << " to "
+            << to_string(incoming_protection)
+            << "\n(previous definition on "
+            << element.pretty_src_info()
+            << ")\n";
+        }
         switch (element.protection) {
         case Protection::NONE:
           break;
@@ -370,7 +389,10 @@ namespace {
           throw fhicl::exception(fhicl::error::protection_violation)
             << "@table::" << name << ": inserting name "
             << incoming_item->first
-            << "would violate protection on existing item.\n";
+            << "would violate protection on existing item"
+            << "\n(previous definition on "
+            << element.pretty_src_info()
+            << ")\n";
         }
       }
       element = incoming_item->second;
@@ -520,7 +542,7 @@ struct fhicl::value_parser
   atom_token      nil, boolean;
   atom_token      inf;
   atom_token      squoted, dquoted;
-  atom_token      number, string, name;
+  atom_token      number, string, name, catchall;
   atom_token      id;
   complex_token   complex;
   sequence_token  sequence;
@@ -609,6 +631,7 @@ fhicl::value_parser<FwdIter, Skip>::value_parser()
                 )
              > lit('}');
   id    = lit("@id::") > no_skip [ fhicl::dbid ] [ _val = qi::_1 ];
+  catchall = shims::catchall [ _val = phx::bind(canon_str, ref(qi::_1)) ];
   value    = (nil      [ _val = phx::bind(xvalue_vp, false, NIL     , qi::_1) ]
               | boolean  [ _val = phx::bind(xvalue_vp, false, BOOL    , qi::_1) ]
               | number   [ _val = phx::bind(xvalue_vp, false, NUMBER  , qi::_1) ]
@@ -616,7 +639,8 @@ fhicl::value_parser<FwdIter, Skip>::value_parser()
               | string   [ _val = phx::bind(xvalue_vp, false, STRING  , qi::_1) ]
               | sequence [ _val = phx::bind(xvalue_vp, false, SEQUENCE, qi::_1) ]
               | table    [ _val = phx::bind(xvalue_vp, false, TABLE   , qi::_1) ]
-              | id    [ _val = phx::bind(xvalue_vp, false, TABLEID , qi::_1) ]
+              | id       [ _val = phx::bind(xvalue_vp, false, TABLEID , qi::_1) ]
+              | catchall [ _val = phx::bind(xvalue_vp, false, STRING  , qi::_1) ]
              );
   nil     .name("nil token");
   boolean .name("boolean token");
@@ -631,6 +655,7 @@ fhicl::value_parser<FwdIter, Skip>::value_parser()
   table   .name("table");
   id   .name("id atom");
   value   .name("value");
+  catchall .name("catchall atom");
 }  // value_parser c'tor
 
 // ----------------------------------------------------------------------
@@ -721,7 +746,8 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
                         qi::_1, ref(s)) ] |
      (iter_pos >> vp.id    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), TABLEID , qi::_2, qi::_1, ref(s)) ] |
      (iter_pos >> sequence ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), SEQUENCE, qi::_2, qi::_1, ref(s)) ] |
-     (iter_pos >> table    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), TABLE   , qi::_2, qi::_1, ref(s)) ]
+     (iter_pos >> table    ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), TABLE   , qi::_2, qi::_1, ref(s)) ] |
+     (iter_pos >> vp.catchall ) [ _val = phx::bind(&xvalue_dp<iter_t>, ref(in_prolog), STRING  , qi::_2, qi::_1, ref(s)) ]
     );
 #ifdef __clang__
 #pragma clang diagnostic pop

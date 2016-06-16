@@ -65,7 +65,7 @@ namespace fhicl {
 
 }
 
-#endif
+#endif /* fhiclcpp_types_TableFragment_h */
 
 // Local variables:
 // mode: c++

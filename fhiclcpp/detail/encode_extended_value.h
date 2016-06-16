@@ -21,3 +21,7 @@ namespace fhicl {
   }
 }
 #endif /* fhiclcpp_detail_encode_extended_value_h */
+
+// Local Variables:
+// mode: c++
+// End:

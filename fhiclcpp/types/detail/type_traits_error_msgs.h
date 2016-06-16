@@ -68,4 +68,8 @@
   "                template arguments to any fhiclcpp types:\n\n" \
   OPTIONAL_FHICL_TYPES
 
-#endif
+#endif /* fhiclcpp_types_detail_type_traits_error_msgs_h */
+
+// Local Variables:
+// mode: c++
+// End:

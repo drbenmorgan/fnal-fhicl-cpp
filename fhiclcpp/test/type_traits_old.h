@@ -1,5 +1,5 @@
-#ifndef test_type_traits_old_h
-#define test_type_traits_old_h
+#ifndef fhiclcpp_test_type_traits_old_h
+#define fhiclcpp_test_type_traits_old_h
 
 // ======================================================================
 //
@@ -78,7 +78,7 @@ namespace tt_old {
 
 // ======================================================================
 
-#endif /* test_type_traits_old_h */
+#endif /* fhiclcpp_test_type_traits_old_h */
 
 // Local Variables:
 // mode: c++

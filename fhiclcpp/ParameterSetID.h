@@ -15,8 +15,7 @@
 #include <string>
 
 namespace fhicl {
-  std::ostream &
-    operator << ( std::ostream &, ParameterSetID const & );
+  std::ostream& operator<< (std::ostream&, ParameterSetID const&);
 }
 
 // ----------------------------------------------------------------------
@@ -32,23 +31,22 @@ public:
   explicit ParameterSetID(std::string const & id);
 
   // observers:
-  bool         is_valid ( ) const;
-  std::string  to_string( ) const;
-  static
-    std::size_t max_str_size( );
+  bool        is_valid () const;
+  std::string to_string() const;
+  static std::size_t max_str_size();
 
   // mutators:
-  void  invalidate( );
-  void  reset( ParameterSet const & );
-  void  swap( ParameterSetID & );
+  void invalidate();
+  void reset(ParameterSet const&);
+  void swap(ParameterSetID&);
 
   // comparators:
-  bool  operator == ( ParameterSetID const & ) const;
-  bool  operator != ( ParameterSetID const & ) const;
-  bool  operator <  ( ParameterSetID const & ) const;
-  bool  operator >  ( ParameterSetID const & ) const;
-  bool  operator <= ( ParameterSetID const & ) const;
-  bool  operator >= ( ParameterSetID const & ) const;
+  bool  operator == (ParameterSetID const&) const;
+  bool  operator != (ParameterSetID const&) const;
+  bool  operator <  (ParameterSetID const&) const;
+  bool  operator >  (ParameterSetID const&) const;
+  bool  operator <= (ParameterSetID const&) const;
+  bool  operator >= (ParameterSetID const&) const;
 
 private:
   bool                 valid_;

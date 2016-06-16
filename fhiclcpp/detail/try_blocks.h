@@ -34,7 +34,7 @@ namespace fhicl {
   }
 }
 
-#endif
+#endif /* fhiclcpp_detail_try_blocks_h */
 
 // Local variables:
 // mode: c++

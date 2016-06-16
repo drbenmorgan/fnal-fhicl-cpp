@@ -78,7 +78,8 @@ namespace fhicl {
   }
 }
 
-#endif
+#endif /* fhiclcpp_types_detail_ParameterBase_h */
+
 // Local variables:
 // mode: c++
 // End:

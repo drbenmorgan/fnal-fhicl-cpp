@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_detail_AtomBase_h
-#define fhiclcpp_detail_AtomBase_h
+#ifndef fhiclcpp_types_detail_AtomBase_h
+#define fhiclcpp_types_detail_AtomBase_h
 
 #include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
@@ -35,7 +35,8 @@ namespace fhicl {
   }
 }
 
-#endif
+#endif /* fhiclcpp_types_detail_AtomBase_h */
+
 // Local variables:
 // mode: c++
 // End:

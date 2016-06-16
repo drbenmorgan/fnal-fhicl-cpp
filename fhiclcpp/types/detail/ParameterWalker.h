@@ -167,7 +167,7 @@ namespace fhicl {
   }
 }
 
-#endif
+#endif /* fhiclcpp_types_detail_ParameterWalker_h */
 
 // Local variables:
 // mode: c++

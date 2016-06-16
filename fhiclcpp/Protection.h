@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_Proection_h
-#define fhiclcpp_Proection_h
+#ifndef fhiclcpp_Protection_h
+#define fhiclcpp_Protection_h
 
 #include <string>
 

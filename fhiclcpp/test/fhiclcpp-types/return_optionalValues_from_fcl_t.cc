@@ -10,8 +10,6 @@
 #define BOOST_TEST_MODULE ( return optional values from fcl )
 
 #include "cetlib/quiet_unit_test.hpp"
-#include "boost/test/floating_point_comparison.hpp"
-#include "boost/test/test_tools.hpp"
 
 #include "fhiclcpp/types/OptionalAtom.h"
 #include "fhiclcpp/types/OptionalSequence.h"

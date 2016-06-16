@@ -11,4 +11,8 @@
   "fhiclcpp warning: The 'fhicl::ParameterSet::get_pset_keys()' function is deprecated.\n" \
   "                  Please use 'fhicl::ParameterSet::get_pset_names()'.\n\n"
 
-#endif
+#endif /* fhiclcpp_detail_deprecation_msgs_h */
+
+// Local Variables:
+// mode: c++
+// End:

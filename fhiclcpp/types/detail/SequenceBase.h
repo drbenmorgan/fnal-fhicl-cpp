@@ -44,7 +44,7 @@ namespace fhicl {
   }
 }
 
-#endif
+#endif /* fhiclcpp_types_detail_SequenceBase_h */
 
 // Local variables:
 // mode: c++

@@ -115,6 +115,21 @@ cet_test(save-restore-ba HANDBUILT
 )
 
 cet_test(intermediate_table_t USE_BOOST_UNIT)
+
+cet_test(table_t_iterator_t USE_BOOST_UNIT)
+get_target_property(DEFS table_t_iterator_t COMPILE_DEFINITIONS)
+list(APPEND DEFS SNIPPET_MODE=false)
+set_target_properties(table_t_iterator_t PROPERTIES
+  COMPILE_DEFINITIONS "${DEFS}")
+
+cet_test(table_t_snippet_iterator_t
+  SOURCES table_t_iterator_t.cc
+  USE_BOOST_UNIT)
+get_target_property(DEFS table_t_snippet_iterator_t COMPILE_DEFINITIONS)
+list(APPEND DEFS SNIPPET_MODE=true)
+set_target_properties(table_t_snippet_iterator_t PROPERTIES
+  COMPILE_DEFINITIONS "${DEFS}")
+
 cet_test(seq_of_seq_t)
 
 cet_test(traits_t)
@@ -139,3 +154,5 @@ cet_test(fhicl-write-db-test HANDBUILT
   DEPENDS WriteSQLiteDB_t
   PASS_REGULAR_EXPRESSION "^3\n$"
   )
+
+cet_test(parse_shimmeddocument_test USE_BOOST_UNIT)

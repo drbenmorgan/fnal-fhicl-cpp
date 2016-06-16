@@ -23,6 +23,10 @@ set(fhiclcpp_SOURCES
   make_ParameterSet.h
   parse.cc
   parse.h
+  parse_shims.h
+  parse_shims.cc
+  parse_shims_opts.h
+  stdmap_shims.h
   tokens.h
   type_traits.h
   detail/Indentation.h

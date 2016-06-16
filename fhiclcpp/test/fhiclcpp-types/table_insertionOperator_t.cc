@@ -81,10 +81,10 @@ BOOST_AUTO_TEST_CASE(logger)
 {
   Table<Config> config {Name("config")};
   Logger logger;
-  logger << config;
+  logger.operator<<(config);
   BOOST_CHECK_EQUAL(logger.log, reference());
 
-  Logger const logger2 = (Logger() << config);
+  Logger const logger2 = (Logger().operator<<(config));
   BOOST_CHECK_EQUAL(logger2.log, reference());
 }
 
@@ -92,10 +92,10 @@ BOOST_AUTO_TEST_CASE(loggerOptional)
 {
   OptionalTable<Config> config {Name("config")};
   Logger logger;
-  logger << config;
+  logger.operator<<(config);
   BOOST_CHECK_EQUAL(logger.log, optional_reference());
 
-  Logger const logger2 = (Logger() << config);
+  Logger const logger2 = (Logger().operator<<(config));
   BOOST_CHECK_EQUAL(logger2.log, optional_reference());
 }
 

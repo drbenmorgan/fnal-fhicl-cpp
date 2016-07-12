@@ -10,13 +10,11 @@
 #define BOOST_TEST_MODULE ( return values from fcl )
 
 #include "cetlib/quiet_unit_test.hpp"
-
+#include "cetlib/test_macros.h"
+#include "fhiclcpp/test/types/FixtureBase.h"
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Sequence.h"
 #include "fhiclcpp/types/Tuple.h"
-
-#include "fhiclcpp/test/fhiclcpp-types/FixtureBase.h"
-#include "cetlib/test_macros.h"
 
 #include <iostream>
 #include <string>

@@ -1,4 +1,5 @@
 #include "fhiclcpp/detail/printing_helpers.h"
+#include "fhiclcpp/types/detail/strip_containing_names.h"
 
 namespace fhicl {
 
@@ -61,7 +62,7 @@ namespace fhicl {
   Atom<T>::get_stringified_value() const
   {
     std::stringstream oss;
-    if ( has_default() ) {
+    if (has_default()) {
       using namespace detail::yes_defaults;
       oss << maybe_quotes<T>(*value_) ;
     }
@@ -74,15 +75,15 @@ namespace fhicl {
 
   template <typename T>
   void
-  Atom<T>::do_set_value( fhicl::ParameterSet const & pset, bool const trimParent )
+  Atom<T>::do_set_value(fhicl::ParameterSet const& pset, bool const trimParent)
   {
     std::string const& rkey = key();
-    std::string const& key = trimParent ? rkey.substr( rkey.find_first_of(".")+1 ) : rkey;
+    std::string const& key = trimParent ? detail::strip_first_containing_name(rkey) : rkey;
 
-    if ( has_default() )
-      pset.get_if_present<T>( key, *value_ );
+    if (has_default())
+      pset.get_if_present<T>(key, *value_);
     else
-      value_ = std::make_shared<T>(pset.get<T>( key ));
+      value_ = std::make_shared<T>(pset.get<T>(key));
   }
 
 }

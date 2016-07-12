@@ -7,16 +7,17 @@
 
 
           ParameterBase
-         /      |      \
-        /       |       \____________________
-       /        |                            \
-  AtomBase   TableBase                  SequenceBase
-     |          |                      /     |      \
-     |          |                     /      |       \
-     |          |        SeqVectorBase       |        \
-     |          |              |             |         \
-     |          |              |             |          \
-  Atom<T>    Table<T>     Sequence<T>   Sequence<T,SZ>   Tuple<T...>
+         /      |    \ \_____________________________________
+        /       |     \____________________                  \
+       /        |                          \                  \
+      /         |                           \                  \
+  AtomBase   TableBase                  SequenceBase      DelegateBase
+     |          |                      /     |      \            \___
+     |          |                     /      |       \            \  \
+     |          |        SeqVectorBase       |        \            \  DelegatedParameter
+     |          |              |             |         \            \___
+     |          |              |             |          \               \
+  Atom<T>    Table<T>     Sequence<T>   Sequence<T,SZ>   Tuple<T...>  OptionalDelegatedParameter
 
 
   The design is meant to closely follow the classification of FHiCL
@@ -48,8 +49,8 @@ namespace fhicl {
       par_type    parameter_type() const { return mdata_.type(); }
       bool        should_use()     const { return maybeUse_(); }
 
-      ParameterBase(Name const & name,
-                    Comment const & comment,
+      ParameterBase(Name const& name,
+                    Comment const& comment,
                     value_type const vt,
                     par_type const type,
                     std::function<bool()> maybeUse = AlwaysUse())

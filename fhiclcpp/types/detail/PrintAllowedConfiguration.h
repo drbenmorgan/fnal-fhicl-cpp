@@ -54,9 +54,11 @@ namespace fhicl {
 
       void atom(AtomBase const&) override;
 
+      void delegated_parameter(DelegateBase const&) override;
+
       void cacheTopLevelParameter(ParameterBase const& p)
       {
-        if ( cachedTopLevelParameter_ == "" )
+        if (cachedTopLevelParameter_ == "")
           cachedTopLevelParameter_ = p.key();
       }
 

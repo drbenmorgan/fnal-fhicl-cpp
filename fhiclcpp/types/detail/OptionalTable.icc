@@ -2,6 +2,7 @@
 #include "fhiclcpp/detail/printing_helpers.h"
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
 #include "fhiclcpp/types/detail/ValidateThenSet.h"
+#include "fhiclcpp/types/detail/strip_containing_names.h"
 
 namespace fhicl {
 
@@ -64,20 +65,21 @@ namespace fhicl {
   OptionalTable<T>::do_set_value(fhicl::ParameterSet const& pset, bool const /*trimParent*/)
   {
     // Kind of tricky: we do not have the name of the current
-    // parameter set.  A placeholder is often used (e.g. "<top_level>").
-    // Fortunately, since the pset is passed in, we can just assign to
-    // it for a top-level ParameterSet.  However, for nested parameter
-    // sets, we need to trim off the placeholder, and then the key we
-    // send pset.get<fhicl::ParameterSet>(key) is the key relative to
-    // the top-level pset.
+    // parameter set.  A placeholder is often used
+    // (e.g. "<top_level>").  Fortunately, since the pset is passed
+    // in, we can just assign to it for a top-level ParameterSet.
+    // However, for nested parameter sets, we need to trim off the
+    // placeholder, and then the key we send
+    // pset.get<fhicl::ParameterSet>(key) is the key relative to the
+    // top-level pset.
     std::string const& rkey = key();
-    std::string const& key  = rkey.substr( rkey.find_first_of(".")+1 );
-    if ( key == rkey ) {
-      pset_      = pset;
+    std::string const& nkey = detail::strip_first_containing_name(rkey);
+    if (nkey == rkey) {
+      pset_ = pset;
       has_value_ = true;
     }
     else {
-      has_value_ = pset.get_if_present<fhicl::ParameterSet>(key, pset_);
+      has_value_ = pset.get_if_present<fhicl::ParameterSet>(nkey, pset_);
     }
   }
 

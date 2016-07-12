@@ -36,6 +36,7 @@ private:
 
 class fhicl::ParameterSetRegistry {
 public:
+
   ParameterSetRegistry(ParameterSet const &) = delete;
   ParameterSetRegistry(ParameterSet &&) = delete;
   ParameterSetRegistry & operator = (ParameterSet const &) = delete;
@@ -71,15 +72,15 @@ public:
   // 2. A range of iterator to ParameterSet.
   template <class FwdIt>
   static
-  typename std::enable_if<std::is_same<typename std::iterator_traits<FwdIt>::value_type,
-                                       mapped_type>::value, void>::type
+  std::enable_if_t<std::is_same<typename std::iterator_traits<FwdIt>::value_type,
+                                mapped_type>::value>
   put(FwdIt begin, FwdIt end);
   // 3. A range of iterator to pair<ParameterSetID, ParameterSet>. For
   // each pair, first == second.id() is a prerequisite.
   template <class FwdIt>
   static
-  typename std::enable_if<std::is_same<typename std::iterator_traits<FwdIt>::value_type,
-                                       value_type>::value, void>::type
+  std::enable_if_t<std::is_same<typename std::iterator_traits<FwdIt>::value_type,
+                                value_type>::value>
   put(FwdIt begin, FwdIt end);
   // 4. A collection_type. For each value_type, first == second.id() is
   // a prerequisite.

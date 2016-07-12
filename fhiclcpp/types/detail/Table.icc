@@ -2,6 +2,7 @@
 #include "fhiclcpp/detail/printing_helpers.h"
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
 #include "fhiclcpp/types/detail/ValidateThenSet.h"
+#include "fhiclcpp/types/detail/strip_containing_names.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
 namespace fhicl {
@@ -31,21 +32,21 @@ namespace fhicl {
   }
 
   template <typename T>
-  Table<T>::Table(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
+  Table<T>::Table(ParameterSet const& pset, std::set<std::string> const& keysToIgnore)
     : TableBase{Name("<top_level>"), Comment(""), value_type::REQUIRED, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     maybe_implicitly_default();
-    validate_ParameterSet( pset, keysToIgnore );
+    validate_ParameterSet(pset, keysToIgnore);
     NameStackRegistry::end_of_ctor();
   }
 
   template <typename T>
   void
-  Table<T>::validate_ParameterSet(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
+  Table<T>::validate_ParameterSet(ParameterSet const& pset, std::set<std::string> const& keysToIgnore)
   {
     pset_ = pset;
-    detail::ValidateThenSet vs{pset_, keysToIgnore};
+    detail::ValidateThenSet vs {pset_, keysToIgnore};
     cet::for_all(members(), [&vs](auto m){ vs(*m); });
 
     try {
@@ -55,7 +56,6 @@ namespace fhicl {
       NameStackRegistry::instance().clear();
       throw;
     }
-
   }
 
   template <typename T>
@@ -63,7 +63,7 @@ namespace fhicl {
   Table<T>::print_allowed_configuration(std::ostream& os,
                                         std::string const& tab) const
   {
-    detail::PrintAllowedConfiguration pc{os, false, tab};
+    detail::PrintAllowedConfiguration pc {os, false, tab};
     pc(*this);
   }
 
@@ -79,7 +79,7 @@ namespace fhicl {
     // send pset.get<fhicl::ParameterSet>(key) is the key relative to
     // the top-level pset.
     std::string const& rkey = key();
-    std::string const& nkey = rkey.substr( rkey.find_first_of(".")+1 );
+    std::string const& nkey = detail::strip_first_containing_name(rkey);
     pset_ = (nkey == rkey) ? pset : pset.get<fhicl::ParameterSet>(nkey);
   }
 
@@ -90,9 +90,9 @@ namespace fhicl {
     bool const implicitly_default = std::all_of(members_.begin(),
                                                 members_.end(),
                                                 [](auto p){
-                                                  return p->has_default() || p->is_optional(); }
-                                                );
-    if ( implicitly_default )
+                                                  return p->has_default() || p->is_optional();
+                                                });
+    if (implicitly_default)
       set_value_type(value_type::DEFAULT);
   }
 

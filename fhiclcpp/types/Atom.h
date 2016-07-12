@@ -54,7 +54,7 @@ namespace fhicl {
     std::shared_ptr<T> value_;
 
     std::string get_stringified_value() const override;
-    void do_set_value( fhicl::ParameterSet const &, bool const ) override;
+    void do_set_value(fhicl::ParameterSet const&, bool const) override;
 
   };
 

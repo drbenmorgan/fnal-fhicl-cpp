@@ -1,6 +1,5 @@
 #ifndef fhiclcpp_type_traits_h
 #define fhiclcpp_type_traits_h
-#ifndef __GCCXML__
 // ======================================================================
 //
 // type traits
@@ -260,7 +259,6 @@ namespace tt {
 
 }
 
-#endif /* __GCCXML__ */
 #endif /* fhiclcpp_type_traits_h */
 
 // Local Variables:

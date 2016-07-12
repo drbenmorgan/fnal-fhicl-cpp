@@ -78,6 +78,10 @@ cet_test(print_allowed_configuration_tableFragment_t
   REF "${CMAKE_CURRENT_SOURCE_DIR}/print_allowed_configuration_tableFragment_t-ref.txt"
   )
 
+cet_test(print_allowed_configuration_delegatedParameter_t
+  REF "${CMAKE_CURRENT_SOURCE_DIR}/print_allowed_configuration_delegatedParameter_t-ref.txt"
+  )
+
 cet_test(print_allowed_configuration_conditional_t
   REF "${CMAKE_CURRENT_SOURCE_DIR}/print_allowed_configuration_conditional_t-ref.txt"
   )
@@ -90,6 +94,11 @@ cet_test(validate_ParameterSet_t
   DATAFILES
   validate_ParameterSet_t.fcl
   REF "${CMAKE_CURRENT_SOURCE_DIR}/validate_ParameterSet_t-ref.txt"
+  )
+
+cet_test(delegatedParameter_t USE_BOOST_UNIT
+  DATAFILES
+  delegatedParameter_t.fcl
   )
 
 cet_test(return_values_from_fcl_t USE_BOOST_UNIT

@@ -50,11 +50,13 @@ namespace fhicl {
 
     std::string full_key(std::string const & key);
 
-    bool empty() const {
+    bool empty() const
+    {
       return names_.empty();
     }
 
-    std::string current() const {
+    std::string current() const
+    {
       return names_.back();
     }
 
@@ -63,7 +65,8 @@ namespace fhicl {
       instance().names_.pop_back();
     }
 
-    void clear() {
+    void clear()
+    {
       names_.clear();
     }
 
@@ -73,14 +76,8 @@ namespace fhicl {
     }
 
   private:
-
-    NameStackRegistry() : names_() {}
-
-    std::vector<std::string> names_;
-
-    inline std::string full_key_() {
-      return std::accumulate(names_.begin(), names_.end(), std::string{} );
-    }
+    NameStackRegistry() = default;
+    std::vector<std::string> names_{};
   };
 
 }

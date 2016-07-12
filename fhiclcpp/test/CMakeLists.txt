@@ -15,7 +15,7 @@ link_libraries(fhiclcpp
 
 cet_test_env("FHICL_FILE_PATH=.")
 
-add_subdirectory( fhiclcpp-types )
+add_subdirectory(types)
 
 cet_test(dotted_names)
 cet_test(hex_test)

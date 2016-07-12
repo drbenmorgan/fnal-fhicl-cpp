@@ -218,13 +218,13 @@ PrintAllowedConfiguration::enter_sequence(SequenceBase const& s)
   //      ...
   //   ]
 
-  if ( s.has_default() || (s.parameter_type() != par_type::SEQ_VECTOR) ) {
-    for ( std::size_t i{}; i != s.size()-1; ++i )
-      keysWithCommas_.emplace( s.key()+ "["+std::to_string(i)+"]" );
+  if (s.has_default() || (s.parameter_type() != par_type::SEQ_VECTOR)) {
+    for (std::size_t i{}; i != s.size()-1; ++i)
+      keysWithCommas_.emplace(s.key()+"["+std::to_string(i)+"]");
     return;
   }
 
-  if ( s.size() != 1ul ) {
+  if (s.size() != 1ul) {
     throw cet::exception("LogicError") <<
       "Default Sequence<T> has a size not equal to 1.\n"
       "Maybe you tried to print the allowed configuration\n"
@@ -250,4 +250,13 @@ PrintAllowedConfiguration::atom(AtomBase const& a)
 {
   buffer_ << maybeName{a, indent_()}
           << a.stringified_value();
+}
+
+//======================================================================
+
+void
+PrintAllowedConfiguration::delegated_parameter(DelegateBase const& dp)
+{
+  buffer_ << maybeName{dp, indent_()}
+  << "<< delegated >>";
 }

@@ -1,8 +1,3 @@
-# - When user supplies "-DALT_CMAKE" use the non-CET/UPS system
-if(ALT_CMAKE)
-  include(altCMakeLists.cmake)
-else()
-
 # ======================================================================
 #
 # Testing
@@ -153,4 +148,3 @@ cet_test(fhicl-write-db-test HANDBUILT
 
 cet_test(parse_shimmeddocument_test USE_BOOST_UNIT)
 
-endif() # ALT_CMAKE

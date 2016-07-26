@@ -1,3 +1,8 @@
+# - When user supplies "-DALT_CMAKE" use the non-CET/UPS system
+if(ALT_CMAKE)
+  include(altCMakeLists.cmake)
+else()
+
 include(CetMake)
 
 add_subdirectory( detail types )
@@ -20,3 +25,5 @@ install_headers(SUBDIRS types types/detail)
 install_source(SUBDIRS types types/detail)
 # Testing
 add_subdirectory(test)
+
+endif() # ALT_CMAKE

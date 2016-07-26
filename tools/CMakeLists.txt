@@ -1,3 +1,8 @@
+# - When user supplies "-DALT_CMAKE" use the non-CET/UPS system
+if(ALT_CMAKE)
+  include(altCMakeLists.cmake)
+else()
+
 include(CetMake)
 
 cet_make_exec(fhicl-dump
@@ -21,3 +26,6 @@ cet_make_exec(fhicl-write-db
 
 install_headers()
 install_source()
+
+endif()
+

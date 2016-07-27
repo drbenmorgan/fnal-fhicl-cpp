@@ -754,7 +754,7 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
 #endif
   prolog =
     lit("BEGIN_PROLOG") [ phx::bind(rebool, ref(in_prolog), true) ]
-    >> *((iter_pos >> qualname >> fhicl::binding >> value
+    > *((iter_pos >> qualname >> fhicl::binding >> value
          ) [ phx::bind(&tbl_insert<iter_t>, ref(qi::_2), qi::_3, ref(qi::_4), ref(tbl), qi::_1, ref(s)) ]
          | (iter_pos >> qualname >> (lit(':') > lit("@erase"))
            ) [ phx::bind(&tbl_erase<iter_t>, qi::_2, ref(tbl), ref(in_prolog), qi::_1, ref(s)) ]
@@ -763,7 +763,7 @@ fhicl::document_parser<FwdIter, Skip>::document_parser(cet::includer const & s)
                          qi::_2, ref(tbl), ref(in_prolog),
                          qi::_1, ref(s)) ]
         )
-    >> lit("END_PROLOG")  [ phx::bind(rebool, ref(in_prolog), false) ];
+    > lit("END_PROLOG")  [ phx::bind(rebool, ref(in_prolog), false) ];
   document = (*prolog)
              >> *((iter_pos >> qualname >> fhicl::binding >> value
                   ) [ phx::bind(&tbl_insert<iter_t>, ref(qi::_2), qi::_3, ref(qi::_4), ref(tbl), qi::_1, ref(s)) ]

@@ -13,7 +13,8 @@ link_libraries(fhiclcpp
   ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
 
-cet_test_env("FHICL_FILE_PATH=.")
+cet_test_env("FHICL_FILE_PATH=${CMAKE_CURRENT_SOURCE_DIR}:.")
+cet_test_env("PATH=${CMAKE_CURRENT_SOURCE_DIR}:$<TARGET_FILE_DIR:fhicl-expand>:$ENV{PATH}")
 
 add_subdirectory( fhiclcpp-types )
 
@@ -35,9 +36,11 @@ cet_test(get_sequence_elements_t USE_BOOST_UNIT
 cet_test(equalTest USE_BOOST_UNIT)
 cet_test(failer DATAFILES test_config_fail.fcl)
 cet_test(fhicl-config_t NO_AUTO)
-cet_test(fhicl-expand_test.sh PREBUILT)
-cet_test(fhicl-expand_test_path.sh PREBUILT)
-cet_test(issue_0923_t.sh PREBUILT
+
+cet_test(fhicl-expand_test.sh HANDBUILT TEST_EXEC fhicl-expand_test.sh)
+cet_test(fhicl-expand_test_path.sh HANDBUILT TEST_EXEC fhicl-expand_test_path.sh)
+
+cet_test(issue_0923_t.sh HANDBUILT TEST_EXEC issue_0923_t.sh
   DATAFILES
   issue_0923a.fcl
   issue_0923b.fcl

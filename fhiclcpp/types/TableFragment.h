@@ -35,8 +35,7 @@
 
   A 'TableFragment' is not a fhiclcpp type, per se, since it does not
   represent a meaningful FHiCL construct.  It does not derive from
-  ParameterBase and is therefore not registered by the
-  ParameterSchemaRegistry.
+  ParameterBase, nor is it registered anywhere.
 */
 
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
@@ -53,6 +52,7 @@ namespace fhicl {
     static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
     static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS);
     static_assert(std::is_class<T>::value, REQUIRE_CLASS_TABLE_FRAGMENT);
+    static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
     // Compiler-produced default c'tor (and friends) is fine since 'T'
     // is of class type.

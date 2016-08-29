@@ -18,23 +18,25 @@
 
 namespace fhicl {
 
-  template <typename T> struct Atom;
-  template <typename T> struct OptionalAtom;
+  template <typename T> class Atom;
+  template <typename T> class OptionalAtom;
 
-  template <typename T> struct Table;
-  template <typename T> struct OptionalTable;
+  template <typename T> class Table;
+  template <typename T> class OptionalTable;
 
-  template <typename T> struct TableFragment;
+  template <typename T> class TableFragment;
 
-  template <typename ... ARGS> struct Tuple;
-  template <typename ... ARGS> struct OptionalTuple;
+  template <typename... ARGS> class Tuple;
+  template <typename... ARGS> class OptionalTuple;
 
-  template <typename T, std::size_t SZ> struct Sequence;
-  template <typename T, std::size_t SZ> struct OptionalSequence;
+  template <typename T, std::size_t SZ> class Sequence;
+  template <typename T, std::size_t SZ> class OptionalSequence;
 
-  template <typename T, typename ... ARGS> struct TupleAs;
-  template <typename T, typename ... ARGS> struct OptionalTupleAs;
+  template <typename T, typename... ARGS> class TupleAs;
+  template <typename T, typename... ARGS> class OptionalTupleAs;
 
+  class DelegatedParameter;
+  class OptionalDelegatedParameter;
 }
 
 namespace tt {
@@ -46,9 +48,9 @@ namespace tt {
   using disable_if = std::enable_if<!b, T>;
 
   template<typename T>
-  struct is_int : public std::integral_constant<bool,
-                                                std::is_integral<T>::value &&
-                                                ! std::is_unsigned<T>::value> {};
+  struct is_int : std::integral_constant<bool,
+                                         std::is_integral<T>::value &&
+                                         !std::is_unsigned<T>::value> {};
 
   template <typename T>
   using is_numeric = std::is_arithmetic<T>;
@@ -81,9 +83,9 @@ namespace tt {
 
   template <typename ARG,std::size_t SZ>
   struct is_sequence_type<std::array<ARG,SZ>> : std::true_type {};
-  template <typename ... ARGS>
-  struct is_sequence_type<std::tuple <ARGS...>> : std::true_type {};
-  template <typename ... ARGS>
+  template <typename... ARGS>
+  struct is_sequence_type<std::tuple<ARGS...>> : std::true_type {};
+  template <typename... ARGS>
   struct is_sequence_type<std::vector<ARGS...>> : std::true_type {};
 
   //=======================================================
@@ -116,11 +118,22 @@ namespace tt {
   template <typename T, std::size_t SZ>
   struct is_optional_parameter<fhicl::OptionalSequence<T, SZ>> : std::true_type {};
 
-  template <typename ... TYPES>
+  template <typename... TYPES>
   struct is_optional_parameter<fhicl::OptionalTuple<TYPES...>> : std::true_type {};
 
-  template <typename T, typename ... ARGS>
+  template <typename T, typename... ARGS>
   struct is_optional_parameter<fhicl::OptionalTupleAs<T(ARGS...)>> : std::true_type {};
+
+  //=======================================================
+  // Check if delegated parameter
+  //
+  template <typename T> struct is_delegated_parameter : std::false_type {};
+
+  template <>
+  struct is_delegated_parameter<fhicl::DelegatedParameter> : std::true_type {};
+
+  template <>
+  struct is_delegated_parameter<fhicl::OptionalDelegatedParameter> : std::true_type {};
 
   //=======================================================
   // Check if fhicl type -- i.e. Atom<>, Table<>, etc.
@@ -150,17 +163,17 @@ namespace tt {
   struct is_fhicl_type<fhicl::OptionalSequence<T, SZ>> : std::true_type {};
 
   // ... Tuple
-  template <typename ... TYPES>
+  template <typename... TYPES>
   struct is_fhicl_type<fhicl::Tuple<TYPES...>> : std::true_type {};
 
-  template <typename ... TYPES>
+  template <typename... TYPES>
   struct is_fhicl_type<fhicl::OptionalTuple<TYPES...>> : std::true_type {};
 
   // ... TupleAs
-  template <typename T, typename ... ARGS>
+  template <typename T, typename... ARGS>
   struct is_fhicl_type<fhicl::TupleAs<T(ARGS...)>> : std::true_type {};
 
-  template <typename T, typename ... ARGS>
+  template <typename T, typename... ARGS>
   struct is_fhicl_type<fhicl::OptionalTupleAs<T(ARGS...)>> : std::true_type {};
 
   //=======================================================
@@ -181,12 +194,12 @@ namespace tt {
     using type = fhicl::Table<T>;
   };
 
-  template <typename ... ARGS>
+  template <typename... ARGS>
   struct fhicl_type_impl<fhicl::Tuple<ARGS...>> {
     using type = fhicl::Tuple<ARGS...>;
   };
 
-  template <typename T, typename ... ARGS>
+  template <typename T, typename... ARGS>
   struct fhicl_type_impl<fhicl::TupleAs<T(ARGS...)>> {
     using type = fhicl::TupleAs<T(ARGS...)>;
   };
@@ -206,12 +219,12 @@ namespace tt {
     using type = fhicl::OptionalTable<T>;
   };
 
-  template <typename ... ARGS>
+  template <typename... ARGS>
   struct fhicl_type_impl<fhicl::OptionalTuple<ARGS...>> {
     using type = fhicl::OptionalTuple<ARGS...>;
   };
 
-  template <typename T, typename ... ARGS>
+  template <typename T, typename... ARGS>
   struct fhicl_type_impl<fhicl::OptionalTupleAs<T(ARGS...)>> {
     using type = fhicl::OptionalTupleAs<T(ARGS...)>;
   };
@@ -229,7 +242,7 @@ namespace tt {
   };
 
   template <typename T>
-  struct return_type_impl<fhicl::Atom<T> >{
+  struct return_type_impl<fhicl::Atom<T>>{
     using rtype = typename fhicl::Atom<T>::rtype;
   };
 
@@ -243,18 +256,18 @@ namespace tt {
     using rtype = typename fhicl::Table<S>::rtype;
   };
 
-  template <typename ... ARGS>
+  template <typename... ARGS>
   struct return_type_impl<fhicl::Tuple<ARGS...>> {
     using rtype = typename fhicl::Tuple<ARGS...>::rtype;
   };
 
-  template <typename T, typename ... ARGS>
+  template <typename T, typename... ARGS>
   struct return_type_impl<fhicl::TupleAs<T(ARGS...)>> {
     using rtype = typename fhicl::TupleAs<T(ARGS...)>::rtype;
   };
 
   // The alias
-  template < typename ... ARGS>
+  template < typename... ARGS>
   using return_type = typename return_type_impl<ARGS...>::rtype;
 
 }

@@ -65,8 +65,9 @@ namespace fhicl {
     private detail::RegisterIfTableMember {
   public:
 
-    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS );
-    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES );
+    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS);
+    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES);
+    static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
     using dtype = sequence_detail::ValueHolder<typename tt::fhicl_type<T>::dtype>;
     using ftype = std::array<std::shared_ptr<tt::fhicl_type<T>>, N>;
@@ -127,6 +128,7 @@ namespace fhicl {
 
     static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS );
     static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES );
+    static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
     using dtype = std::vector< typename tt::fhicl_type<T>::dtype >;
     using ftype = std::vector< std::shared_ptr<tt::fhicl_type<T>> >;

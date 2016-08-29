@@ -65,8 +65,13 @@
 #define NO_OPTIONAL_TYPES                                               \
   "\n\n"                                                                \
   "fhiclcpp error: The following optional parameters cannot be\n"       \
-  "                template arguments to any fhiclcpp types:\n\n" \
+  "                template arguments to any fhiclcpp types:\n\n"       \
   OPTIONAL_FHICL_TYPES
+
+#define NO_DELEGATED_PARAMETERS                                         \
+  "\n\n"                                                                \
+  "fhiclcpp error: The 'DelegatedParameter' and 'OptionalDelegatedParameter'" \
+  "                types cannot be template arguments to any fhiclcpp types.\n\n"
 
 #endif /* fhiclcpp_types_detail_type_traits_error_msgs_h */
 

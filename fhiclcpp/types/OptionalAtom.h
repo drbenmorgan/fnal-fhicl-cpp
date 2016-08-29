@@ -28,6 +28,7 @@ namespace fhicl {
     static_assert(!tt::is_sequence_type<T>::value , NO_STD_CONTAINERS            );
     static_assert(!tt::is_fhicl_type<T>::value    , NO_NESTED_FHICL_TYPES_IN_ATOM);
     static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS    );
+    static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
     //=====================================================
     // User-friendly

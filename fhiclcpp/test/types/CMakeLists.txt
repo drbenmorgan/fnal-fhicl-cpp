@@ -45,6 +45,7 @@
 cet_test(keymap_t                USE_BOOST_UNIT)
 cet_test(keymap_defaults_t       USE_BOOST_UNIT)
 cet_test(keymap_table_t          USE_BOOST_UNIT)
+cet_test(keys_to_ignore_t        USE_BOOST_UNIT)
 cet_test(return_types_t          USE_BOOST_UNIT)
 cet_test(return_types_table_t    USE_BOOST_UNIT)
 cet_test(return_value_defaults_t USE_BOOST_UNIT)

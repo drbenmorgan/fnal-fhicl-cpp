@@ -6,13 +6,16 @@
 //
 // ======================================================================
 
+#include "cetlib/detail/metaprogramming.h"
+
 #include <array>
 #include <complex>
+#include <set>
+#include <string>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
-
-#include <type_traits>
 
 // ======================================================================
 
@@ -21,7 +24,7 @@ namespace fhicl {
   template <typename T> class Atom;
   template <typename T> class OptionalAtom;
 
-  template <typename T> class Table;
+  template <typename T, typename KeysToIgnore> class Table;
   template <typename T> class OptionalTable;
 
   template <typename T> class TableFragment;
@@ -43,6 +46,7 @@ namespace tt {
 
   using std::is_floating_point;
   using std::enable_if;
+  using cet::detail::enable_if_function_exists_t;
 
   template <bool b, typename T = void>
   using disable_if = std::enable_if<!b, T>;
@@ -57,6 +61,15 @@ namespace tt {
 
   template <typename T>
   using is_uint = std::is_unsigned<T>;
+
+  template <typename T, typename = void>
+  struct is_callable : std::false_type {};
+
+  template <typename T>
+  struct is_callable<T, enable_if_function_exists_t<std::set<std::string>(T::*)(), &T::operator()>> : std::true_type {};
+
+  template <typename T>
+  struct is_callable<T, enable_if_function_exists_t<std::set<std::string>(T::*)() const, &T::operator()>> : std::true_type {};
 
   //=======================================================
   // Enforce (non)const-ness
@@ -93,8 +106,8 @@ namespace tt {
   //
   template <typename T> struct is_table : std::false_type {};
 
-  template <typename T>
-  struct is_table<fhicl::Table<T>> : std::true_type {};
+  template <typename T, typename KeysToIgnore>
+  struct is_table<fhicl::Table<T,KeysToIgnore>> : std::true_type {};
 
   //=======================================================
   // Check if TableFragment<>
@@ -142,8 +155,8 @@ namespace tt {
   struct is_fhicl_type : std::false_type {};
 
   // ... Table
-  template <typename T>
-  struct is_fhicl_type<fhicl::Table<T>> : std::true_type {};
+  template <typename T, typename KeysToIgnore>
+  struct is_fhicl_type<fhicl::Table<T,KeysToIgnore>> : std::true_type {};
 
   template <typename T>
   struct is_fhicl_type<fhicl::OptionalTable<T>> : std::true_type {};
@@ -189,9 +202,9 @@ namespace tt {
     using type = fhicl::Sequence<T,SZ>;
   };
 
-  template <typename T>
-  struct fhicl_type_impl<fhicl::Table<T>> {
-    using type = fhicl::Table<T>;
+  template <typename T, typename KeysToIgnore>
+  struct fhicl_type_impl<fhicl::Table<T,KeysToIgnore>> {
+    using type = fhicl::Table<T,KeysToIgnore>;
   };
 
   template <typename... ARGS>
@@ -251,9 +264,9 @@ namespace tt {
     using rtype = typename fhicl::Sequence<T,SZ>::rtype;
   };
 
-  template <typename S>
-  struct return_type_impl<fhicl::Table<S>> {
-    using rtype = typename fhicl::Table<S>::rtype;
+  template <typename S, typename KeysToIgnore>
+  struct return_type_impl<fhicl::Table<S,KeysToIgnore>> {
+    using rtype = typename fhicl::Table<S,KeysToIgnore>::rtype;
   };
 
   template <typename... ARGS>

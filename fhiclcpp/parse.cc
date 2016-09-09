@@ -23,7 +23,7 @@
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wpedantic"
 #else
-#pragma GCC diagnostic ignored "-pedantic"
+#pragma GCC diagnostic ignored "-Wpedantic"
 #endif
 #include "boost/spirit/repository/home/qi/primitive/iter_pos.hpp"
 #pragma GCC diagnostic pop

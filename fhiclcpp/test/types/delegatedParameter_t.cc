@@ -36,7 +36,7 @@ namespace {
 
   void receive_vector(std::vector<int> const& v)
   {
-    auto const ref {1,2,3};
+    auto const ref = {1,2,3};
     CET_CHECK_EQUAL_COLLECTIONS(v, ref);
   }
 

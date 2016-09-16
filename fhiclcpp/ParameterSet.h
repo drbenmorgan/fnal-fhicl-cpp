@@ -15,7 +15,6 @@
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/detail/ParameterSetImplHelpers.h"
 #include "fhiclcpp/detail/ParameterSetWalker.h"
-#include "fhiclcpp/detail/deprecation_msgs.h"
 #include "fhiclcpp/detail/encode_extended_value.h"
 #include "fhiclcpp/detail/print_mode.h"
 #include "fhiclcpp/detail/try_blocks.h"
@@ -56,10 +55,6 @@ public:
 
   std::vector<std::string> get_names() const;
   std::vector<std::string> get_pset_names() const;
-
-  [[deprecated(GET_KEYS_MSG)     ]] std::vector<std::string> get_keys()      const { return get_names();      }
-  [[deprecated(GET_PSET_KEYS_MSG)]] std::vector<std::string> get_pset_keys() const { return get_pset_names(); }
-
   std::vector<std::string> get_all_keys() const;
 
   // retrievers (nested key OK):

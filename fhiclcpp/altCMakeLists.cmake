@@ -1,4 +1,9 @@
+# - Create dynamic/Static lib targets
+add_library(fhiclcpp SHARED "")
+add_library(fhiclcpp-static STATIC "")
+set_target_properties(fhiclcpp-static PROPERTIES OUTPUT_NAME fhiclcpp)
 
+# - Apply source lists to libraries
 set(fhiclcpp_SOURCES
   DatabaseSupport.cc
   DatabaseSupport.h
@@ -23,8 +28,8 @@ set(fhiclcpp_SOURCES
   make_ParameterSet.h
   parse.cc
   parse.h
-  parse_shims.h
   parse_shims.cc
+  parse_shims.h
   parse_shims_opts.h
   stdmap_shims.h
   tokens.h
@@ -51,9 +56,14 @@ set(fhiclcpp_SOURCES
   types/Atom.h
   types/Comment.h
   types/ConfigPredicate.h
+  types/DelegatedParameter.cc
+  types/DelegatedParameter.h
+  types/KeysToIgnore.h
   types/Name.cc
   types/Name.h
   types/OptionalAtom.h
+  types/OptionalDelegatedParameter.cc
+  types/OptionalDelegatedParameter.h
   types/OptionalSequence.h
   types/OptionalTable.h
   types/OptionalTuple.h
@@ -65,6 +75,7 @@ set(fhiclcpp_SOURCES
   types/TupleAs.h
   types/detail/Atom.icc
   types/detail/AtomBase.h
+  types/detail/DelegateBase.h
   types/detail/MaybeDisplayParent.cc
   types/detail/MaybeDisplayParent.h
   types/detail/NameStackRegistry.cc
@@ -88,12 +99,21 @@ set(fhiclcpp_SOURCES
   types/detail/ValidateThenSet.h
   types/detail/ostream_helpers.cc
   types/detail/ostream_helpers.h
+  types/detail/strip_containing_names.cc
+  types/detail/strip_containing_names.h
   types/detail/type_traits_error_msgs.h
   types/detail/validationException.h
   )
 
-# - Dynamic
-add_library(fhiclcpp SHARED ${fhiclcpp_SOURCES})
+# - Set target sources. Done in one go here for clarity and
+# simplicity, but note how we could recurse into/include
+# subdirs and add sources step by step.
+# NB: ANother alternative is to build each sudbir as an OBJECT
+# library, then group.
+target_sources(fhiclcpp PRIVATE ${fhiclcpp_SOURCES})
+target_sources(fhiclcpp-static PRIVATE ${fhiclcpp_SOURCES})
+
+# - Define Include/Link Interfaces
 target_include_directories(fhiclcpp
   PUBLIC
    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
@@ -106,8 +126,6 @@ target_link_libraries(fhiclcpp PUBLIC
   )
 
 # - Static
-add_library(fhiclcpp-static STATIC ${fhiclcpp_SOURCES})
-set_target_properties(fhiclcpp-static PROPERTIES OUTPUT_NAME fhiclcpp)
 target_include_directories(fhiclcpp-static
   PUBLIC
    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
@@ -132,6 +150,7 @@ install(TARGETS fhiclcpp fhiclcpp-static
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/"
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}"
   FILES_MATCHING PATTERN "*.h" PATTERN "*.icc"
+  PATTERN "test" EXCLUDE
   )
 
 # Support files
@@ -149,7 +168,7 @@ write_basic_package_version_file(
 #   dependent on the use of multiconfig)
 export(
   EXPORT ${PROJECT_NAME}Targets
-  NAMESPACE fhiclcpp::
+  NAMESPACE ${PROJECT_NAME}::
   FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake"
   )
 
@@ -170,7 +189,7 @@ install(
 
 install(
   EXPORT ${PROJECT_NAME}Targets
-  NAMESPACE fhiclcpp::
+  NAMESPACE ${PROJECT_NAME}::
   DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
   )
 

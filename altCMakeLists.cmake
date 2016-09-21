@@ -15,7 +15,7 @@
 #  make package (builds distribution tarfile)
 
 cmake_minimum_required(VERSION 3.3)
-project(fhiclcpp VERSION 3.20.1)
+project(fhiclcpp VERSION 4.1.0)
 
 # cetbuildtools contains our cmake modules
 # - Cetbuildtools, version2
@@ -25,7 +25,7 @@ include(CetInstallDirs)
 include(CetCMakeSettings)
 include(CetCompilerSettings)
 
-# C++ Standard Config
+# C++ Standard Config (14)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(cetlib_COMPILE_FEATURES
   cxx_auto_type

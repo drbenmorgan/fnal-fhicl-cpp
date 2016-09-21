@@ -16,7 +16,7 @@ link_libraries(fhiclcpp
 cet_test_env("FHICL_FILE_PATH=${CMAKE_CURRENT_SOURCE_DIR}:.")
 cet_test_env("PATH=${CMAKE_CURRENT_SOURCE_DIR}:$<TARGET_FILE_DIR:fhicl-expand>:$ENV{PATH}")
 
-add_subdirectory( fhiclcpp-types )
+add_subdirectory(types)
 
 cet_test(dotted_names)
 cet_test(hex_test)

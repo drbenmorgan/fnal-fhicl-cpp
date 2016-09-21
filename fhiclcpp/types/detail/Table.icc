@@ -2,16 +2,17 @@
 #include "fhiclcpp/detail/printing_helpers.h"
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
 #include "fhiclcpp/types/detail/ValidateThenSet.h"
+#include "fhiclcpp/types/detail/strip_containing_names.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
 namespace fhicl {
 
-  template <typename T>
-  Table<T>::Table(Name&& name) : Table{std::move(name), Comment("")} {}
+  template <typename T, typename KeysToIgnore>
+  Table<T, KeysToIgnore>::Table(Name&& name) : Table{std::move(name), Comment("")} {}
 
-  template <typename T>
-  Table<T>::Table(Name&& name,
-                  Comment&& comment)
+  template <typename T, typename KeysToIgnore>
+  Table<T, KeysToIgnore>::Table(Name&& name,
+                                Comment&& comment)
     : TableBase{std::move(name), std::move(comment), value_type::REQUIRED, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
@@ -19,10 +20,10 @@ namespace fhicl {
     NameStackRegistry::end_of_ctor();
   }
 
-  template <typename T>
-  Table<T>::Table(Name&& name,
-                  Comment&& comment,
-                  std::function<bool()> maybeUse)
+  template <typename T, typename KeysToIgnore>
+  Table<T, KeysToIgnore>::Table(Name&& name,
+                                Comment&& comment,
+                                std::function<bool()> maybeUse)
     : TableBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, maybeUse}
     , RegisterIfTableMember{this}
   {
@@ -30,22 +31,35 @@ namespace fhicl {
     NameStackRegistry::end_of_ctor();
   }
 
-  template <typename T>
-  Table<T>::Table(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
+
+  template <typename T, typename KeysToIgnore>
+  template <typename, typename>
+  Table<T, KeysToIgnore>::Table(ParameterSet const& pset)
+    : Table{pset, KeysToIgnore{}(), Impl{}}
+  {}
+
+  template <typename T, typename KeysToIgnore>
+  template <typename, typename>
+  Table<T, KeysToIgnore>::Table(ParameterSet const& pset, std::set<std::string> const& keysToIgnore)
+    : Table{pset, keysToIgnore, Impl{}}
+  {}
+
+  template <typename T, typename KeysToIgnore>
+  Table<T, KeysToIgnore>::Table(ParameterSet const& pset, std::set<std::string> const& keysToIgnore, Impl)
     : TableBase{Name("<top_level>"), Comment(""), value_type::REQUIRED, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     maybe_implicitly_default();
-    validate_ParameterSet( pset, keysToIgnore );
+    validate_ParameterSet(pset, keysToIgnore);
     NameStackRegistry::end_of_ctor();
   }
 
-  template <typename T>
+  template <typename T, typename KeysToIgnore>
   void
-  Table<T>::validate_ParameterSet(ParameterSet const& pset, std::set<std::string> const & keysToIgnore)
+  Table<T, KeysToIgnore>::validate_ParameterSet(ParameterSet const& pset, std::set<std::string> const& keysToIgnore)
   {
     pset_ = pset;
-    detail::ValidateThenSet vs{pset_, keysToIgnore};
+    detail::ValidateThenSet vs {pset_, keysToIgnore};
     cet::for_all(members(), [&vs](auto m){ vs(*m); });
 
     try {
@@ -55,21 +69,20 @@ namespace fhicl {
       NameStackRegistry::instance().clear();
       throw;
     }
-
   }
 
-  template <typename T>
+  template <typename T, typename KeysToIgnore>
   void
-  Table<T>::print_allowed_configuration(std::ostream& os,
-                                        std::string const& tab) const
+  Table<T, KeysToIgnore>::print_allowed_configuration(std::ostream& os,
+                                                      std::string const& tab) const
   {
-    detail::PrintAllowedConfiguration pc{os, false, tab};
+    detail::PrintAllowedConfiguration pc {os, false, tab};
     pc(*this);
   }
 
-  template <typename T>
+  template <typename T, typename KeysToIgnore>
   void
-  Table<T>::do_set_value(fhicl::ParameterSet const& pset, bool const /*trimParent*/)
+  Table<T, KeysToIgnore>::do_set_value(fhicl::ParameterSet const& pset, bool const /*trimParent*/)
   {
     // Kind of tricky: we do not have the name of the current
     // parameter set.  A placeholder is often used (e.g. "<top_level>").
@@ -79,20 +92,20 @@ namespace fhicl {
     // send pset.get<fhicl::ParameterSet>(key) is the key relative to
     // the top-level pset.
     std::string const& rkey = key();
-    std::string const& nkey = rkey.substr( rkey.find_first_of(".")+1 );
+    std::string const& nkey = detail::strip_first_containing_name(rkey);
     pset_ = (nkey == rkey) ? pset : pset.get<fhicl::ParameterSet>(nkey);
   }
 
-  template <typename T>
+  template <typename T, typename KeysToIgnore>
   void
-  Table<T>::maybe_implicitly_default()
+  Table<T, KeysToIgnore>::maybe_implicitly_default()
   {
     bool const implicitly_default = std::all_of(members_.begin(),
                                                 members_.end(),
                                                 [](auto p){
-                                                  return p->has_default() || p->is_optional(); }
-                                                );
-    if ( implicitly_default )
+                                                  return p->has_default() || p->is_optional();
+                                                });
+    if (implicitly_default)
       set_value_type(value_type::DEFAULT);
   }
 

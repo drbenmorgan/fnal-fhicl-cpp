@@ -5,6 +5,7 @@
 #include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
+#include "fhiclcpp/types/detail/strip_containing_names.h"
 
 #include <string>
 
@@ -33,37 +34,44 @@ namespace fhicl {
       std::string name()        const { return name_; }
       std::string comment()     const { return comment_;}
 
-      bool        has_default() const {
+      bool has_default() const
+      {
         return
           valType_ == value_type::DEFAULT ||
           valType_ == value_type::DEFAULT_CONDITIONAL;
       }
 
-      bool        is_optional() const {
+      bool is_optional() const
+      {
         return
           valType_ == value_type::OPTIONAL ||
           valType_ == value_type::OPTIONAL_CONDITIONAL;
       }
-      bool        is_conditional() const {
+
+      bool is_conditional() const
+      {
         return
           valType_ == value_type::REQUIRED_CONDITIONAL ||
           valType_ == value_type::OPTIONAL_CONDITIONAL ||
           valType_ == value_type::DEFAULT_CONDITIONAL;
       }
-      par_type    type()        const { return parType_; }
 
-      void set_key( std::string const& key ) {
-        key_  = key;
-        name_ = key.substr( key.find_last_of(".")+1 );
+      par_type type() const { return parType_; }
+
+      void set_key(std::string const& key)
+      {
+        key_ = key;
+        name_ = detail::strip_all_containing_names(key);
       }
-      void set_value_type( value_type const vt ) { valType_ = vt; }
+
+      void set_value_type(value_type const vt) { valType_ = vt; }
 
     private:
       std::string key_ {};
       std::string name_ {};
       std::string comment_ {};
-      value_type  valType_ { value_type::NTYPES };
-      par_type    parType_ { par_type::NTYPES };
+      value_type  valType_ {value_type::NTYPES};
+      par_type    parType_ {par_type::NTYPES};
 
     };
 

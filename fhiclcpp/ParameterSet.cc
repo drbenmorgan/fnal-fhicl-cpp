@@ -41,9 +41,9 @@ namespace {
                 ParameterSet::annot_t& src_map)
   {
     src_map[key]=value.src_info;
-    if ( !value.is_a(SEQUENCE) ) return;
+    if (!value.is_a(SEQUENCE)) return;
     std::size_t i{};
-    for ( auto const& xval : extended_value::sequence_t(value) ) {
+    for (auto const& xval : extended_value::sequence_t(value)) {
       std::ostringstream oss;
       oss << key << "[" << i++ << "]";
       src_map[oss.str()] = xval.src_info;
@@ -67,7 +67,7 @@ ParameterSet::stringify_(any const & a, bool compact) const
 {
   string result;
   if (is_table(a)) {
-    ParameterSetID const & psid = any_cast<ParameterSetID>(a);
+    ParameterSetID const& psid = any_cast<ParameterSetID>(a);
     result = '{' + ParameterSetRegistry::get(psid).to_string() + '}';
     if (compact && result.size() > (5 + ParameterSetID::max_str_size())) {
       // Replace with a reference to the ParameterSetID;
@@ -75,7 +75,7 @@ ParameterSet::stringify_(any const & a, bool compact) const
     }
   }
   else if (is_sequence(a)) {
-    ps_sequence_t const & seq = any_cast<ps_sequence_t>(a);
+    auto const& seq = any_cast<ps_sequence_t>(a);
     result = '[';
     if (! seq.empty()) {
       result.append(stringify_(*seq.begin(), compact));
@@ -88,7 +88,7 @@ ParameterSet::stringify_(any const & a, bool compact) const
     result.append(1, ']');
   }
   else { // is_atom(a)
-    ps_atom_t str = any_cast<ps_atom_t>(a);
+    ps_atom_t const str = any_cast<ps_atom_t>(a);
     result = str == string(9, '\0') ? "@nil" : str;
   }
   return result;
@@ -229,8 +229,7 @@ namespace {
   check_put_local_key(std::string const & key)
   {
     if (key.find('.') != std::string::npos) {
-      throw fhicl::exception(unimplemented,
-                             "putXXX() for nested key.");
+      throw fhicl::exception(unimplemented, "putXXX() for nested key.");
     }
   }
 }
@@ -445,13 +444,13 @@ ParameterSet::to_indented_string(unsigned const initial_indent_level,
   switch(pm) {
   case print_mode::raw : {
     Prettifier p(initial_indent_level);
-    walk_( p );
+    walk_(p);
     result = p.result();
     break;
   }
   case print_mode::annotated : {
     PrettifierAnnotated p(initial_indent_level);
-    walk_( p );
+    walk_(p);
     result = p.result();
     break;
   }

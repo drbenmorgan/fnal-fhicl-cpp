@@ -4,7 +4,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "fhiclcpp/types/Table.h"
-#include "fhiclcpp/test/fhiclcpp-types/CondConfig.h"
+#include "fhiclcpp/test/types/CondConfig.h"
 #include "cetlib/test_macros.h"
 
 #include <iostream>

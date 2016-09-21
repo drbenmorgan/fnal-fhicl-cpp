@@ -99,6 +99,7 @@ namespace fhicl {
     {
       static_assert(!tt::is_table_fragment<E>::value, NO_NESTED_TABLE_FRAGMENTS);
       static_assert(!tt::is_optional_parameter<E>::value, NO_OPTIONAL_TYPES );
+      static_assert(!tt::is_delegated_parameter<E>::value, NO_DELEGATED_PARAMETERS);
       pw(*elem);
       visit_element(pw, others...);
     }
@@ -120,7 +121,8 @@ namespace fhicl {
     void visit_element(PW_const& pw, E const& elem, T const& ... others) const
     {
       static_assert(!tt::is_table_fragment<E>::value, NO_NESTED_TABLE_FRAGMENTS);
-      static_assert(!tt::is_optional_parameter<E>::value, NO_OPTIONAL_TYPES );
+      static_assert(!tt::is_optional_parameter<E>::value, NO_OPTIONAL_TYPES);
+      static_assert(!tt::is_delegated_parameter<E>::value, NO_DELEGATED_PARAMETERS);
       pw(*elem);
       visit_element(pw, others...);
     }
@@ -145,8 +147,8 @@ namespace fhicl {
     {
       using elem_ftype = typename E::element_type;
       static_assert(!tt::is_table_fragment<elem_ftype>::value, NO_NESTED_TABLE_FRAGMENTS);
-      static_assert(!tt::is_optional_parameter<elem_ftype>::value, NO_OPTIONAL_TYPES );
-
+      static_assert(!tt::is_optional_parameter<elem_ftype>::value, NO_OPTIONAL_TYPES);
+      static_assert(!tt::is_delegated_parameter<elem_ftype>::value, NO_DELEGATED_PARAMETERS);
       elem = std::make_shared<elem_ftype>( Name::sequence_element(i) );
       finalize_tuple_elements(++i, others...);
     }
@@ -172,7 +174,7 @@ namespace fhicl {
       using elem_utype = std::tuple_element_t<I,UTUPLE>;
       static_assert(!tt::is_table<elem_utype>::value, NO_DEFAULTS_FOR_TABLE);
       static_assert(!tt::is_sequence_type<elem_utype>::value, NO_STD_CONTAINERS);
-
+      static_assert(!tt::is_delegated_parameter<elem_utype>::value, NO_DELEGATED_PARAMETERS);
       auto & elem = std::get<I>(value_);
       elem = std::make_shared<tt::fhicl_type<elem_utype>>( Name::sequence_element(I), defaults.template get<I>() );
       fill_tuple_element<I+1>(defaults);

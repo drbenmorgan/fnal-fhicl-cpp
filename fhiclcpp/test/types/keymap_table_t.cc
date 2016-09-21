@@ -15,7 +15,7 @@
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/TableFragment.h"
 #include "fhiclcpp/types/Tuple.h"
-#include "fhiclcpp/test/fhiclcpp-types/KeyMap.h"
+#include "fhiclcpp/test/types/KeyMap.h"
 #include "cetlib/test_macros.h"
 
 #include <iostream>

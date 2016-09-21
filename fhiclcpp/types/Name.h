@@ -13,34 +13,30 @@ namespace fhicl {
     explicit Name(std::string const& name = "") : value(name) {}
     std::string value;
 
-    static inline Name sequence_element(std::size_t i)
+    static Name sequence_element(std::size_t const i)
     {
-      return Name{ index(i) };
+      return Name{index(i)};
     }
 
-    static inline Name sequence_element(std::string const& key_stem, std::size_t i)
+    static Name sequence_element(std::string const& key_stem, std::size_t const i)
     {
-      return Name{ key_stem + index(i) };
+      return Name{key_stem + index(i)};
     }
 
-    /*
-      Sometimes the key has '[' and ']' literals in it.  Those must be
-      padded with an escape character so the regex library doesn't
-      think we're trying to specify a character set.
-    */
-    static const std::string regex_safe(std::string const& key)
+    // Sometimes the key has '[' and ']' literals in it.  Those must be
+    // padded with an escape character so the regex library doesn't
+    // think we're trying to specify a character set.
+    static std::string regex_safe(std::string const& key)
     {
-      std::string const skey = fhicl::get_regex_replace_str( key );
-      return skey;
+      return fhicl::get_regex_replace_str(key);
     }
 
   private:
 
-    static inline std::string index(std::size_t i)
+    static std::string index(std::size_t const i)
     {
       return "[" + std::to_string(i) + "]";
     }
-
 
   };
 

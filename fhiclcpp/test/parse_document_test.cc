@@ -13,6 +13,7 @@
 #include "fhiclcpp/parse.h"
 #include <string>
 #include <iostream>
+#include <regex>
 using namespace fhicl;
 using namespace std;
 
@@ -898,7 +899,7 @@ BOOST_AUTO_TEST_CASE(protect_local_01)
     "a: { b: { x: @local::x } }\n"
     "END_PROLOG\n"
     "a: @local::a\n"
-    "a.b.x: 29\n";
+    "a.b.x: 29\n"
     ;
   intermediate_table tbl;
   parse_document(doc, tbl);
@@ -914,7 +915,7 @@ BOOST_AUTO_TEST_CASE(protect_local_02)
     "a: { b: { x: @local::x } }\n"
     "END_PROLOG\n"
     "a @protect_error: @local::a\n"
-    "a.b.x: 29\n";
+    "a.b.x: 29\n"
     ;
   intermediate_table tbl;
   PV_EXCEPTION;
@@ -928,7 +929,7 @@ BOOST_AUTO_TEST_CASE(protect_local_03)
     "a: { b: { x: @local::x } }\n"
     "END_PROLOG\n"
     "a @protect_ignore: @local::a\n"
-    "a.b.x: 29\n";
+    "a.b.x: 29\n"
     ;
   intermediate_table tbl;
   parse_document(doc, tbl);
@@ -936,6 +937,63 @@ BOOST_AUTO_TEST_CASE(protect_local_03)
   BOOST_CHECK(tbl.find("a.b.x").protection == Protection::PROTECT_IGNORE);
   BOOST_CHECK(tbl.find("a").protection == Protection::PROTECT_IGNORE);
   BOOST_CHECK(tbl.find("a.b.x").protection == Protection::PROTECT_IGNORE);
+}
+
+namespace {
+  bool is_parse_error_at(fhicl::exception const & e, size_t line, size_t charpos) {
+    bool result = e.categoryCode() == fhicl::error::parse_error;
+    if (result) {
+      using std::to_string;
+      static std::regex const RE("detected at or near line (\\d+), character (\\d+)");
+      std::smatch sm;
+      std::string match_string = e.what();
+      result = std::regex_search(match_string, sm, RE) &&
+               sm[1] == to_string(line) &&
+               sm[2] == to_string(charpos);
+    }
+    return result;
+  }
+}
+
+#define PARSE_ERROR(line, charpos)                                      \
+  BOOST_CHECK_EXCEPTION(parse_document(doc, tbl),                       \
+                        fhicl::exception,                               \
+                        std::bind(&is_parse_error_at, std::placeholders::_1, line, charpos));
+
+BOOST_AUTO_TEST_CASE(bad_par_01)
+{
+  std::string const doc =
+    "x : 26\n"
+    "a 36\n"
+    ;
+  intermediate_table tbl;
+  PARSE_ERROR(2,1);
+}
+
+BOOST_AUTO_TEST_CASE(bad_par_02)
+{
+  std::string const doc =
+    "BEGIN_PROLOG\n"
+    "x : 26\n"
+    "a : 36\n"
+    "END_PROLOG\n"
+    "y : 26\n"
+    "b 36\n"
+    ;
+  intermediate_table tbl;
+  PARSE_ERROR(6,1);
+}
+
+BOOST_AUTO_TEST_CASE(bad_prolog)
+{
+  std::string const doc =
+    "BEGIN_PROLOG\n"
+    "x : 26\n"
+    "a 36\n"
+    "END_PROLOG\n"
+    ;
+  intermediate_table tbl;
+  PARSE_ERROR(3,1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

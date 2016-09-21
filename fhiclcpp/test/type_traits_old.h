@@ -17,14 +17,8 @@ namespace tt_old {
 
   using std::enable_if;
 
-#ifndef __GCCXML__
   template <bool b, typename T = void>
-  using
-  disable_if = std::enable_if<!b, T>;
-#else
-  template <bool b, class  T = void>
-  struct disable_if : std::enable_if<!b, T> { };
-#endif
+  using disable_if = std::enable_if<!b, T>;
   template< class > struct is_complex;
   template< class > struct is_int;
   template< class > struct is_numeric;

@@ -7,6 +7,7 @@
 #include "fhiclcpp/types/detail/SeqVectorBase.h"
 #include "fhiclcpp/types/detail/TableBase.h"
 #include "fhiclcpp/types/detail/ValidateThenSet.h"
+#include "fhiclcpp/types/detail/strip_containing_names.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
 #include <iomanip>
@@ -15,8 +16,7 @@
 //====================================================================
 
 bool
-fhicl::detail::
-ValidateThenSet::before_action(ParameterBase& p)
+fhicl::detail::ValidateThenSet::before_action(ParameterBase& p)
 {
   // 'ConfigPredicate' condition must be satisfied to continue.
   if (!p.should_use())
@@ -24,24 +24,22 @@ ValidateThenSet::before_action(ParameterBase& p)
 
   // Check that key exists; allow defaulted or optional keys to be
   // absent.
-  std::string const& rkey = p.key();
-  std::string const& k = rkey.substr( rkey.find_first_of(".")+1 );
-  if ( !pset_.has_key(k) && !cet::search_all(ignorableKeys_,k) ) {
-    if ( !p.has_default() && !p.is_optional() ) {
+  std::string const& k = strip_first_containing_name(p.key());
+  if (!pset_.has_key(k) && !cet::search_all(ignorableKeys_,k)) {
+    if (!p.has_default() && !p.is_optional()) {
       missingParameters_.emplace_back(&p);
     }
     return false;
   }
 
-  // Do we need to find way to handle if 'k' has already been deleted?
-  userKeys_.erase(k);
+  auto erase_from = std::remove(userKeys_.begin(), userKeys_.end(), k);
+  userKeys_.erase(erase_from, userKeys_.cend());
   return true;
 }
 
 
 void
-fhicl::detail::
-ValidateThenSet::after_action(ParameterBase& p)
+fhicl::detail::ValidateThenSet::after_action(ParameterBase& p)
 {
   p.set_value(pset_, true);
 }
@@ -49,24 +47,41 @@ ValidateThenSet::after_action(ParameterBase& p)
 //====================================================================
 
 void
-fhicl::detail::
-ValidateThenSet::enter_sequence(SequenceBase& s)
+fhicl::detail::ValidateThenSet::enter_sequence(SequenceBase& s)
 {
   auto* v = dynamic_cast<SeqVectorBase*>(&s);
-  if ( v == nullptr ) return;
+  if (v == nullptr) return;
 
   // If the parameter is an unbounded sequence, we need to resize it
   // so that any nested parameters of the elements can be checked.
-  std::string const& rkey = v->key();
-  std::string const& key  = rkey.substr( rkey.find_first_of('.')+1 );
-  std::regex const r { fhicl::Name::regex_safe(key) + "\\[\\d+\\]" };
+  auto const& key = strip_first_containing_name(v->key());
+  std::regex const r {fhicl::Name::regex_safe(key) + "\\[\\d+\\]"};
 
-  std::size_t const nElems = std::count_if( userKeys_.begin(),
-                                            userKeys_.end(),
-                                            [&r](auto const& uk){
-                                              return std::regex_match(uk, r);
-                                            } );
+  std::size_t const nElems = std::count_if(userKeys_.begin(),
+                                           userKeys_.end(),
+                                           [&r](auto const& k){
+                                             return std::regex_match(k,r);
+                                           });
   v->resize_sequence(nElems);
+}
+
+//====================================================================
+
+void
+fhicl::detail::ValidateThenSet::delegated_parameter(DelegateBase& dp)
+{
+  // A delegated parameter must itself be present, but any nested
+  // parameters do not need to be present since the nested parameters
+  // are potentially validated elsewhere.
+  auto const& name = dp.name();
+  std::string const pattern {fhicl::Name::regex_safe(name) + R"((\.|\[))"};
+  std::regex const r {pattern};
+  auto erase_from = std::remove_if(userKeys_.begin(),
+                                   userKeys_.end(),
+                                   [&r](auto const& k){
+                                     return std::regex_search(k,r);
+                                   });
+  userKeys_.erase(erase_from, userKeys_.end());
 }
 
 //====================================================================
@@ -75,35 +90,33 @@ namespace {
 
   using fhicl::detail::ParameterBase;
   using fhicl::detail::PrintAllowedConfiguration;
+  using fhicl::detail::strip_first_containing_name;
   using key_set = std::set<std::string>;
 
   void
-  removeIgnorableKeys( key_set const& ignorable,
-                       key_set & extra,
-                       std::vector<cet::exempt_ptr<ParameterBase>> & missing )
+  removeIgnorableKeys(key_set const& ignorable,
+                      std::vector<std::string>& extra,
+                      std::vector<cet::exempt_ptr<ParameterBase>>& missing)
   {
     for (auto const& key : ignorable) {
 
-      // If find_first_of returns std::string::npos, then 'pos' will
-      // be 0 and the call to substr below will return the full key.
-      std::size_t const pos    = key.find_first_of('.')+1ul;
-      std::string const subkey = key.substr( pos );
+      auto const& subkey = strip_first_containing_name(key);
 
       // Allow erasure globbing for extra keys (if "parameter" is an
       // ignorable key, then "parameter.a" is also ignorable)
-      auto it = extra.find( subkey );
-      if ( it != extra.cend() ) {
+      auto it = cet::find_in_all(extra, subkey);
+      if (it != extra.cend()) {
         auto match = [&subkey](std::string const& key){ return key.find(subkey) == 0ul; };
-        auto const end = std::find_if_not( it, extra.cend(), match );
-        extra.erase( it, end );
+        auto const end = std::find_if_not(it, extra.end(), match);
+        extra.erase(it, end);
       }
 
       // Since all ignorable missing keys are set explicitly, we do
       // not glob erasures.
-      auto mit = std::remove_if( missing.begin(), missing.end(),
-                                 [&subkey](auto p){
-                                   return p->key() == subkey;
-                                 } );
+      auto mit = std::remove_if(missing.begin(), missing.end(),
+                                [&subkey](auto p){
+                                  return p->key() == subkey;
+                                });
 
       missing.erase(mit, missing.end());
     }
@@ -117,10 +130,10 @@ namespace {
     return freq > 1;
   }
 
-  std::string fillMissingKeysMsg(std::vector<cet::exempt_ptr<ParameterBase>> const & missingParams)
+  std::string
+  fillMissingKeysMsg(std::vector<cet::exempt_ptr<ParameterBase>> const & missingParams)
   {
-
-    if ( missingParams.empty() ) return "";
+    if (missingParams.empty()) return "";
 
     std::string const prefix {" - " + std::string(3,' ')};
 
@@ -140,14 +153,14 @@ namespace {
   }
 
   std::string
-  fillExtraKeysMsg( fhicl::ParameterSet const& pset,
-                    std::set<std::string> const& extraKeys )
+  fillExtraKeysMsg(fhicl::ParameterSet const& pset,
+                   std::vector<std::string> const& extraKeys)
   {
-    if ( extraKeys.empty() ) return "";
+    if (extraKeys.empty()) return "";
 
     std::ostringstream oss;
     oss << "Unsupported parameters:\n\n";
-    for ( auto const & key : extraKeys ) {
+    for (auto const& key : extraKeys) {
       oss << " + "
           << std::setw(30) << std::left << key
           << " [ " << pset.get_src_info( key ) << " ]\n";
@@ -160,14 +173,13 @@ namespace {
 }
 
 void
-fhicl::detail::
-ValidateThenSet::check_keys()
+fhicl::detail::ValidateThenSet::check_keys()
 {
-  removeIgnorableKeys( ignorableKeys_, userKeys_, missingParameters_ );
+  removeIgnorableKeys(ignorableKeys_, userKeys_, missingParameters_);
   std::string errmsg;
-  errmsg += fillMissingKeysMsg( missingParameters_ );
-  errmsg += fillExtraKeysMsg( pset_, userKeys_ );
-  if ( !errmsg.empty() ) {
-    throw validationException( errmsg.c_str() );
+  errmsg += fillMissingKeysMsg(missingParameters_);
+  errmsg += fillExtraKeysMsg(pset_, userKeys_);
+  if (!errmsg.empty()) {
+    throw validationException{errmsg.c_str()};
   }
 }

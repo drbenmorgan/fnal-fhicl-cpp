@@ -25,9 +25,10 @@ namespace fhicl {
   private:
     std::vector<std::string> keys_;
 
-    void enter_table   (detail::TableBase    const& tb) override { append(tb.key()); }
-    void enter_sequence(detail::SequenceBase const& sb) override { append(sb.key()); }
-    void atom          (detail::AtomBase     const& ab) override { append(ab.key()); }
+    void enter_table        (detail::TableBase    const& tb) override { append(tb.key()); }
+    void enter_sequence     (detail::SequenceBase const& sb) override { append(sb.key()); }
+    void atom               (detail::AtomBase     const& ab) override { append(ab.key()); }
+    void delegated_parameter(detail::DelegateBase const& dp) override { append(dp.key()); }
 
     void append(std::string const& k) { keys_.emplace_back(k); }
   };

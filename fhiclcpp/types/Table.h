@@ -12,7 +12,6 @@
 #include "fhiclcpp/types/detail/TableBase.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
 #include "fhiclcpp/type_traits.h"
-
 #include <memory>
 #include <set>
 #include <string>
@@ -20,15 +19,16 @@
 namespace fhicl {
 
   //========================================================
-  template<typename T>
+  template <typename T, typename KeysToIgnore = void>
   class Table final :
-    public  detail::TableBase,
+    public detail::TableBase,
     private detail::RegisterIfTableMember {
   public:
 
-    static_assert(!tt::is_sequence_type<T>::value , NO_STD_CONTAINERS             );
-    static_assert(!tt::is_fhicl_type<T>::value    , NO_NESTED_FHICL_TYPES_IN_TABLE);
-    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS     );
+    static_assert(!tt::is_sequence_type<T>::value, NO_STD_CONTAINERS);
+    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
+    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS);
+    static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
     //=====================================================
     // User-friendly
@@ -36,7 +36,14 @@ namespace fhicl {
     explicit Table(Name&& name);
     explicit Table(Name&& name, Comment&& comment);
     explicit Table(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
-    Table(ParameterSet const& pset, std::set<std::string> const & keysToIgnore );
+
+    // Choose this c'tor if user specifies the second 'KeysToIgnore' template argument.
+    template <typename K = KeysToIgnore, typename = std::enable_if_t<tt::is_callable<K>::value>>
+    Table(ParameterSet const& pset);
+
+    // If user does not specify the second 'KeysToIgnore' template argument, then choose this c'tor.
+    template <typename K = KeysToIgnore, typename = std::enable_if_t<!tt::is_callable<K>::value>>
+    Table(ParameterSet const& pset, std::set<std::string> const& keysToIgnore = {});
 
     // ... Accessors
     auto const& operator()() const { return *value_; }
@@ -44,10 +51,10 @@ namespace fhicl {
     ParameterSet const & get_PSet() const { return pset_; }
 
     void validate_ParameterSet(ParameterSet const& pset,
-                               std::set<std::string> const & keysToIgnore = {} );
+                               std::set<std::string> const & keysToIgnore = {});
 
     void print_allowed_configuration(std::ostream& os,
-                                     std::string const& tab = std::string(3, ' ') ) const;
+                                     std::string const& tab = std::string(3, ' ')) const;
 
     //=====================================================
     // Expert-only
@@ -62,10 +69,12 @@ namespace fhicl {
     ParameterSet pset_ {};
     members_t members_ {detail::TableMemberRegistry::instance().release_members()};
 
+    struct Impl {};
+    Table(ParameterSet const&, std::set<std::string> const&, Impl);
+    void maybe_implicitly_default();
+
     members_t const& get_members() const override { return members_; }
     void do_set_value(fhicl::ParameterSet const& pset, bool const trimParents) override;
-
-    void maybe_implicitly_default();
   };
 
   template <typename T, typename U>

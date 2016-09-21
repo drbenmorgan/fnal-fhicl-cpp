@@ -20,9 +20,11 @@ namespace fhicl {
                       std::set<std::string> const& keysToIgnore)
         : pset_{pset}
         , ignorableKeys_{keysToIgnore}
-        , userKeys_{to_set(pset.get_all_keys())}
+        , userKeys_{pset.get_all_keys()}
         , missingParameters_{}
-      {}
+      {
+        cet::sort_all(userKeys_);
+      }
 
       void check_keys();
 
@@ -31,20 +33,15 @@ namespace fhicl {
       bool before_action(ParameterBase& p) override;
       void after_action (ParameterBase& p) override;
       void enter_sequence(SequenceBase& p) override;
+      void delegated_parameter(DelegateBase&) override;
 
       void enter_table(TableBase&) override {}
       void atom(AtomBase&) override {}
 
       ParameterSet const& pset_;
       std::set<std::string> ignorableKeys_;
-      std::set<std::string> userKeys_;
+      std::vector<std::string> userKeys_;
       std::vector<cet::exempt_ptr<ParameterBase>> missingParameters_;
-
-      std::set<std::string> to_set(std::vector<std::string> keys)
-      {
-        return std::set<std::string>(keys.begin(), keys.end());
-      }
-
     };
 
   }

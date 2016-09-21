@@ -56,6 +56,7 @@ namespace fhicl {
       using elem_ftype = typename E::element_type;
       static_assert(!tt::is_table_fragment<elem_ftype>::value, NO_NESTED_TABLE_FRAGMENTS);
       static_assert(!tt::is_optional_parameter<elem_ftype>::value, NO_OPTIONAL_TYPES );
+      static_assert(!tt::is_delegated_parameter<elem_ftype>::value, NO_DELEGATED_PARAMETERS);
       pw(*elem);
       visit_element(pw, others...);
     }
@@ -78,7 +79,8 @@ namespace fhicl {
     {
       using elem_ftype = typename E::element_type;
       static_assert(!tt::is_table_fragment<elem_ftype>::value, NO_NESTED_TABLE_FRAGMENTS);
-      static_assert(!tt::is_optional_parameter<elem_ftype>::value, NO_OPTIONAL_TYPES );
+      static_assert(!tt::is_optional_parameter<elem_ftype>::value, NO_OPTIONAL_TYPES);
+      static_assert(!tt::is_delegated_parameter<elem_ftype>::value, NO_DELEGATED_PARAMETERS);
       pw(*elem);
       visit_element(pw, others...);
     }
@@ -105,7 +107,7 @@ namespace fhicl {
       using elem_ftype = typename E::element_type;
       static_assert(!tt::is_table_fragment<elem_ftype>::value, NO_NESTED_TABLE_FRAGMENTS);
       static_assert(!tt::is_optional_parameter<elem_ftype>::value, NO_OPTIONAL_TYPES );
-
+      static_assert(!tt::is_delegated_parameter<elem_ftype>::value, NO_DELEGATED_PARAMETERS);
       elem = std::make_shared<elem_ftype>( Name::sequence_element(i) );
       finalize_tuple_elements(++i, others...);
     }

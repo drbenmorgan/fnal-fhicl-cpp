@@ -27,9 +27,10 @@ namespace fhicl {
   {
   public:
 
-    static_assert(!tt::is_sequence_type<T>::value , NO_STD_CONTAINERS            );
-    static_assert(!tt::is_fhicl_type<T>::value    , NO_NESTED_FHICL_TYPES_IN_ATOM);
-    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS    );
+    static_assert(!tt::is_sequence_type<T>::value, NO_STD_CONTAINERS);
+    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_ATOM);
+    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS);
+    static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
     //=====================================================
     // User-friendly
@@ -54,7 +55,7 @@ namespace fhicl {
     std::shared_ptr<T> value_;
 
     std::string get_stringified_value() const override;
-    void do_set_value( fhicl::ParameterSet const &, bool const ) override;
+    void do_set_value(fhicl::ParameterSet const&, bool const) override;
 
   };
 

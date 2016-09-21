@@ -7,7 +7,7 @@ namespace fhicl {
     std::string const get_regex_replace_str(std::string const& istr)
     {
       static std::regex const r("\\[|\\]");
-      auto ostr = std::regex_replace( istr , r , "\\$&" );
+      auto ostr = std::regex_replace(istr, r, "\\$&");
       return ostr;
     }
 

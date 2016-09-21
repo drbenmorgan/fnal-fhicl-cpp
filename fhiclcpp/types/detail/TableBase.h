@@ -14,8 +14,8 @@ namespace fhicl {
     class TableBase : public ParameterBase {
     public:
 
-      TableBase(Name const & name,
-                Comment const & comment,
+      TableBase(Name const& name,
+                Comment const& comment,
                 value_type const vt,
                 std::function<bool()> maybeUse)
         : ParameterBase{name, comment, vt, par_type::TABLE, maybeUse}

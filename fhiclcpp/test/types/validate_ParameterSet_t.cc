@@ -29,7 +29,7 @@ namespace {
   struct ForRootInput {
     Atom<std::string> primary { Name("a") };
     Sequence<std::string> secondaries { Name("b") };
-    Sequence< Table<Test> > tablesequence2 { Name("tableSequence2") };
+    Sequence<Table<Test>> tablesequence2 { Name("tableSequence2") };
   };
 
   struct Configuration {
@@ -38,24 +38,24 @@ namespace {
     Tuple<double,std::string> pair { Name("pair") };
     Tuple<int,std::string,double> tup { Name("tuple") };
 
-    Sequence< Tuple<int,double> > vt { Name("vecOfTuples") };
-    Sequence< Tuple<int,double>, 2 > at { Name("arrayOfTuples") };
+    Sequence<Tuple<int,double>> vt { Name("vecOfTuples") };
+    Sequence<Tuple<int,double>, 2> at { Name("arrayOfTuples") };
 
-    Sequence< Sequence<int> >      vv { Name("vecOfVecs") };
-    Sequence< Sequence<int, 2> >   va { Name("vecOfArrays") };
-    Sequence< Sequence<int>, 2 >   av { Name("arrayOfVecs") };
-    Sequence< Sequence<int,2>, 2 > aa { Name("arrayOfArrays") };
+    Sequence<Sequence<int>>      vv { Name("vecOfVecs") };
+    Sequence<Sequence<int, 2>>   va { Name("vecOfArrays") };
+    Sequence<Sequence<int>, 2>   av { Name("arrayOfVecs") };
+    Sequence<Sequence<int,2>, 2> aa { Name("arrayOfArrays") };
 
-    Tuple< Sequence<double>, bool, int> tv { Name("tupleWithVec") };
-    Tuple< Sequence<double,2>, bool, int> ta { Name("tupleWithArray") };
-    Tuple< Tuple<int,double>, bool, int> tt { Name("tupleWithTuple") };
+    Tuple<Sequence<double>, bool, int> tv { Name("tupleWithVec") };
+    Tuple<Sequence<double,2>, bool, int> ta { Name("tupleWithArray") };
+    Tuple<Tuple<int,double>, bool, int> tt { Name("tupleWithTuple") };
 
-    Sequence< Table<ForRootInput> > vtable  { Name("vecOfTables") };
-    Tuple< Table<ForRootInput>, bool, int> tupleWithTable { Name("tupleWithTable") };
-    Tuple< Sequence< Table<ForRootInput> >, double > tvtable { Name("tupleWithVecTable") };
-    Tuple< Sequence< Table<ForRootInput>, 2>, double > tstable { Name("tupleWithArrTable") };
-    Sequence< Tuple< Table<ForRootInput>, double> > vttable { Name("vecWithTupleTable") };
-    Sequence< Tuple< Table<ForRootInput>, double>, 2 > attable { Name("arrWithTupleTable") };
+    Sequence<Table<ForRootInput>> vtable  { Name("vecOfTables") };
+    Tuple<Table<ForRootInput>, bool, int> tupleWithTable { Name("tupleWithTable") };
+    Tuple<Sequence<Table<ForRootInput>>, double> tvtable { Name("tupleWithVecTable") };
+    Tuple<Sequence<Table<ForRootInput>, 2>, double> tstable { Name("tupleWithArrTable") };
+    Sequence<Tuple<Table<ForRootInput>, double>> vttable { Name("vecWithTupleTable") };
+    Sequence<Tuple<Table<ForRootInput>, double>, 2> attable { Name("arrWithTupleTable") };
     Table<PSet2> pset2 { Name("pset2") };
   };
 
@@ -72,8 +72,8 @@ int main()
   make_ParameterSet(tbl, pset);
 
   try {
-    Table<Configuration> table { Name("pset") };
-    table.validate_ParameterSet( pset.get<fhicl::ParameterSet>( "pset" ) );
+    Table<Configuration> table {Name("pset")};
+    table.validate_ParameterSet(pset.get<fhicl::ParameterSet>("pset"));
   }
   catch ( std::exception const & e ) {
     std::cout << e.what() << std::endl;

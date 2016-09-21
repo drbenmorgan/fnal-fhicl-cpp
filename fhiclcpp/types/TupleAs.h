@@ -123,7 +123,7 @@ namespace fhicl {
   Comment TupleAs<T(ARGS...)>::conversion_comment(Comment&& comment) const
   {
     std::string const preface  = "N.B. The following sequence is converted to type:";
-    std::string const name     = "        '"+cet::demangle(typeid(T).name()) +"'";
+    std::string const name     = "        '"+cet::demangle_symbol(typeid(T).name()) +"'";
     std::string const user_comment = comment.value.empty() ? "" : "\n\n"+comment.value;
 
     std::ostringstream oss;
@@ -189,20 +189,20 @@ namespace fhicl {
   template <typename T, typename ... ARGS>
   Comment TupleAs<T(ARGS...)>::conversion_comment(Comment&& comment, T const& t) const
   {
-    std::string const preface  = "N.B. The following sequence is converted to type:";
-    std::string const name     = "        '"+cet::demangle(typeid(T).name()) +"'";
+    std::string const preface {"N.B. The following sequence is converted to type:"};
+    std::string const name    {"        '"+cet::demangle_symbol(typeid(T).name()) +"'"};
 
-    std::conditional_t< has_insertion_operator<T>::value, YesInsert, NoInsert>
+    std::conditional_t<has_insertion_operator<T>::value, YesInsert, NoInsert>
       stringified_default;
 
-    std::string const user_comment = comment.value.empty() ? "" : "\n\n"+comment.value;
+    std::string const user_comment {comment.value.empty() ? "" : "\n\n"+comment.value};
 
     std::ostringstream oss;
     oss << preface << '\n'
         << name << '\n'
         << stringified_default(t)
         << user_comment;
-    return Comment{ oss.str().c_str() };
+    return Comment{oss.str().c_str()};
   }
 
 }

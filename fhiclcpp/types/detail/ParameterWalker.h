@@ -2,7 +2,6 @@
 #define fhiclcpp_types_detail_ParameterWalker_h
 
 /*
-
   ======================================================================
 
   ParameterWalker
@@ -43,9 +42,13 @@
              loop_through_sequence ...
              psw.exit_sequence(s)
          }
-         else {
+         else if (is_atom(param)) {
              cast_from(p,a)
          *** psw.atom(a)
+         }
+         else {
+             cast_from(p,dp)
+         *** psw.delegated_parameter(dp)
          }
 
          psw.after_action(p)
@@ -65,14 +68,13 @@
   traversal.  The '{before,after}_action' virtual functions are
   provided so that category-agnostic instructions can be executed
   before or after the category-specific ones.
-
 */
 
 #include "cetlib/container_algorithms.h"
 #include "cetlib/demangle.h"
 #include "fhiclcpp/type_traits.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
-#include "fhiclcpp/types/detail/ParameterBase.h"
+#include "fhiclcpp/types/detail/DelegateBase.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
 #include "fhiclcpp/types/detail/TableBase.h"
 
@@ -99,11 +101,14 @@ namespace fhicl {
 
       void do_atom(tt::maybe_const_t<AtomBase,C>& a) { atom(a); }
 
+      void do_delegated_parameter(tt::maybe_const_t<DelegateBase,C>& dp) { delegated_parameter(dp); }
+
     private:
 
       virtual void enter_table(tt::maybe_const_t<TableBase,C>&) = 0;
       virtual void enter_sequence(tt::maybe_const_t<SequenceBase,C>&) = 0;
       virtual void atom(tt::maybe_const_t<AtomBase,C>&) = 0;
+      virtual void delegated_parameter(tt::maybe_const_t<DelegateBase,C>&) = 0;
 
       virtual bool before_action(tt::maybe_const_t<ParameterBase,C>&){ return true; }
       virtual void after_action(tt::maybe_const_t<ParameterBase,C>&){}
@@ -114,21 +119,6 @@ namespace fhicl {
 
     //=============================================================================
     // IMPLEMENTATION BELOW
-
-    // template <typename T, tt::const_flavor C>
-    // auto getPtr(tt::maybe_const_t<ParameterBase,C>* p)
-    // {
-    //   tt::maybe_const_t<T,C>* ptr = dynamic_cast<tt::maybe_const_t<T,C>*>(p);
-    //   if (!ptr) {
-    //     std::ostringstream err_msg;
-    //     err_msg << "Error when converting from ParameterBase* to "
-    //             << cet::demangle_symbol( typeid(T*).name() ) << "\n"
-    //             << "in " << __func__ << "\n"
-    //             << "Please contact artists@fnal.gov";
-    //     throw fhicl::exception(fhicl::error::cant_happen, err_msg.str());
-    //   }
-    //   return ptr;
-    // }
 
     template<tt::const_flavor C>
     void
@@ -155,10 +145,15 @@ namespace fhicl {
         s.walk_elements(tw);
         do_exit_sequence(s);
       }
-      else {
+      else if (is_atom(pt)){
         using maybe_const_atom = tt::maybe_const_t<AtomBase,C>;
         maybe_const_atom& a = dynamic_cast<maybe_const_atom&>(p);
         do_atom(a);
+      }
+      else {
+        using maybe_const_delegate = tt::maybe_const_t<DelegateBase,C>;
+        maybe_const_delegate& dp = dynamic_cast<maybe_const_delegate&>(p);
+        do_delegated_parameter(dp);
       }
 
       do_after_action(p);

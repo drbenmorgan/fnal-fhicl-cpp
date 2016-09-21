@@ -29,8 +29,9 @@ namespace fhicl {
     private detail::RegisterIfTableMember {
   public:
 
-    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS );
-    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES );
+    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS);
+    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES);
+    static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
     using ftype = std::array< std::shared_ptr< tt::fhicl_type<T> >, N >;
     using rtype = std::array< tt::return_type<T>, N >;
@@ -39,11 +40,11 @@ namespace fhicl {
     explicit OptionalSequence(Name&& name, Comment&& comment);
     explicit OptionalSequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
-    bool operator()(rtype& t) const {
-
+    bool operator()(rtype& t) const
+    {
       if (!has_value_) return false;
 
-      rtype result = { tt::return_type<T>() };
+      rtype result = {tt::return_type<T>()};
       cet::transform_all(value_,
                          result.begin(),
                          [](auto const& elem){
@@ -84,8 +85,9 @@ namespace fhicl {
     private detail::RegisterIfTableMember {
   public:
 
-    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS );
-    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES );
+    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS);
+    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES);
+    static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
     using ftype = std::vector< std::shared_ptr<tt::fhicl_type<T>> >;
     using rtype = std::vector< tt::return_type<T> >;

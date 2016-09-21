@@ -17,7 +17,7 @@
 #include "fhiclcpp/types/TableFragment.h"
 #include "fhiclcpp/types/Tuple.h"
 
-#include "fhiclcpp/test/fhiclcpp-types/FixtureBase.h"
+#include "fhiclcpp/test/types/FixtureBase.h"
 
 #include <iostream>
 #include <limits>

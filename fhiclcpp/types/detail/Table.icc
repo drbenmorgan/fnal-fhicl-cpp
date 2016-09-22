@@ -60,7 +60,7 @@ namespace fhicl {
   {
     pset_ = pset;
     detail::ValidateThenSet vs {pset_, keysToIgnore};
-    cet::for_all(members(), [&vs](auto m){ vs(*m); });
+    cet::for_all(members(), [&vs](auto m){ vs.walk_over(*m); });
 
     try {
       vs.check_keys();
@@ -77,7 +77,7 @@ namespace fhicl {
                                                       std::string const& tab) const
   {
     detail::PrintAllowedConfiguration pc {os, false, tab};
-    pc(*this);
+    pc.walk_over(*this);
   }
 
   template <typename T, typename KeysToIgnore>

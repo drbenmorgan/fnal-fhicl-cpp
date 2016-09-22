@@ -57,8 +57,8 @@
 
   The actions that are to be taken per parameter category (table,
   sequence, or atom) are defined entirely by overrides to the
-  ParameterWalker virtual functions that 'psw' calls (as shown
-  above).
+  ParameterWalker virtual functions that 'psw' calls (as shown above).
+
   The function calls prefaced with '***' correspond to pure virtual
   functions, which must have corresponding overrides in any derived
   classes.
@@ -88,7 +88,7 @@ namespace fhicl {
       ParameterWalker() = default;
       virtual ~ParameterWalker() = default;
 
-      void operator()(tt::maybe_const_t<ParameterBase,C>&);
+      void walk_over(tt::maybe_const_t<ParameterBase,C>&);
 
       bool do_before_action(tt::maybe_const_t<ParameterBase,C>& p) { return before_action(p); }
       void do_after_action (tt::maybe_const_t<ParameterBase,C>& p) { after_action(p); }
@@ -122,7 +122,7 @@ namespace fhicl {
 
     template<tt::const_flavor C>
     void
-    ParameterWalker<C>::operator()(tt::maybe_const_t<ParameterBase,C>& p)
+    ParameterWalker<C>::walk_over(tt::maybe_const_t<ParameterBase,C>& p)
     {
       if (!do_before_action(p))
         return;
@@ -135,7 +135,7 @@ namespace fhicl {
         using maybe_const_table = tt::maybe_const_t<TableBase,C>;
         maybe_const_table& t = dynamic_cast<maybe_const_table&>(p);
         do_enter_table(t);
-        cet::for_all(t.members(), [&tw](auto m){tw(*m);});
+        cet::for_all(t.members(), [&tw](auto m){tw.walk_over(*m);});
         do_exit_table(t);
       }
       else if (is_sequence(pt)) {

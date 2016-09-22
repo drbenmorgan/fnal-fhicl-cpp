@@ -5,6 +5,7 @@
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
+#include "fhiclcpp/types/detail/ParameterWalker.h"
 #include "fhiclcpp/types/detail/TableMemberRegistry.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
@@ -57,7 +58,7 @@ namespace fhicl {
       static_assert(!tt::is_table_fragment<elem_ftype>::value, NO_NESTED_TABLE_FRAGMENTS);
       static_assert(!tt::is_optional_parameter<elem_ftype>::value, NO_OPTIONAL_TYPES );
       static_assert(!tt::is_delegated_parameter<elem_ftype>::value, NO_DELEGATED_PARAMETERS);
-      pw(*elem);
+      pw.walk_over(*elem);
       visit_element(pw, others...);
     }
 
@@ -81,7 +82,7 @@ namespace fhicl {
       static_assert(!tt::is_table_fragment<elem_ftype>::value, NO_NESTED_TABLE_FRAGMENTS);
       static_assert(!tt::is_optional_parameter<elem_ftype>::value, NO_OPTIONAL_TYPES);
       static_assert(!tt::is_delegated_parameter<elem_ftype>::value, NO_DELEGATED_PARAMETERS);
-      pw(*elem);
+      pw.walk_over(*elem);
       visit_element(pw, others...);
     }
 

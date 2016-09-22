@@ -6,6 +6,7 @@
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterArgumentTypes.h"
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
+#include "fhiclcpp/types/detail/ParameterWalker.h"
 #include "fhiclcpp/types/detail/TableMemberRegistry.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
 #include "fhiclcpp/types/detail/ostream_helpers.h"
@@ -64,12 +65,12 @@ namespace fhicl {
 
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_non_const>& pw) override
     {
-      cet::for_all(value_, [&pw](auto& e){ pw(*e); } );
+      cet::for_all(value_, [&pw](auto& e){ pw.walk_over(*e); } );
     }
 
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_const>& pw) const override
     {
-      cet::for_all(value_, [&pw](auto const& e){ pw(*e); } );
+      cet::for_all(value_, [&pw](auto const& e){ pw.walk_over(*e); } );
     }
 
     void do_set_value(fhicl::ParameterSet const&, bool const trimParents) override;
@@ -148,12 +149,12 @@ namespace fhicl {
 
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_non_const>& pw) override
     {
-      cet::for_all(value_, [&pw](auto& e){ pw(*e); } );
+      cet::for_all(value_, [&pw](auto& e){ pw.walk_over(*e); } );
     }
 
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_const>& pw) const override
     {
-      cet::for_all(value_, [&pw](auto const& e){ pw(*e); } );
+      cet::for_all(value_, [&pw](auto const& e){ pw.walk_over(*e); } );
     }
 
 

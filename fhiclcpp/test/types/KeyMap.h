@@ -17,8 +17,8 @@ namespace fhicl {
     static auto get(std::string const& n)
     {
       KeyMap km;
-      T test { Name(n) };
-      km(test);
+      T test {Name(n)};
+      km.walk_over(test);
       return km.result();
     }
 

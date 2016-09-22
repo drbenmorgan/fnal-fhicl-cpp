@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE( tablefragment_t )
 
   {
     KeyMap km;
-    km(tf().seq);
+    km.walk_over(tf().seq);
     auto mapseq = km.result();
     auto refseq = {"sequence", "sequence[0]", "sequence[1]"};
     CET_CHECK_EQUAL_COLLECTIONS(mapseq, refseq);
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE( tablefragment_t )
 
   {
     KeyMap km;
-    km(tf().tuple);
+    km.walk_over(tf().tuple);
     auto maptup = km.result();
     auto reftup = {"tuple", "tuple[0]", "tuple[1]", "tuple[2]"};
     CET_CHECK_EQUAL_COLLECTIONS(maptup, reftup);

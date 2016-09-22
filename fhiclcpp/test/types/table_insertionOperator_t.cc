@@ -12,6 +12,7 @@
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/Table.h"
 #include "fhiclcpp/types/OptionalTable.h"
+#include "fhiclcpp/types/detail/optional_parameter_message.h"
 
 #include <algorithm>
 #include <iostream>
@@ -43,7 +44,8 @@ namespace {
 
   std::string reference()
   { return
-      "\n"
+      "\n   "+detail::optional_parameter_message()+
+      "\n\n"
       "   config: {\n"
       "\n"
       "      flag: true  # default\n"
@@ -54,13 +56,14 @@ namespace {
 
   std::string optional_reference()
   { return
-      "\n"
-      " ( config: {\n"
-      " (\n"
-      " (    flag: true  # default\n"
-      " (\n"
-      " (    name: \"Billy\"  # default\n"
-      " ( }\n";
+      "\n   "+detail::optional_parameter_message()+
+      "\n\n"
+      " # config: {\n"
+      " #\n"
+      " #    flag: true  # default\n"
+      " #\n"
+      " #    name: \"Billy\"  # default\n"
+      " # }\n";
   }
 
 }

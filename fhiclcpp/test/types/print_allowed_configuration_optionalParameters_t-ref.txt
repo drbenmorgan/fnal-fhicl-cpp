@@ -1,84 +1,86 @@
 
+   ## Any parameters prefaced with '#' are optional.
+
    pset: {
 
-    ( atom: <int>
+    # atom: <int>
 
-    ( name: <string>
+    # name: <string>
 
-    ( physics: {
-    (
-    (    energyCutoff: [
-    (       <string>,
-    (       <double>
-    (    ]
-    (
-    (  ( moniker: <string>
-    ( }
+    # physics: {
+    #
+    #    energyCutoff: [
+    #       <string>,
+    #       <double>
+    #    ]
+    #
+    #  # moniker: <string>
+    # }
 
-    ( list1: [
-    (    <int>,
-    (    ...
-    ( ]
+    # list1: [
+    #    <int>,
+    #    ...
+    # ]
 
-    ( list2: [
-    (    <int>,
-    (    <int>,
-    (    <int>,
-    (    <int>
-    ( ]
+    # list2: [
+    #    <int>,
+    #    <int>,
+    #    <int>,
+    #    <int>
+    # ]
 
-    ( list3: [
-    (    [
-    (       <int>,
-    (       <int>
-    (    ],
-    (    ...
-    ( ]
+    # list3: [
+    #    [
+    #       <int>,
+    #       <int>
+    #    ],
+    #    ...
+    # ]
 
-    ( list4: [
-    (    {
-    (
-    (       composer: <string>
-    (
-    (       # Symphony number/nickname pair
-    (
-    (     ( aSymphonyMoniker: [
-    (     (    <int>,
-    (     (    <string>
-    (     ( ]
-    (    },
-    (    {
-    (
-    (       composer: <string>
-    (
-    (       # Symphony number/nickname pair
-    (
-    (     ( aSymphonyMoniker: [
-    (     (    <int>,
-    (     (    <string>
-    (     ( ]
-    (    },
-    (    {
-    (
-    (       composer: <string>
-    (
-    (       # Symphony number/nickname pair
-    (
-    (     ( aSymphonyMoniker: [
-    (     (    <int>,
-    (     (    <string>
-    (     ( ]
-    (    },
-    (    {
-    (
-    (       composer: <string>
-    (
-    (       # Symphony number/nickname pair
-    (
-    (     ( aSymphonyMoniker: [
-    (     (    <int>,
-    (     (    <string>
-    (     ( ]
-    (    }
-    ( ]
+    # list4: [
+    #    {
+    #
+    #       composer: <string>
+    #
+    #       ## Symphony number/nickname pair
+    #
+    #     # aSymphonyMoniker: [
+    #     #    <int>,
+    #     #    <string>
+    #     # ]
+    #    },
+    #    {
+    #
+    #       composer: <string>
+    #
+    #       ## Symphony number/nickname pair
+    #
+    #     # aSymphonyMoniker: [
+    #     #    <int>,
+    #     #    <string>
+    #     # ]
+    #    },
+    #    {
+    #
+    #       composer: <string>
+    #
+    #       ## Symphony number/nickname pair
+    #
+    #     # aSymphonyMoniker: [
+    #     #    <int>,
+    #     #    <string>
+    #     # ]
+    #    },
+    #    {
+    #
+    #       composer: <string>
+    #
+    #       ## Symphony number/nickname pair
+    #
+    #     # aSymphonyMoniker: [
+    #     #    <int>,
+    #     #    <string>
+    #     # ]
+    #    }
+    # ]
    }

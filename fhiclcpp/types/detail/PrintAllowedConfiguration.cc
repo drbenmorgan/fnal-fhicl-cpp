@@ -36,7 +36,7 @@ namespace {
 
   std::ostream& operator<<(std::ostream& os, maybeName&& mn)
   {
-    if ( !mn.is_seq_elem ) {
+    if (!mn.is_seq_elem) {
       os << mn.indent << mn.name << ": ";
     }
     else {
@@ -45,10 +45,10 @@ namespace {
     return os;
   }
 
-  std::string suffix (std::unordered_set<std::string>& keysWithCommas_,
-                      std::unordered_set<std::string>& keysWithEllipses_,
-                      std::string const& key,
-                      std::string const& indent)
+  std::string suffix(std::unordered_set<std::string>& keysWithCommas_,
+                     std::unordered_set<std::string>& keysWithEllipses_,
+                     std::string const& key,
+                     std::string const& indent)
   {
     std::string result;
     if (cet::search_all(keysWithCommas_, key)) {
@@ -81,17 +81,26 @@ namespace {
   auto string_repeat(std::size_t const n, std::string const& s)
   {
     std::string result;
-    for ( std::size_t i{}; i!=n ; ++i )
+    for (std::size_t i{}; i!=n ; ++i)
       result += s;
     return result;
   }
-
 
 }
 
 using namespace fhicl::detail;
 
 //======================================================================
+
+PrintAllowedConfiguration::PrintAllowedConfiguration(std::ostream& os,
+                                                     bool const showParents,
+                                                     std::string const& prefix,
+                                                     bool const stlf)
+  : buffer_{os}
+  , indent_{prefix}
+  , suppressTopLevelFormatting_{stlf}
+  , showParentsForFirstParam_{showParents}
+{}
 
 bool
 PrintAllowedConfiguration::before_action(ParameterBase const& p)
@@ -102,38 +111,38 @@ PrintAllowedConfiguration::before_action(ParameterBase const& p)
 
   if (!suppressFormat(p)) {
 
-    if ( p.is_conditional() ) {
+    if (p.is_conditional()) {
       buffer_ << '\n';
       indent_.modify_top("┌"+string_repeat(30,"─"));
       buffer_ << non_whitespace(indent_(), indent_.size()) << '\n';
       indent_.modify_top("│  ");
     }
 
-    if ( !p.comment().empty() ) {
-      if ( !p.is_conditional() )
+    if (!p.comment().empty()) {
+      if (!p.is_conditional())
         buffer_ << non_whitespace(indent_(), indent_.size()) << '\n';
       for(auto const& line : cet::split_by_regex(p.comment(), "\n"))
-        buffer_ << indent_() << "# " << line << '\n';
+        buffer_ << indent_() << "## " << line << '\n';
     }
 
   }
 
-  if ( !is_sequence_element(p.key()) ) {
+  if (!is_sequence_element(p.key())) {
     buffer_ << non_whitespace(indent_(), indent_.size()) << '\n';
 
     // In general, optional parameters cannot be template arguments to
     // sequences.  However, the implementation for 'TupleAs' uses
     // OptionalTuple<...> as the holding type of the sequence
     // elements.  In the case where we have Sequence< TupleAs<> >, the
-    // TupleAs entries will be prefaced with '(', and we don't want
+    // TupleAs entries will be prefaced with '#', and we don't want
     // that.  Therefore, we modify the top indentation fragment only
     // if the parameter is not a sequence element.
 
-      if ( p.is_optional() ) {
-        if ( p.is_conditional() )
-          indent_.modify_top("│( ");
+      if (p.is_optional()) {
+        if (p.is_conditional())
+          indent_.modify_top("│# ");
         else
-          indent_.modify_top(" ( ");
+          indent_.modify_top(" # ");
     }
 
   }
@@ -149,25 +158,23 @@ PrintAllowedConfiguration::before_action(ParameterBase const& p)
 void
 PrintAllowedConfiguration::after_action(ParameterBase const& p)
 {
-  buffer_ << suffix( keysWithCommas_,
-                     keysWithEllipses_,
-                     p.key(),
-                     indent_() );
+  buffer_ << suffix(keysWithCommas_,
+                    keysWithEllipses_,
+                    p.key(),
+                    indent_());
 
-  if ( p.has_default() && p.parameter_type() == par_type::ATOM )
+  if (p.has_default() && p.parameter_type() == par_type::ATOM)
     buffer_ << "  # default";
 
-  if ( !suppressFormat(p) ) {
-
-    if ( p.is_conditional() ) {
+  if (!suppressFormat(p)) {
+    if (p.is_conditional()) {
       indent_.modify_top("└"+string_repeat(30,"─"));
       buffer_ << '\n' << indent_();
       indent_.modify_top(std::string(3,' '));
     }
-    else if ( p.is_optional() ) {
+    else if (p.is_optional()) {
       indent_.modify_top(std::string(3,' '));
     }
-
   }
 
   maybeReleaseTopLevelParameter(p);

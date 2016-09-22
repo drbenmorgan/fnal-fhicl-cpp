@@ -1,3 +1,4 @@
+Any parameters prefaced with '#' are optional.
 Missing parameters:
 
  -    pair: [

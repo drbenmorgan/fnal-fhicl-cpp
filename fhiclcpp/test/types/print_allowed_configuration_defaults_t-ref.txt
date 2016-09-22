@@ -1,4 +1,6 @@
 
+   ## Any parameters prefaced with '#' are optional.
+
    pset: {
 
       flag: true  # default
@@ -100,14 +102,14 @@
          8  # default
       ]
 
-      # This should work now
-      # double line even.
+      ## This should work now
+      ## double line even.
 
       pset2: {
 
          test: "a"  # default
 
-         # Just to see if this works
+         ## Just to see if this works
 
          sequence: [
             1,  # default

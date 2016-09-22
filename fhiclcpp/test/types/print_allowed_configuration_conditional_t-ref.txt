@@ -1,16 +1,18 @@
 
+   ## Any parameters prefaced with '#' are optional.
+
    pset: {
 
       flag: <bool>
 
    ┌──────────────────────────────
-   │  # Used if "flag: true".
+   │  ## Used if "flag: true".
    │
-   │( num1: <int>
+   │# num1: <int>
    └──────────────────────────────
 
    ┌──────────────────────────────
-   │  # Used if "flag: false".
+   │  ## Used if "flag: false".
    │
    │  num2: <int>
    └──────────────────────────────
@@ -18,14 +20,14 @@
       shape: "box"  # default
 
    ┌──────────────────────────────
-   │  # Used if "shape: box".
+   │  ## Used if "shape: box".
    │
    │  parameters: {
    │
-   │     # N.B. The following sequence is converted to type:
-   │     #         'fhicl::Vec'
-   │     #      with a default value of:
-   │     #         Half-lengths are: (1, 2, 3)
+   │     ## N.B. The following sequence is converted to type:
+   │     ##         'fhicl::Vec'
+   │     ##      with a default value of:
+   │     ##         Half-lengths are: (1, 2, 3)
    │
    │     halfLengths: [
    │        <int>,
@@ -33,14 +35,14 @@
    │        <int>
    │     ]
    │
-   │   ( boxName: <string>
+   │   # boxName: <string>
    │
    │     material: <string>
    │  }
    └──────────────────────────────
 
    ┌──────────────────────────────
-   │  # Used if "shape: sphere".
+   │  ## Used if "shape: sphere".
    │
    │  parameters: {
    │

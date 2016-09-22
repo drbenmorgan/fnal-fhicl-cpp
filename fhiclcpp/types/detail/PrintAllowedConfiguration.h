@@ -21,26 +21,17 @@ namespace fhicl {
       PrintAllowedConfiguration(std::ostream& os,
                                 bool const showParents = false,
                                 std::string const& prefix = std::string(3,' '),
-                                bool const stlf = false)
-        : buffer_{os}
-        , indent_{prefix}
-        , suppressTopLevelFormatting_{stlf}
-        , cachedTopLevelParameter_{}
-        , mps_{}
-        , keysWithCommas_{}
-        , keysWithEllipses_{}
-        , showParentsForFirstParam_{showParents}
-      {}
+                                bool const stlf = false);
 
     private:
 
       std::ostream& buffer_;
       Indentation indent_;
       bool suppressTopLevelFormatting_;
-      std::string cachedTopLevelParameter_;
-      std::stack<MaybeDisplayParent> mps_;
-      std::unordered_set<std::string> keysWithCommas_;
-      std::unordered_set<std::string> keysWithEllipses_;
+      std::string cachedTopLevelParameter_ {};
+      std::stack<MaybeDisplayParent> mps_ {};
+      std::unordered_set<std::string> keysWithCommas_ {};
+      std::unordered_set<std::string> keysWithEllipses_ {};
       bool showParentsForFirstParam_;
 
       bool before_action(ParameterBase const&) override;

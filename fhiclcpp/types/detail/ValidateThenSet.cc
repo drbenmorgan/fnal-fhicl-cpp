@@ -7,6 +7,7 @@
 #include "fhiclcpp/types/detail/SeqVectorBase.h"
 #include "fhiclcpp/types/detail/TableBase.h"
 #include "fhiclcpp/types/detail/ValidateThenSet.h"
+#include "fhiclcpp/types/detail/optional_parameter_message.h"
 #include "fhiclcpp/types/detail/strip_containing_names.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
@@ -180,6 +181,9 @@ fhicl::detail::ValidateThenSet::check_keys()
   errmsg += fillMissingKeysMsg(missingParameters_);
   errmsg += fillExtraKeysMsg(pset_, userKeys_);
   if (!errmsg.empty()) {
-    throw validationException{errmsg.c_str()};
+    std::string fullmsg {detail::optional_parameter_message(false)};
+    fullmsg +="\n";
+    fullmsg += errmsg;
+    throw validationException{fullmsg.c_str()};
   }
 }

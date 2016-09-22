@@ -1,7 +1,5 @@
 include(CetMake)
 
-add_subdirectory(detail types)
-
 cet_make(
   LIBRARIES
   cetlib

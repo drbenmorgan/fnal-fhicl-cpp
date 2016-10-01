@@ -22,7 +22,7 @@
 
   The way this registry is used is via private inheritance of a
   'RegisterIfTableMember' auxiliary class.  Each fhiclcpp parameter
-  type (Atom, Sequence, etc.), inherits from the auxiliary class.  
+  type (Atom, Sequence, etc.), inherits from the auxiliary class.
 
   If the C++ reflection facilities improve to the level that a
   struct's or class's members can be returned (either at compile-time,
@@ -72,7 +72,7 @@ namespace fhicl {
 
       // Retrieval facilities for fhicl::(Optional)Table
 
-      template <typename T> friend class fhicl::Table;
+      template <typename T, typename KeysToIgnore> friend class fhicl::Table;
       template <typename T> friend class fhicl::OptionalTable;
 
       std::vector<base_ptr> release_members()

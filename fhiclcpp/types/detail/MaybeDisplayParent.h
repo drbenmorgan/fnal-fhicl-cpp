@@ -57,7 +57,7 @@ namespace fhicl {
                 closingBraces_.push_back(indent + "}\n" );
               }
               else {
-                os << indent << "[  # index: " << name << '\n';
+                os << indent << "[  # index: " << next_name << '\n';
                 closingBraces_.push_back(indent + "]\n" );
               }
             }

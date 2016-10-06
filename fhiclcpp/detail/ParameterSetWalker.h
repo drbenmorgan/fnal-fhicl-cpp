@@ -76,6 +76,7 @@ namespace fhicl {
 
     class ParameterSetWalker {
     public:
+      virtual ~ParameterSetWalker() noexcept = default;
 
       using key_t = std::string;
       using any_t = boost::any;

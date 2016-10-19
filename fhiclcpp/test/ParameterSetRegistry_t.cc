@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(TestImport)
                "BEGIN TRANSACTION;", 0, 0, &errMsg);
   throwOnSQLiteFailure(db, errMsg);
   sqlite3_stmt * oStmt;
-  sqlite3_prepare_v2(db, "INSERT INTO ParameterSets(ID, PSetBlob) VALUES(?, ?);", -1, &oStmt, NULL);
+  sqlite3_prepare_v2(db, "INSERT INTO ParameterSets(ID, PSetBlob) VALUES(?, ?);", -1, &oStmt, nullptr);
   throwOnSQLiteFailure(db);
   std::vector<std::pair<ParameterSet, bool> > v1;
   // testData: bool represents whether the top-level set is already
@@ -164,13 +164,13 @@ BOOST_AUTO_TEST_CASE(TestExport)
   sqlite3_stmt * stmt;
   // Make sure we get our own fresh and empty DB.
   sqlite3_prepare_v2(db, "SELECT 1 from sqlite_master where type='table' and name='ParameterSets';",
-                     -1, &stmt, NULL);
+                     -1, &stmt, nullptr);
   BOOST_REQUIRE_EQUAL(sqlite3_step(stmt), SQLITE_DONE); // No rows.
   sqlite3_reset(stmt);
   ParameterSetRegistry::exportTo(db);
   BOOST_REQUIRE_EQUAL(sqlite3_step(stmt), SQLITE_ROW); // Found table.
   sqlite3_finalize(stmt);
-  sqlite3_prepare_v2(db, "SELECT COUNT(*) from ParameterSets;", -1, &stmt, NULL);
+  sqlite3_prepare_v2(db, "SELECT COUNT(*) from ParameterSets;", -1, &stmt, nullptr);
   BOOST_REQUIRE_EQUAL(sqlite3_step(stmt), SQLITE_ROW);
   BOOST_REQUIRE_EQUAL(sqlite3_column_int64(stmt, 0), 13l);
   sqlite3_finalize(stmt);

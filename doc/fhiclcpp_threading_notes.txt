@@ -1,0 +1,406 @@
+Thread-safety summary
+
+Safe
+
+Protection.cc
+Protection.h
+binding_modifier.h
+fwd.h
+parse_shims.cc
+parse_shims.h
+parse_shims_opts.h
+tokens.h
+
+Not Safe
+
+DatabaseSupport.cc
+DatabaseSupport.h
+KeyAssembler.cc
+KeyAssembler.h
+ParameterSet.cc
+ParameterSet.h
+ParameterSetID.cc
+ParameterSetID.h
+ParameterSetImplHelpers.h
+ParameterSetRegistry.cc
+ParameterSetRegistry.h
+coding.cc
+coding.h
+encode_extended_value.cc
+encode_extended_value.h
+extended_value.cc
+extended_value.h
+intermediate_table.cc
+intermediate_table.h
+make_ParameterSet.cc
+make_ParameterSet.h
+parse.cc
+parse.h
+stdmap_shims.h
+try_blocks.h
+
+Not yet determined
+
+Atom.h
+Atom.icc
+AtomBase.h
+Comment.h
+ConfigPredicate.h
+DelegateBase.h
+DelegatedParameter.cc
+DelegatedParameter.h
+Indentation.h
+KeysToIgnore.h (testing only)
+MaybeDisplayParent.cc
+MaybeDisplayParent.h
+Name.cc
+Name.h
+NameStackRegistry.cc
+NameStackRegistry.h
+OptionalAtom.h
+OptionalAtom.icc
+OptionalDelegatedParameter.cc
+OptionalDelegatedParameter.h
+OptionalSequence.h
+OptionalSequence.icc
+OptionalTable.h
+OptionalTable.icc
+OptionalTuple.h
+OptionalTupleAs.h
+Parameter Pretty-Printing
+Parameter Utility Routines
+ParameterArgumentTypes.h
+ParameterBase.h
+ParameterMetadata.h
+ParameterSetWalker.h
+ParameterWalker.h
+Prettifier.cc
+Prettifier.h
+PrettifierAnnotated.cc
+PrettifierAnnotated.h
+PrettifierPrefixAnnotated.cc
+PrettifierPrefixAnnotated.h
+PrintAllowedConfiguration.cc
+PrintAllowedConfiguration.h
+SeqVectorBase.h
+Sequence.h
+Sequence.icc
+SequenceBase.h
+Table.h
+Table.icc
+TableBase.h
+TableFragment.h
+TableMemberRegistry.h
+Tuple.h
+TupleAs.h
+ValidateThenSet.cc
+ValidateThenSet.h
+exception.cc
+exception.h
+optional_parameter_message.h
+ostream_helpers.cc
+ostream_helpers.h
+print_mode.h
+printing_helpers.cc
+printing_helpers.h
+strip_containing_names.cc
+strip_containing_names.h
+type_traits.h
+type_traits_error_msgs.h
+validationException.h (unused)
+
+-----
+
+Thread-safety summary by subsystem and component.
+
+
+Parameter File Parsing
+
+// The value held by an intermediate table,
+// which is the result of a fhicl file parse,
+// and the internal sub-components of the
+// parse.
+// Used by public.
+// THREADING - Not thread-safe.
+extended_value.cc
+extended_value.h
+// handles protect clauses.
+// Used only by extended_value.h
+// THREADING - Is thread-safe.
+Protection.cc
+Protection.h
+// Support snippet mode.  (what is that?)
+// Used only by extended_value.h
+// THREADING - Not thread-safe.
+stdmap_shims.h
+
+// The result of a fhicl file parse.
+// Used by public.
+// THREADING - Not thread-safe.
+intermediate_table.cc
+intermediate_table.h
+
+// The fhicl file parser, the stream parser,
+// and the string parser.
+// Note: For greater code isolation the
+// Note: public part (top-level parsing
+// Note: for strings, files, and streams)
+// Note: should be separated out.
+// Used by public.
+// THREADING - Not thread-safe - can modify passed value.
+parse.cc
+parse.h
+// The tokens used by the fhicl parser.
+// Used only by parse.cc
+// THREADING - Is thread-safe.
+tokens.h
+// support for the fhicl parser,
+// handles protect clauses.
+// Used only by parse.cc and tokens.h
+// THREADING - Is thread-safe.
+binding_modifier.h
+// Support snippet mode.  (what is that?)
+// Used only by parse.cc
+// THREADING - Is thread-safe.
+parse_shims.cc
+parse_shims.h
+
+// Support snippet mode.  (what is that?)
+// Used by parse_shims.h, parse_shims.cc, stdmap_shims.h
+// THREADING - Is thread-safe.
+parse_shims_opts.h
+
+// supports ParameterSet::put(extended_value)
+// for conversion of result of fhicl file
+// parsing (intermediate_table).
+// Used only by ParameterSet.h
+// THREADING - Not thread-safe.
+encode_extended_value.cc
+encode_extended_value.h
+
+// supports ParameterSet::put()
+// FIXME: Should probably only be used by ParameterSet!
+// Used by public.
+// THREADING - Not thread-safe.
+coding.cc
+coding.h
+
+
+Parameter Storage/Retrieval
+
+// Used only by tools/fhicl-write-db.cc
+// THREADING - Not thread-safe.
+DatabaseSupport.cc
+DatabaseSupport.h
+
+// Holds a representation of configuration
+// values.  Can be parsed from a fhicl file,
+// or built by hand.
+// Used by public.
+// THREADING - Not thread-safe.
+ParameterSet.cc
+ParameterSet.h
+// Used only by ParameterSet.h
+// THREADING - Not thread-safe - find_an_any is passed an iterator
+ParameterSetImplHelpers.h
+// Used only by ParameterSet.h
+// THREADING - Not thread-safe - passed an executable object
+try_blocks.h
+// Used only by ParameterSet.cc
+// THREADING - Not thread-safe
+KeyAssembler.cc
+KeyAssembler.h
+
+// The unique name of a ParameterSet.
+// Implemented as the sha1 hash of the
+// contents of the ParameterSet::mapping_.
+// Used by public.
+// THREADING - Not thread-safe.
+ParameterSetID.cc
+ParameterSetID.h
+
+// Master registry of ParameterSets.
+// Keyed by ParameterSetID.
+// Backed by in-memory and on-file dbs.
+// THREADING - Not thread-safe.
+ParameterSetRegistry.cc
+ParameterSetRegistry.h
+
+// Almost not used, can probably be eliminated.
+// forward declares: ParameterSet, ParameterSetID,
+// extended_value, intermediate_table
+// Used by public.
+// THREADING - Is thread-safe.
+fwd.h
+
+// Factory functions to create a ParameterSet
+// from a string, file, or intermediate_table.
+// Used by public.
+// THREADING - Not thread-safe.
+make_ParameterSet.cc
+make_ParameterSet.h
+
+
+Parameter Validation
+
+// THREADING - Not yet determined
+Atom.h
+Atom.icc
+
+// THREADING - Not yet determined
+AtomBase.h
+
+// THREADING - Not yet determined
+Comment.h
+
+// THREADING - Not yet determined
+ConfigPredicate.h
+
+// THREADING - Not yet determined
+DelegateBase.h
+
+// THREADING - Not yet determined
+DelegatedParameter.cc
+DelegatedParameter.h
+
+// THREADING - Not yet determined
+KeysToIgnore.h (testing only)
+
+// THREADING - Not yet determined
+MaybeDisplayParent.cc
+MaybeDisplayParent.h
+
+// THREADING - Not yet determined
+Name.cc
+Name.h
+
+// THREADING - Not yet determined
+NameStackRegistry.cc
+NameStackRegistry.h
+
+// THREADING - Not yet determined
+OptionalAtom.h
+OptionalAtom.icc
+
+// THREADING - Not yet determined
+OptionalDelegatedParameter.cc
+OptionalDelegatedParameter.h
+
+// THREADING - Not yet determined
+OptionalSequence.h
+OptionalSequence.icc
+
+// THREADING - Not yet determined
+OptionalTable.h
+OptionalTable.icc
+
+// THREADING - Not yet determined
+OptionalTuple.h
+
+// THREADING - Not yet determined
+OptionalTupleAs.h
+
+// THREADING - Not yet determined
+ParameterArgumentTypes.h
+
+// THREADING - Not yet determined
+ParameterBase.h
+
+// THREADING - Not yet determined
+ParameterMetadata.h
+
+// THREADING - Not yet determined
+ParameterWalker.h
+
+// THREADING - Not yet determined
+PrintAllowedConfiguration.cc
+PrintAllowedConfiguration.h
+
+// THREADING - Not yet determined
+SeqVectorBase.h
+
+// THREADING - Not yet determined
+Sequence.h
+Sequence.icc
+
+// THREADING - Not yet determined
+SequenceBase.h
+
+// THREADING - Not yet determined
+Table.h
+Table.icc
+
+// THREADING - Not yet determined
+TableBase.h
+
+// THREADING - Not yet determined
+TableFragment.h
+
+// THREADING - Not yet determined
+TableMemberRegistry.h
+
+// THREADING - Not yet determined
+Tuple.h
+
+// THREADING - Not yet determined
+TupleAs.h
+
+// THREADING - Not yet determined
+ValidateThenSet.cc
+ValidateThenSet.h
+
+// THREADING - Not yet determined
+optional_parameter_message.h
+
+// THREADING - Not yet determined
+ostream_helpers.cc
+ostream_helpers.h
+
+// THREADING - Not yet determined
+strip_containing_names.cc
+strip_containing_names.h
+
+// THREADING - Not yet determined
+type_traits_error_msgs.h
+
+// THREADING - Not yet determined
+validationException.h (unused)
+
+
+Parameter Pretty-Printing
+
+// THREADING - Not yet determined
+Indentation.h
+
+// THREADING - Not yet determined
+PrettifierAnnotated.cc
+PrettifierAnnotated.h
+
+// THREADING - Not yet determined
+Prettifier.cc
+Prettifier.h
+
+// THREADING - Not yet determined
+PrettifierPrefixAnnotated.cc
+PrettifierPrefixAnnotated.h
+
+// THREADING - Not yet determined
+printing_helpers.cc
+printing_helpers.h
+
+// THREADING - Not yet determined
+print_mode.h
+
+
+Parameter Utility Routines
+
+// THREADING - Not yet determined
+ParameterSetWalker.h
+
+// THREADING - Not yet determined
+exception.cc
+exception.h
+
+// THREADING - Not yet determined
+type_traits.h
+

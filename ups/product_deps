@@ -1,27 +1,24 @@
 parent fhiclcpp v4_02_00
-defaultqual e10
+defaultqual e12
 #
 fcldir -
 #
 # define product/version pairs
 product		version
 cetlib		v1_21_00
-sqlite		v3_12_02_00
 
-cetbuildtools	v5_04_03	-	only_for_build
+cetbuildtools	v5_04_08	-	only_for_build
 end_product_list
 
 
 # Matrix of qualifiers versus dependent products
-qualifier	cetlib		sqlite	compiler	notes
-e10:debug	e10:debug	-nq-	gcc
-e10:opt		e10:opt		-nq-	gcc
-e10:prof	e10:prof	-nq-	gcc
-e9:debug	e9:debug	-nq-	gcc
-e9:opt		e9:opt		-nq-	gcc
-e9:prof		e9:prof		-nq-	gcc
-i1:debug	i1:debug	-nq-	icc
-i1:prof		i1:prof		-nq-	icc
+qualifier	cetlib		compiler	notes
+e12:debug	e12:debug	gcc
+e12:opt		e12:opt		gcc
+e12:prof	e12:prof	gcc
+e10:debug	e10:debug	gcc
+e10:opt		e10:opt		gcc
+e10:prof	e10:prof	gcc
 end_qualifier_list
 
 # Local Variables:

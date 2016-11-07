@@ -1096,37 +1096,290 @@ class intermediate_table
 
   - ex_val : extended_value - THREADING -  sequence_t, table_t usage of containers
 
-  - pre_insert_(std::string const& name, extended_value const& value) : extended_value*
-  - locate_(std::string const& name) : std::pair<extended_value*, bool>
-  - split(std::string const& name) const : std::vector<std::string>
+  - pre_insert_(string const& name, extended_value const& value) : extended_value*
+  - locate_(string const& name) : pair<extended_value*, bool>
+  - split(string const& name) const : vector<string>
 
   + intermediate_table();
 
   + empty() const : bool
-  + exists(std::string const& name) const : bool
-  + erase(std::string const& name, bool in_prolog = false) : void
-  + get(std::string const& name) : template<typename T> T 
-  + put(std::string const& name, std::string const& value, bool in_prolog = false) : bool
-  + put(std::string const& name, char const* value, bool in_prolog = false) : bool
-  + put(std::string const& name, bool value, bool in_prolog = false) : bool
-  + put(std::string const& name, std::complex<T> const& value, bool in_prolog = false) : template<typename T> bool
-  + put(std::string const& name, std::vector<T> const& value, bool in_prolog = false) : template<typename T> bool
-  + put( std::string const& name, T value, bool in_prolog = false) : template<typename T> typename std::enable_if<tt::is_numeric<T>::value, bool>::type
-  + putEmptySequence(std::string const& name, bool in_prolog = false) : bool
-  + putEmptyTable(std::string const& name, bool in_prolog = false) : bool
-  + putNil(std::string const& name, bool in_prolog = false) : bool
+  + exists(string const& name) const : bool
+  + erase(string const& name, bool in_prolog = false) : void
+  + get(string const& name) : template<typename T> T 
+  + put(string const& name, string const& value, bool in_prolog = false) : bool
+  + put(string const& name, char const* value, bool in_prolog = false) : bool
+  + put(string const& name, bool value, bool in_prolog = false) : bool
+  + put(string const& name, complex<T> const& value, bool in_prolog = false) : template<typename T> bool
+  + put(string const& name, vector<T> const& value, bool in_prolog = false) : template<typename T> bool
+  + put( string const& name, T value, bool in_prolog = false) : template<typename T> typename enable_if<tt::is_numeric<T>::value, bool>::type
+  + putEmptySequence(string const& name, bool in_prolog = false) : bool
+  + putEmptyTable(string const& name, bool in_prolog = false) : bool
+  + putNil(string const& name, bool in_prolog = false) : bool
 
   + begin() const : const_iterator
   + end() const : const_iterator
 
-  + insert(std::string const& name, bool in_prolog, value_tag tag, boost::any const& value) : bool
-  + insert(std::string const& name, extended_value const& value) : bool
-  + insert(std::string const& name, extended_value&& value) : bool
+  + insert(string const& name, bool in_prolog, value_tag tag, boost::any const& value) : bool
+  + insert(string const& name, extended_value const& value) : bool
+  + insert(string const& name, extended_value&& value) : bool
 
-  + find(std::string const& name) const : extended_value const&extended_value const&
-  + locate(std::string const& name) : extended_value*
-  + update(std::string const& name) : extended_value&
+  + find(string const& name) const : extended_value const&extended_value const&
+  + locate(string const& name) : extended_value*
+  + update(string const& name) : extended_value&
 
 -----
 
+Parameter Validation
+
+-----
+
++ get_regex_replace_str(string const& istr) : string const { static regex const r("\\[|\\]"); auto ostr = regex_replace(istr, r, "\\$&"); return ostr; }
+
+struct Name
+
+  + value : string
+
+  - index(size_t const i) static : string { return "[" + to_string(i) + "]"; }
+  + sequence_element(size_t const i) static : Name { return Name{index(i)}; }
+  + sequence_element(string const& key_stem, size_t const i) static : Name { return Name{key_stem + index(i)}; }
+  + regex_safe(string const& key) static : string { return fhicl::get_regex_replace_str(key); }
+
+  + Name(string const& name = "") explicit : value(name) {}
+
+-----
+
+class NameStackRegistry
+
+  - names_ : vector<string>{} - THREADING
+
+  + instance() static : NameStackRegistry& { static NameStackRegistry registry; return registry; }
+  + end_of_ctor() static : void { instance().names_.pop_back(); }
+
+  - NameStackRegistry() = default;
+  + empty() const : bool { return names_.empty(); }
+  + current() const : string { return names_.back(); }
+  + clear() : void { names_.clear(); }
+  + full_key(string const& name) : string
+    {
+      if (names_.empty() || regex_match(name, regex{R"(\[\d+\])"})) {
+        names_.emplace_back(name);
+      }
+      else {
+        names_.emplace_back("." + name);
+      }
+      return accumulate(names_.begin(), names_.end(), string{});
+    }
+
+-----
+
+enum class par_type { ATOM, TABLE, SEQ_VECTOR, SEQ_ARRAY, TUPLE, DELEGATE, NTYPES }
+enum class value_type { REQUIRED, REQUIRED_CONDITIONAL, DEFAULT, DEFAULT_CONDITIONAL, OPTIONAL, OPTIONAL_CONDITIONAL, NTYPES }
+
+inline bool is_atom(par_type const pt) { return pt == par_type::ATOM; }
+inline bool is_sequence(par_type const pt) { return pt == par_type::SEQ_VECTOR || pt == par_type::SEQ_ARRAY || pt == par_type::TUPLE; }
+inline bool is_table(par_type const pt) { return pt == par_type::TABLE; }
+
+-----
+
+class ParameterMetadata
+
+  - key_ : string {}
+  - name_ : string {}
+  - comment_ : string {}
+  - valType_ : value_type {value_type::NTYPES}
+  - parType_ : par_type {par_type::NTYPES}
+
+  + ParameterMetadata() = default
+
+  + ParameterMetadata(Name const& name = Name(),
+                      Comment const& comment = Comment(""),
+                      value_type const valType = value_type::NTYPES,
+                      par_type const parType = par_type::NTYPES)
+      : key_{NameStackRegistry::instance().full_key(name.value)}
+      , name_{name.value}
+      , comment_{comment.value}
+      , valType_{valType}
+      , parType_{parType}
+    {
+    }
+  
+  + key() const : string { return key_; }
+  + name() const : string { return name_; }
+  + comment() const : string { return comment_; }
+  + has_default() const : bool { return valType_ == value_type::DEFAULT || valType_ == value_type::DEFAULT_CONDITIONAL; } 
+  + is_optional() const : bool { return valType_ == value_type::OPTIONAL || valType_ == value_type::OPTIONAL_CONDITIONAL; }
+  + is_conditional() const : bool { return valType_ == value_type::REQUIRED_CONDITIONAL || valType_ == value_type::OPTIONAL_CONDITIONAL || valType_ == value_type::DEFAULT_CONDITIONAL; }
+  + type() const : par_type { return parType_; }
+  + set_key(string const& key) : void { key_ = key; name_ = detail::strip_all_containing_names(key); }
+  + set_value_type(value_type const vt) : void { valType_ = vt; }
+
+-----
+
+class ParameterBase
+
+  - mdata_ : ParameterMetadata
+  - maybeUse_ : function<bool()>
+
+  - do_set_value(ParameterSet const&, bool trimParents) virtual = 0 : void
+
+public:
+
+  + ~ParameterBase() virtual = default
+
+  + ParameterBase(Name const& name, Comment const& comment, value_type const vt, par_type const type, function<bool()> maybeUse = AlwaysUse())
+      : mdata_{name, comment, vt, type}
+      , maybeUse_{maybeUse}
+    {
+    }
+
+  + key() const : string { return mdata_.key(); }
+  + name() const : string { return mdata_.name(); }
+  + comment() const : string { return mdata_.comment(); }
+  + has_default() const : bool { return mdata_.has_default(); }
+  + is_optional() const : bool { return mdata_.is_optional(); }
+  + is_conditional() const : bool { return mdata_.is_conditional(); }
+  + parameter_type() const : par_type { return mdata_.type(); }
+  + should_use() const : bool { return maybeUse_(); }
+  + set_value(ParameterSet const& ps, bool trimParents) : void { do_set_value(ps, trimParents); }
+  + set_value_type(value_type const vt) : void { mdata_.set_value_type(vt); }
+  + set_key(string const& key) : void { mdata_.set_key(key); }
+
+-----
+
+class AtomBase : public ParameterBase
+
+  + AtomBase(Name const& name, Comment const& comment, value_type const vt, function<bool()> maybeUse)
+      : ParameterBase{name, comment, vt, par_type::ATOM, maybeUse}
+    {
+    }
+
+  + stringified_value() const : string { return get_stringified_value(); }
+  - get_stringified_value() const virtual = 0 : string
+
+-----
+
+class TableMemberRegistry
+
+  friend class RegisterIfTableMember
+
+  template<typename T, typename KeysToIgnore>
+  friend class fhicl::Table
+
+  template<typename T>
+  friend class fhicl::OptionalTable
+
+  - using base_ptr : cet::exempt_ptr<ParameterBase>;
+  - using table_members_t : vector<base_ptr>;
+
+  - tables_ : stack<table_members_t> - THREADING
+
+  - instance() static : TableMemberRegistry& { static TableMemberRegistry registry; return registry; }
+
+  - TableMemberRegistry() = default
+  + TableMemberRegistry(TableMemberRegistry const&) = delete
+  + TableMemberRegistry(TableMemberRegistry&&) = delete
+  + TableMemberRegistry& operator=(TableMemberRegistry const&) = delete
+  + TableMemberRegistry& operator=(TableMemberRegistry&&) = delete
+  - release_members() : vector<base_ptr> { vector<base_ptr> result; swap(tables_.top(), result); tables_.pop(); return result; }
+  - emplace_table_member(ParameterBase* pb) : void { tables_.top().emplace_back(pb); }
+  - new_table() : void { tables_.emplace(); }
+
+-----
+
+class RegisterIfTableMember
+
+  + RegisterIfTableMember(ParameterBase* pb)
+    {
+      if (is_table_member(pb->key())) {
+        TableMemberRegistry::instance().emplace_table_member(pb);
+      }
+      if (is_table(pb->parameter_type())) {
+        TableMemberRegistry::instance().new_table();
+      }
+    }
+
+-----
+
+template<typename T>
+class Atom final : public  detail::AtomBase, private detail::RegisterIfTableMember
+
+public:
+
+  + using dtype : T;
+  + using rtype : T;
+
+  - value_ : shared_ptr<T> - THREADING -
+
+  + Atom(Name&& name) explicit
+      : Atom{move(name)
+      , Comment("")}
+    {}
+
+  + Atom(Name&& name, Comment&& comment) explicit
+      : AtomBase{move(name), move(comment), value_type::REQUIRED, detail::AlwaysUse()}
+      , RegisterIfTableMember{this}
+      , value_{make_shared<T>()}
+    { 
+      NameStackRegistry::end_of_ctor();
+    }
+
+  + Atom(Name&& name, Comment&& comment, function<bool()> maybeUse) explicit
+      : AtomBase{move(name), move(comment), value_type::REQUIRED_CONDITIONAL, maybeUse}
+      , RegisterIfTableMember{this}
+      , value_{make_shared<T>()}
+    {
+      NameStackRegistry::end_of_ctor();
+    }
+
+  + Atom(Name&& name, T const& dflt_value) explicit
+      : Atom{move(name)
+      , Comment("")
+      , dflt_value}
+    {}
+
+  + Atom(Name&& name, Comment&& comment, T const& dflt_value) explicit
+      : AtomBase{move(name), move(comment), value_type::DEFAULT, detail::AlwaysUse()}
+      , RegisterIfTableMember{this}
+      , value_{make_shared<T>(dflt_value)}
+    {
+      NameStackRegistry::end_of_ctor();
+    }
+
+  + Atom(Name&& name, Comment&& comment, function<bool()> maybeUse, T const& dflt_value) explicit
+      : AtomBase{move(name), move(comment), value_type::DEFAULT_CONDITIONAL, maybeUse}
+      , RegisterIfTableMember{this}
+      , value_{make_shared<T>(dflt_value)}
+    {
+      NameStackRegistry::end_of_ctor();
+    }
+
+  + operator()() const : auto const& { return *value_; }
+
+  - get_stringified_value() const override : string
+    {
+      stringstream oss;
+      if (has_default()) {
+        using namespace detail::yes_defaults;
+        oss << maybe_quotes<T>(*value_);
+      }
+      else {
+        using namespace detail::no_defaults;
+        oss << expected_types<T>();
+      }
+      return oss.str();
+    }
+
+  - do_set_value(ParameterSet const&, bool const trimParent) override : void
+    {
+      string const& rkey = key();
+      string const& key = trimParent ? detail::strip_first_containing_name(rkey) : rkey;
+      if (has_default()) {
+        pset.get_if_present<T>(key, *value_);
+      }
+      else {
+        value_ = make_shared<T>(pset.get<T>(key));
+      }
+    }
+
+-----
 

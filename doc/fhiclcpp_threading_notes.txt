@@ -243,11 +243,11 @@ make_ParameterSet.h
 
 Parameter Validation
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 Atom.h
 Atom.icc
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 AtomBase.h
 
 // THREADING - Not yet determined
@@ -270,11 +270,11 @@ KeysToIgnore.h (testing only)
 MaybeDisplayParent.cc
 MaybeDisplayParent.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe. - public data member
 Name.cc
 Name.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 NameStackRegistry.cc
 NameStackRegistry.h
 
@@ -300,13 +300,13 @@ OptionalTuple.h
 // THREADING - Not yet determined
 OptionalTupleAs.h
 
-// THREADING - Not yet determined
+// THREADING - Is thread-safe.
 ParameterArgumentTypes.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 ParameterBase.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 ParameterMetadata.h
 
 // THREADING - Not yet determined
@@ -336,7 +336,7 @@ TableBase.h
 // THREADING - Not yet determined
 TableFragment.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 TableMemberRegistry.h
 
 // THREADING - Not yet determined

@@ -3,6 +3,7 @@ include(CetMake)
 cet_make(
   LIBRARIES
   cetlib
+  cetlib_except
   ${SQLITE3}
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}

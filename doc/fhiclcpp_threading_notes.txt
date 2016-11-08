@@ -2,16 +2,20 @@ Thread-safety summary
 
 Safe
 
-ParameterArgumentTypes.h
-Protection.cc
-Protection.h
 binding_modifier.h
+exception.cc
+exception.h
 fwd.h
+ParameterArgumentTypes.h
 parse_shims.cc
 parse_shims.h
 parse_shims_opts.h
+print_mode.h
+Protection.cc
+Protection.h
 tokens.h
 type_traits_error_msgs.h
+type_traits.h
 validationException.h (unused)
 
 Not Safe
@@ -26,9 +30,12 @@ DatabaseSupport.h
 DelegateBase.h
 DelegatedParameter.cc
 DelegatedParameter.h
+Indentation.h
 KeyAssembler.cc
 KeyAssembler.h
 KeysToIgnore.h (testing only)
+MaybeDisplayParent.cc
+MaybeDisplayParent.h
 Name.cc
 Name.h
 NameStackRegistry.cc
@@ -52,7 +59,14 @@ ParameterSetID.h
 ParameterSetImplHelpers.h
 ParameterSetRegistry.cc
 ParameterSetRegistry.h
+ParameterSetWalker.h
 ParameterWalker.h
+Prettifier.cc
+Prettifier.h
+PrettifierAnnotated.cc
+PrettifierAnnotated.h
+PrettifierPrefixAnnotated.cc
+PrettifierPrefixAnnotated.h
 PrintAllowedConfiguration.cc
 PrintAllowedConfiguration.h
 SeqVectorBase.h
@@ -83,29 +97,12 @@ ostream_helpers.cc
 ostream_helpers.h
 parse.cc
 parse.h
+printing_helpers.cc
+printing_helpers.h
 stdmap_shims.h
 strip_containing_names.cc
 strip_containing_names.h
 try_blocks.h
-
-Not yet determined
-
-Indentation.h
-MaybeDisplayParent.cc
-MaybeDisplayParent.h
-ParameterSetWalker.h
-Prettifier.cc
-Prettifier.h
-PrettifierAnnotated.cc
-PrettifierAnnotated.h
-PrettifierPrefixAnnotated.cc
-PrettifierPrefixAnnotated.h
-exception.cc
-exception.h
-print_mode.h
-printing_helpers.cc
-printing_helpers.h
-type_traits.h
 
 -----
 
@@ -363,42 +360,42 @@ validationException.h (unused)
 
 Parameter Pretty-Printing
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 Indentation.h
 
 // THREADING - Not thread-safe.
 MaybeDisplayParent.cc
 MaybeDisplayParent.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 PrettifierAnnotated.cc
 PrettifierAnnotated.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 Prettifier.cc
 Prettifier.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 PrettifierPrefixAnnotated.cc
 PrettifierPrefixAnnotated.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe. - uses passed-by-ref non-thread-safe container member functions
 printing_helpers.cc
 printing_helpers.h
 
-// THREADING - Not yet determined
+// THREADING - Is thread-safe.
 print_mode.h
 
 
 Parameter Utility Routines
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe. - calls arbitrary provided functions
 ParameterSetWalker.h
 
-// THREADING - Not yet determined
+// THREADING - Is thread-safe.
 exception.cc
 exception.h
 
-// THREADING - Not yet determined
+// THREADING - Is thread-safe.
 type_traits.h
 

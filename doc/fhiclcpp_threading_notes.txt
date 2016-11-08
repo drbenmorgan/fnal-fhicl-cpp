@@ -2,6 +2,7 @@ Thread-safety summary
 
 Safe
 
+ParameterArgumentTypes.h
 Protection.cc
 Protection.h
 binding_modifier.h
@@ -10,49 +11,24 @@ parse_shims.cc
 parse_shims.h
 parse_shims_opts.h
 tokens.h
+type_traits_error_msgs.h
+validationException.h (unused)
 
 Not Safe
-
-DatabaseSupport.cc
-DatabaseSupport.h
-KeyAssembler.cc
-KeyAssembler.h
-ParameterSet.cc
-ParameterSet.h
-ParameterSetID.cc
-ParameterSetID.h
-ParameterSetImplHelpers.h
-ParameterSetRegistry.cc
-ParameterSetRegistry.h
-coding.cc
-coding.h
-encode_extended_value.cc
-encode_extended_value.h
-extended_value.cc
-extended_value.h
-intermediate_table.cc
-intermediate_table.h
-make_ParameterSet.cc
-make_ParameterSet.h
-parse.cc
-parse.h
-stdmap_shims.h
-try_blocks.h
-
-Not yet determined
 
 Atom.h
 Atom.icc
 AtomBase.h
 Comment.h
 ConfigPredicate.h
+DatabaseSupport.cc
+DatabaseSupport.h
 DelegateBase.h
 DelegatedParameter.cc
 DelegatedParameter.h
-Indentation.h
+KeyAssembler.cc
+KeyAssembler.h
 KeysToIgnore.h (testing only)
-MaybeDisplayParent.cc
-MaybeDisplayParent.h
 Name.cc
 Name.h
 NameStackRegistry.cc
@@ -67,19 +43,16 @@ OptionalTable.h
 OptionalTable.icc
 OptionalTuple.h
 OptionalTupleAs.h
-Parameter Pretty-Printing
-Parameter Utility Routines
-ParameterArgumentTypes.h
 ParameterBase.h
 ParameterMetadata.h
-ParameterSetWalker.h
+ParameterSet.cc
+ParameterSet.h
+ParameterSetID.cc
+ParameterSetID.h
+ParameterSetImplHelpers.h
+ParameterSetRegistry.cc
+ParameterSetRegistry.h
 ParameterWalker.h
-Prettifier.cc
-Prettifier.h
-PrettifierAnnotated.cc
-PrettifierAnnotated.h
-PrettifierPrefixAnnotated.cc
-PrettifierPrefixAnnotated.h
 PrintAllowedConfiguration.cc
 PrintAllowedConfiguration.h
 SeqVectorBase.h
@@ -95,19 +68,44 @@ Tuple.h
 TupleAs.h
 ValidateThenSet.cc
 ValidateThenSet.h
-exception.cc
-exception.h
+coding.cc
+coding.h
+encode_extended_value.cc
+encode_extended_value.h
+extended_value.cc
+extended_value.h
+intermediate_table.cc
+intermediate_table.h
+make_ParameterSet.cc
+make_ParameterSet.h
 optional_parameter_message.h
 ostream_helpers.cc
 ostream_helpers.h
+parse.cc
+parse.h
+stdmap_shims.h
+strip_containing_names.cc
+strip_containing_names.h
+try_blocks.h
+
+Not yet determined
+
+Indentation.h
+MaybeDisplayParent.cc
+MaybeDisplayParent.h
+ParameterSetWalker.h
+Prettifier.cc
+Prettifier.h
+PrettifierAnnotated.cc
+PrettifierAnnotated.h
+PrettifierPrefixAnnotated.cc
+PrettifierPrefixAnnotated.h
+exception.cc
+exception.h
 print_mode.h
 printing_helpers.cc
 printing_helpers.h
-strip_containing_names.cc
-strip_containing_names.h
 type_traits.h
-type_traits_error_msgs.h
-validationException.h (unused)
 
 -----
 
@@ -250,25 +248,21 @@ Atom.icc
 // THREADING - Not thread-safe.
 AtomBase.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe - public data member
 Comment.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe - deref arbitrary pointer, calls arbitrary member function
 ConfigPredicate.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 DelegateBase.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 DelegatedParameter.cc
 DelegatedParameter.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 KeysToIgnore.h (testing only)
-
-// THREADING - Not yet determined
-MaybeDisplayParent.cc
-MaybeDisplayParent.h
 
 // THREADING - Not thread-safe. - public data member
 Name.cc
@@ -278,26 +272,26 @@ Name.h
 NameStackRegistry.cc
 NameStackRegistry.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 OptionalAtom.h
 OptionalAtom.icc
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 OptionalDelegatedParameter.cc
 OptionalDelegatedParameter.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 OptionalSequence.h
 OptionalSequence.icc
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 OptionalTable.h
 OptionalTable.icc
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 OptionalTuple.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 OptionalTupleAs.h
 
 // THREADING - Is thread-safe.
@@ -309,61 +303,61 @@ ParameterBase.h
 // THREADING - Not thread-safe.
 ParameterMetadata.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 ParameterWalker.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 PrintAllowedConfiguration.cc
 PrintAllowedConfiguration.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 SeqVectorBase.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 Sequence.h
 Sequence.icc
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 SequenceBase.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 Table.h
 Table.icc
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 TableBase.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 TableFragment.h
 
 // THREADING - Not thread-safe.
 TableMemberRegistry.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 Tuple.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 TupleAs.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 ValidateThenSet.cc
 ValidateThenSet.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe.
 optional_parameter_message.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe. - public datamembers
 ostream_helpers.cc
 ostream_helpers.h
 
-// THREADING - Not yet determined
+// THREADING - Not thread-safe. - uses passed-by-ref non-thread-safe container member functions
 strip_containing_names.cc
 strip_containing_names.h
 
-// THREADING - Not yet determined
+// THREADING - Is thread-safe.
 type_traits_error_msgs.h
 
-// THREADING - Not yet determined
+// THREADING - Is thread-safe.
 validationException.h (unused)
 
 
@@ -371,6 +365,10 @@ Parameter Pretty-Printing
 
 // THREADING - Not yet determined
 Indentation.h
+
+// THREADING - Not thread-safe.
+MaybeDisplayParent.cc
+MaybeDisplayParent.h
 
 // THREADING - Not yet determined
 PrettifierAnnotated.cc

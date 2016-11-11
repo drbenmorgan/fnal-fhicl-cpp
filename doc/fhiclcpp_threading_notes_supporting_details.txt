@@ -418,7 +418,7 @@ to store information relevant to the entire art job in progress.
 Interface of ParameterSetRegistry in pseudo-UML
 
 
-class fhicl::detail::HashParameterSetID
+class HashParameterSetID
 
   - hash_ : std::hash<std::string> hash_
 
@@ -427,7 +427,7 @@ class fhicl::detail::HashParameterSetID
   + operator()(ParameterSetID const& id) const : size_t
 
 
-class fhicl::ParameterSetRegistry
+class ParameterSetRegistry
 
   THREADING - - primaryDB_ : sqlite3*
   THREADING - - stmt_ : sqlite3_stmt*
@@ -480,7 +480,7 @@ class fhicl::ParameterSetRegistry
 
 
 ----------------------------------------------------------------
-Usage in art of the interface
+Usage in art of the ParameterSetRegistry interface
 
 
 // config_dumper use (standalone executable, no threading issues)
@@ -522,7 +522,7 @@ Usage in art of the interface
 
 ----------------------------------------------------------------
 
-Operation of the singleton fetcher.
+Operation of ParameterSetRegistry::instance_()
 
 inline
 auto
@@ -532,7 +532,6 @@ ParameterSetRegistry::instance_() -> ParameterSetRegistry&
   static ParameterSetRegistry s_registry;
   return s_registry;
 }
-
 
 The instance_() private static member function manages a function-local static
 variable s_registry which is the process-wide single instance of the
@@ -614,7 +613,7 @@ THREADING - Nearly all ParameterSetRegistry interfaces use instance_() and so ma
 
 -----
 
-Detailed source-based analysis.
+Detailed source-based analysis of ParameterSet::put(string const&, extended_value const&)
 
 // Encode extended value to a boost::any,
 // Throw if key contains '.',
@@ -625,7 +624,7 @@ Detailed source-based analysis.
 template<>
 void
 ParameterSet::
-put(std::string const& key, fhicl::extended_value const& value)
+put(string const& key, extended_value const& value)
   auto insert = [this, &key, &value]()
     // Encode extended value to a boost::any,
     // Throw if key contains '.',
@@ -635,21 +634,21 @@ put(std::string const& key, fhicl::extended_value const& value)
     insert_(key, boost::any(detail::encode(value))); - THREADING - encode may do a ParameterSetRegistry::put(pset) for tables
       insert_(string const& key, any const& value)
         check_put_local_key(key);
-          check_put_local_key(std::string const& key)
-            if (key.find('.') != std::string::npos)
-              throw fhicl::exception(unimplemented, "putXXX() for nested key.");
+          check_put_local_key(string const& key)
+            if (key.find('.') != string::npos)
+              throw exception(unimplemented, "putXXX() for nested key.");
         if (!mapping_.emplace(key, value).second) - THREADING -
           throw exception(cant_insert) << "key " << key << " already exists.";
         id_.invalidate(); - THREADING -
     // Copy value source info into srcMapping_.
     fill_src_info(value, key, srcMapping_);
-      fill_src_info(extended_value const& value, std::string const& key, ParameterSet::annot_t& src_map)
+      fill_src_info(extended_value const& value, string const& key, ParameterSet::annot_t& src_map)
         src_map[key] = value.src_info; - THREADING -
         if (!value.is_a(SEQUENCE))
           return;
-        std::size_t i(0);
+        size_t i(0);
         for (auto const& xval : extended_value::sequence_t(value)) - THREADING -
-          std::ostringstream oss;
+          ostringstream oss;
           oss << key << "[" << i++ << "]";
           src_map[oss.str()] = xval.src_info; - THREADING -
           /*recursion*/ fill_src_info(xval, oss.str(), src_map); - THREADING -
@@ -695,15 +694,128 @@ make_ParameterSet(intermediate_table const&, ParameterSet&)
                     
 -----
 
-class fhicl::ParameterSet
+class Keys
 
-  + ps_atom_t : detail::ps_atom_t;
-  + ps_sequence_t : detail::ps_sequence_t;
+  - tables_ : vector<string>
+  - last_ : string
+
+  + Keys(vector<string> const& keys, string const& last) : tables_{keys} , last_{last} {}
+  + tables() const : auto const& { return tables_; }
+  + last() const : auto const& { return last_; }
+
+class SequenceKey
+
+  - name_ : string
+  - indices_ : vector<size_t>
+
+  + SequenceKey(string const& name, vector<size_t> const& indices) : name_{name} , indices_{indices} {}
+  + name() const : auto const& { return name_; }
+  + indices() const : auto const& { return indices_; }
+
+template<typename T>
+T
+ParameterSet::
+get(string const& key) const
+  T result;
+  return get_if_present(key, result) ? result : throw fhicl::exception(cant_find, key);
+  ... :template<typename T> bool ParameterSet::get_if_present(string const& key, T& value) const
+  ... auto keys = detail::get_names(key);
+  ... ... :inline Keys detail::get_names(string const& key)
+  ... ... vector<string> keys;
+  ... ... boost::algorithm::split(keys, key, boost::algorithm::is_any_of("."));
+  ... ... keys.erase(remove(keys.begin(), keys.end(), ""), keys.end());
+  ... ... if (keys.empty()) { throw fhicl::exception(cant_find, "vacuous key"); }
+  ... ... string const last = keys.back();
+  ... ... keys.pop_back();
+  ... ... return Keys{keys, last};
+  ... ParameterSet ps;
+  ... return descend_(keys.tables(), ps) ? ps.get_one_(keys.last(), value) : false; // See below for get_one_ call
+  ... ... :bool ParameterSet::descend_(vector<string> const& names, ParameterSet& ps) const
+  ... ... ParameterSet const* p{this};
+  ... ... ParameterSet tmp;
+  ... ... for (auto const& table : names)
+  ... ... ... if (!p->get_one_(table, tmp)) return false; // see below for get_one_ call
+  ... ... ... p = &tmp;
+  ... ... ps = *p;
+  ... ... return true;
+  ... :template<typename T> bool ParameterSet::get_one_(string const& key, T& value) const
+  ... try
+  ... ... auto skey = detail::get_sequence_indices(key);
+  ... ... ... :inline SequenceKey detail::get_sequence_indices(string const& key)
+  ... ... ... auto tokens = cet::split_by_regex(key, R"((\]\[|\[|\]))");
+  ... ... ... auto const name = tokens.front();
+  ... ... ... tokens.erase(tokens.begin());
+  ... ... ... vector<size_t> indices;
+  ... ... ... cet::transform_all(tokens, back_inserter(indices), [](string const & index) { return stoul(index); });
+  ... ... ... return SequenceKey{name, indices};
+  ... ... map<string, boost::any>::const_iterator iter = mapping_.find(skey.name()); - THREADING -
+  ... ... if (iter == mapping_.end()) return false - THREADING -
+  ... ... auto/*boost::any*/ a = iter->second;
+  ... ... if (!detail::find_an_any(skey.indices().cbegin(), skey.indices().cend(), a)) throw exception(error::cant_find);
+  ... ... ... :inline bool detail::find_an_any(cit_size_t iter, cit_size_t const cend, boost::any& a)
+  ... ... ... if (iter == cend) return true;
+  ... ... ... auto const seq = boost::any_cast<ps_sequence_t/*vector<boost::any>*/>(a);
+  ... ... ... if (*iter >= seq.size()) return false;
+  ... ... ... a = seq[*iter];
+  ... ... ... return find_an_any(++it, cend, a);
+  ... ... detail::decode(a, value); - THREADING - problem if a is a ParameterSetID and value is a ParameterSet
+  ... ... ... :void detail::decode(any const& a, ParameterSet& result)
+  ... ... ... ParameterSetID id = any_cast<ParameterSetID>(a);
+  ... ... ... result = ParameterSetRegistry::get(id); - THREADING -
+  ... ... ... ... :static ParameterSet const& ParameterSetRegistry::get(ParameterSetID const& id)
+  ... ... ... ... const_iterator iter = instance_().find_(id); - THREADING -
+  ... ... ... ... ... :const_iterator ParameterSetRegistry::find_(ParameterSetID const& id)
+  ... ... ... ... ... const_iterator iter = registry_.find(id); - THREADING -
+  ... ... ... ... ... if (iter != registry_.cend()) return iter; - THREADING -
+  ... ... ... ... ... if (stmt_ == nullptr) - THREADING -
+  ... ... ... ... ... ... sqlite3_prepare_v2(primaryDB_, "SELECT PSetBlob FROM ParameterSets WHERE ID = ?;", -1, &stmt_, nullptr); - THREADING -
+  ... ... ... ... ... ... detail::throwOnSQLiteFailure(primaryDB_); - THREADING -
+  ... ... ... ... ... auto idString = id.to_string();
+  ... ... ... ... ... auto result = sqlite3_bind_text(stmt_, 1, idString.c_str(), idString.size() + 1, SQLITE_STATIC);
+  ... ... ... ... ... detail::throwOnSQLiteFailure(primaryDB_); - THREADING -
+  ... ... ... ... ... result = sqlite3_step(stmt_); - THREADING -
+  ... ... ... ... ... switch (result)
+  ... ... ... ... ... ... case SQLITE_DONE:
+  ... ... ... ... ... ... ... break;
+  ... ... ... ... ... ... case SQLITE_ROW:
+  ... ... ... ... ... ... ... ParameterSet pset;
+  ... ... ... ... ... ... ... make_ParameterSet(reinterpret_cast<char const*>(sqlite3_column_text(stmt_, 0)), pset); - THREADING -
+  ... ... ... ... ... ... ... ... :make_ParameterSet(string, pset);
+  ... ... ... ... ... ... ... ... intermediate_table tbl;
+  ... ... ... ... ... ... ... ... parse_document(string, tbl);
+  ... ... ... ... ... ... ... ... make_ParameterSet(tbl, ps);
+  ... ... ... ... ... ... ... ... ... :make_ParameterSet(tbl, ps); // See above - THREADING - can read & write the registry
+  ... ... ... ... ... ... ... iter = registry_.emplace(id, pset).first; - THREADING -
+  ... ... ... ... ... ... ... break;
+  ... ... ... ... ... ... default:
+  ... ... ... ... ... ... ... detail::throwOnSQLiteFailure(primaryDB_); - THREADING -
+  ... ... ... ... ... sqlite3_reset(stmt_); - THREADING -
+  ... ... ... ... ... return iter;
+  ... ... ... ... if (iter == cend()) throw exception(error::cant_find, "Can't find ParameterSet") << "with ID " << id.to_string() << " in the registry."; - THREADING -
+  ... ... ... ... return iter->second; - THREADING -
+  ... ... return true;
+  ... catch (exception const& e)
+  ... ... ostringstream errmsg;
+  ... ... errmsg << "\nUnsuccessful attempt to convert FHiCL parameter '"
+  ... ...        << key << "' to type '" << cet::demangle_symbol(typeid(value).name()) << "'.\n\n"
+  ... ...        << "[Specific error:]\n" << e.what() << "\n\n";
+  ... ... throw exception(type_mismatch, errmsg.str() );
+
+-----
+
+class ParameterSet
+
+  // Types
+  + ps_atom_t : detail::ps_atom_t;  // string
+  + ps_sequence_t : detail::ps_sequence_t; // vector<boost::any>
   + annot_t : unordered_map<string, string>;
 
+  // Data Members
   - mapping_ : map<string, boost::any> /*Note: ParameterSetID is generated by sha1 hashing a string version of the contents*/ - THREADING - all three data members must be interlocked against writers 
   - srcMapping_ : unordered_map<string, string> - THREADING - all three data members must be interlocked against writers
   - id_ : mutable ParameterSetID - THREADING - all three data members must be interlocked against writers
+
+  // Member Functions
 
   + operator==(ParameterSet const& other) const : bool
   + operator!=(ParameterSet const& other) const : bool
@@ -756,15 +868,15 @@ class fhicl::ParameterSet
 
 -----
 
-class fhicl::ParameterSetID
+class ParameterSetID
 
   - valid_ : bool - THREADING - must be accessed in transaction with id_ 
   - id_ : cet::sha1::digest_t id_ - THREADING - array accessed by element, must be accessed in transaction with valid_
 
-  + max_str_size() : static std::size_t
+  + max_str_size() : static size_t
   + ParameterSetID()
   + ParameterSetID(ParameterSet const&) explicit - THREADING - uses pset.to_string()
-  + ParameterSetID(std::string const& id) explicit
+  + ParameterSetID(string const& id) explicit
   + operator==(ParameterSetID const&) const : bool  - THREADING
   + operator!=(ParameterSetID const&) const : bool  - THREADING
   + operator<(ParameterSetID const&) const : bool  - THREADING
@@ -772,7 +884,7 @@ class fhicl::ParameterSetID
   + operator<=(ParameterSetID const&) const : bool  - THREADING
   + operator>=(ParameterSetID const&) const : bool  - THREADING
   + is_valid () const : bool - THREADING
-  + to_string() const : std::string - THREADING
+  + to_string() const : string - THREADING
   + invalidate() : void - THREADING
   + reset(ParameterSet const&) : void - THREADING
   + swap(ParameterSetID&) : void - THREADING
@@ -963,26 +1075,26 @@ o The config file and command line options in combination.
       // Mix config file and command lines together to
       // make an intermediate_table which then gets
       // converted to a parameter set.
-      fhicl::intermediate_table raw_config;
+      intermediate_table raw_config;
       for auto & handler : handlers
           handler->processOptions(vm, raw_config);
-          ... art::BasicOptionsHandler::doProcessOptions(bpo::variables_map const & vm, fhicl::intermediate_table & raw_config)
-          ... ... fhicl::parse_document(vm["config"].as<std::string>(), maker_, raw_config);
+          ... art::BasicOptionsHandler::doProcessOptions(bpo::variables_map const & vm, intermediate_table & raw_config)
+          ... ... parse_document(vm["config"].as<string>(), maker_, raw_config);
       detail::handle_deprecated_configs(raw_config);
-      fhicl::ParameterSet main_pset;
+      ParameterSet main_pset;
       make_ParameterSet(/*intermediate_table*/raw_config, main_pset);
       ... iterate over intermediate table
       ... use ParameterSet::put(key, value)
-      fhicl::ParameterSetRegistry::put(main_pset);
+      ParameterSetRegistry::put(main_pset);
 
 
 o root input files, parameter set blobs and the newer per-file db
 
   Uses: 
       // ParameterSet map
-      for auto const& psEntry : psetMap)
-        fhicl::ParameterSet pset;
-        fhicl::make_ParameterSet(/*string*/psEntry.second.pset_, pset);
+      for auto const& psEntry : psetMap
+        ParameterSet pset;
+        make_ParameterSet(/*string*/psEntry.second.pset_, pset);
         ... intermediate_table tbl;
         ... parse_document(string, tbl);
         ... make_ParameterSet(tbl, ps);
@@ -991,10 +1103,10 @@ o root input files, parameter set blobs and the newer per-file db
         // Note ParameterSet::id() has the side effect of
         // making sure the parameter set *has* an ID.
         pset.id();
-        fhicl::ParameterSetRegistry::put(pset);
+        ParameterSetRegistry::put(pset);
   and:
       // per-file db
-      fhicl::ParameterSetRegistry::importFrom(sqliteDB_);
+      ParameterSetRegistry::importFrom(sqliteDB_);
       ... copies from on-disk db into in-memory db, ignores duplicated
       ... parameter set ids
 
@@ -1002,8 +1114,8 @@ o fcl files or strings parsed by user modules/tools/services
 
   Uses:
       // string-based
-      fhicl::ParameterSet pset;
-      void fhicl::make_ParameterSet(std::string const& str, ParameterSet& pset)
+      ParameterSet pset;
+      void make_ParameterSet(string const& str, ParameterSet& pset)
       ... intermediate_table tbl;
       ... parse_document(str, tbl);
       ... make_ParameterSet(tbl, ps);
@@ -1012,11 +1124,11 @@ o fcl files or strings parsed by user modules/tools/services
       // Note ParameterSet::id() has the side effect of
       // making sure the parameter set *has* an ID.
       pset.id();
-      fhicl::ParameterSetRegistry::put(pset);
+      ParameterSetRegistry::put(pset);
   Or:
       // file-based
-      fhicl::ParameterSet pset;
-      void fhicl::make_ParameterSet(std::string const& filename, cet::filepath_maker&, ParameterSet& pset)
+      ParameterSet pset;
+      void make_ParameterSet(string const& filename, cet::filepath_maker&, ParameterSet& pset)
       ... intermediate_table tbl;
       ... parse_document(filename, maker, tbl);
       ... make_ParameterSet(tbl, ps);
@@ -1025,7 +1137,7 @@ o fcl files or strings parsed by user modules/tools/services
       // Note ParameterSet::id() has the side effect of
       // making sure the parameter set *has* an ID.
       pset.id();
-      fhicl::ParameterSetRegistry::put(pset);
+      ParameterSetRegistry::put(pset);
 
 o encode called by ParameterSet::put()
 
@@ -1051,12 +1163,12 @@ o encode called by ParameterSet::put()
 o messagefacility
 
   Uses:
-        fhicl::ParameterSet
-        MessageFacilityService::ConfigurationFile(std::string const& filename, fhicl::ParameterSet const& default_config)
+        ParameterSet
+        MessageFacilityService::ConfigurationFile(string const& filename, ParameterSet const& default_config)
             ...
-            fhicl::ParameterSet pset; 
+            ParameterSet pset; 
             try
-              fhicl::make_ParameterSet(fname, *policy_ptr, pset);
+              make_ParameterSet(fname, *policy_ptr, pset);
               ... intermediate_table tbl;
               ... parse_document(filename, maker, tbl);
               ... make_ParameterSet(tbl, ps);
@@ -1064,16 +1176,16 @@ o messagefacility
               ... ... use ParameterSet::put(key, value)
               return pset; 
             catch (cet::exception &e)
-              std::cerr << "Configuration file \"" << fname << "\" "
+              cerr << "Configuration file \"" << fname << "\" "
                         << "parsing failed with exception " << e.what()
                         << ".\n"
                         << "Default configuration will be used instead.\n";
             return default_config;
       And:
-          auto pset_from_oss(std::ostringstream const& ss)
-            fhicl::ParameterSet pset;
-            std::string const pstr(ss.str());
-            fhicl::make_ParameterSet(pstr, pset);
+          auto pset_from_oss(ostringstream const& ss)
+            ParameterSet pset;
+            string const pstr(ss.str());
+            make_ParameterSet(pstr, pset);
             ... intermediate_table tbl;
             ... parse_document(str, tbl);
             ... make_ParameterSet(tbl, ps);
@@ -1081,17 +1193,17 @@ o messagefacility
             ... ... use ParameterSet::put(key, value)
             return pset;
         All of these use the above to set a sub-table in the "destinations" table.
-        fhicl::ParameterSet MessageFacilityService::logConsole()
-        fhicl::ParameterSet MessageFacilityService::logServer(int const partition)
-        fhicl::ParameterSet MessageFacilityService::logFile(std::string const& filename, bool const append)
-        fhicl::ParameterSet MessageFacilityService::logCS(int const partition)
-        fhicl::ParameterSet MessageFacilityService::logCF(std::string const& filename, bool const append)
-        fhicl::ParameterSet MessageFacilityService::logFS(std::string const& filename, bool const append, int const partition)
-        fhicl::ParameterSet MessageFacilityService::logCFS(std::string const& filename, bool const append, int const partition)
-        fhicl::ParameterSet MessageFacilityService::logArchive(std::string const& filename, bool const append)
+        ParameterSet MessageFacilityService::logConsole()
+        ParameterSet MessageFacilityService::logServer(int const partition)
+        ParameterSet MessageFacilityService::logFile(string const& filename, bool const append)
+        ParameterSet MessageFacilityService::logCS(int const partition)
+        ParameterSet MessageFacilityService::logCF(string const& filename, bool const append)
+        ParameterSet MessageFacilityService::logFS(string const& filename, bool const append, int const partition)
+        ParameterSet MessageFacilityService::logCFS(string const& filename, bool const append, int const partition)
+        ParameterSet MessageFacilityService::logArchive(string const& filename, bool const append)
       And:
         auto func(...)
-          std::string const config("...");
+          string const config("...");
           fhicl::ParameterSet result;
           fhicl::make_ParameterSet(config, result);
           ... intermediate_table tbl;

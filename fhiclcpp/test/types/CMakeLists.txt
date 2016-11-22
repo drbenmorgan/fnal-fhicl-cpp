@@ -49,6 +49,7 @@ cet_test(keys_to_ignore_t        USE_BOOST_UNIT)
 cet_test(return_types_t          USE_BOOST_UNIT)
 cet_test(return_types_table_t    USE_BOOST_UNIT)
 cet_test(return_value_defaults_t USE_BOOST_UNIT)
+cet_test(searchAllowedConfiguration_t USE_BOOST_UNIT)
 
 cet_test(tupleAs_t USE_BOOST_UNIT
   DATAFILES

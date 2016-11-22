@@ -48,7 +48,7 @@ namespace fhicl {
   class NameStackRegistry {
   public:
 
-    std::string full_key(std::string const & key);
+    std::string full_key(std::string const& key);
 
     bool empty() const
     {

@@ -7,7 +7,6 @@
 //
 // ======================================================================
 
-#include "cetlib/registry_via_id.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/fwd.h"

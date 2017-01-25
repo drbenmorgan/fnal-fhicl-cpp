@@ -7,7 +7,7 @@ fcldir -
 product		version
 cetlib		v1_21_00
 
-cetbuildtools	v5_06_04	-	only_for_build
+cetbuildtools	v5_06_05	-	only_for_build
 end_product_list
 
 

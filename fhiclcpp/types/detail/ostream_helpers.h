@@ -1,7 +1,7 @@
 #ifndef fhiclcpp_types_detail_ostream_helpers_h
 #define fhiclcpp_types_detail_ostream_helpers_h
 
-#include "cetlib/demangle.h"
+#include "cetlib_except/demangle.h"
 
 #include <ostream>
 #include <string>

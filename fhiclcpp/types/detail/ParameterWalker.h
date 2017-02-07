@@ -71,7 +71,7 @@
 */
 
 #include "cetlib/container_algorithms.h"
-#include "cetlib/demangle.h"
+#include "cetlib_except/demangle.h"
 #include "fhiclcpp/type_traits.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
 #include "fhiclcpp/types/detail/DelegateBase.h"

@@ -9,7 +9,7 @@ cet_make_exec(fhicl-dump
 cet_make_exec(fhicl-expand
   SOURCE fhicl-expand.cc
   LIBRARIES
-  cetlib ${Boost_PROGRAM_OPTIONS_LIBRARY}
+  cetlib cetlib_except ${Boost_PROGRAM_OPTIONS_LIBRARY}
   )
 
 cet_make_exec(fhicl-write-db

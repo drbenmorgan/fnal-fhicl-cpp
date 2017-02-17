@@ -51,6 +51,9 @@ fhicl::ParameterSetRegistry::~ParameterSetRegistry()
   try {
     throwOnSQLiteFailure(primaryDB_);
   }
+  catch (fhicl::exception const& e) {
+    std::cerr << e.what() << '\n';
+  }
   catch (...) {}
   int retcode;
   do {

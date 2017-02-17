@@ -23,10 +23,9 @@ namespace {
 }
 
 void
-fhicl::detail::
-throwOnSQLiteFailure(sqlite3* db, char* msg)
+fhicl::detail::throwOnSQLiteFailure(sqlite3* db, char* msg)
 {
-  std::string msgString(msg ? msg : "");
+  std::string const msgString {msg ? msg : ""};
   sqlite3_free(msg);
   if (db == nullptr) {
     throw fhicl::exception(fhicl::error::cant_open_db,
@@ -49,7 +48,10 @@ throwOnSQLiteFailure(sqlite3* db, char* msg)
 fhicl::ParameterSetRegistry::~ParameterSetRegistry()
 {
   sqlite3_finalize(stmt_);
-  throwOnSQLiteFailure(primaryDB_);
+  try {
+    throwOnSQLiteFailure(primaryDB_);
+  }
+  catch (...) {}
   int retcode;
   do {
     retcode = sqlite3_close(primaryDB_);
@@ -59,6 +61,7 @@ fhicl::ParameterSetRegistry::~ParameterSetRegistry()
 void
 fhicl::ParameterSetRegistry::importFrom(sqlite3* db)
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   // This does *not* cause anything new to be imported into the registry
   // itself, just its backing DB.
   sqlite3_stmt* iStmt = nullptr;
@@ -102,6 +105,7 @@ fhicl::ParameterSetRegistry::importFrom(sqlite3* db)
 void
 fhicl::ParameterSetRegistry::exportTo(sqlite3* db)
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   char* errMsg = nullptr;
   sqlite3_exec(db,
                "BEGIN TRANSACTION; DROP TABLE IF EXISTS ParameterSets;"
@@ -158,6 +162,7 @@ fhicl::ParameterSetRegistry::exportTo(sqlite3* db)
 void
 fhicl::ParameterSetRegistry::stageIn()
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   sqlite3_stmt* stmt = nullptr;
   sqlite3* primaryDB = instance_().primaryDB_;
   auto& registry = instance_().registry_;
@@ -172,7 +177,7 @@ fhicl::ParameterSetRegistry::stageIn()
     ParameterSet pset;
     fhicl::make_ParameterSet(psBlob, pset);
     // Put into the registry without triggering ParameterSet::id().
-    (void) registry.emplace(ParameterSetID(idString), pset).first;
+    registry.emplace(ParameterSetID{idString}, pset);
   }
   sqlite3_finalize(stmt);
   throwOnSQLiteFailure(primaryDB);
@@ -182,11 +187,14 @@ fhicl::ParameterSetRegistry::ParameterSetRegistry() :
   primaryDB_{openPrimaryDB()}
 {}
 
+std::recursive_mutex fhicl::ParameterSetRegistry::mutex_ {};
+
 auto
 fhicl::ParameterSetRegistry::find_(ParameterSetID const& id)
   -> const_iterator
 {
-  const_iterator it = registry_.find(id);
+  // No lock here -- it was already acquired by get(...).
+  auto it = registry_.find(id);
   if (it == registry_.cend()) {
     // Look in primary DB for this ID and its contained IDs.
     if (stmt_ == nullptr) {

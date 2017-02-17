@@ -14,6 +14,7 @@
 #include "sqlite3.h"
 
 #include <unordered_map>
+#include <mutex>
 
 namespace fhicl {
 
@@ -78,8 +79,7 @@ public:
   // each pair, first == second.id() is a prerequisite.
   template <class FwdIt>
   static
-  std::enable_if_t<std::is_same<typename std::iterator_traits<FwdIt>::value_type,
-                                value_type>::value>
+  std::enable_if_t<std::is_same<typename std::iterator_traits<FwdIt>::value_type, value_type>::value>
   put(FwdIt begin, FwdIt end);
   // 4. A collection_type. For each value_type, first == second.id() is
   // a prerequisite.
@@ -99,12 +99,14 @@ private:
   sqlite3* primaryDB_;
   sqlite3_stmt* stmt_ {nullptr};
   collection_type registry_ {};
+  static std::recursive_mutex mutex_;
 };
 
 inline
 bool
 fhicl::ParameterSetRegistry::empty()
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_.empty();
 }
 
@@ -113,6 +115,7 @@ auto
 fhicl::ParameterSetRegistry::size()
   -> size_type
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_.size();
 }
 
@@ -121,6 +124,7 @@ auto
 fhicl::ParameterSetRegistry::begin()
   -> const_iterator
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_.begin();
 }
 
@@ -129,6 +133,7 @@ auto
 fhicl::ParameterSetRegistry::end()
   -> const_iterator
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_.end();
 }
 
@@ -137,6 +142,7 @@ auto
 fhicl::ParameterSetRegistry::cbegin()
   -> const_iterator
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_.cbegin();
 }
 
@@ -145,6 +151,7 @@ auto
 fhicl::ParameterSetRegistry::cend()
   -> const_iterator
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_.cend();
 }
 
@@ -154,6 +161,7 @@ auto
 fhicl::ParameterSetRegistry::put(ParameterSet const& ps)
   -> ParameterSetID const&
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_.emplace(ps.id(), ps).first->first;
 }
 
@@ -161,9 +169,10 @@ fhicl::ParameterSetRegistry::put(ParameterSet const& ps)
 template <class FwdIt>
 inline
 auto
-fhicl::ParameterSetRegistry::put(FwdIt const b, FwdIt const e)
+fhicl::ParameterSetRegistry::put(FwdIt b, FwdIt const e)
   -> std::enable_if_t<std::is_same<typename std::iterator_traits<FwdIt>::value_type, mapped_type>::value>
 {
+  // No lock here -- it will be acquired by 3.
   for (; b != e; ++b) {
     (void) put(*b);
   }
@@ -176,6 +185,7 @@ auto
 fhicl::ParameterSetRegistry::put(FwdIt const b, FwdIt const e)
   -> std::enable_if_t<std::is_same<typename std::iterator_traits<FwdIt>::value_type, value_type>::value>
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   instance_().registry_.insert(b, e);
 }
 
@@ -184,6 +194,7 @@ inline
 void
 fhicl::ParameterSetRegistry::put(collection_type const& c)
 {
+  // No lock here -- it will be acquired by 3.
   put(c.cbegin(), c.cend());
 }
 
@@ -192,6 +203,7 @@ auto
 fhicl::ParameterSetRegistry::get() noexcept
   -> collection_type const&
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_;
 }
 
@@ -200,8 +212,9 @@ auto
 fhicl::ParameterSetRegistry::get(ParameterSetID const& id)
   -> ParameterSet const&
 {
-  const_iterator it = instance_().find_(id);
-  if (it == cend() ) {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
+  auto it = instance_().find_(id);
+  if (it == instance_().registry_.cend() ) {
     throw exception(error::cant_find, "Can't find ParameterSet")
       << "with ID " << id.to_string() << " in the registry.";
   }
@@ -212,12 +225,11 @@ inline
 bool
 fhicl::ParameterSetRegistry::get(ParameterSetID const& id, ParameterSet& ps)
 {
-  bool result;
-  const_iterator it = instance_().find_(id);
-  if (it == cend()) {
-    result = false;
-  } else {
-    ps =  it->second;
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
+  bool result {false};
+  auto it = instance_().find_(id);
+  if (it != instance_().registry_.cend()) {
+    ps = it->second;
     result = true;
   }
   return result;

@@ -12,7 +12,9 @@
 #include "fhiclcpp/types/detail/TableBase.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
 #include "fhiclcpp/type_traits.h"
+
 #include <memory>
+#include <ostream>
 #include <set>
 #include <string>
 
@@ -77,12 +79,12 @@ namespace fhicl {
     void do_set_value(fhicl::ParameterSet const& pset, bool const trimParents) override;
   };
 
-  template <typename T, typename U>
-  inline decltype(auto) operator<<(T&& t, Table<U> const& u)
+  template <typename T>
+  inline std::ostream& operator<<(std::ostream& os, Table<T> const& t)
   {
-    std::ostringstream oss;
-    u.print_allowed_configuration(oss);
-    return std::forward<T>(t) << oss.str();
+    std::ostringstream config;
+    t.print_allowed_configuration(config);
+    return os << config.str();
   }
 
 }

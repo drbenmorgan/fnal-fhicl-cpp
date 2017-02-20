@@ -76,12 +76,12 @@ namespace fhicl {
 
   };
 
-  template <typename T, typename U>
-  inline decltype(auto) operator<<(T&& t, OptionalTable<U> const& u)
+  template <typename T>
+  inline std::ostream& operator<<(std::ostream& os, OptionalTable<T> const& t)
   {
-    std::ostringstream oss;
-    u.print_allowed_configuration(oss);
-    return std::forward<T>(t) << oss.str();
+    std::ostringstream config;
+    t.print_allowed_configuration(config);
+    return os << config.str();
   }
 
 }

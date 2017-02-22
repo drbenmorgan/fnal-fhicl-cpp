@@ -60,12 +60,6 @@ public:
   static bool empty();
   static size_type size();
 
-  // Iterators.
-  static const_iterator begin();
-  static const_iterator end();
-  static const_iterator cbegin();
-  static const_iterator cend();
-
   // Put:
   // 1. A single ParameterSet.
   static ParameterSetID const& put(ParameterSet const& ps);
@@ -89,6 +83,7 @@ public:
   static collection_type const& get() noexcept;
   static ParameterSet const& get(ParameterSetID const& id);
   static bool get(ParameterSetID const& id, ParameterSet& ps);
+  static bool has(ParameterSetID const& id);
 
 private:
 
@@ -117,42 +112,6 @@ fhicl::ParameterSetRegistry::size()
 {
   std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_.size();
-}
-
-inline
-auto
-fhicl::ParameterSetRegistry::begin()
-  -> const_iterator
-{
-  std::lock_guard<decltype(mutex_)> lock {mutex_};
-  return instance_().registry_.begin();
-}
-
-inline
-auto
-fhicl::ParameterSetRegistry::end()
-  -> const_iterator
-{
-  std::lock_guard<decltype(mutex_)> lock {mutex_};
-  return instance_().registry_.end();
-}
-
-inline
-auto
-fhicl::ParameterSetRegistry::cbegin()
-  -> const_iterator
-{
-  std::lock_guard<decltype(mutex_)> lock {mutex_};
-  return instance_().registry_.cbegin();
-}
-
-inline
-auto
-fhicl::ParameterSetRegistry::cend()
-  -> const_iterator
-{
-  std::lock_guard<decltype(mutex_)> lock {mutex_};
-  return instance_().registry_.cend();
 }
 
 // 1.
@@ -233,6 +192,15 @@ fhicl::ParameterSetRegistry::get(ParameterSetID const& id, ParameterSet& ps)
     result = true;
   }
   return result;
+}
+
+inline
+bool
+fhicl::ParameterSetRegistry::has(ParameterSetID const& id)
+{
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
+  auto const& reg = instance_().registry_;
+  return reg.find(id) != reg.cend();
 }
 
 inline

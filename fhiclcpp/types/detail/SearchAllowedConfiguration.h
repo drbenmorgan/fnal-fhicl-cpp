@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_test_fhiclcpp_types_detail_SearchAllowedConfiguration_h
-#define fhiclcpp_test_fhiclcpp_types_detail_SearchAllowedConfiguration_h
+#ifndef fhiclcpp_types_detail_SearchAllowedConfiguration_h
+#define fhiclcpp_types_detail_SearchAllowedConfiguration_h
 
 // ============================================================================
 //
@@ -73,7 +73,7 @@ namespace fhicl {
   }
 }
 
-#endif /* fhiclcpp_test_fhiclcpp_types_detail_SearchAllowedConfiguration_h */
+#endif /* fhiclcpp_types_detail_SearchAllowedConfiguration_h */
 
 // Local variables:
 // mode: c++

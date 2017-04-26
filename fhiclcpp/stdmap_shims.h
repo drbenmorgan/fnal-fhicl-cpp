@@ -1,5 +1,5 @@
-#ifndef _stdmap_shims_h_
-#define _stdmap_shims_h_
+#ifndef fhiclcpp_stdmap_shims_h
+#define fhiclcpp_stdmap_shims_h
 
 #include <algorithm>
 #include <iostream>
@@ -251,5 +251,5 @@ public:
     operator!= (IIL left, IIR right){return !operator==(left,right);}
 }
 
-#endif /* _stdmap_shims_h_ */
+#endif /* fhiclcpp_stdmap_shims_h */
 

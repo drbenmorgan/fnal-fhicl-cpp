@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_detail_ParameterSetWalker_h
-#define fhiclcpp_detail_ParameterSetWalker_h
+#ifndef fhiclcpp_ParameterSetWalker_h
+#define fhiclcpp_ParameterSetWalker_h
 
 /*
 
@@ -111,7 +111,7 @@ namespace fhicl {
 
 } // fhicl
 
-#endif /* fhiclcpp_detail_ParameterSetWalker_h */
+#endif /* fhiclcpp_ParameterSetWalker_h */
 
 // Local variables:
 // mode: c++

@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_test_fhiclcpp_types_KeyMap_h
-#define fhiclcpp_test_fhiclcpp_types_KeyMap_h
+#ifndef fhiclcpp_test_types_KeyMap_h
+#define fhiclcpp_test_types_KeyMap_h
 
 #include "fhiclcpp/type_traits.h"
 #include "fhiclcpp/types/detail/ParameterWalker.h"
@@ -35,7 +35,7 @@ namespace fhicl {
 
 }
 
-#endif /* fhiclcpp_test_fhiclcpp_types_KeyMap_h */
+#endif /* fhiclcpp_test_types_KeyMap_h */
 
 // Local variables:
 // mode: c++

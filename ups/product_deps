@@ -6,22 +6,23 @@ fcldir -
 # define product/version pairs
 product		version
 cetlib		v2_03_00
+python          v2_7_13d
 
 cetbuildtools	v5_06_07	-	only_for_build
 end_product_list
 
 
 # Matrix of qualifiers versus dependent products
-qualifier	cetlib		compiler	notes
-e14:debug	e14:debug	gcc
-e14:opt		e14:opt		gcc
-e14:prof	e14:prof	gcc
-e12:debug	e12:debug	gcc
-e12:opt		e12:opt		gcc
-e12:prof	e12:prof	gcc
-e10:debug	e10:debug	gcc
-e10:opt		e10:opt		gcc
-e10:prof	e10:prof	gcc
+qualifier	cetlib		python compiler	notes
+e14:debug	e14:debug	-nq-   gcc
+e14:opt		e14:opt		-nq-   gcc
+e14:prof	e14:prof	-nq-   gcc
+e12:debug	e12:debug	-nq-   gcc
+e12:opt		e12:opt		-nq-   gcc
+e12:prof	e12:prof	-nq-   gcc
+e10:debug	e10:debug	-nq-   gcc
+e10:opt		e10:opt		-nq-   gcc
+e10:prof	e10:prof	-nq-   gcc
 end_qualifier_list
 
 # Local Variables:

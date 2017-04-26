@@ -6,23 +6,18 @@
 using namespace fhicl;
 using namespace fhicl::detail;
 
-KeyAssembler::KeyAssembler()
-  : keys_{}
-  , name_stack_{}
-{}
-
 std::string KeyAssembler::full_key_(name_t const& name) const
 {
   std::ostringstream os;
-  cet::copy_all( name_stack_, std::ostream_iterator<std::string>{os,"."} );
+  cet::copy_all(name_stack_, std::ostream_iterator<std::string>{os,"."});
   os << name;
   return os.str();
 }
 
 void KeyAssembler::enter_table(key_t const& key, any_t const&)
 {
-  keys_.emplace_back( full_key_(key) );
-  name_stack_.emplace_back( key );
+  keys_.emplace_back(full_key_(key));
+  name_stack_.emplace_back(key);
 }
 
 void KeyAssembler::exit_table(key_t const&, any_t const&)
@@ -32,10 +27,10 @@ void KeyAssembler::exit_table(key_t const&, any_t const&)
 
 void KeyAssembler::enter_sequence(key_t const& key, any_t const&)
 {
-  keys_.emplace_back( full_key_(key) );
+  keys_.emplace_back(full_key_(key));
 }
 
 void KeyAssembler::atom(key_t const& key, any_t const&)
 {
-  keys_.emplace_back( full_key_(key) );
+  keys_.emplace_back(full_key_(key));
 }

@@ -7,6 +7,7 @@
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
+#include "fhiclcpp/ParameterSetWalker.h"
 #include "fhiclcpp/detail/KeyAssembler.h"
 #include "fhiclcpp/detail/Prettifier.h"
 #include "fhiclcpp/detail/PrettifierAnnotated.h"
@@ -37,7 +38,7 @@ namespace {
   // See notes for 'put' specialization below
   void
   fill_src_info(extended_value const& value,
-                std::string const & key,
+                std::string const& key,
                 ParameterSet::annot_t& src_map)
   {
     src_map[key]=value.src_info;
@@ -51,9 +52,9 @@ namespace {
     }
   }
 
-  ParameterSet const & get_pset_via_any(boost::any const& a)
+  ParameterSet const& get_pset_via_any(boost::any const& a)
   {
-    ParameterSetID const & psid = boost::any_cast<ParameterSetID>(a);
+    ParameterSetID const& psid = boost::any_cast<ParameterSetID>(a);
     return ParameterSetRegistry::get(psid);
   }
 
@@ -63,11 +64,11 @@ namespace {
 // ======================================================================
 
 string
-ParameterSet::stringify_(any const & a, bool compact) const
+ParameterSet::stringify_(any const& a, bool const compact) const
 {
   string result;
   if (is_table(a)) {
-    ParameterSetID const& psid = any_cast<ParameterSetID>(a);
+    auto const& psid = any_cast<ParameterSetID>(a);
     result = '{' + ParameterSetRegistry::get(psid).to_string() + '}';
     if (compact && result.size() > (5 + ParameterSetID::max_str_size())) {
       // Replace with a reference to the ParameterSetID;
@@ -77,12 +78,11 @@ ParameterSet::stringify_(any const & a, bool compact) const
   else if (is_sequence(a)) {
     auto const& seq = any_cast<ps_sequence_t>(a);
     result = '[';
-    if (! seq.empty()) {
+    if (!seq.empty()) {
       result.append(stringify_(*seq.begin(), compact));
-      for (ps_sequence_t::const_iterator it = seq.begin()
-                                              , e = seq.end(); ++it != e;) {
+      for (auto it = seq.cbegin(), e = seq.cend(); ++it != e;) {
         result.append(1, ',')
-        .append(stringify_(*it, compact));
+              .append(stringify_(*it, compact));
       }
     }
     result.append(1, ']');
@@ -97,34 +97,36 @@ ParameterSet::stringify_(any const & a, bool compact) const
 // ----------------------------------------------------------------------
 
 bool
-ParameterSet::is_empty() const
-{ return mapping_.empty(); }
+ParameterSet::is_empty() const {
+  return mapping_.empty();
+}
 
 ParameterSetID
 ParameterSet::id() const
 {
-  if (! id_.is_valid())
-  { id_.reset(*this); }
+  if (!id_.is_valid()) {
+    id_.reset(*this);
+  }
   return id_;
 }
 
 string
-ParameterSet::to_string_(bool compact) const
+ParameterSet::to_string_(bool const compact) const
 {
   string result;
-  if (mapping_.empty())
-  { return result; }
-  map_iter_t it = mapping_.begin();
+  if (mapping_.empty()) {
+    return result;
+  }
+  auto it = mapping_.begin();
   result.append(it->first)
-    .append(1, ':')
-    .append(stringify_(it->second, compact))
-    ;
-  for (map_iter_t const e = mapping_.end(); ++it != e;)
+        .append(1, ':')
+        .append(stringify_(it->second, compact));
+  for (auto const e = mapping_.end(); ++it != e;) {
     result.append(1, ' ')
-    .append(it->first)
-    .append(1, ':')
-    .append(stringify_(it->second, compact))
-    ;
+          .append(it->first)
+          .append(1, ':')
+          .append(stringify_(it->second, compact));
+  }
   return result;
 }
 
@@ -132,8 +134,8 @@ vector<string>
 ParameterSet::get_names() const
 {
   vector<string> keys;
-  cet::transform_all( mapping_, std::back_inserter(keys),
-                      [](auto const& pr){ return pr.first; } );
+  cet::transform_all(mapping_, std::back_inserter(keys),
+                     [](auto const& pr){ return pr.first; });
   return keys;
 }
 
@@ -141,10 +143,11 @@ vector<string>
 ParameterSet::get_pset_names() const
 {
   vector<string> keys;
-  for (auto const& pr : mapping_ )
+  for (auto const& pr : mapping_) {
     if (is_table(pr.second)) {
       keys.push_back(pr.first);
     }
+  }
   return keys;
 }
 
@@ -152,16 +155,16 @@ vector<string>
 ParameterSet::get_all_keys() const
 {
   KeyAssembler ka;
-  walk_(ka);
+  walk(ka);
   return ka.result();
 }
 
 bool
-ParameterSet::find_one_(std::string const & simple_key) const
+ParameterSet::find_one_(std::string const& simple_key) const
 {
   auto skey = detail::get_sequence_indices(simple_key);
 
-  map_iter_t it = mapping_.find(skey.name());
+  auto it = mapping_.find(skey.name());
   if (it == mapping_.end()) {
     return false;
   }
@@ -176,7 +179,7 @@ bool
 ParameterSet::descend_(std::vector<std::string> const& names,
                        ParameterSet& ps) const
 {
-  ParameterSet const * p {this};
+  ParameterSet const* p{this};
   ParameterSet tmp;
   for (auto const& table : names) {
     if (!p->get_one_(table, tmp)) {
@@ -208,16 +211,16 @@ ParameterSet::get_src_info(std::string const& key) const
 // ----------------------------------------------------------------------
 
 void
-ParameterSet::put(std::string const & key)
+ParameterSet::put(std::string const& key)
 {
-  void * const value = nullptr;
+  void* const value{nullptr};
   put(key, value);
 }
 
 void
-ParameterSet::put_or_replace(std::string const & key)
+ParameterSet::put_or_replace(std::string const& key)
 {
-  void * const value = nullptr;
+  void* const value{nullptr};
   put_or_replace(key, value); // Replace with nil is always OK.
 }
 
@@ -226,7 +229,7 @@ ParameterSet::put_or_replace(std::string const & key)
 namespace {
   inline
   void
-  check_put_local_key(std::string const & key)
+  check_put_local_key(std::string const& key)
   {
     if (key.find('.') != std::string::npos) {
       throw fhicl::exception(unimplemented, "putXXX() for nested key.");
@@ -235,7 +238,7 @@ namespace {
 }
 
 void
-ParameterSet::insert_(string const & key, any const & value)
+ParameterSet::insert_(string const& key, any const& value)
 {
   check_put_local_key(key);
   if (!mapping_.emplace(key, value).second) {
@@ -245,7 +248,7 @@ ParameterSet::insert_(string const & key, any const & value)
 }
 
 void
-ParameterSet::insert_or_replace_(string const & key, any const & value)
+ParameterSet::insert_or_replace_(string const& key, any const& value)
 {
   check_put_local_key(key);
   mapping_[key] = value;
@@ -253,7 +256,7 @@ ParameterSet::insert_or_replace_(string const & key, any const & value)
 }
 
 void
-ParameterSet::insert_or_replace_compatible_(string const & key, any const & value)
+ParameterSet::insert_or_replace_compatible_(string const& key, any const& value)
 {
   check_put_local_key(key);
   auto item = mapping_.find(key);
@@ -263,15 +266,17 @@ ParameterSet::insert_or_replace_compatible_(string const & key, any const & valu
   } else {
     if (!detail::is_nil(value)) {
       auto is_non_nil_atom =
-        [](any const & v){ return ! (detail::is_sequence(v) ||
-                                     detail::is_table(v) ||
-                                     detail::is_nil(v)); };
+        [](any const& v){ return !(detail::is_sequence(v) ||
+                                   detail::is_table(v) ||
+                                   detail::is_nil(v)); };
       if (detail::is_sequence(item->second) && ! detail::is_sequence(value)) {
         throw exception(cant_insert) << "can't use non-sequence to replace sequence.";
-      } else if (detail::is_table(item->second) && ! detail::is_table(value)) {
+      }
+      else if (detail::is_table(item->second) && ! detail::is_table(value)) {
         throw exception(cant_insert) << "can't use non-table to replace table.";
-      } else if (is_non_nil_atom(item->second) &&
-                 (detail::is_sequence(value) || detail::is_table(value))) {
+      }
+      else if (is_non_nil_atom(item->second) &&
+               (detail::is_sequence(value) || detail::is_table(value))) {
         throw exception(cant_insert) << "can't use non-atom to replace non-nil atom.";
       }
     }
@@ -281,26 +286,26 @@ ParameterSet::insert_or_replace_compatible_(string const & key, any const & valu
 }
 
 bool
-ParameterSet::erase(string const & key)
+ParameterSet::erase(string const& key)
 {
-  bool const did_erase = (1u == mapping_.erase(key));
+  bool const did_erase{1u == mapping_.erase(key)};
   id_.invalidate();
   return did_erase;
 }
 
 bool
-ParameterSet::key_is_type_(std::string const & key,
-                           std::function<bool (boost::any const &)> func) const
+ParameterSet::key_is_type_(std::string const& key,
+                           std::function<bool(boost::any const&)> func) const
 {
   auto split_keys = detail::get_names(key);
   ParameterSet ps;
-  if ( !descend_(split_keys.tables(), ps) ) {
+  if (!descend_(split_keys.tables(), ps)) {
     throw exception(error::cant_find, key);
   }
 
   auto skey = detail::get_sequence_indices(split_keys.last());
 
-  map_iter_t it = ps.mapping_.find(skey.name());
+  auto it = ps.mapping_.find(skey.name());
   if (it == ps.mapping_.end()) {
     throw exception(error::cant_find, key);
   }
@@ -346,21 +351,18 @@ ParameterSet::key_is_type_(std::string const & key,
 // source information.  This is accomplished by using a stack of the
 // form:
 //
-//     std::vector<ParameterSet const *>
+//     std::vector<ParameterSet const*>
 
 namespace fhicl {
-
   template<>
   void
-  ParameterSet::put(std::string const & key, fhicl::extended_value const & value)
+  ParameterSet::put(std::string const& key, fhicl::extended_value const& value)
   {
-
-    auto insert = [this,&key,&value](){
+    auto insert = [this, &value](auto const& key){
       using detail::encode;
-      insert_(key, boost::any(encode(value)));
+      this->insert_(key, boost::any(encode(value)));
       fill_src_info(value,key,srcMapping_);
     };
-
     detail::try_insert(insert, key);
   }
 }
@@ -368,24 +370,22 @@ namespace fhicl {
 // ======================================================================
 
 void
-ParameterSet::walk_( detail::ParameterSetWalker& psw) const {
-
+ParameterSet::walk(ParameterSetWalker& psw) const
+{
   std::stack<ParameterSet const*> ps_stack;
   ps_stack.push(this);
 
   std::function<void(std::string const&, boost::any const&)> act_on_element =
     [this,&psw,&ps_stack,&act_on_element](std::string const& key, boost::any const& a)
     {
-
       auto const* ps = ps_stack.top();
-
       psw.do_before_action(key, a, ps);
 
       if (is_table(a)) {
-        ParameterSet const * ps = &get_pset_via_any(a);
+        ParameterSet const* ps = &get_pset_via_any(a);
         ps_stack.push(ps);
         psw.do_enter_table(key, a);
-        for( auto const& elem : ps->mapping_ ) {
+        for (auto const& elem : ps->mapping_) {
           act_on_element(elem.first, elem.second);
         }
         psw.do_exit_table(key, a);
@@ -394,29 +394,29 @@ ParameterSet::walk_( detail::ParameterSetWalker& psw) const {
       else if (is_sequence(a)) {
         psw.do_enter_sequence(key, a);
         std::size_t i{};
-        for ( auto const& elem : any_cast<ps_sequence_t>(a) ) {
+        for (auto const& elem : any_cast<ps_sequence_t>(a)) {
           std::string const new_key = key+"["s+ std::to_string(i++) +"]";
           act_on_element(new_key, elem);
         }
-        psw.do_exit_sequence(key,a );
+        psw.do_exit_sequence(key,a);
       }
       else {
         psw.do_atom(key, a);
       }
 
       psw.do_after_action();
-
     };
 
-  for (const auto& entry : mapping_ )
+  for (const auto& entry : mapping_) {
     act_on_element(entry.first, entry.second);
-
+  }
 }
 
 //========================================================================
 
 string
-ParameterSet::to_indented_string() const {
+ParameterSet::to_indented_string() const
+{
   return to_indented_string(0u);
 }
 
@@ -428,11 +428,11 @@ ParameterSet::to_indented_string(unsigned const initial_indent_level) const
 
 string
 ParameterSet::to_indented_string(unsigned const initial_indent_level,
-                                 bool     const annotate) const
+                                 bool const annotate) const
 {
-  if ( annotate )
-    return to_indented_string(initial_indent_level, print_mode::annotated );
-
+  if (annotate) {
+    return to_indented_string(initial_indent_level, print_mode::annotated);
+  }
   return to_indented_string(initial_indent_level, print_mode::raw);
 }
 
@@ -443,20 +443,20 @@ ParameterSet::to_indented_string(unsigned const initial_indent_level,
   std::string result;
   switch(pm) {
   case print_mode::raw : {
-    Prettifier p(initial_indent_level);
-    walk_(p);
+    Prettifier p{initial_indent_level};
+    walk(p);
     result = p.result();
     break;
   }
   case print_mode::annotated : {
-    PrettifierAnnotated p(initial_indent_level);
-    walk_(p);
+    PrettifierAnnotated p{initial_indent_level};
+    walk(p);
     result = p.result();
     break;
   }
   case print_mode::prefix_annotated : {
     PrettifierPrefixAnnotated p;
-    walk_( p );
+    walk(p);
     result = p.result();
     break;
   }

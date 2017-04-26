@@ -59,8 +59,8 @@
 */
 
 #include "boost/any.hpp"
+#include "fhiclcpp/ParameterSetWalker.h"
 #include "fhiclcpp/coding.h"
-#include "fhiclcpp/detail/ParameterSetWalker.h"
 
 #include <vector>
 #include <string>
@@ -74,9 +74,7 @@ namespace fhicl {
     class KeyAssembler : public ParameterSetWalker {
     public:
 
-      KeyAssembler();
-
-      std::vector<key_t> const & result() { return keys_; }
+      std::vector<key_t> const& result() { return keys_; }
 
     private:
 
@@ -88,9 +86,8 @@ namespace fhicl {
 
       std::string full_key_(name_t const&) const;
 
-      std::vector<key_t> keys_;
-      std::vector<name_t> name_stack_;
-
+      std::vector<key_t> keys_{};
+      std::vector<name_t> name_stack_{};
     };
 
   }

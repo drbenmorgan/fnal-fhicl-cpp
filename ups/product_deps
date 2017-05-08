@@ -2,6 +2,11 @@ parent fhiclcpp v4_04_00
 defaultqual e14
 #
 fcldir -
+
+table_fragment_begin
+   pathPrepend(PYTHONPATH, ${FHICLCPP_LIB})
+table_fragment_end
+
 #
 # define product/version pairs
 product		version

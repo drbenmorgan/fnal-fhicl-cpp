@@ -37,8 +37,18 @@ find_package(cetlib 3.0.0 REQUIRED)
 find_package(Boost 1.60 REQUIRED unit_test_framework program_options)
 find_package(SQLite 3.7.15 REQUIRED)
 
+# Here be dragons - we must match the python interpreter and library
+# otherwise "import fhicl" will give a
+#   Fatal Python error: PyThreadState_Get: no current thread
+#   Abort trap: 6
+# error. Docs for FindPythonInterp/Libs say to find the interpreter
+# first to have consistency(?).
+find_package(PythonInterp 2.7 REQUIRED)
+find_package(PythonLibs 2.7 REQUIRED)
+
 # source code
 add_subdirectory(fhiclcpp)
+add_subdirectory(python)
 add_subdirectory(tools)
 
 #-----------------------------------------------------------------------

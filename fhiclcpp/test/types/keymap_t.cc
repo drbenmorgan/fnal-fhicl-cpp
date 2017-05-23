@@ -23,7 +23,7 @@ using namespace fhicl;
 using namespace fhicl::detail;
 using namespace std;
 
-BOOST_AUTO_TEST_SUITE( types_keymap_test )
+BOOST_AUTO_TEST_SUITE(types_keymap_test)
 
 // [1] Atom<T>
 BOOST_AUTO_TEST_CASE( one_atom_t )

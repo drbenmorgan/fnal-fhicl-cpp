@@ -82,8 +82,8 @@ namespace fhicl {
     explicit Sequence(Name&& name, Comment&& comment, dtype const& defaults);
     explicit Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults);
 
-    auto operator()() const {
-
+    auto operator()() const
+    {
       rtype result = { tt::return_type<T>() };
       cet::transform_all(value_,
                          result.begin(),
@@ -105,12 +105,12 @@ namespace fhicl {
 
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_non_const>& pw) override
     {
-      cet::for_all(value_, [&pw](auto& e){ pw(*e); } );
+      cet::for_all(value_, [&pw](auto& e){ pw.walk_over(*e); } );
     }
 
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_const>& pw) const override
     {
-      cet::for_all(value_, [&pw](auto const& e){ pw(*e); } );
+      cet::for_all(value_, [&pw](auto const& e){ pw.walk_over(*e); } );
     }
 
     void do_set_value(fhicl::ParameterSet const&, bool /*trimParents*/) override {}
@@ -164,17 +164,16 @@ namespace fhicl {
     // validation is being performed.
     void do_resize_sequence(std::size_t n) override
     {
-      if ( n < value_.size() ) {
+      if (n < value_.size()) {
         value_.resize(n);
       }
-      else if ( n > value_.size() ) {
-
+      else if (n > value_.size()) {
         std::string key_fragment {key()};
         // When emplacing a new element, do not include in the key
-        // argument the current name-stack stem--it will
-        // automatically be prepended.
+        // argument the current name-stack stem--it will automatically
+        // be prepended.
         auto const& nsr = NameStackRegistry::instance();
-        if ( !nsr.empty() ) {
+        if (!nsr.empty()) {
           std::string const& current_stem = nsr.current();
           std::size_t const pos =
             key_fragment.find(current_stem) != std::string::npos ?
@@ -183,7 +182,7 @@ namespace fhicl {
           key_fragment.replace(0ul, pos, "");
         }
 
-        for ( auto i = value_.size(); i != n; ++i ) {
+        for (auto i = value_.size(); i != n; ++i) {
           value_.emplace_back(new tt::fhicl_type<T>{ Name::sequence_element(key_fragment, i) });
         }
       }
@@ -193,12 +192,12 @@ namespace fhicl {
 
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_non_const>& pw) override
     {
-      cet::for_all(value_, [&pw](auto& e){ pw(*e); } );
+      cet::for_all(value_, [&pw](auto& e){ pw.walk_over(*e); } );
     }
 
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_const>& pw) const override
     {
-      cet::for_all(value_, [&pw](auto const& e){ pw(*e); } );
+      cet::for_all(value_, [&pw](auto const& e){ pw.walk_over(*e); } );
     }
 
     void do_set_value(fhicl::ParameterSet const&, bool /*trimParents*/) override {}

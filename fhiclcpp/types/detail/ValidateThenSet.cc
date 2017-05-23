@@ -7,6 +7,7 @@
 #include "fhiclcpp/types/detail/SeqVectorBase.h"
 #include "fhiclcpp/types/detail/TableBase.h"
 #include "fhiclcpp/types/detail/ValidateThenSet.h"
+#include "fhiclcpp/types/detail/optional_parameter_message.h"
 #include "fhiclcpp/types/detail/strip_containing_names.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
@@ -131,7 +132,7 @@ namespace {
   }
 
   std::string
-  fillMissingKeysMsg(std::vector<cet::exempt_ptr<ParameterBase>> const & missingParams)
+  fillMissingKeysMsg(std::vector<cet::exempt_ptr<ParameterBase>> const& missingParams)
   {
     if (missingParams.empty()) return "";
 
@@ -144,7 +145,7 @@ namespace {
       // If the key is nested (e.g. pset1.pset2[0] ), show the
       // parents
       PrintAllowedConfiguration pc {oss, show_parents(p->key()), prefix, true};
-      pc(*p);
+      pc.walk_over(*p);
 
     }
     oss << "\n";
@@ -180,6 +181,9 @@ fhicl::detail::ValidateThenSet::check_keys()
   errmsg += fillMissingKeysMsg(missingParameters_);
   errmsg += fillExtraKeysMsg(pset_, userKeys_);
   if (!errmsg.empty()) {
-    throw validationException{errmsg.c_str()};
+    std::string fullmsg {detail::optional_parameter_message(false)};
+    fullmsg +="\n";
+    fullmsg += errmsg;
+    throw validationException{fullmsg.c_str()};
   }
 }

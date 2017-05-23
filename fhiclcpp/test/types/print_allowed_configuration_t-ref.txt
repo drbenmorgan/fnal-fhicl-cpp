@@ -1,4 +1,6 @@
 
+   ## Any parameters prefaced with '#' are optional.
+
    pset: {
 
       flag: <bool>
@@ -311,7 +313,7 @@
 
       pset2: {
 
-         # this works
+         ## this works
 
          test: <string>
 

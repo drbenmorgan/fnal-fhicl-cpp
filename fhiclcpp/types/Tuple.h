@@ -100,7 +100,7 @@ namespace fhicl {
       static_assert(!tt::is_table_fragment<E>::value, NO_NESTED_TABLE_FRAGMENTS);
       static_assert(!tt::is_optional_parameter<E>::value, NO_OPTIONAL_TYPES );
       static_assert(!tt::is_delegated_parameter<E>::value, NO_DELEGATED_PARAMETERS);
-      pw(*elem);
+      pw.walk_over(*elem);
       visit_element(pw, others...);
     }
 
@@ -123,7 +123,7 @@ namespace fhicl {
       static_assert(!tt::is_table_fragment<E>::value, NO_NESTED_TABLE_FRAGMENTS);
       static_assert(!tt::is_optional_parameter<E>::value, NO_OPTIONAL_TYPES);
       static_assert(!tt::is_delegated_parameter<E>::value, NO_DELEGATED_PARAMETERS);
-      pw(*elem);
+      pw.walk_over(*elem);
       visit_element(pw, others...);
     }
 

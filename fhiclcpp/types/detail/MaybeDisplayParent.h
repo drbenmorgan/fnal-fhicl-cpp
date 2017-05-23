@@ -22,43 +22,41 @@ namespace fhicl {
       MaybeDisplayParent(ParameterBase const& p,
                          bool const showParents,
                          Indentation& ind)
-        : show_(showParents)
-        , fullPayload_()
-        , names_( showParents ? get_parents(p.key()) : std::vector<std::string>{} )
-        , closingBraces_()
+        : show_{showParents}
+        , names_{showParents ? get_parents(p.key()) : std::vector<std::string>{}}
         , indent_{ind}
       {
         std::ostringstream os;
 
         if (show_) {
 
-          for ( auto it = names_.begin(), e = names_.end()-1; it != e ; ++it ) {
+          for (auto it = names_.begin(), e = names_.end()-1; it != e ; ++it) {
             std::string const& name      = *it;
             std::string const& next_name = *std::next(it);
 
             // We use the indent_ member so that we can properly
             // update the indentation level.  However, the literal
             // indented string should not include any characters in it
-            // // for the parents of the parameter in question.
-            std::string const indent (indent_().size(), ' ' );
-            if ( !std::isdigit( name[0] ) ) {
-              if ( std::isdigit( next_name[0] ) ) {
+            // for the parents of the parameter in question.
+            std::string const indent (indent_().size(), ' ');
+            if (!std::isdigit(name[0])) {
+              if (std::isdigit(next_name[0])) {
                 os << indent << name << ": [  # index: " << next_name << '\n';
-                closingBraces_.push_back(indent + "]\n" );
+                closingBraces_.push_back(indent + "]\n");
               }
               else {
                 os << indent << name << ": {\n";
-                closingBraces_.push_back(indent + "}\n" );
+                closingBraces_.push_back(indent + "}\n");
               }
             }
             else {
-              if ( !std::isdigit( next_name[0] ) ) {
+              if (!std::isdigit(next_name[0])) {
                 os << indent << "{\n";
-                closingBraces_.push_back(indent + "}\n" );
+                closingBraces_.push_back(indent + "}\n");
               }
               else {
-                os << indent << "[  # index: " << name << '\n';
-                closingBraces_.push_back(indent + "]\n" );
+                os << indent << "[  # index: " << next_name << '\n';
+                closingBraces_.push_back(indent + "]\n");
               }
             }
             indent_.push();
@@ -87,9 +85,9 @@ namespace fhicl {
     private:
 
       bool show_;
-      std::string fullPayload_;
+      std::string fullPayload_ {};
       std::vector<std::string> names_;
-      std::vector<std::string> closingBraces_;
+      std::vector<std::string> closingBraces_ {};
       Indentation& indent_;
 
       std::vector<std::string> get_parents(std::string const& k);

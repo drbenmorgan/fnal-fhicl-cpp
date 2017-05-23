@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_test_fhiclcpp_types_CondConfig_h
-#define fhiclcpp_test_fhiclcpp_types_CondConfig_h
+#ifndef fhiclcpp_test_types_CondConfig_h
+#define fhiclcpp_test_types_CondConfig_h
 
 #include "fhiclcpp/types/Atom.h"
 #include "fhiclcpp/types/OptionalAtom.h"
@@ -62,7 +62,7 @@ namespace fhicl {
 
 }
 
-#endif /* fhiclcpp_test_fhiclcpp_types_CondConfig_h */
+#endif /* fhiclcpp_test_types_CondConfig_h */
 
 // Local variables:
 // mode: c++

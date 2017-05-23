@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE( one_atom_t )
 {
   KeyMap km;
   Atom<int> test { Name("atom"), 4 };
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();
   auto ref = {"atom"};
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE( one_sequence_t )
 {
   KeyMap km;
   Sequence<int> test { Name("sequence"), {1,2,4} };
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();
   auto ref = {"sequence",
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( one_sequence_2_t )
 {
   KeyMap km;
   Sequence<int,2> test { Name("sequence"), {5,7} };
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();
   auto ref = {"sequence",
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( one_tuple_t )
 {
   KeyMap km;
   Tuple<int,double,bool> test { Name("tuple"), {4,1.5,false} };
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();
   auto ref = {"tuple",
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( seq_in_tuple_t )
 {
   KeyMap km;
   Tuple< Sequence<int>,double,bool> test { Name("tuple"), { {1,3,5},4.6,true } };
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();//key_map(&test);
   auto ref = {"tuple",
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( bounded_seq_in_tuple_t )
 {
   KeyMap km;
   Tuple< Sequence<int,2>,double,bool> test { Name("tuple"), { {9,15}, 0.2, false} };
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();
   auto ref = {"tuple",
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( tuple_in_tuple_t )
 {
   KeyMap km;
   Tuple< Tuple<int,float>,double,bool> test { Name("tuple"), { {4,3.7f}, 8.1, true } };
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();
   auto ref = {"tuple",
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( tuple_in_seq_t )
 {
   KeyMap km;
   Sequence< Tuple<int,float> > test { Name("seqtuple"), { {2,5.4f}, {4,104.5f}, {8,15.3f} } };
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();
   auto ref = {"seqtuple",
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( tuple_in_seq_2_t )
 {
   KeyMap km;
   Sequence< Tuple<int,float>, 2 > test { Name("seqtuple"), { {1,2.3f},{9,3.2f} } };
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();
   auto ref = {"seqtuple",
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( seq_in_seq_t )
 {
   KeyMap km;
   Sequence< Sequence<int> > test { Name("seqseq"), { { 1,5,7}, {2} }};
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();
   auto ref = {"seqseq",
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( seq_2_in_seq_t )
 {
   KeyMap km;
   Sequence< Sequence<int,2> > test { Name("seqseq"), { {1,2} } };
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();
   auto ref = {"seqseq",
@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE( seq_in_seq_2_t )
 {
   KeyMap km;
   Sequence< Sequence<int>, 2> test { Name("seqseq"), { {4}, {1,4,9,1} } };
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();
   auto ref = {"seqseq",
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE( seq_2_in_seq_2_t )
 {
   KeyMap km;
   Sequence< Sequence<int, 2>, 2> test { Name("seqseq"), { {6,7},{2,1} } };
-  km(test);
+  km.walk_over(test);
 
   auto map = km.result();
   auto ref = {"seqseq",

@@ -1,5 +1,5 @@
-#ifndef fhiclcpp_test_fhiclcpp_types_FixtureBase_h
-#define fhiclcpp_test_fhiclcpp_types_FixtureBase_h
+#ifndef fhiclcpp_test_types_FixtureBase_h
+#define fhiclcpp_test_types_FixtureBase_h
 
 // ======================================================================
 //
@@ -46,7 +46,7 @@ namespace fhiclcpp_types {
 
 }
 
-#endif /* fhiclcpp_test_fhiclcpp_types_FixtureBase_h */
+#endif /* fhiclcpp_test_types_FixtureBase_h */
 
 // Local variables:
 // mode: c++

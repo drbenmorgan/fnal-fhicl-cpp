@@ -1,14 +1,15 @@
 Running 3 test cases...
+Any parameters prefaced with '#' are optional.
 Missing parameters:
 
  -    num2: <int>
 
  -    parameters: {
  -
- -       # N.B. The following sequence is converted to type:
- -       #         'fhicl::Vec'
- -       #      with a default value of:
- -       #         Half-lengths are: (1, 2, 3)
+ -       ## N.B. The following sequence is converted to type:
+ -       ##         'fhicl::Vec'
+ -       ##      with a default value of:
+ -       ##         Half-lengths are: (1, 2, 3)
  -
  -       halfLengths: [
  -          <int>,
@@ -16,7 +17,7 @@ Missing parameters:
  -          <int>
  -       ]
  -
- -     ( boxName: <string>
+ -     # boxName: <string>
  -
  -       material: <string>
  -    }

@@ -2,6 +2,7 @@
 #include "fhiclcpp/detail/printing_helpers.h"
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
 #include "fhiclcpp/types/detail/ValidateThenSet.h"
+#include "fhiclcpp/types/detail/optional_parameter_message.h"
 #include "fhiclcpp/types/detail/strip_containing_names.h"
 #include "fhiclcpp/types/detail/validationException.h"
 
@@ -60,7 +61,7 @@ namespace fhicl {
   {
     pset_ = pset;
     detail::ValidateThenSet vs {pset_, keysToIgnore};
-    cet::for_all(members(), [&vs](auto m){ vs(*m); });
+    cet::for_all(members(), [&vs](auto m){ vs.walk_over(*m); });
 
     try {
       vs.check_keys();
@@ -76,8 +77,9 @@ namespace fhicl {
   Table<T, KeysToIgnore>::print_allowed_configuration(std::ostream& os,
                                                       std::string const& tab) const
   {
+    os << '\n' << tab << detail::optional_parameter_message() << '\n';
     detail::PrintAllowedConfiguration pc {os, false, tab};
-    pc(*this);
+    pc.walk_over(*this);
   }
 
   template <typename T, typename KeysToIgnore>

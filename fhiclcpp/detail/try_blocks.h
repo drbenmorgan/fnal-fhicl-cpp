@@ -10,26 +10,21 @@ namespace fhicl {
 
     template<typename L>
     void try_insert(L l, std::string const& key)
-      try
-        {
-          l();
-        }
-      catch (boost::bad_lexical_cast const & e)
-        {
-          throw fhicl::exception(cant_insert, key) << e.what();
-        }
-      catch (boost::bad_numeric_cast const & e)
-        {
-          throw fhicl::exception(cant_insert, key) << e.what();
-        }
-      catch (fhicl::exception const & e)
-        {
-          throw fhicl::exception(cant_insert, key, e);
-        }
-      catch (std::exception const & e)
-        {
-          throw fhicl::exception(cant_insert, key) << e.what();
-        }
+      try {
+        l(key);
+      }
+      catch (boost::bad_lexical_cast const& e) {
+        throw fhicl::exception(cant_insert, key) << e.what();
+      }
+      catch (boost::bad_numeric_cast const& e) {
+        throw fhicl::exception(cant_insert, key) << e.what();
+      }
+      catch (fhicl::exception const& e) {
+        throw fhicl::exception(cant_insert, key, e);
+      }
+      catch (std::exception const& e) {
+        throw fhicl::exception(cant_insert, key) << e.what();
+      }
 
   }
 }

@@ -1,5 +1,5 @@
-#ifndef _parse_shims_h_
-#define _parse_shims_h_
+#ifndef fhiclcpp_parse_shims_h
+#define fhiclcpp_parse_shims_h
 
 #include "fhiclcpp/parse_shims_opts.h"
 
@@ -79,5 +79,5 @@ struct make_primitive<shims::tag::catchall, Modifiers> {
 }
 }
 }
-#endif /* _parse_shims_h_ */
+#endif /* fhiclcpp_parse_shims_h */
 

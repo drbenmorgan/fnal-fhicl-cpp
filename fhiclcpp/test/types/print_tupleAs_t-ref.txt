@@ -1,10 +1,12 @@
 
+   ## Any parameters prefaced with '#' are optional.
+
    pset: {
 
-      # N.B. The following sequence is converted to type:
-      #         '(anonymous namespace)::ThreeNumbers'
-      # 
-      # Vector for Geant
+      ## N.B. The following sequence is converted to type:
+      ##         '(anonymous namespace)::ThreeNumbers'
+      ## 
+      ## Vector for Geant
 
       numbers1: [
          <int>,
@@ -12,11 +14,11 @@
          <int>
       ]
 
-      # N.B. The following sequence is converted to type:
-      #         '(anonymous namespace)::ThreeNumbers'
-      #      A default value is present, but it cannot be
-      #      printed out since no 'operator<<' overload has
-      #      been provided for the above type.
+      ## N.B. The following sequence is converted to type:
+      ##         '(anonymous namespace)::ThreeNumbers'
+      ##      A default value is present, but it cannot be
+      ##      printed out since no 'operator<<' overload has
+      ##      been provided for the above type.
 
       numbers2: [
          <int>,
@@ -24,26 +26,26 @@
          <int>
       ]
 
-      # N.B. The following sequence is converted to type:
-      #         '(anonymous namespace)::Person'
+      ## N.B. The following sequence is converted to type:
+      ##         '(anonymous namespace)::Person'
 
-    ( person1: [
-    (    <string>,
-    (    <unsigned int>
-    ( ]
+    # person1: [
+    #    <string>,
+    #    <unsigned int>
+    # ]
 
-      # N.B. The following sequence is converted to type:
-      #         '(anonymous namespace)::Person'
-      #      with a default value of:
-      #         Name: Jon  Age: 97
+      ## N.B. The following sequence is converted to type:
+      ##         '(anonymous namespace)::Person'
+      ##      with a default value of:
+      ##         Name: Jon  Age: 97
 
       person2: [
          <string>,
          <unsigned int>
       ]
 
-      # N.B. The following sequence is converted to type:
-      #         '(anonymous namespace)::ToVector'
+      ## N.B. The following sequence is converted to type:
+      ##         '(anonymous namespace)::ToVector'
 
       toVector: [
          <int>,
@@ -55,8 +57,8 @@
 
       people: [
 
-         # N.B. The following sequence is converted to type:
-         #         '(anonymous namespace)::Person'
+         ## N.B. The following sequence is converted to type:
+         ##         '(anonymous namespace)::Person'
          [
             <string>,
             <unsigned int>

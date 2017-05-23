@@ -1,27 +1,33 @@
-parent fhiclcpp v4_01_00
-defaultqual e10
+parent fhiclcpp v4_05_00
+defaultqual e14
 #
 fcldir -
+
+table_fragment_begin
+   pathPrepend(PYTHONPATH, ${FHICLCPP_LIB})
+table_fragment_end
+
 #
 # define product/version pairs
 product		version
-cetlib		v1_20_00
-sqlite		v3_12_02_00
+cetlib		v3_00_00
+python          v2_7_13d
 
-cetbuildtools	v5_04_03	-	only_for_build
+cetbuildtools	v5_08_00	-	only_for_build
 end_product_list
 
 
 # Matrix of qualifiers versus dependent products
-qualifier	cetlib		sqlite	compiler	notes
-e10:debug	e10:debug	-nq-	gcc
-e10:opt		e10:opt		-nq-	gcc
-e10:prof	e10:prof	-nq-	gcc
-e9:debug	e9:debug	-nq-	gcc
-e9:opt		e9:opt		-nq-	gcc
-e9:prof		e9:prof		-nq-	gcc
-i1:debug	i1:debug	-nq-	icc
-i1:prof		i1:prof		-nq-	icc
+qualifier	cetlib		python compiler	notes
+e14:debug	e14:debug	-nq-   gcc
+e14:opt		e14:opt		-nq-   gcc
+e14:prof	e14:prof	-nq-   gcc
+e12:debug	e12:debug	-nq-   gcc
+e12:opt		e12:opt		-nq-   gcc
+e12:prof	e12:prof	-nq-   gcc
+e10:debug	e10:debug	-nq-   gcc
+e10:opt		e10:opt		-nq-   gcc
+e10:prof	e10:prof	-nq-   gcc
 end_qualifier_list
 
 # Local Variables:

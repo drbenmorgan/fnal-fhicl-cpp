@@ -1,7 +1,9 @@
 
+   ## Any parameters prefaced with '#' are optional.
+
    pset: {
 
-      # this works
+      ## this works
 
       test: <string>
 

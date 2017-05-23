@@ -1,4 +1,6 @@
 
+   ## Any parameters prefaced with '#' are optional.
+
    pset: {
 
       flag: true  # default
@@ -15,24 +17,24 @@
       tuple: [
          5,  # default
          "some string",  # default
-         16  # default
+         16.0000  # default
       ]
 
       vecOfTuples: [
          [
             3,  # default
-            27  # default
+            27.0000  # default
          ]
       ]
 
       arrayOfTuples: [
          [
             4,  # default
-            15  # default
+            15.0000  # default
          ],
          [
             2,  # default
-            17  # default
+            17.0000  # default
          ]
       ]
 
@@ -75,8 +77,8 @@
 
       tupleWithVec: [
          [
-            4.2,  # default
-            7.3  # default
+            4.20000,  # default
+            7.30000  # default
          ],
          false,  # default
          5  # default
@@ -84,8 +86,8 @@
 
       tupleWithArray: [
          [
-            3.6,  # default
-            5.3  # default
+            3.60000,  # default
+            5.30000  # default
          ],
          false,  # default
          5  # default
@@ -94,20 +96,20 @@
       tupleWithTuple: [
          [
             4,  # default
-            5.9  # default
+            5.90000  # default
          ],
          true,  # default
          8  # default
       ]
 
-      # This should work now
-      # double line even.
+      ## This should work now
+      ## double line even.
 
       pset2: {
 
          test: "a"  # default
 
-         # Just to see if this works
+         ## Just to see if this works
 
          sequence: [
             1,  # default
@@ -117,11 +119,11 @@
          ]
 
          array: [
-            1.4,  # default
-            2.3,  # default
-            4,  # default
-            8,  # default
-            123098  # default
+            1.40000,  # default
+            2.30000,  # default
+            4.00000,  # default
+            8.00000,  # default
+            123098.  # default
          ]
       }
    }

@@ -1,7 +1,7 @@
 #ifndef fhiclcpp_types_detail_ostream_helpers_h
 #define fhiclcpp_types_detail_ostream_helpers_h
 
-#include "cetlib/demangle.h"
+#include "cetlib_except/demangle.h"
 
 #include <ostream>
 #include <string>
@@ -16,21 +16,36 @@ namespace fhicl {
       // When printing out strings, it is best to surround them with
       // \"...\" so that there will be no ambiguity for the user.
       template <typename T>
-      struct maybe_quotes{
-        maybe_quotes(T const & t) : value(t) {}
-        T const & value;
+      struct maybe_quotes {
+        maybe_quotes(T const& t) : value(t) {}
+        T const& value;
       };
 
       template<>
       struct maybe_quotes<std::string>{
-        maybe_quotes(std::string const & t) : value(std::string("\"")+t+std::string("\"") ) {}
+        maybe_quotes(std::string const& t) : value{"\""+t+"\""} {}
         std::string value;
       };
 
-      template <typename T>
-      std::ostream& operator<<(std::ostream& os, maybe_quotes<T>&& mq)
+      inline std::ostream& operator<<(std::ostream& os, maybe_quotes<bool>&& mq)
       {
         return os << std::boolalpha << mq.value;
+      }
+
+      template <typename T>
+      inline
+      std::enable_if_t<!std::is_floating_point<T>::value, std::ostream&>
+      operator<<(std::ostream& os, maybe_quotes<T>&& mq)
+      {
+        return os << mq.value;
+      }
+
+      template <typename T>
+      inline
+      std::enable_if_t<std::is_floating_point<T>::value, std::ostream&>
+      operator<<(std::ostream& os, maybe_quotes<T>&& mq)
+      {
+        return os << std::showpoint << mq.value;
       }
 
     } } } // fhicl::detail::yes_defaults

@@ -7,7 +7,6 @@
 //
 // ======================================================================
 
-#include "cetlib/registry_via_id.h"
 #include "fhiclcpp/ParameterSetID.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/fwd.h"
@@ -15,6 +14,7 @@
 #include "sqlite3.h"
 
 #include <unordered_map>
+#include <mutex>
 
 namespace fhicl {
 
@@ -37,38 +37,32 @@ private:
 class fhicl::ParameterSetRegistry {
 public:
 
-  ParameterSetRegistry(ParameterSet const &) = delete;
-  ParameterSetRegistry(ParameterSet &&) = delete;
-  ParameterSetRegistry & operator = (ParameterSet const &) = delete;
-  ParameterSetRegistry & operator = (ParameterSet &&) = delete;
+  ParameterSetRegistry(ParameterSet const&) = delete;
+  ParameterSetRegistry(ParameterSet&&) = delete;
+  ParameterSetRegistry& operator=(ParameterSet const&) = delete;
+  ParameterSetRegistry& operator=(ParameterSet&&) = delete;
   ~ParameterSetRegistry();
 
   // Typedefs.
-  typedef std::unordered_map<ParameterSetID, ParameterSet, detail::HashParameterSetID> collection_type;
-  typedef typename collection_type::key_type key_type;
-  typedef typename collection_type::mapped_type mapped_type;
-  typedef typename collection_type::value_type value_type;
-  typedef typename collection_type::size_type size_type;
-  typedef typename collection_type::const_iterator const_iterator;
+  using collection_type = std::unordered_map<ParameterSetID, ParameterSet, detail::HashParameterSetID>;
+  using key_type = typename collection_type::key_type;
+  using mapped_type = typename collection_type::mapped_type;
+  using value_type = typename collection_type::value_type;
+  using size_type = typename collection_type::size_type;
+  using const_iterator = typename collection_type::const_iterator;
 
   // DB interaction.
-  static void importFrom(sqlite3 * db);
-  static void exportTo(sqlite3 * db);
+  static void importFrom(sqlite3* db);
+  static void exportTo(sqlite3* db);
   static void stageIn();
 
   // Observers.
   static bool empty();
   static size_type size();
 
-  // Iterators.
-  static const_iterator begin();
-  static const_iterator end();
-  static const_iterator cbegin();
-  static const_iterator cend();
-
   // Put:
   // 1. A single ParameterSet.
-  static ParameterSetID const & put(ParameterSet const & ps);
+  static ParameterSetID const& put(ParameterSet const& ps);
   // 2. A range of iterator to ParameterSet.
   template <class FwdIt>
   static
@@ -79,88 +73,54 @@ public:
   // each pair, first == second.id() is a prerequisite.
   template <class FwdIt>
   static
-  std::enable_if_t<std::is_same<typename std::iterator_traits<FwdIt>::value_type,
-                                value_type>::value>
+  std::enable_if_t<std::is_same<typename std::iterator_traits<FwdIt>::value_type, value_type>::value>
   put(FwdIt begin, FwdIt end);
   // 4. A collection_type. For each value_type, first == second.id() is
   // a prerequisite.
-  static void put(collection_type const &c);
+  static void put(collection_type const&c);
 
   // Accessors.
-  static collection_type const & get() noexcept;
-  static ParameterSet const & get(ParameterSetID const & id);
-  static bool get(ParameterSetID const & id, ParameterSet & ps);
+  static collection_type const& get() noexcept;
+  static ParameterSet const& get(ParameterSetID const& id);
+  static bool get(ParameterSetID const& id, ParameterSet& ps);
+  static bool has(ParameterSetID const& id);
 
 private:
-  ParameterSetRegistry();
-  static ParameterSetRegistry & instance_();
-  const_iterator find_(ParameterSetID const & id);
 
-  sqlite3 * primaryDB_;
-  sqlite3_stmt * stmt_;
-  collection_type registry_;
+  ParameterSetRegistry();
+  static ParameterSetRegistry& instance_();
+  const_iterator find_(ParameterSetID const& id);
+
+  sqlite3* primaryDB_;
+  sqlite3_stmt* stmt_ {nullptr};
+  collection_type registry_ {};
+  static std::recursive_mutex mutex_;
 };
 
 inline
 bool
-fhicl::ParameterSetRegistry::
-empty()
+fhicl::ParameterSetRegistry::empty()
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_.empty();
 }
 
 inline
 auto
-fhicl::ParameterSetRegistry::
-size()
--> size_type
+fhicl::ParameterSetRegistry::size()
+  -> size_type
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_.size();
-}
-
-inline
-auto
-fhicl::ParameterSetRegistry::
-begin()
--> const_iterator
-{
-  return instance_().registry_.begin();
-}
-
-inline
-auto
-fhicl::ParameterSetRegistry::
-end()
--> const_iterator
-{
-  return instance_().registry_.end();
-}
-
-inline
-auto
-fhicl::ParameterSetRegistry::
-cbegin()
--> const_iterator
-{
-  return instance_().registry_.cbegin();
-}
-
-inline
-auto
-fhicl::ParameterSetRegistry::
-cend()
--> const_iterator
-{
-  return instance_().registry_.cend();
 }
 
 // 1.
 inline
 auto
-fhicl::ParameterSetRegistry::
-put(ParameterSet const & ps)
--> ParameterSetID const &
+fhicl::ParameterSetRegistry::put(ParameterSet const& ps)
+  -> ParameterSetID const&
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_.emplace(ps.id(), ps).first->first;
 }
 
@@ -168,11 +128,10 @@ put(ParameterSet const & ps)
 template <class FwdIt>
 inline
 auto
-fhicl::ParameterSetRegistry::
-put(FwdIt b, FwdIt e)
--> typename std::enable_if<std::is_same<typename std::iterator_traits<FwdIt>::value_type,
-                                        mapped_type>::value, void>::type
+fhicl::ParameterSetRegistry::put(FwdIt b, FwdIt const e)
+  -> std::enable_if_t<std::is_same<typename std::iterator_traits<FwdIt>::value_type, mapped_type>::value>
 {
+  // No lock here -- it will be acquired by 3.
   for (; b != e; ++b) {
     (void) put(*b);
   }
@@ -182,40 +141,39 @@ put(FwdIt b, FwdIt e)
 template <class FwdIt>
 inline
 auto
-fhicl::ParameterSetRegistry::
-put(FwdIt b, FwdIt e)
--> typename std::enable_if<std::is_same<typename std::iterator_traits<FwdIt>::value_type,
-                                        value_type>::value, void>::type
+fhicl::ParameterSetRegistry::put(FwdIt const b, FwdIt const e)
+  -> std::enable_if_t<std::is_same<typename std::iterator_traits<FwdIt>::value_type, value_type>::value>
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   instance_().registry_.insert(b, e);
 }
 
 // 4.
 inline
 void
-fhicl::ParameterSetRegistry::
-put(collection_type const & c)
+fhicl::ParameterSetRegistry::put(collection_type const& c)
 {
+  // No lock here -- it will be acquired by 3.
   put(c.cbegin(), c.cend());
 }
 
 inline
 auto
-fhicl::ParameterSetRegistry::
-get() noexcept
--> collection_type const &
+fhicl::ParameterSetRegistry::get() noexcept
+  -> collection_type const&
 {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
   return instance_().registry_;
 }
 
 inline
 auto
-fhicl::ParameterSetRegistry::
-get(ParameterSetID const & id)
--> ParameterSet const &
+fhicl::ParameterSetRegistry::get(ParameterSetID const& id)
+  -> ParameterSet const&
 {
-  const_iterator it = instance_().find_(id);
-  if (it == cend() ) {
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
+  auto it = instance_().find_(id);
+  if (it == instance_().registry_.cend() ) {
     throw exception(error::cant_find, "Can't find ParameterSet")
       << "with ID " << id.to_string() << " in the registry.";
   }
@@ -224,25 +182,31 @@ get(ParameterSetID const & id)
 
 inline
 bool
-fhicl::ParameterSetRegistry::
-get(ParameterSetID const & id, ParameterSet & ps)
+fhicl::ParameterSetRegistry::get(ParameterSetID const& id, ParameterSet& ps)
 {
-  bool result;
-  const_iterator it = instance_().find_(id);
-  if (it == cend()) {
-    result = false;
-  } else {
-    ps =  it->second;
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
+  bool result {false};
+  auto it = instance_().find_(id);
+  if (it != instance_().registry_.cend()) {
+    ps = it->second;
     result = true;
   }
   return result;
 }
 
 inline
+bool
+fhicl::ParameterSetRegistry::has(ParameterSetID const& id)
+{
+  std::lock_guard<decltype(mutex_)> lock {mutex_};
+  auto const& reg = instance_().registry_;
+  return reg.find(id) != reg.cend();
+}
+
+inline
 auto
-fhicl::ParameterSetRegistry::
-ParameterSetRegistry::instance_()
--> ParameterSetRegistry &
+fhicl::ParameterSetRegistry::instance_()
+  -> ParameterSetRegistry&
 {
   static ParameterSetRegistry s_registry;
   return s_registry;
@@ -250,8 +214,7 @@ ParameterSetRegistry::instance_()
 
 inline
 size_t
-fhicl::detail::HashParameterSetID::
-operator () (ParameterSetID const & id) const
+fhicl::detail::HashParameterSetID::operator()(ParameterSetID const& id) const
 {
   return hash_(id.to_string());
 }

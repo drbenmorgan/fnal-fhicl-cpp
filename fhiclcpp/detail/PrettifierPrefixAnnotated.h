@@ -132,9 +132,10 @@
 
 */
 
+#include "fhiclcpp/ParameterSetWalker.h"
 #include "fhiclcpp/coding.h"
+#include "fhiclcpp/fwd.h"
 #include "fhiclcpp/detail/Indentation.h"
-#include "fhiclcpp/detail/ParameterSetWalker.h"
 
 #include <sstream>
 #include <stack>
@@ -142,9 +143,6 @@
 #include <vector>
 
 namespace fhicl {
-
-  class ParameterSet;
-
   namespace detail {
 
     class PrettifierPrefixAnnotated : public ParameterSetWalker {

@@ -1,6 +1,8 @@
 #define BOOST_TEST_MODULE ( ParameterSetRegistry_t )
 #include "cetlib/quiet_unit_test.hpp"
 
+#include "cetlib/SimultaneousFunctionSpawner.h"
+#include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/make_ParameterSet.h"
 
@@ -38,18 +40,6 @@ BOOST_AUTO_TEST_CASE(MakeAndAdd)
   BOOST_REQUIRE(pset == ps2);
 }
 
-BOOST_AUTO_TEST_CASE(Iterators)
-{
-  auto const & coll = ParameterSetRegistry::get();
-  BOOST_REQUIRE(ParameterSetRegistry::begin() == coll.begin());
-  BOOST_REQUIRE(ParameterSetRegistry::begin() == coll.cbegin());
-  BOOST_REQUIRE(ParameterSetRegistry::cbegin() == coll.cbegin());
-  BOOST_REQUIRE(ParameterSetRegistry::end() == coll.end());
-  BOOST_REQUIRE(ParameterSetRegistry::end() == coll.cend());
-  BOOST_REQUIRE(ParameterSetRegistry::cend() == coll.cend());
-  BOOST_REQUIRE(ParameterSetRegistry::cbegin() != ParameterSetRegistry::cend());
-}
-
 BOOST_AUTO_TEST_CASE(AddFromIterAndGet)
 {
   std::vector<ParameterSet> v1;
@@ -63,7 +53,7 @@ BOOST_AUTO_TEST_CASE(AddFromIterAndGet)
   }
   BOOST_REQUIRE_EQUAL(ParameterSetRegistry::size(), expected_size );
   std::vector<ParameterSetRegistry::value_type> v2;
-  std::string const f = "filler";
+  std::string const f {"filler"};
   for (auto p : v1 ) {
     p.put("f", f);
     v2.emplace_back(p.id(), std::move(p));
@@ -84,93 +74,133 @@ BOOST_AUTO_TEST_CASE(AddFromIterAndGet)
 
 BOOST_AUTO_TEST_CASE(TestImport)
 {
-  auto expected_size = ParameterSetRegistry::size();
-  sqlite3 * db = nullptr;
+  std::atomic<std::size_t> expected_size {ParameterSetRegistry::size()};
+  sqlite3* db = nullptr;
   BOOST_REQUIRE(!sqlite3_open(":memory:", &db));
   throwOnSQLiteFailure(db);
-  char * errMsg;
+  char* errMsg = nullptr;
   sqlite3_exec(db,
                "BEGIN TRANSACTION; DROP TABLE IF EXISTS ParameterSets;"
                "CREATE TABLE ParameterSets(ID PRIMARY KEY, PSetBlob); COMMIT;",
-               0, 0, &errMsg);
+               nullptr, nullptr, &errMsg);
   throwOnSQLiteFailure(db, errMsg);
-  sqlite3_exec(db,
-               "BEGIN TRANSACTION;", 0, 0, &errMsg);
-  throwOnSQLiteFailure(db, errMsg);
-  sqlite3_stmt * oStmt;
-  sqlite3_prepare_v2(db, "INSERT INTO ParameterSets(ID, PSetBlob) VALUES(?, ?);", -1, &oStmt, NULL);
-  throwOnSQLiteFailure(db);
-  std::vector<std::pair<ParameterSet, bool> > v1;
+
   // testData: bool represents whether the top-level set is already
   // expected to be in the registry or not.
-  std::vector<std::pair<std::string, bool> > testData
-  { { "x: [ 1, 3, 5, 7 ]", false },
+  std::vector<std::pair<std::string, bool>> testData {
+    { "x: [ 1, 3, 5, 7 ]", false },
     { "a2: [ oh, my, stars ]", true }, // Should match a2, above.
-    { "y1: \"Oh, home on the range\" y2: \"Where the deer and the antelope roam\"", false } };
-  for (auto const &  p : testData) {
-    ParameterSet pset;
-    make_ParameterSet(p.first, pset);
-    v1.emplace_back(pset, p.second);
-    std::string id(pset.id().to_string());
-    std::string psBlob(pset.to_compact_string());
-    sqlite3_bind_text(oStmt, 1, id.c_str(), id.size() + 1, SQLITE_STATIC);
-    throwOnSQLiteFailure(db);
-    sqlite3_bind_text(oStmt, 2, psBlob.c_str(), psBlob.size() + 1, SQLITE_STATIC);
-    throwOnSQLiteFailure(db);
-    BOOST_REQUIRE_EQUAL(sqlite3_step(oStmt), SQLITE_DONE);
-    sqlite3_reset(oStmt);
-    throwOnSQLiteFailure(db);
-    if (p.second) {
-      // Should be in registry already.
-      BOOST_REQUIRE(ParameterSetRegistry::get().find(pset.id()) !=
-                    ParameterSetRegistry::get().cend());
-    } else {
-      // Should *not* be in registry.
-      BOOST_REQUIRE(ParameterSetRegistry::get().find(pset.id()) ==
-                    ParameterSetRegistry::get().cend());
-    }
+    { "y1: \"Oh, home on the range\" y2: \"Where the deer and the antelope roam\"", false }
+  };
+  std::vector<std::pair<ParameterSet, bool>> v1 (testData.size());
+
+  // Make ParameterSets in parallel
+  {
+    std::vector<std::function<void()>> tasks;
+    cet::for_all_with_index(testData,
+                            [&v1, &tasks](std::size_t const i, auto const& p) {
+                              auto& entry = v1[i];
+                              tasks.push_back([&entry, &p]{
+                                  ParameterSet pset;
+                                  make_ParameterSet(p.first, pset);
+                                  entry = std::make_pair(pset, p.second);
+                                });
+                            });
+    cet::SimultaneousFunctionSpawner sfs {tasks};
   }
-  sqlite3_finalize(oStmt);
-  throwOnSQLiteFailure(db);
+
+  // Insert ParameterSets into db in parallel
+  {
+    auto insert_into_db = [&db](auto const& pr) {
+
+      // Since this lambda is intended to be executed in parallel, one
+      // should not specify a BEGIN (IMMEDIATE|EXCLUSIVE) TRANSACTION
+      // statement--when executed in parallel, two or more BEGIN
+      // statements could be executed in succession, which is an
+      // error.  Rather, one should rely on the SQLite's internal
+      // locking mechanisms to ensure an appropriate transaction.
+      // Note that SQLite implicitly assumes a transaction is in
+      // flight until an sqlite3_reset or sqlite3_finalize function
+      // call is made, at which point it is committed.
+
+      sqlite3_stmt* oStmt = nullptr;
+      sqlite3_prepare_v2(db, "INSERT INTO ParameterSets(ID, PSetBlob) VALUES(?, ?);", -1, &oStmt, nullptr);
+      throwOnSQLiteFailure(db);
+
+      auto const& pset = pr.first;
+      bool const inRegistry {pr.second};
+      std::string const id {pset.id().to_string()};
+      std::string const psBlob {pset.to_compact_string()};
+      sqlite3_bind_text(oStmt, 1, id.c_str(), id.size() + 1, SQLITE_STATIC);
+      throwOnSQLiteFailure(db);
+
+      sqlite3_bind_text(oStmt, 2, psBlob.c_str(), psBlob.size() + 1, SQLITE_STATIC);
+      throwOnSQLiteFailure(db);
+      BOOST_REQUIRE_EQUAL(sqlite3_step(oStmt), SQLITE_DONE);
+
+      sqlite3_finalize(oStmt);
+      throwOnSQLiteFailure(db);
+
+      BOOST_REQUIRE_EQUAL(ParameterSetRegistry::has(pset.id()), inRegistry);
+    };
+
+    std::vector<std::function<void()>> tasks;
+    cet::transform_all(v1, std::back_inserter(tasks),
+                       [insert_into_db](auto const& pr){
+                         return [insert_into_db, pr]{ insert_into_db(pr); };
+                       });
+    cet::SimultaneousFunctionSpawner sfs {tasks};
+  }
+
   BOOST_REQUIRE_EQUAL(ParameterSetRegistry::size(), expected_size);
   ParameterSetRegistry::importFrom(db);
   // Make sure the registry didn't expand as a result of the insert.
   BOOST_REQUIRE_EQUAL(ParameterSetRegistry::size(), expected_size);
   BOOST_REQUIRE_EQUAL(sqlite3_close(db), SQLITE_OK);
-  for (auto const & p : v1) {
-    if (p.second) {
-      // Should be in registry already.
-      BOOST_REQUIRE(ParameterSetRegistry::get().find(p.first.id()) !=
-                    ParameterSetRegistry::get().cend());
-    } else {
-      // Make sure the import didn't inject them into the registry.
-      BOOST_REQUIRE(ParameterSetRegistry::get().find(p.first.id()) ==
-                    ParameterSetRegistry::get().cend());
-      // We expect the get() call below to increase the size of the
-      // registry by pulling the entry in from the backing DB.
-      ++expected_size;
-    }
-    ParameterSet p2 = ParameterSetRegistry::get(p.first.id());
-    BOOST_REQUIRE(p2 == p.first);
+
+  // Read from registry in parallel
+  {
+    auto read_from_registry = [&expected_size](auto const& p) {
+      auto const& id = p.first.id();
+      if (p.second) {
+        // Should be in registry already.
+        BOOST_REQUIRE(ParameterSetRegistry::has(id));
+      } else {
+        // Make sure the import didn't inject them into the registry.
+        BOOST_REQUIRE(!ParameterSetRegistry::has(id));
+        // We expect the get() call below to increase the size of the
+        // registry by pulling the entry in from the backing DB.
+        ++expected_size;
+      }
+      auto const& p2 = ParameterSetRegistry::get(id);
+      BOOST_REQUIRE(p2 == p.first);
+    };
+
+    std::vector<std::function<void()>> tasks;
+    cet::transform_all(v1, std::back_inserter(tasks),
+                       [read_from_registry](auto const& p) {
+                         return [read_from_registry, p]{ read_from_registry(p); };
+                       });
+    cet::SimultaneousFunctionSpawner sfs {tasks};
     BOOST_REQUIRE_EQUAL(ParameterSetRegistry::size(), expected_size);
   }
 }
 
 BOOST_AUTO_TEST_CASE(TestExport)
 {
-  sqlite3 * db = nullptr;
+  sqlite3* db = nullptr;
   BOOST_REQUIRE(!sqlite3_open(":memory:", &db));
   // Check empty!
-  sqlite3_stmt * stmt;
+  sqlite3_stmt* stmt = nullptr;
   // Make sure we get our own fresh and empty DB.
   sqlite3_prepare_v2(db, "SELECT 1 from sqlite_master where type='table' and name='ParameterSets';",
-                     -1, &stmt, NULL);
+                     -1, &stmt, nullptr);
   BOOST_REQUIRE_EQUAL(sqlite3_step(stmt), SQLITE_DONE); // No rows.
   sqlite3_reset(stmt);
   ParameterSetRegistry::exportTo(db);
   BOOST_REQUIRE_EQUAL(sqlite3_step(stmt), SQLITE_ROW); // Found table.
   sqlite3_finalize(stmt);
-  sqlite3_prepare_v2(db, "SELECT COUNT(*) from ParameterSets;", -1, &stmt, NULL);
+  sqlite3_prepare_v2(db, "SELECT COUNT(*) from ParameterSets;", -1, &stmt, nullptr);
   BOOST_REQUIRE_EQUAL(sqlite3_step(stmt), SQLITE_ROW);
   BOOST_REQUIRE_EQUAL(sqlite3_column_int64(stmt, 0), 13l);
   sqlite3_finalize(stmt);

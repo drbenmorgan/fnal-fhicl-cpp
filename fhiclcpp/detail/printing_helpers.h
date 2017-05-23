@@ -45,14 +45,14 @@ namespace fhicl {
 
     inline bool is_sequence_element(std::string const& key)
     {
-      auto pos = key.find_last_of( sequence::closing_brace() );
+      auto pos = key.find_last_of(sequence::closing_brace());
       return pos != std::string::npos && pos == key.size()-1;
     }
 
     inline bool is_table_member(std::string const& key)
     {
       auto pos1 = key.find_last_of(".") ;
-      if ( pos1 == std::string::npos ) return false;
+      if (pos1 == std::string::npos) return false;
 
       return is_sequence_element(key) ? false : true;
     }

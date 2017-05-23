@@ -47,7 +47,7 @@ namespace fhicl {
 }
 
 #undef TEMPLATE_ARG
-#endif
+#endif /* fhiclcpp_types_KeysToIgnore_h */
 
 // Local variables:
 // mode: c++

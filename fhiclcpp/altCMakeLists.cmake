@@ -13,6 +13,7 @@ set(fhiclcpp_SOURCES
   ParameterSetID.h
   ParameterSetRegistry.cc
   ParameterSetRegistry.h
+  ParameterSetWalker.h
   Protection.cc
   Protection.h
   coding.cc
@@ -38,7 +39,6 @@ set(fhiclcpp_SOURCES
   detail/KeyAssembler.cc
   detail/KeyAssembler.h
   detail/ParameterSetImplHelpers.h
-  detail/ParameterSetWalker.h
   detail/Prettifier.cc
   detail/Prettifier.h
   detail/PrettifierAnnotated.cc
@@ -46,7 +46,6 @@ set(fhiclcpp_SOURCES
   detail/PrettifierPrefixAnnotated.cc
   detail/PrettifierPrefixAnnotated.h
   detail/binding_modifier.h
-  detail/deprecation_msgs.h
   detail/encode_extended_value.cc
   detail/encode_extended_value.h
   detail/print_mode.h
@@ -89,6 +88,8 @@ set(fhiclcpp_SOURCES
   types/detail/ParameterWalker.h
   types/detail/PrintAllowedConfiguration.cc
   types/detail/PrintAllowedConfiguration.h
+  types/detail/SearchAllowedConfiguration.cc
+  types/detail/SearchAllowedConfiguration.h
   types/detail/SeqVectorBase.h
   types/detail/Sequence.icc
   types/detail/SequenceBase.h
@@ -97,6 +98,7 @@ set(fhiclcpp_SOURCES
   types/detail/TableMemberRegistry.h
   types/detail/ValidateThenSet.cc
   types/detail/ValidateThenSet.h
+  types/detail/optional_parameter_message.h
   types/detail/ostream_helpers.cc
   types/detail/ostream_helpers.h
   types/detail/strip_containing_names.cc

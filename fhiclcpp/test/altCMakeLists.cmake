@@ -128,7 +128,7 @@ cet_test(seq_of_seq_t)
 
 cet_test(traits_t)
 
-cet_test(ParameterSetRegistry_t USE_BOOST_UNIT)
+cet_test(ParameterSetRegistry_t USE_BOOST_UNIT LIBRARIES pthread)
 
 cet_test(DatabaseSupport_t USE_BOOST_UNIT
          DATAFILES

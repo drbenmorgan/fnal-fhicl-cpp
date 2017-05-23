@@ -15,7 +15,7 @@
 #  make package (builds distribution tarfile)
 
 cmake_minimum_required(VERSION 3.3)
-project(fhiclcpp VERSION 4.1.0)
+project(fhiclcpp VERSION 4.5.0)
 
 # cetbuildtools contains our cmake modules
 # - Cetbuildtools, version2
@@ -33,7 +33,7 @@ set(cetlib_COMPILE_FEATURES
   )
 
 # these are minimum required versions, not the actual product versions
-find_package(cetlib 1.17 REQUIRED)
+find_package(cetlib 3.0.0 REQUIRED)
 find_package(Boost 1.60 REQUIRED unit_test_framework program_options)
 find_package(SQLite 3.7.15 REQUIRED)
 

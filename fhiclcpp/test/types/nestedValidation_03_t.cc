@@ -22,11 +22,22 @@ namespace {
   using Val_t = Sequence<Tuple<string, Sequence<string> > >;
 
   struct NestedConfig {
-    Val_t pars {Name("pars")};
+
+    using Default_t = typename Val_t::dtype;
+    using DefaultElement_t = typename Val_t::dtype::value_type;
+
+    explicit NestedConfig(Default_t defaultPars = {})
+      : pars(Name("pars"), std::move(defaultPars))
+      {
+      }
+
+    Val_t pars;
   };
 
   struct Config {
     Table<NestedConfig> nested {Name("nested")};
+    Table<NestedConfig> nestedWithDef {Name("nestedWithDef"),
+        NestedConfig::Default_t{NestedConfig::DefaultElement_t{"T", {"U", "V", "W"}}}};
   };
 
   Table<Config> validateConfig(std::string const & cfg)
@@ -43,11 +54,12 @@ namespace {
 
 BOOST_AUTO_TEST_SUITE (Nested_Validation)
 
-BOOST_AUTO_TEST_CASE(GoodTuple)
+BOOST_AUTO_TEST_CASE(GoodTuple1)
 {
   string const good{"nested: { pars: [[A, [B]], [X, [Y, Z]]] }"s};
   std::vector<std::string> const ref1{"B"s};
   std::vector<std::string> const ref2{"Y"s, "Z"s};
+  std::vector<std::string> const ref3{"U"s, "V"s, "W"s};
   auto validatedConfig = validateConfig(good);
   auto const & pars = validatedConfig().nested().pars();
   BOOST_TEST_REQUIRE(pars.size() == 2);
@@ -55,6 +67,33 @@ BOOST_AUTO_TEST_CASE(GoodTuple)
   BOOST_TEST_REQUIRE(std::get<1>(pars[0]) == ref1);
   BOOST_TEST_REQUIRE(std::get<0>(pars[1]) == "X"s);
   BOOST_TEST_REQUIRE(std::get<1>(pars[1]) == ref2);
+  auto const & defaultedPars = validatedConfig().nestedWithDef().pars();
+  BOOST_TEST_REQUIRE(defaultedPars.size() == 1);
+  BOOST_TEST_REQUIRE(std::get<0>(defaultedPars[0]) == "T"s);
+  BOOST_TEST_REQUIRE(std::get<1>(defaultedPars[0]) == ref3);
+}
+
+BOOST_AUTO_TEST_CASE(GoodTuple2)
+{
+  string const good{"nested: { pars: [[A, [B]], [X, [Y, Z]]] }\n"s +
+      "nestedWithDef: { pars: [[M, [N, O, P, Q]], [R, [S]]] }"s};
+  std::vector<std::string> const ref1{"B"s};
+  std::vector<std::string> const ref2{"Y"s, "Z"s};
+  std::vector<std::string> const ref3{"N"s, "O"s, "P"s, "Q"s};
+  std::vector<std::string> const ref4{"S"s};
+  auto validatedConfig = validateConfig(good);
+  auto const & pars = validatedConfig().nested().pars();
+  BOOST_TEST_REQUIRE(pars.size() == 2);
+  BOOST_TEST_REQUIRE(std::get<0>(pars[0]) == "A"s);
+  BOOST_TEST_REQUIRE(std::get<1>(pars[0]) == ref1);
+  BOOST_TEST_REQUIRE(std::get<0>(pars[1]) == "X"s);
+  BOOST_TEST_REQUIRE(std::get<1>(pars[1]) == ref2);
+  auto const & defaultedPars = validatedConfig().nestedWithDef().pars();
+  BOOST_TEST_REQUIRE(defaultedPars.size() == 2);
+  BOOST_TEST_REQUIRE(std::get<0>(defaultedPars[0]) == "M"s);
+  BOOST_TEST_REQUIRE(std::get<1>(defaultedPars[0]) == ref3);
+  BOOST_TEST_REQUIRE(std::get<0>(defaultedPars[1]) == "R"s);
+  BOOST_TEST_REQUIRE(std::get<1>(defaultedPars[1]) == ref4);
 }
 
 BOOST_AUTO_TEST_CASE(BadTuple1)
@@ -72,6 +111,13 @@ BOOST_AUTO_TEST_CASE(BadTuple2)
 BOOST_AUTO_TEST_CASE(BadTuple3)
 {
   string const bad{"nested: { pars: [[A, 7]] }"s};
+  BOOST_REQUIRE_THROW(validateConfig(bad), detail::validationException);
+}
+
+BOOST_AUTO_TEST_CASE(BadTuple4)
+{
+  string const bad{"nested: { pars: [[A, [7]]] }\n"s +
+      "nestedWithDef: { pars: [[A]]}"s};
   BOOST_REQUIRE_THROW(validateConfig(bad), detail::validationException);
 }
 

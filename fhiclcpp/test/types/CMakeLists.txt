@@ -119,3 +119,7 @@ cet_test(return_table_values_from_fcl_t USE_BOOST_UNIT
   )
 
 cet_test(table_insertionOperator_t USE_BOOST_UNIT)
+
+cet_test(nestedValidation_01_t USE_BOOST_UNIT)
+cet_test(nestedValidation_02_t USE_BOOST_UNIT)
+cet_test(nestedValidation_03_t USE_BOOST_UNIT)

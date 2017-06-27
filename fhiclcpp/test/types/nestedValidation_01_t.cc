@@ -26,10 +26,8 @@ namespace {
 
   Table<Config> validateConfig(std::string const & cfg)
   {
-    intermediate_table table;
     ParameterSet ps;
-    parse_document(cfg, table);
-    make_ParameterSet(table, ps);
+    make_ParameterSet(cfg, ps);
     Table<Config> validatedConfig{Name("validatedConfig")};
     validatedConfig.validate_ParameterSet(ps);
     return validatedConfig;

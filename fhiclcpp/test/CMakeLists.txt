@@ -8,10 +8,7 @@ include(CetTest)
 cet_enable_asserts()
 
 # Identify libraries to be linked:
-link_libraries(fhiclcpp
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_PROGRAM_OPTIONS_LIBRARY}
-  )
+link_libraries(fhiclcpp)
 
 cet_test_env("FHICL_FILE_PATH=.")
 

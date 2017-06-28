@@ -19,64 +19,55 @@
 // ----------------------------------------------------------------------
 
 namespace fhicl {
-  enum value_tag { UNKNOWN
-                   , NIL, BOOL, NUMBER, COMPLEX, STRING, SEQUENCE, TABLE, TABLEID
-  };
+  enum value_tag {UNKNOWN,
+                  NIL, BOOL, NUMBER, COMPLEX, STRING, SEQUENCE, TABLE, TABLEID};
 }
 
 // ----------------------------------------------------------------------
 
-class fhicl::extended_value
-{
+class fhicl::extended_value {
 public:
-  typedef  std::string                            atom_t;
-  typedef  std::pair<std::string, std::string>    complex_t;
-  typedef  std::vector<extended_value>            sequence_t;
-  typedef  shims::map<std::string, extended_value>  table_t;
+  using atom_t = std::string;
+  using complex_t = std::pair<std::string, std::string>;
+  using sequence_t = std::vector<extended_value>;
+  using table_t = shims::map<std::string, extended_value>;
 
-  extended_value()
-    : in_prolog( false )
-    , tag      ( UNKNOWN )
-    , value    ()
-    , src_info ()
-    , protection (Protection::NONE)
+  extended_value() = default;
+
+  extended_value(bool const in_prolog,
+                 value_tag const tag,
+                 boost::any const value,
+                 Protection const protection,
+                 std::string const& src = {})
+    : in_prolog{in_prolog}
+    , tag{tag}
+    , value{value}
+    , src_info{src}
+    , protection{protection}
   { }
 
-  extended_value(bool       in_prolog,
-                 value_tag  tag,
-                 boost::any value,
-                 Protection  protection,
+  extended_value(bool const in_prolog,
+                 value_tag const tag,
+                 boost::any const value,
                  std::string const& src = {})
-    : in_prolog( in_prolog )
-    , tag      ( tag )
-    , value    ( value )
-    , src_info ( src )
-    , protection (protection)
-  { }
-
-  extended_value(bool       in_prolog,
-                 value_tag  tag,
-                 boost::any value,
-                 std::string const& src = {})
-    : in_prolog( in_prolog )
-    , tag      ( tag )
-    , value    ( value )
-    , src_info ( src )
-    , protection (Protection::NONE)
+    : in_prolog{in_prolog}
+    , tag{tag}
+    , value{value}
+    , src_info{src}
   { }
 
   bool
-  is_a( value_tag t ) const
+  is_a(value_tag t) const
   { return t == tag; }
 
   std::string
   to_string() const;
 
   void
-  set_prolog( bool new_prolog_state );
+  set_prolog(bool new_prolog_state);
 
   void
-  set_src_info( std::string const & src )
+  set_src_info(std::string const & src)
   { src_info = src; }
 
   std::string
@@ -94,11 +85,11 @@ public:
   operator table_t() const
   { return boost::any_cast<table_t>(value); }
 
-  bool       in_prolog;
-  value_tag  tag;
-  boost::any value;
-  std::string src_info;
-  Protection protection;
+  bool       in_prolog{false};
+  value_tag  tag{UNKNOWN};
+  boost::any value{};
+  std::string src_info{};
+  Protection protection{Protection::NONE};
 
 };  // extended_value
 

@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(BadTuple2)
 BOOST_AUTO_TEST_CASE(BadTuple3)
 {
   string const bad{"nested: { pars: [[A, 7]] }"s};
-  BOOST_REQUIRE_THROW(validateConfig(bad), detail::validationException);
+  BOOST_REQUIRE_THROW(validateConfig(bad), fhicl::exception);
 }
 
 BOOST_AUTO_TEST_CASE(BadTuple4)

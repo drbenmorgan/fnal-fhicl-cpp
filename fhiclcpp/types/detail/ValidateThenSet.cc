@@ -1,4 +1,5 @@
 #include "cetlib/container_algorithms.h"
+#include "fhiclcpp/exception.h"
 #include "fhiclcpp/types/detail/AtomBase.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
@@ -50,12 +51,20 @@ fhicl::detail::ValidateThenSet::after_action(ParameterBase& p)
 void
 fhicl::detail::ValidateThenSet::enter_sequence(SequenceBase& s)
 {
+  // Ensure that the supplied parameter represents a sequence.
+  auto const& key = strip_first_containing_name(s.key());
+  if (!pset_.is_key_to_sequence(key)) {
+    throw fhicl::exception(type_mismatch, "error converting to sequence:\n")
+      << "The supplied value of the parameter:\n"
+      << "    " << s.key() << '\n'
+      << "does not represent a sequence.\n";
+  }
+
   auto* v = dynamic_cast<SeqVectorBase*>(&s);
   if (v == nullptr) return;
 
   // If the parameter is an unbounded sequence, we need to resize it
   // so that any nested parameters of the elements can be checked.
-  auto const& key = strip_first_containing_name(v->key());
   std::regex const r {fhicl::Name::regex_safe(key) + "\\[\\d+\\]"};
 
   std::size_t const nElems = std::count_if(userKeys_.begin(),

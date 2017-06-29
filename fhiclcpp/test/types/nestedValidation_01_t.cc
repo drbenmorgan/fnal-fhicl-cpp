@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(BadTuple1)
 BOOST_AUTO_TEST_CASE(BadTuple2)
 {
   string const bad{"pars: [ X, 1 ]"s};
-  BOOST_CHECK_THROW(validateConfig(bad), detail::validationException);
+  BOOST_CHECK_THROW(validateConfig(bad), fhicl::exception);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

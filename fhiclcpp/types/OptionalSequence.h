@@ -9,8 +9,7 @@
 #include "fhiclcpp/types/detail/ParameterWalker.h"
 #include "fhiclcpp/types/detail/TableMemberRegistry.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
-#include "fhiclcpp/types/detail/ostream_helpers.h"
-#include "fhiclcpp/types/detail/SeqVectorBase.h"
+#include "fhiclcpp/types/detail/check_nargs_for_bounded_sequences.h"
 #include "fhiclcpp/type_traits.h"
 
 #include <array>
@@ -34,8 +33,8 @@ namespace fhicl {
     static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES);
     static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
-    using ftype = std::array< std::shared_ptr< tt::fhicl_type<T> >, N >;
-    using rtype = std::array< tt::return_type<T>, N >;
+    using ftype = std::array<std::shared_ptr<tt::fhicl_type<T>>, N>;
+    using rtype = std::array<tt::return_type<T>, N>;
 
     explicit OptionalSequence(Name&& name);
     explicit OptionalSequence(Name&& name, Comment&& comment);
@@ -63,6 +62,11 @@ namespace fhicl {
 
     std::size_t get_size() const override { return value_.size(); }
 
+    void do_prepare_elements_for_validation(std::size_t const n) override
+    {
+      detail::check_nargs_for_bounded_sequences(key(), get_size(), n);
+    }
+
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_non_const>& pw) override
     {
       cet::for_all(value_, [&pw](auto& e){ pw.walk_over(*e); } );
@@ -82,7 +86,7 @@ namespace fhicl {
   //
   template<typename T>
   class OptionalSequence<T,-1ull> final :
-    public  detail::SeqVectorBase,
+    public  detail::SequenceBase,
     private detail::RegisterIfTableMember {
   public:
 
@@ -90,8 +94,8 @@ namespace fhicl {
     static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES);
     static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
-    using ftype = std::vector< std::shared_ptr<tt::fhicl_type<T>> >;
-    using rtype = std::vector< tt::return_type<T> >;
+    using ftype = std::vector<std::shared_ptr<tt::fhicl_type<T>>>;
+    using rtype = std::vector<tt::return_type<T>>;
 
     explicit OptionalSequence(Name&& name);
     explicit OptionalSequence(Name&& name, Comment&& comment);
@@ -116,21 +120,19 @@ namespace fhicl {
     ftype value_;
     bool has_value_ {false};
 
-    // To be used only for reassigning keys when ParameterSet
-    // validation is being performed.
-    void do_resize_sequence(std::size_t n) override
+    void do_prepare_elements_for_validation(std::size_t const n) override
     {
-      if ( n < value_.size() ) {
+      if (n < value_.size()) {
         value_.resize(n);
       }
-      else if ( n > value_.size() ) {
+      else if (n > value_.size()) {
 
-        std::string key_fragment {key()};
+        std::string key_fragment{key()};
         // When emplacing a new element, do not include in the key
         // argument the current name-stack stem--it will
         // automatically be prepended.
         auto const& nsr = NameStackRegistry::instance();
-        if ( !nsr.empty() ) {
+        if (!nsr.empty()) {
           std::string const& current_stem = nsr.current();
           std::size_t const pos =
             key_fragment.find(current_stem) != std::string::npos ?
@@ -139,8 +141,8 @@ namespace fhicl {
           key_fragment.replace(0ul, pos, "");
         }
 
-        for ( auto i = value_.size(); i != n; ++i ) {
-          value_.emplace_back(new tt::fhicl_type<T>{ Name::sequence_element(key_fragment, i) });
+        for (auto i = value_.size(); i != n; ++i) {
+          value_.emplace_back(new tt::fhicl_type<T>{Name::sequence_element(key_fragment, i)});
         }
       }
     }

@@ -5,7 +5,6 @@
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
-#include "fhiclcpp/types/detail/SeqVectorBase.h"
 #include "fhiclcpp/types/detail/TableBase.h"
 #include "fhiclcpp/types/detail/ValidateThenSet.h"
 #include "fhiclcpp/types/detail/optional_parameter_message.h"
@@ -60,19 +59,13 @@ fhicl::detail::ValidateThenSet::enter_sequence(SequenceBase& s)
       << "does not represent a sequence.\n";
   }
 
-  auto* v = dynamic_cast<SeqVectorBase*>(&s);
-  if (v == nullptr) return;
-
-  // If the parameter is an unbounded sequence, we need to resize it
-  // so that any nested parameters of the elements can be checked.
-  std::regex const r {fhicl::Name::regex_safe(key) + "\\[\\d+\\]"};
-
+  std::regex const r{fhicl::Name::regex_safe(key) + "\\[\\d+\\]"};
   std::size_t const nElems = std::count_if(userKeys_.begin(),
                                            userKeys_.end(),
                                            [&r](auto const& k){
                                              return std::regex_match(k,r);
                                            });
-  v->resize_sequence(nElems);
+  s.prepare_elements_for_validation(nElems);
 }
 
 //====================================================================

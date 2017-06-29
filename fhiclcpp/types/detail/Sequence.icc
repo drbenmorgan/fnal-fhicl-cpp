@@ -93,7 +93,7 @@ namespace fhicl {
 
   template<typename T>
   Sequence<T,-1ull>::Sequence(Name&& name, Comment&& comment)
-    : SeqVectorBase{std::move(name), std::move(comment), value_type::REQUIRED, detail::AlwaysUse()}
+    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED, par_type::SEQ_VECTOR, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
     , value_{std::make_shared<tt::fhicl_type<T>>(Name::sequence_element(0ul))}
     {
@@ -102,7 +102,7 @@ namespace fhicl {
 
   template<typename T>
   Sequence<T,-1ull>::Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse)
-    : SeqVectorBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, maybeUse}
+    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, par_type::SEQ_VECTOR, maybeUse}
     , RegisterIfTableMember{this}
     , value_{std::make_shared<tt::fhicl_type<T>>(Name::sequence_element(0ul))}
     {
@@ -117,7 +117,7 @@ namespace fhicl {
 
   template<typename T>
   Sequence<T,-1ull>::Sequence (Name&& name, Comment&& comment, dtype const& defaults)
-    : SeqVectorBase{std::move(name), std::move(comment), value_type::DEFAULT, detail::AlwaysUse()}
+    : SequenceBase{std::move(name), std::move(comment), value_type::DEFAULT, par_type::SEQ_VECTOR, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     static_assert(!tt::is_table<T>::value, NO_DEFAULTS_FOR_TABLE);
@@ -132,7 +132,7 @@ namespace fhicl {
 
   template<typename T>
   Sequence<T,-1ull>::Sequence (Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults)
-    : SeqVectorBase{std::move(name), std::move(comment), value_type::DEFAULT_CONDITIONAL, maybeUse}
+    : SequenceBase{std::move(name), std::move(comment), value_type::DEFAULT_CONDITIONAL, par_type::SEQ_VECTOR, maybeUse}
     , RegisterIfTableMember{this}
   {
     static_assert(!tt::is_table<T>::value, NO_DEFAULTS_FOR_TABLE);

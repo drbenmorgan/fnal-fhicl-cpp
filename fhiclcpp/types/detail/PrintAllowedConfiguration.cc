@@ -4,7 +4,6 @@
 #include "fhiclcpp/types/detail/AtomBase.h"
 #include "fhiclcpp/types/detail/ParameterBase.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
-#include "fhiclcpp/types/detail/SeqVectorBase.h"
 #include "fhiclcpp/types/detail/TableBase.h"
 #include "fhiclcpp/types/detail/PrintAllowedConfiguration.h"
 
@@ -207,7 +206,7 @@ PrintAllowedConfiguration::enter_sequence(SequenceBase const& s)
 
   indent_.push();
 
-  if ( s.empty() )
+  if (s.empty())
     return;
 
   // We want the printout to look like this for sequences with
@@ -229,14 +228,6 @@ PrintAllowedConfiguration::enter_sequence(SequenceBase const& s)
     for (std::size_t i{}; i != s.size()-1; ++i)
       keysWithCommas_.emplace(s.key()+"["+std::to_string(i)+"]");
     return;
-  }
-
-  if (s.size() != 1ul) {
-    throw cet::exception("LogicError") <<
-      "Default Sequence<T> has a size not equal to 1.\n"
-      "Maybe you tried to print the allowed configuration\n"
-      "after the provided ParameterSet had been validated.\n"
-      "If not, please notify the artists.";
   }
 
   keysWithCommas_.emplace(s.key()+"[0]");

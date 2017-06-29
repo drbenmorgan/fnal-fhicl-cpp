@@ -42,10 +42,8 @@ namespace {
 
   Table<Config> validateConfig(std::string const & cfg)
   {
-    intermediate_table table;
     ParameterSet ps;
-    parse_document(cfg, table);
-    make_ParameterSet(table, ps);
+    make_ParameterSet(cfg, ps);
     Table<Config> validatedConfig{Name("validatedConfig")};
     validatedConfig.validate_ParameterSet(ps);
     return validatedConfig;
@@ -117,7 +115,7 @@ BOOST_AUTO_TEST_CASE(BadTuple3)
 BOOST_AUTO_TEST_CASE(BadTuple4)
 {
   string const bad{"nested: { pars: [[A, [7]]] }\n"s +
-      "nestedWithDef: { pars: [[A]]}"s};
+                   "nestedWithDef: { pars: [[A]]}"s};
   BOOST_REQUIRE_THROW(validateConfig(bad), detail::validationException);
 }
 

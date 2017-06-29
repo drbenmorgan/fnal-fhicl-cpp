@@ -241,7 +241,7 @@ namespace fhicl {
 
   template<typename ... TYPES>
   Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, dtype const& defaults)
-    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED, par_type::TUPLE, detail::AlwaysUse()}
+    : SequenceBase{std::move(name), std::move(comment), value_type::DEFAULT, par_type::TUPLE, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     fill_tuple_elements(defaults);
@@ -251,7 +251,7 @@ namespace fhicl {
 
   template<typename ... TYPES>
   Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults)
-    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, par_type::TUPLE, maybeUse}
+    : SequenceBase{std::move(name), std::move(comment), value_type::DEFAULT_CONDITIONAL, par_type::TUPLE, maybeUse}
     , RegisterIfTableMember{this}
   {
     fill_tuple_elements(defaults);

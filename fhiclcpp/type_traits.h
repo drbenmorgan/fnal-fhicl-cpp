@@ -6,7 +6,7 @@
 //
 // ======================================================================
 
-#include "cetlib/detail/metaprogramming.h"
+#include "cetlib/metaprogramming.h"
 
 #include <array>
 #include <complex>
@@ -46,7 +46,7 @@ namespace tt {
 
   using std::is_floating_point;
   using std::enable_if;
-  using cet::detail::enable_if_function_exists_t;
+  using cet::enable_if_function_exists_t;
 
   template <bool b, typename T = void>
   using disable_if = std::enable_if<!b, T>;

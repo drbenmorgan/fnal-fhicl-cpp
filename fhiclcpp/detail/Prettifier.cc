@@ -15,10 +15,9 @@ namespace {
 //==========================================================================
 
 Prettifier::Prettifier(unsigned const initial_indent_level)
-  : buffer_()
-  , indent_{initial_indent_level}
+  : indent_{initial_indent_level}
   , sequence_sizes_{{size_t_max}}
-  , seq_size_{ sequence_sizes_.top() }
+  , seq_size_{sequence_sizes_.top()}
   , table_size_{0u}
 {}
 
@@ -26,7 +25,7 @@ Prettifier::Prettifier(unsigned const initial_indent_level)
 void
 Prettifier::before_action(key_t const& key, any_t const& a, ParameterSet const* ps)
 {
-  if ( !is_table(a) ) return;
+  if (!is_table(a)) return;
   table_size_ = ps->get<fhicl::ParameterSet>(key).get_all_keys().size();
 }
 
@@ -34,7 +33,7 @@ Prettifier::before_action(key_t const& key, any_t const& a, ParameterSet const* 
 //==========================================================================
 
 void
-Prettifier::enter_table(std::string const& key, boost::any const &)
+Prettifier::enter_table(std::string const& key, boost::any const&)
 {
   buffer_ << indent_()
           << table::printed_prefix(key)
@@ -43,7 +42,7 @@ Prettifier::enter_table(std::string const& key, boost::any const &)
 }
 
 void
-Prettifier::exit_table(std::string const& key, boost::any const &)
+Prettifier::exit_table(std::string const& key, boost::any const&)
 {
   indent_.pop();
   buffer_ << maybe_indent_(table_size_)
@@ -89,7 +88,7 @@ Prettifier::exit_sequence(std::string const& key,
 //==========================================================================
 
 void
-Prettifier::atom(std::string const& key, boost::any const & a)
+Prettifier::atom(std::string const& key, boost::any const& a)
 {
   buffer_ << indent_()
           << atom::printed_prefix(key)
@@ -103,7 +102,7 @@ Prettifier::atom(std::string const& key, boost::any const & a)
 void
 Prettifier::push_size_(boost::any const& a)
 {
-  sequence_sizes_.emplace( boost::any_cast<ps_sequence_t>(a).size() );
+  sequence_sizes_.emplace(boost::any_cast<ps_sequence_t>(a).size());
   seq_size_ = sequence_sizes_.top();
 }
 

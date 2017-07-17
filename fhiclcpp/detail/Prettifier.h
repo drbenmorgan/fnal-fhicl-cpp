@@ -97,8 +97,8 @@ namespace fhicl {
       void enter_table   (key_t const&, any_t const&) override;
       void enter_sequence(key_t const&, any_t const&) override;
 
-      void exit_table    (key_t const&, any_t const&) override;
-      void exit_sequence (key_t const&, any_t const&) override;
+      void exit_table   (key_t const&, any_t const&) override;
+      void exit_sequence(key_t const&, any_t const&) override;
 
       void atom(key_t const&, any_t const&) override;
 
@@ -109,7 +109,7 @@ namespace fhicl {
       std::string maybe_indent_(std::size_t);
       std::string maybe_nl_(std::size_t);
 
-      std::ostringstream buffer_;
+      std::ostringstream buffer_{};
       Indentation indent_;
       std::stack<std::size_t> sequence_sizes_;
       std::size_t seq_size_;

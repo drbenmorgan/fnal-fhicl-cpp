@@ -221,7 +221,7 @@ namespace fhicl {
     std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
     prepare_element_for_validation()
     {
-      std::get<I>(value_)->set_value_type(value_type::REQUIRED);
+      std::get<I>(value_)->set_par_style(par_style::REQUIRED);
       prepare_element_for_validation<I+1>();
     }
 
@@ -236,7 +236,7 @@ namespace fhicl {
 
   template <typename... TYPES>
   Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment)
-    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED, par_type::TUPLE, detail::AlwaysUse()}
+    : SequenceBase{std::move(name), std::move(comment), par_style::REQUIRED, par_type::TUPLE, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     finalize_elements(std::index_sequence_for<TYPES...>{});
@@ -245,7 +245,7 @@ namespace fhicl {
 
   template <typename... TYPES>
   Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse)
-    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, par_type::TUPLE, maybeUse}
+    : SequenceBase{std::move(name), std::move(comment), par_style::REQUIRED_CONDITIONAL, par_type::TUPLE, maybeUse}
     , RegisterIfTableMember{this}
   {
     finalize_elements(std::index_sequence_for<TYPES...>{});
@@ -261,7 +261,7 @@ namespace fhicl {
 
   template <typename... TYPES>
   Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, default_type const& defaults)
-    : SequenceBase{std::move(name), std::move(comment), value_type::DEFAULT, par_type::TUPLE, detail::AlwaysUse()}
+    : SequenceBase{std::move(name), std::move(comment), par_style::DEFAULT, par_type::TUPLE, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     fill_tuple_elements(defaults);
@@ -271,7 +271,7 @@ namespace fhicl {
 
   template <typename... TYPES>
   Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse, default_type const& defaults)
-    : SequenceBase{std::move(name), std::move(comment), value_type::DEFAULT_CONDITIONAL, par_type::TUPLE, maybeUse}
+    : SequenceBase{std::move(name), std::move(comment), par_style::DEFAULT_CONDITIONAL, par_type::TUPLE, maybeUse}
     , RegisterIfTableMember{this}
   {
     fill_tuple_elements(defaults);

@@ -25,7 +25,7 @@ namespace fhicl {
     return pt == par_type::ATOM;
   }
 
-  enum class value_type {
+  enum class par_style {
     REQUIRED,
     REQUIRED_CONDITIONAL,
     DEFAULT,

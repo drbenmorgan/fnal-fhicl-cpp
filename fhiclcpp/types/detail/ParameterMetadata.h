@@ -21,12 +21,12 @@ namespace fhicl {
 
       ParameterMetadata(Name const& name = Name(),
                         Comment const& comment = Comment(""),
-                        value_type const valType = value_type::NTYPES,
+                        par_style const parStyle = par_style::NTYPES,
                         par_type const parType = par_type::NTYPES)
         : key_{NameStackRegistry::instance().full_key(name.value)}
         , name_{name.value}
         , comment_{comment.value}
-        , valType_{valType}
+        , parStyle_{parStyle}
         , parType_{parType}
       {}
 
@@ -37,23 +37,23 @@ namespace fhicl {
       bool has_default() const
       {
         return
-          valType_ == value_type::DEFAULT ||
-          valType_ == value_type::DEFAULT_CONDITIONAL;
+          parStyle_ == par_style::DEFAULT ||
+          parStyle_ == par_style::DEFAULT_CONDITIONAL;
       }
 
       bool is_optional() const
       {
         return
-          valType_ == value_type::OPTIONAL ||
-          valType_ == value_type::OPTIONAL_CONDITIONAL;
+          parStyle_ == par_style::OPTIONAL ||
+          parStyle_ == par_style::OPTIONAL_CONDITIONAL;
       }
 
       bool is_conditional() const
       {
         return
-          valType_ == value_type::REQUIRED_CONDITIONAL ||
-          valType_ == value_type::OPTIONAL_CONDITIONAL ||
-          valType_ == value_type::DEFAULT_CONDITIONAL;
+          parStyle_ == par_style::REQUIRED_CONDITIONAL ||
+          parStyle_ == par_style::OPTIONAL_CONDITIONAL ||
+          parStyle_ == par_style::DEFAULT_CONDITIONAL;
       }
 
       par_type type() const { return parType_; }
@@ -64,13 +64,13 @@ namespace fhicl {
         name_ = detail::strip_all_containing_names(key);
       }
 
-      void set_value_type(value_type const vt) { valType_ = vt; }
+      void set_par_style(par_style const vt) { parStyle_ = vt; }
 
     private:
       std::string key_ {};
       std::string name_ {};
       std::string comment_ {};
-      value_type  valType_ {value_type::NTYPES};
+      par_style  parStyle_ {par_style::NTYPES};
       par_type    parType_ {par_type::NTYPES};
 
     };

@@ -171,7 +171,7 @@ namespace fhicl {
 
   template<typename ... TYPES>
   OptionalTuple<TYPES...>::OptionalTuple(Name&& name, Comment&& comment)
-    : SequenceBase{std::move(name), std::move(comment), value_type::OPTIONAL, par_type::TUPLE, detail::AlwaysUse()}
+    : SequenceBase{std::move(name), std::move(comment), par_style::OPTIONAL, par_type::TUPLE, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     finalize_elements(std::index_sequence_for<TYPES...>{});
@@ -180,7 +180,7 @@ namespace fhicl {
 
   template<typename ... TYPES>
   OptionalTuple<TYPES...>::OptionalTuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse)
-    : SequenceBase{std::move(name), std::move(comment), value_type::OPTIONAL_CONDITIONAL, par_type::TUPLE, maybeUse}
+    : SequenceBase{std::move(name), std::move(comment), par_style::OPTIONAL_CONDITIONAL, par_type::TUPLE, maybeUse}
     , RegisterIfTableMember{this}
   {
     finalize_elements(std::index_sequence_for<TYPES...>{});

@@ -20,7 +20,7 @@ namespace fhicl {
 
       SequenceBase(Name&& name,
                    Comment&& comment,
-                   value_type const vt,
+                   par_style const vt,
                    par_type const type,
                    std::function<bool()> maybeUse)
         : ParameterBase{name, comment, vt, type, maybeUse}

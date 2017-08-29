@@ -81,7 +81,7 @@ namespace fhicl {
                                Comment&& comment)
     : tupleObj_{std::move(name), conversion_comment(std::move(comment))}
   {
-    tupleObj_.set_value_type(value_type::REQUIRED);
+    tupleObj_.set_par_style(par_style::REQUIRED);
   }
 
   template <typename T, typename ... ARGS>
@@ -90,7 +90,7 @@ namespace fhicl {
                                std::function<bool()> maybeUse)
     : tupleObj_{std::move(name), conversion_comment(std::move(comment)), maybeUse}
   {
-    tupleObj_.set_value_type(value_type::REQUIRED_CONDITIONAL);
+    tupleObj_.set_par_style(par_style::REQUIRED_CONDITIONAL);
   }
 
     // c'tors supporting default values
@@ -105,7 +105,7 @@ namespace fhicl {
     : tupleObj_{std::move(name), conversion_comment(std::move(comment),t)}
     , t_{std::make_shared<T>(t)}
   {
-    tupleObj_.set_value_type(value_type::DEFAULT);
+    tupleObj_.set_par_style(par_style::DEFAULT);
   }
 
   template <typename T, typename ... ARGS>
@@ -116,7 +116,7 @@ namespace fhicl {
     : tupleObj_{std::move(name), conversion_comment(std::move(comment),t), maybeUse}
     , t_{std::make_shared<T>(t)}
   {
-    tupleObj_.set_value_type(value_type::DEFAULT_CONDITIONAL);
+    tupleObj_.set_par_style(par_style::DEFAULT_CONDITIONAL);
   }
 
   template <typename T, typename ... ARGS>

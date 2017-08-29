@@ -16,7 +16,7 @@ namespace fhicl {
 
       TableBase(Name const& name,
                 Comment const& comment,
-                value_type const vt,
+                par_style const vt,
                 std::function<bool()> maybeUse)
         : ParameterBase{name, comment, vt, par_type::TABLE, maybeUse}
       {}

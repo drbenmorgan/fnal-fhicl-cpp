@@ -27,8 +27,8 @@ namespace fhicl {
   public:
 
     using default_type    = T;
-    using via_type = typename OptionalTuple<ARGS...>::rtype;
-    using rtype    = T;
+    using via_type = typename OptionalTuple<ARGS...>::value_type;
+    using value_type    = T;
     using ftype    = typename OptionalTuple<ARGS...>::ftype;
 
     explicit TupleAs(Name&& name);

@@ -251,37 +251,37 @@ namespace tt {
   // Get Return types
   //
   template <typename T> struct return_type_impl {
-    using rtype = T;
+    using value_type = T;
   };
 
   template <typename T>
   struct return_type_impl<fhicl::Atom<T>>{
-    using rtype = typename fhicl::Atom<T>::rtype;
+    using value_type = typename fhicl::Atom<T>::value_type;
   };
 
   template <typename T, std::size_t SZ>
   struct return_type_impl<fhicl::Sequence<T,SZ>> {
-    using rtype = typename fhicl::Sequence<T,SZ>::rtype;
+    using value_type = typename fhicl::Sequence<T,SZ>::value_type;
   };
 
   template <typename S, typename KeysToIgnore>
   struct return_type_impl<fhicl::Table<S,KeysToIgnore>> {
-    using rtype = typename fhicl::Table<S,KeysToIgnore>::rtype;
+    using value_type = typename fhicl::Table<S,KeysToIgnore>::value_type;
   };
 
   template <typename... ARGS>
   struct return_type_impl<fhicl::Tuple<ARGS...>> {
-    using rtype = typename fhicl::Tuple<ARGS...>::rtype;
+    using value_type = typename fhicl::Tuple<ARGS...>::value_type;
   };
 
   template <typename T, typename... ARGS>
   struct return_type_impl<fhicl::TupleAs<T(ARGS...)>> {
-    using rtype = typename fhicl::TupleAs<T(ARGS...)>::rtype;
+    using value_type = typename fhicl::TupleAs<T(ARGS...)>::value_type;
   };
 
   // The alias
   template < typename... ARGS>
-  using return_type = typename return_type_impl<ARGS...>::rtype;
+  using return_type = typename return_type_impl<ARGS...>::value_type;
 
 }
 

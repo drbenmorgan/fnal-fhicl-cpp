@@ -34,17 +34,17 @@ namespace fhicl {
     static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
     using ftype = std::array<std::shared_ptr<tt::fhicl_type<T>>, N>;
-    using rtype = std::array<tt::return_type<T>, N>;
+    using value_type = std::array<tt::return_type<T>, N>;
 
     explicit OptionalSequence(Name&& name);
     explicit OptionalSequence(Name&& name, Comment&& comment);
     explicit OptionalSequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
-    bool operator()(rtype& t) const
+    bool operator()(value_type& t) const
     {
       if (!has_value_) return false;
 
-      rtype result = {tt::return_type<T>()};
+      value_type result = {tt::return_type<T>()};
       cet::transform_all(value_,
                          result.begin(),
                          [](auto const& elem){
@@ -97,17 +97,17 @@ namespace fhicl {
     static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
     using ftype = std::vector<std::shared_ptr<tt::fhicl_type<T>>>;
-    using rtype = std::vector<tt::return_type<T>>;
+    using value_type = std::vector<tt::return_type<T>>;
 
     explicit OptionalSequence(Name&& name);
     explicit OptionalSequence(Name&& name, Comment&& comment);
     explicit OptionalSequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
-    bool operator()(rtype& t) const {
+    bool operator()(value_type& t) const {
 
       if (!has_value_) return false;
 
-      rtype result;
+      value_type result;
       cet::transform_all(value_, std::back_inserter(result),
                          [](auto const& e){
                            return (*e)();

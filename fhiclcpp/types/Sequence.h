@@ -70,7 +70,7 @@ namespace fhicl {
 
     using default_type = sequence_detail::ValueHolder<typename tt::fhicl_type<T>::default_type>;
     using ftype = std::array<std::shared_ptr<tt::fhicl_type<T>>, N>;
-    using rtype = std::array<tt::return_type<T>, N>;
+    using value_type = std::array<tt::return_type<T>, N>;
 
     explicit Sequence(Name&& name);
     explicit Sequence(Name&& name, Comment&& comment);
@@ -83,7 +83,7 @@ namespace fhicl {
 
     auto operator()() const
     {
-      rtype result = {tt::return_type<T>()};
+      value_type result = {tt::return_type<T>()};
       cet::transform_all(value_,
                          result.begin(),
                          [](auto const& elem){
@@ -136,7 +136,7 @@ namespace fhicl {
 
     using default_type = std::vector<typename tt::fhicl_type<T>::default_type>;
     using ftype = std::vector<std::shared_ptr<tt::fhicl_type<T>>>;
-    using rtype = std::vector<tt::return_type<T>>;
+    using value_type = std::vector<tt::return_type<T>>;
 
     explicit Sequence(Name&& name);
     explicit Sequence(Name&& name, Comment&& comment);
@@ -148,7 +148,7 @@ namespace fhicl {
     explicit Sequence(Name&& name, Comment&& comment, std::function<bool()> maybeUse, default_type const& defaults);
 
     auto operator()() const {
-      rtype result;
+      value_type result;
       cet::transform_all(value_, std::back_inserter(result),
                          [](auto const& e){
                            return (*e)();

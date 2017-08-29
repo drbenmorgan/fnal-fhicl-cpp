@@ -58,7 +58,7 @@ namespace fhicl {
   public:
 
     using default_type = tuple_detail::ValueHolder<typename tt::fhicl_type<TYPES>::default_type...>;
-    using rtype = std::tuple<tt::return_type<TYPES>...>;
+    using value_type = std::tuple<tt::return_type<TYPES>...>;
     using ftype = std::tuple<std::shared_ptr<tt::fhicl_type<TYPES>>...>;
 
     explicit Tuple(Name&& name);
@@ -192,20 +192,20 @@ namespace fhicl {
 
     //===================================================================
     // filling return type
-    template <size_t I, typename rtype>
+    template <size_t I, typename value_type>
     std::enable_if_t<(I >= std::tuple_size<TUPLE>::value)>
-    fill_return_element(rtype&) const
+    fill_return_element(value_type&) const
     {}
 
-    template <size_t I, typename rtype>
+    template <size_t I, typename value_type>
     std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
-    fill_return_element(rtype& result) const
+    fill_return_element(value_type& result) const
     {
       std::get<I>(result) = (*std::get<I>(value_))();
       fill_return_element<I+1>(result);
     }
 
-    void assemble_rtype(rtype& result) const
+    void assemble_rtype(value_type& result) const
     {
       fill_return_element<0>(result);
     }
@@ -282,7 +282,7 @@ namespace fhicl {
   auto
   Tuple<TYPES...>::operator()() const
   {
-    rtype result;
+    value_type result;
     assemble_rtype(result);
     return result;
   }

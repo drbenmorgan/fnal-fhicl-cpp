@@ -49,7 +49,7 @@ namespace fhicl {
     bool hasValue() const { return has_value_; }
 
     // Expert-only
-    using rtype = T;
+    using value_type = T;
 
     OptionalAtom();
 

@@ -1525,7 +1525,7 @@ class Atom final : public  detail::AtomBase, private detail::RegisterIfTableMemb
 
 public:
 
-  + using dtype : T;
+  + using default_type : T;
   + using rtype : T;
 
   - value_ : shared_ptr<T> - THREADING -

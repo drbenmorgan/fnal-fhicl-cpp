@@ -64,7 +64,7 @@ namespace fhicl {
 
     //=====================================================
     // Expert-only
-    using dtype = T;
+    using default_type = T;
     using rtype = T;
 
   private:

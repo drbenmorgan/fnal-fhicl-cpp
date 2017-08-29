@@ -48,7 +48,7 @@ namespace fhicl {
     auto const& operator()() const { return *value_; }
 
     // Expert-only
-    using dtype = T;
+    using default_type = T;
     using rtype = T;
 
   private:

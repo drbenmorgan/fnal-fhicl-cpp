@@ -10,7 +10,7 @@ namespace fhicl {
   {}
 
   OptionalDelegatedParameter::OptionalDelegatedParameter(Name&& name, Comment&& comment)
-    : DelegateBase{std::move(name), std::move(comment), value_type::OPTIONAL, detail::AlwaysUse()}
+    : DelegateBase{std::move(name), std::move(comment), par_style::OPTIONAL, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     NameStackRegistry::end_of_ctor();
@@ -19,7 +19,7 @@ namespace fhicl {
   OptionalDelegatedParameter::OptionalDelegatedParameter(Name&& name,
                                                          Comment&& comment,
                                                          std::function<bool()> maybeUse)
-    : DelegateBase{std::move(name), std::move(comment), value_type::OPTIONAL_CONDITIONAL, maybeUse}
+    : DelegateBase{std::move(name), std::move(comment), par_style::OPTIONAL_CONDITIONAL, maybeUse}
     , RegisterIfTableMember{this}
   {
     NameStackRegistry::end_of_ctor();

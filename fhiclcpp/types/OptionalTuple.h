@@ -30,13 +30,13 @@ namespace fhicl {
   public:
 
     using ftype = std::tuple< std::shared_ptr< tt::fhicl_type<TYPES> >... >;
-    using rtype = std::tuple< tt::return_type<TYPES>... >;
+    using value_type = std::tuple< tt::return_type<TYPES>... >;
 
     explicit OptionalTuple(Name&& name);
     explicit OptionalTuple(Name&& name, Comment&& comment);
     explicit OptionalTuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
-    bool operator()(rtype&) const;
+    bool operator()(value_type&) const;
 
     bool hasValue() const { return has_value_; }
 
@@ -132,20 +132,20 @@ namespace fhicl {
 
     using TUPLE  = std::tuple<tt::fhicl_type<TYPES>...>;
 
-    template <size_t I, typename rtype>
+    template <size_t I, typename value_type>
     std::enable_if_t<(I >= std::tuple_size<TUPLE>::value)>
-    fill_return_element(rtype &) const
+    fill_return_element(value_type &) const
     {}
 
-    template <size_t I, typename rtype>
+    template <size_t I, typename value_type>
     std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
-    fill_return_element(rtype & result) const
+    fill_return_element(value_type & result) const
     {
       std::get<I>(result) = (*std::get<I>(value_))();
       fill_return_element<I+1>(result);
     }
 
-    void assemble_rtype(rtype & result) const
+    void assemble_rtype(value_type & result) const
     {
       fill_return_element<0>( result );
     }
@@ -171,7 +171,7 @@ namespace fhicl {
 
   template<typename ... TYPES>
   OptionalTuple<TYPES...>::OptionalTuple(Name&& name, Comment&& comment)
-    : SequenceBase{std::move(name), std::move(comment), value_type::OPTIONAL, par_type::TUPLE, detail::AlwaysUse()}
+    : SequenceBase{std::move(name), std::move(comment), par_style::OPTIONAL, par_type::TUPLE, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     finalize_elements(std::index_sequence_for<TYPES...>{});
@@ -180,7 +180,7 @@ namespace fhicl {
 
   template<typename ... TYPES>
   OptionalTuple<TYPES...>::OptionalTuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse)
-    : SequenceBase{std::move(name), std::move(comment), value_type::OPTIONAL_CONDITIONAL, par_type::TUPLE, maybeUse}
+    : SequenceBase{std::move(name), std::move(comment), par_style::OPTIONAL_CONDITIONAL, par_type::TUPLE, maybeUse}
     , RegisterIfTableMember{this}
   {
     finalize_elements(std::index_sequence_for<TYPES...>{});
@@ -189,10 +189,10 @@ namespace fhicl {
 
   template<typename ... TYPES>
   bool
-  OptionalTuple<TYPES...>::operator()(rtype& r) const
+  OptionalTuple<TYPES...>::operator()(value_type& r) const
   {
     if (!has_value_) return false;
-    rtype result;
+    value_type result;
     assemble_rtype(result);
     std::swap(result, r);
     return true;

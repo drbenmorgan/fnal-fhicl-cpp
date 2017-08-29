@@ -23,8 +23,8 @@ namespace {
 
   struct NestedConfig {
 
-    using Default_t = typename Val_t::dtype;
-    using DefaultElement_t = typename Val_t::dtype::value_type;
+    using Default_t = typename Val_t::default_type;
+    using DefaultElement_t = typename Val_t::default_type::value_type;
 
     explicit NestedConfig(Default_t defaultPars = {})
       : pars(Name("pars"), std::move(defaultPars))

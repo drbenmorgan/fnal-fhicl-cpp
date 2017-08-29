@@ -51,7 +51,7 @@ namespace fhicl {
 
       ParameterBase(Name const& name,
                     Comment const& comment,
-                    value_type const vt,
+                    par_style const vt,
                     par_type const type,
                     std::function<bool()> maybeUse = AlwaysUse())
         : mdata_{name, comment, vt, type}
@@ -65,7 +65,7 @@ namespace fhicl {
       {
         do_set_value(ps, trimParents);
       }
-      void set_value_type(value_type const vt) { mdata_.set_value_type(vt); }
+      void set_par_style(par_style const vt) { mdata_.set_par_style(vt); }
       void set_key(std::string const& key) { mdata_.set_key(key); }
 
     private:

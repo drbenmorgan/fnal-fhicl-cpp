@@ -30,14 +30,14 @@ namespace fhicl {
     explicit OptionalTupleAs(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
     template<std::size_t ...I>
-    T fill(typename OptionalTuple<ARGS...>::rtype const & via,
+    T fill(typename OptionalTuple<ARGS...>::value_type const & via,
            std::index_sequence<I...>) const
     {
       return T{std::get<I>(via)...};
     }
 
     bool operator()(T& result) const {
-      typename OptionalTuple<ARGS...>::rtype via;
+      typename OptionalTuple<ARGS...>::value_type via;
       if ( tupleObj_(via) ) {
         auto tmp = fill(via, std::index_sequence_for<ARGS...>{});
         std::swap(result, tmp);

@@ -57,8 +57,8 @@ namespace fhicl {
     private detail::RegisterIfTableMember {
   public:
 
-    using dtype = tuple_detail::ValueHolder<typename tt::fhicl_type<TYPES>::dtype...>;
-    using rtype = std::tuple<tt::return_type<TYPES>...>;
+    using default_type = tuple_detail::ValueHolder<typename tt::fhicl_type<TYPES>::default_type...>;
+    using value_type = std::tuple<tt::return_type<TYPES>...>;
     using ftype = std::tuple<std::shared_ptr<tt::fhicl_type<TYPES>>...>;
 
     explicit Tuple(Name&& name);
@@ -66,9 +66,9 @@ namespace fhicl {
     explicit Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
     // c'tors supporting defaults;
-    explicit Tuple(Name&& name, dtype const& defaults);
-    explicit Tuple(Name&& name, Comment&& comment, dtype const& defaults);
-    explicit Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults);
+    explicit Tuple(Name&& name, default_type const& defaults);
+    explicit Tuple(Name&& name, Comment&& comment, default_type const& defaults);
+    explicit Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse, default_type const& defaults);
 
     auto operator()() const;
 
@@ -169,12 +169,12 @@ namespace fhicl {
     // filling tuple elements from default
     template <size_t I>
     std::enable_if_t<(I >= std::tuple_size<TUPLE>::value)>
-    fill_tuple_element(dtype const&)
+    fill_tuple_element(default_type const&)
     {}
 
     template <size_t I>
     std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
-    fill_tuple_element(dtype const& defaults)
+    fill_tuple_element(default_type const& defaults)
     {
       using elem_utype = std::tuple_element_t<I,UTUPLE>;
       static_assert(!tt::is_table<elem_utype>::value, NO_DEFAULTS_FOR_TABLE);
@@ -185,27 +185,27 @@ namespace fhicl {
       fill_tuple_element<I+1>(defaults);
     }
 
-    void fill_tuple_elements(dtype const& default_values)
+    void fill_tuple_elements(default_type const& default_values)
     {
       fill_tuple_element<0>(default_values);
     }
 
     //===================================================================
     // filling return type
-    template <size_t I, typename rtype>
+    template <size_t I, typename value_type>
     std::enable_if_t<(I >= std::tuple_size<TUPLE>::value)>
-    fill_return_element(rtype&) const
+    fill_return_element(value_type&) const
     {}
 
-    template <size_t I, typename rtype>
+    template <size_t I, typename value_type>
     std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
-    fill_return_element(rtype& result) const
+    fill_return_element(value_type& result) const
     {
       std::get<I>(result) = (*std::get<I>(value_))();
       fill_return_element<I+1>(result);
     }
 
-    void assemble_rtype(rtype& result) const
+    void assemble_rtype(value_type& result) const
     {
       fill_return_element<0>(result);
     }
@@ -221,7 +221,7 @@ namespace fhicl {
     std::enable_if_t<(I < std::tuple_size<TUPLE>::value)>
     prepare_element_for_validation()
     {
-      std::get<I>(value_)->set_value_type(value_type::REQUIRED);
+      std::get<I>(value_)->set_par_style(par_style::REQUIRED);
       prepare_element_for_validation<I+1>();
     }
 
@@ -236,7 +236,7 @@ namespace fhicl {
 
   template <typename... TYPES>
   Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment)
-    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED, par_type::TUPLE, detail::AlwaysUse()}
+    : SequenceBase{std::move(name), std::move(comment), par_style::REQUIRED, par_type::TUPLE, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     finalize_elements(std::index_sequence_for<TYPES...>{});
@@ -245,7 +245,7 @@ namespace fhicl {
 
   template <typename... TYPES>
   Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse)
-    : SequenceBase{std::move(name), std::move(comment), value_type::REQUIRED_CONDITIONAL, par_type::TUPLE, maybeUse}
+    : SequenceBase{std::move(name), std::move(comment), par_style::REQUIRED_CONDITIONAL, par_type::TUPLE, maybeUse}
     , RegisterIfTableMember{this}
   {
     finalize_elements(std::index_sequence_for<TYPES...>{});
@@ -255,13 +255,13 @@ namespace fhicl {
   // c'tors supporting defaults
 
   template <typename... TYPES>
-  Tuple<TYPES...>::Tuple(Name&& name, dtype const& defaults)
+  Tuple<TYPES...>::Tuple(Name&& name, default_type const& defaults)
     : Tuple{std::move(name), Comment(""), defaults}
   {}
 
   template <typename... TYPES>
-  Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, dtype const& defaults)
-    : SequenceBase{std::move(name), std::move(comment), value_type::DEFAULT, par_type::TUPLE, detail::AlwaysUse()}
+  Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, default_type const& defaults)
+    : SequenceBase{std::move(name), std::move(comment), par_style::DEFAULT, par_type::TUPLE, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     fill_tuple_elements(defaults);
@@ -270,8 +270,8 @@ namespace fhicl {
 
 
   template <typename... TYPES>
-  Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse, dtype const& defaults)
-    : SequenceBase{std::move(name), std::move(comment), value_type::DEFAULT_CONDITIONAL, par_type::TUPLE, maybeUse}
+  Tuple<TYPES...>::Tuple(Name&& name, Comment&& comment, std::function<bool()> maybeUse, default_type const& defaults)
+    : SequenceBase{std::move(name), std::move(comment), par_style::DEFAULT_CONDITIONAL, par_type::TUPLE, maybeUse}
     , RegisterIfTableMember{this}
   {
     fill_tuple_elements(defaults);
@@ -282,7 +282,7 @@ namespace fhicl {
   auto
   Tuple<TYPES...>::operator()() const
   {
-    rtype result;
+    value_type result;
     assemble_rtype(result);
     return result;
   }

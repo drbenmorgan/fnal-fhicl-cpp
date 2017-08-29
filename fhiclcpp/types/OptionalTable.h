@@ -60,7 +60,7 @@ namespace fhicl {
 
     //=====================================================
     // Expert-only
-    using rtype = T;
+    using value_type = T;
 
     OptionalTable();
 

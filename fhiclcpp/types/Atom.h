@@ -48,8 +48,8 @@ namespace fhicl {
     auto const& operator()() const { return *value_; }
 
     // Expert-only
-    using dtype = T;
-    using rtype = T;
+    using default_type = T;
+    using value_type = T;
 
   private:
     std::shared_ptr<T> value_;

@@ -23,6 +23,8 @@ namespace fhicl {
     explicit OptionalDelegatedParameter(Name&& name, Comment&& comment);
     explicit OptionalDelegatedParameter(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
 
+    bool hasValue() const { return pset_.has_key(detail::strip_first_containing_name(key())); }
+
     template <typename T>
     bool get_if_present(T& t) const
     {

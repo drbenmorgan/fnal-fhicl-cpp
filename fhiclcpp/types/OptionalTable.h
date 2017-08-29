@@ -48,6 +48,8 @@ namespace fhicl {
       return false;
     }
 
+    bool hasValue() const { return has_value_; }
+
     ParameterSet const & get_PSet() const { return pset_; }
 
     void validate_ParameterSet(ParameterSet const& pset,

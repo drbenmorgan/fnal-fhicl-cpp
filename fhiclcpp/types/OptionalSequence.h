@@ -55,6 +55,8 @@ namespace fhicl {
       return true;
     }
 
+    bool hasValue() const { return has_value_; }
+
   private:
 
     ftype value_;

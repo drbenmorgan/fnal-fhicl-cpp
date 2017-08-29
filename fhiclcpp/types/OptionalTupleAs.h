@@ -46,6 +46,8 @@ namespace fhicl {
       return false;
     }
 
+    bool hasValue() const { return tupleObj_.hasValue(); }
+
   private:
 
     OptionalTuple<ARGS...> tupleObj_;

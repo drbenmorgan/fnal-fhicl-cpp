@@ -38,6 +38,8 @@ namespace fhicl {
 
     bool operator()(rtype&) const;
 
+    bool hasValue() const { return has_value_; }
+
   private:
 
     ftype value_;

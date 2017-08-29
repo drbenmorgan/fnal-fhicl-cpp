@@ -46,6 +46,8 @@ namespace fhicl {
       return false;
     }
 
+    bool hasValue() const { return has_value_; }
+
     // Expert-only
     using rtype = T;
 

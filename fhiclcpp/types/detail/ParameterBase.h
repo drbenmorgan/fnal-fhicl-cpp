@@ -7,21 +7,21 @@
 
 
           ParameterBase
-         /      |    \ \_____________________________________
-        /       |     \____________________                  \
-       /        |                          \                  \
-      /         |                           \                  \
-  AtomBase   TableBase                  SequenceBase      DelegateBase
-     |          |                      /     |      \            \___
-     |          |                     /      |       \            \  \
-     |          |        SeqVectorBase       |        \            \  DelegatedParameter
-     |          |              |             |         \            \___
-     |          |              |             |          \               \
-  Atom<T>    Table<T>     Sequence<T>   Sequence<T,SZ>   Tuple<T...>  OptionalDelegatedParameter
+         /      |    \ \____________________________________
+        /       |     \___________________                  \
+       /        |                         \                  \
+      /         |                          \                  \
+  AtomBase   TableBase                  SequenceBase         DelegateBase
+     |          |                      /      |     \             \
+     |          |                     /       |      \             \
+  Atom<T>    Table<T>   Sequence<T,SZ>  Sequence<T>   Tuple<T...>  DelegatedParameter
 
 
-  The design is meant to closely follow the classification of FHiCL
-  values, as described in the FHiCL language quick start guide.
+  All concrete Optional* fhiclcpp types also inherit from the
+  corresponding base classes (e.g. OptionalAtom<T> inherits from
+  AtomBase, not OptionalAtomBase).  The design is meant to closely
+  follow the classification of FHiCL values, as described in the FHiCL
+  language quick start guide.
 */
 
 #include "fhiclcpp/types/ConfigPredicate.h"

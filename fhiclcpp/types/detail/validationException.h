@@ -12,9 +12,8 @@ namespace fhicl {
     class validationException : public std::exception {
     public:
 
-      validationException(const char* msg) : msg_(msg) {}
-
-      const char* what() const noexcept override { return msg_.c_str(); }
+      validationException(std::string msg) : msg_{std::move(msg)} {}
+      char const* what() const noexcept override { return msg_.c_str(); }
 
     private:
       std::string msg_;

@@ -48,7 +48,7 @@ namespace fhicl {
     };
     Table<BoxParameters> boxParams { Name("parameters"),
         Comment("Used if \"shape: box\"."),
-        [this](){ return shape() == "box"; } };
+        MaybeUseFunction([this](){ return shape() == "box"; }) };
 
 
     struct SphereParameters {
@@ -56,7 +56,7 @@ namespace fhicl {
     };
     Table<SphereParameters> sphereParams { Name("parameters"),
         Comment("Used if \"shape: sphere\"."),
-        [this](){ return shape() == "sphere"; } };
+        MaybeUseFunction([this](){ return shape() == "sphere"; }) };
 
   };
 

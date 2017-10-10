@@ -9,6 +9,7 @@
 #include "fhiclcpp/types/detail/TableMemberRegistry.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
+#include "fhiclcpp/types/detail/check_nargs_for_bounded_sequences.h"
 #include "fhiclcpp/type_traits.h"
 
 #include <string>
@@ -66,6 +67,11 @@ namespace fhicl {
     void iterate_over_tuple(PW_non_const& pw, std::index_sequence<I...>)
     {
       visit_element(pw, std::get<I>(value_)...);
+    }
+
+    void do_prepare_elements_for_validation(std::size_t const n) override
+    {
+      detail::check_nargs_for_bounded_sequences(key(), get_size(), n);
     }
 
     void do_walk_elements(PW_non_const& pw) override

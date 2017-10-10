@@ -1,4 +1,4 @@
-parent fhiclcpp v4_05_00
+parent fhiclcpp v4_06_01
 defaultqual e14
 #
 fcldir -
@@ -10,10 +10,10 @@ table_fragment_end
 #
 # define product/version pairs
 product		version
-cetlib		v3_00_00
+cetlib		v3_01_01
 python          v2_7_13d
 
-cetbuildtools	v5_08_00	-	only_for_build
+cetbuildtools	v5_13_01	-	only_for_build
 end_product_list
 
 
@@ -22,12 +22,6 @@ qualifier	cetlib		python compiler	notes
 e14:debug	e14:debug	-nq-   gcc
 e14:opt		e14:opt		-nq-   gcc
 e14:prof	e14:prof	-nq-   gcc
-e12:debug	e12:debug	-nq-   gcc
-e12:opt		e12:opt		-nq-   gcc
-e12:prof	e12:prof	-nq-   gcc
-e10:debug	e10:debug	-nq-   gcc
-e10:opt		e10:opt		-nq-   gcc
-e10:prof	e10:prof	-nq-   gcc
 end_qualifier_list
 
 # Local Variables:

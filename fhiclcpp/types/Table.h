@@ -3,6 +3,7 @@
 
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/types/Comment.h"
+#include "fhiclcpp/types/MaybeUseFunction.h"
 #include "fhiclcpp/types/Name.h"
 #include "fhiclcpp/types/ConfigPredicate.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
@@ -35,9 +36,12 @@ namespace fhicl {
     //=====================================================
     // User-friendly
     // ... c'tors
-    explicit Table(Name&& name);
-    explicit Table(Name&& name, Comment&& comment);
-    explicit Table(Name&& name, Comment&& comment, std::function<bool()> maybeUse);
+    template <typename... TCARGS>
+      explicit Table(Name&& name, TCARGS && ... tcargs);
+    template <typename... TCARGS>
+      explicit Table(Name&& name, Comment&& comment, TCARGS && ... tcargs);
+    template <typename... TCARGS>
+      explicit Table(Name&& name, Comment&& comment, MaybeUseFunction maybeUse, TCARGS && ... tcargs);
 
     // Choose this c'tor if user specifies the second 'KeysToIgnore' template argument.
     template <typename K = KeysToIgnore, typename = std::enable_if_t<tt::is_callable<K>::value>>

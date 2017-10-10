@@ -10,8 +10,7 @@
 #include "fhiclcpp/types/detail/ParameterMetadata.h"
 #include "fhiclcpp/types/detail/ParameterWalker.h"
 #include "fhiclcpp/types/detail/SequenceBase.h"
-#include "fhiclcpp/types/detail/ostream_helpers.h"
-#include "fhiclcpp/types/detail/SeqVectorBase.h"
+#include "fhiclcpp/types/detail/check_nargs_for_bounded_sequences.h"
 
 #include <array>
 #include <initializer_list>
@@ -59,9 +58,9 @@ namespace fhicl {
   //==================================================================
   // e.g. Sequence<int,4> ====> std::array<int,4>
   //
-  template<typename T, std::size_t N = -1ull>
+  template <typename T, std::size_t N = -1ull>
   class Sequence final :
-    public  detail::SequenceBase,
+    public detail::SequenceBase,
     private detail::RegisterIfTableMember {
   public:
 
@@ -84,12 +83,12 @@ namespace fhicl {
 
     auto operator()() const
     {
-      rtype result = { tt::return_type<T>() };
+      rtype result = {tt::return_type<T>()};
       cet::transform_all(value_,
                          result.begin(),
                          [](auto const& elem){
                            return (*elem)();
-                         } );
+                         });
       return result;
     }
 
@@ -103,14 +102,19 @@ namespace fhicl {
 
     std::size_t get_size() const override { return value_.size(); }
 
+    void do_prepare_elements_for_validation(std::size_t const n) override
+    {
+      detail::check_nargs_for_bounded_sequences(key(), get_size(), n);
+    }
+
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_non_const>& pw) override
     {
-      cet::for_all(value_, [&pw](auto& e){ pw.walk_over(*e); } );
+      cet::for_all(value_, [&pw](auto& e){ pw.walk_over(*e); });
     }
 
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_const>& pw) const override
     {
-      cet::for_all(value_, [&pw](auto const& e){ pw.walk_over(*e); } );
+      cet::for_all(value_, [&pw](auto const& e){ pw.walk_over(*e); });
     }
 
     void do_set_value(fhicl::ParameterSet const&, bool /*trimParents*/) override {}
@@ -120,19 +124,19 @@ namespace fhicl {
   //==================================================================
   // e.g. Sequence<int> ====> std::vector<int>
   //
-  template<typename T>
+  template <typename T>
   class Sequence<T,-1ull> final :
-    public  detail::SeqVectorBase,
+    public detail::SequenceBase,
     private detail::RegisterIfTableMember {
   public:
 
-    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS );
-    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES );
+    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS);
+    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES);
     static_assert(!tt::is_delegated_parameter<T>::value, NO_DELEGATED_PARAMETERS);
 
-    using dtype = std::vector< typename tt::fhicl_type<T>::dtype >;
-    using ftype = std::vector< std::shared_ptr<tt::fhicl_type<T>> >;
-    using rtype = std::vector< tt::return_type<T> >;
+    using dtype = std::vector<typename tt::fhicl_type<T>::dtype>;
+    using ftype = std::vector<std::shared_ptr<tt::fhicl_type<T>>>;
+    using rtype = std::vector<tt::return_type<T>>;
 
     explicit Sequence(Name&& name);
     explicit Sequence(Name&& name, Comment&& comment);
@@ -148,7 +152,7 @@ namespace fhicl {
       cet::transform_all(value_, std::back_inserter(result),
                          [](auto const& e){
                            return (*e)();
-                         } );
+                         });
       return result;
     }
 
@@ -160,15 +164,15 @@ namespace fhicl {
 
     ftype value_;
 
-    // To be used only for reassigning keys when ParameterSet
-    // validation is being performed.
-    void do_resize_sequence(std::size_t n) override
+    void do_prepare_elements_for_validation(std::size_t const n) override
     {
+      // For an unbounded sequence, we need to resize it so that any
+      // nested parameters of the elements can be checked.
       if (n < value_.size()) {
         value_.resize(n);
       }
       else if (n > value_.size()) {
-        std::string key_fragment {key()};
+        std::string key_fragment{key()};
         // When emplacing a new element, do not include in the key
         // argument the current name-stack stem--it will automatically
         // be prepended.
@@ -183,7 +187,7 @@ namespace fhicl {
         }
 
         for (auto i = value_.size(); i != n; ++i) {
-          value_.emplace_back(new tt::fhicl_type<T>{ Name::sequence_element(key_fragment, i) });
+          value_.emplace_back(new tt::fhicl_type<T>{Name::sequence_element(key_fragment, i)});
         }
       }
     }
@@ -192,12 +196,12 @@ namespace fhicl {
 
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_non_const>& pw) override
     {
-      cet::for_all(value_, [&pw](auto& e){ pw.walk_over(*e); } );
+      cet::for_all(value_, [&pw](auto& e){ pw.walk_over(*e); });
     }
 
     void do_walk_elements(detail::ParameterWalker<tt::const_flavor::require_const>& pw) const override
     {
-      cet::for_all(value_, [&pw](auto const& e){ pw.walk_over(*e); } );
+      cet::for_all(value_, [&pw](auto const& e){ pw.walk_over(*e); });
     }
 
     void do_set_value(fhicl::ParameterSet const&, bool /*trimParents*/) override {}

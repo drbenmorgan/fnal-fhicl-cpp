@@ -36,10 +36,8 @@ cet_test(get_sequence_elements_t USE_BOOST_UNIT
 cet_test(equalTest USE_BOOST_UNIT)
 cet_test(failer DATAFILES test_config_fail.fcl)
 cet_test(fhicl-config_t NO_AUTO)
-
 cet_test(fhicl-expand_test.sh HANDBUILT TEST_EXEC fhicl-expand_test.sh)
 cet_test(fhicl-expand_test_path.sh HANDBUILT TEST_EXEC fhicl-expand_test_path.sh)
-
 cet_test(issue_0923_t.sh HANDBUILT TEST_EXEC issue_0923_t.sh
   DATAFILES
   issue_0923a.fcl

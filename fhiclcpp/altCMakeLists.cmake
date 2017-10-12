@@ -35,6 +35,7 @@ set(fhiclcpp_SOURCES
   stdmap_shims.h
   tokens.h
   type_traits.h
+  # Detail
   detail/Indentation.h
   detail/KeyAssembler.cc
   detail/KeyAssembler.h
@@ -52,12 +53,15 @@ set(fhiclcpp_SOURCES
   detail/printing_helpers.cc
   detail/printing_helpers.h
   detail/try_blocks.h
+  types/AllowedConfigurationMacro.h
   types/Atom.h
   types/Comment.h
   types/ConfigPredicate.h
+  types/ConfigurationTable.h
   types/DelegatedParameter.cc
   types/DelegatedParameter.h
   types/KeysToIgnore.h
+  types/MaybeUseFunction.h
   types/Name.cc
   types/Name.h
   types/OptionalAtom.h
@@ -90,7 +94,6 @@ set(fhiclcpp_SOURCES
   types/detail/PrintAllowedConfiguration.h
   types/detail/SearchAllowedConfiguration.cc
   types/detail/SearchAllowedConfiguration.h
-  types/detail/SeqVectorBase.h
   types/detail/Sequence.icc
   types/detail/SequenceBase.h
   types/detail/Table.icc
@@ -98,6 +101,8 @@ set(fhiclcpp_SOURCES
   types/detail/TableMemberRegistry.h
   types/detail/ValidateThenSet.cc
   types/detail/ValidateThenSet.h
+  types/detail/check_nargs_for_bounded_sequences.cc
+  types/detail/check_nargs_for_bounded_sequences.h
   types/detail/optional_parameter_message.h
   types/detail/ostream_helpers.cc
   types/detail/ostream_helpers.h
@@ -110,8 +115,9 @@ set(fhiclcpp_SOURCES
 # - Set target sources. Done in one go here for clarity and
 # simplicity, but note how we could recurse into/include
 # subdirs and add sources step by step.
-# NB: ANother alternative is to build each sudbir as an OBJECT
-# library, then group.
+# NB: Another alternative is to build each sudbir as an OBJECT
+# library, then group (but have to set target_XXX on each object
+# lib).
 target_sources(fhiclcpp PRIVATE ${fhiclcpp_SOURCES})
 target_sources(fhiclcpp-static PRIVATE ${fhiclcpp_SOURCES})
 

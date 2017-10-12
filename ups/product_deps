@@ -11,9 +11,9 @@ table_fragment_end
 # define product/version pairs
 product		version
 cetlib		v3_01_01
-python          v2_7_13d
+python          v2_7_14
 
-cetbuildtools	v5_13_01	-	only_for_build
+cetbuildtools	v5_14_03	-	only_for_build
 end_product_list
 
 

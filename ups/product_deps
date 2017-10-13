@@ -22,6 +22,9 @@ qualifier	cetlib		python compiler	notes
 e14:debug	e14:debug	-nq-   gcc
 e14:opt		e14:opt		-nq-   gcc
 e14:prof	e14:prof	-nq-   gcc
+e15:debug	e15:debug	-nq-   gcc
+e15:opt		e15:opt		-nq-   gcc
+e15:prof	e15:prof	-nq-   gcc
 end_qualifier_list
 
 # Local Variables:

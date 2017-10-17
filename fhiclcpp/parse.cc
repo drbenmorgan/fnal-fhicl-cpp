@@ -806,66 +806,55 @@ fhicl::parse_value_string(std::string const& s,
 
 // ----------------------------------------------------------------------
 
+namespace {
+  void
+  parse_document_(cet::includer s,
+                  intermediate_table& result) {
+    using namespace std::string_literals;
+    typedef cet::includer::const_iterator  iter_t;
+    typedef qi::rule<iter_t>  ws_t;
+    ws_t whitespace = space
+                       | lit('#')  >> *(char_ - eol) >> eol
+                       | lit("//") >> *(char_ - eol) >> eol;
+    document_parser<iter_t, ws_t> p(s);
+    iter_t                        begin = s.begin();
+    iter_t const                  end  =  s.end();
+    bool b = false;
+    try {
+      b =  qi::phrase_parse(begin, end, p, whitespace);
+    }
+    catch (qi::expectation_failure<iter_t> const& e) {
+      begin = e.first;
+    }
+    std::string unparsed(begin, end);
+    if (b && unparsed.empty()) {
+      result = p.tbl;
+    } else {
+      auto e = fhicl::exception(fhicl::parse_error, "detected at or near")
+               << s.highlighted_whereis(begin)
+               << "\n";
+      if (unparsed.find("BEGIN_PROLOG"s) == 0ull) {
+        e << "PROLOG blocks must be both contiguous and not nested.\n";
+      }
+      throw e;
+    }
+  }
+}
+
 void
 fhicl::parse_document(std::string const&  filename,
                       cet::filepath_maker& maker,
                       intermediate_table& result)
 {
-  cet::includer s(filename, maker);
-  typedef  cet::includer::const_iterator  iter_t;
-  typedef  qi::rule<iter_t>  ws_t;
-  ws_t  whitespace = space
-    | lit('#')  >> *(char_ - eol) >> eol
-    | lit("//") >> *(char_ - eol) >> eol;
-  document_parser<iter_t, ws_t> p(s);
-  iter_t                        begin = s.begin();
-  iter_t const                  end  =  s.end();
-  bool b = false;
-  try {
-    b =  qi::phrase_parse(begin, end, p, whitespace);
-  }
-  catch (qi::expectation_failure<iter_t> const& e) {
-    begin = e.first;
-  }
-  std::string unparsed(begin, end);
-  if (b && unparsed.empty())
-    { result = p.tbl; }
-  else
-    throw fhicl::exception(fhicl::parse_error, "detected at or near")
-      << s.highlighted_whereis(begin)
-      << "\n";
+  parse_document_(cet::includer(filename, maker), result);
 }  // parse_document()
-
-// ----------------------------------------------------------------------
 
 void
 fhicl::parse_document(std::istream& is,
                       cet::filepath_maker& maker,
                       intermediate_table& result)
 {
-  cet::includer s(is, maker);
-  typedef  cet::includer::const_iterator  iter_t;
-  typedef  qi::rule<iter_t>  ws_t;
-  ws_t  whitespace = space
-                     | lit('#')  >> *(char_ - eol) >> eol
-                     | lit("//") >> *(char_ - eol) >> eol;
-  document_parser<iter_t, ws_t> p(s);
-  iter_t                        begin = s.begin();
-  iter_t const                  end  =  s.end();
-  bool b = false;
-  try {
-    b =  qi::phrase_parse(begin, end, p, whitespace);
-  }
-  catch (qi::expectation_failure<iter_t> const& e) {
-    begin = e.first;
-  }
-  std::string unparsed(begin, end);
-  if (b && unparsed.empty())
-  { result = p.tbl; }
-  else
-    throw fhicl::exception(fhicl::parse_error, "detected at or near")
-        << s.highlighted_whereis(begin)
-        << "\n";
+  parse_document_(cet::includer(is, maker), result);
 }  // parse_document()
 
 // ======================================================================

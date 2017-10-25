@@ -19,12 +19,13 @@ using namespace std;
 using namespace string_literals;
 
 namespace {
-  using Val_t = Tuple<string, Sequence<string> >;
+  using Val_t = Tuple<string, Sequence<string>>;
   struct Config {
-    Val_t pars {Name("pars")};
+    Val_t pars{Name("pars")};
   };
 
-  Table<Config> validateConfig(std::string const & cfg)
+  Table<Config>
+  validateConfig(std::string const& cfg)
   {
     ParameterSet ps;
     make_ParameterSet(cfg, ps);
@@ -34,14 +35,14 @@ namespace {
   }
 }
 
-BOOST_AUTO_TEST_SUITE (Nested_Validation)
+BOOST_AUTO_TEST_SUITE(Nested_Validation)
 
 BOOST_AUTO_TEST_CASE(GoodTuple)
 {
   string const good{"pars: [X, [Y, Z]]"s};
   std::vector<std::string> const ref{"Y"s, "Z"s};
   auto validatedConfig = validateConfig(good);
-  auto const & pars = validatedConfig().pars();
+  auto const& pars = validatedConfig().pars();
   BOOST_TEST_REQUIRE(std::get<0>(pars) == "X"s);
   BOOST_TEST_REQUIRE(std::get<1>(pars) == ref);
 }

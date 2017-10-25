@@ -13,7 +13,6 @@ namespace fhicl {
     //========================================================
     class TableBase : public ParameterBase {
     public:
-
       TableBase(Name const& name,
                 Comment const& comment,
                 par_style const vt,
@@ -21,17 +20,16 @@ namespace fhicl {
         : ParameterBase{name, comment, vt, par_type::TABLE, maybeUse}
       {}
 
-      std::vector<cet::exempt_ptr<ParameterBase>> const& members() const
+      std::vector<cet::exempt_ptr<ParameterBase>> const&
+      members() const
       {
         return get_members();
       }
 
     private:
-
-      virtual std::vector<cet::exempt_ptr<ParameterBase>> const& get_members() const = 0;
-
+      virtual std::vector<cet::exempt_ptr<ParameterBase>> const& get_members()
+        const = 0;
     };
-
   }
 }
 

@@ -16,13 +16,13 @@
 
 using namespace fhicl;
 
-typedef  intermediate_table::atom_t          atom_t;
-typedef  intermediate_table::complex_t       complex_t;
-typedef  intermediate_table::sequence_t      sequence_t;
-typedef  intermediate_table::table_t         table_t;
+typedef intermediate_table::atom_t atom_t;
+typedef intermediate_table::complex_t complex_t;
+typedef intermediate_table::sequence_t sequence_t;
+typedef intermediate_table::table_t table_t;
 
-typedef  intermediate_table::iterator        iterator;
-typedef  intermediate_table::const_iterator  const_iterator;
+typedef intermediate_table::iterator iterator;
+typedef intermediate_table::const_iterator const_iterator;
 
 // ----------------------------------------------------------------------
 namespace {
@@ -50,39 +50,43 @@ namespace {
 
 // ----------------------------------------------------------------------
 
-intermediate_table::intermediate_table()
-  : ex_val(false, TABLE, table_t())
-{ }
+intermediate_table::intermediate_table() : ex_val(false, TABLE, table_t()) {}
 
 // ----------------------------------------------------------------------
 
 const_iterator
 intermediate_table::begin() const
-{ return boost::any_cast<table_t const&>(ex_val.value).begin(); }
+{
+  return boost::any_cast<table_t const&>(ex_val.value).begin();
+}
 
 const_iterator
 intermediate_table::end() const
-{ return boost::any_cast<table_t const&>(ex_val.value).end(); }
+{
+  return boost::any_cast<table_t const&>(ex_val.value).end();
+}
 
 // ----------------------------------------------------------------------
 
 bool
 intermediate_table::empty() const
-{ return boost::any_cast<table_t const&>(ex_val.value).empty(); }
+{
+  return boost::any_cast<table_t const&>(ex_val.value).empty();
+}
 
 // ----------------------------------------------------------------------
 
 bool
-intermediate_table::insert(std::string const& name
-                           , bool                in_prolog
-                           , value_tag           tag
-                           , boost::any const& value
-                           )
-{ return insert(name, extended_value(in_prolog, tag, value)); }
+intermediate_table::insert(std::string const& name,
+                           bool in_prolog,
+                           value_tag tag,
+                           boost::any const& value)
+{
+  return insert(name, extended_value(in_prolog, tag, value));
+}
 
 bool
-intermediate_table::insert(std::string const& name,
-                           extended_value const& value)
+intermediate_table::insert(std::string const& name, extended_value const& value)
 {
   auto found_val = pre_insert_(name, value);
   bool result = (found_val != nullptr);
@@ -93,8 +97,7 @@ intermediate_table::insert(std::string const& name,
 }
 
 bool
-intermediate_table::insert(std::string const& name,
-                           extended_value&& value)
+intermediate_table::insert(std::string const& name, extended_value&& value)
 {
   auto found_val = pre_insert_(name, value);
   bool result = (found_val != nullptr);
@@ -124,24 +127,21 @@ intermediate_table::find(std::string const& name) const
       sequence_t const& s = boost::any_cast<sequence_t const&>(p->value);
       unsigned i = std::atoi(this_key.c_str());
       if (s.size() <= i)
-        throw exception(cant_find, name)
-          << "(at part \"" << this_key << "\")";
+        throw exception(cant_find, name) << "(at part \"" << this_key << "\")";
       p = &s[i];
-    }
-    else { /* this_key[0] is alpha or '_' */
+    } else { /* this_key[0] is alpha or '_' */
       if (!p->is_a(TABLE))
         throw exception(cant_find, name)
           << "-- not a table (at part \"" << this_key << "\")";
       table_t const& t = boost::any_cast<table_t const&>(p->value);
       const_iterator it = t.find(this_key);
       if (it == t.end())
-        throw exception(cant_find, name)
-          << "(at part \"" << this_key << "\")";
+        throw exception(cant_find, name) << "(at part \"" << this_key << "\")";
       p = &it->second;
     }
-  }  // for
+  } // for
   return *p;
-}  // find()
+} // find()
 
 // ----------------------------------------------------------------------
 
@@ -155,30 +155,32 @@ intermediate_table::exists(std::string const& name) const
     if (this_key.empty())
       ;
     else if (std::isdigit(this_key[0])) {
-      if (!p->is_a(SEQUENCE))
-        { return false; }
+      if (!p->is_a(SEQUENCE)) {
+        return false;
+      }
       sequence_t const& s = boost::any_cast<sequence_t const&>(p->value);
       unsigned i = std::atoi(this_key.c_str());
-      if (s.size() <= i)
-        { return false; }
+      if (s.size() <= i) {
+        return false;
+      }
       p = &s[i];
-    }
-    else { /* this_key[0] is alpha or '_' */
-      if (!p->is_a(TABLE))
-        { return false; }
+    } else { /* this_key[0] is alpha or '_' */
+      if (!p->is_a(TABLE)) {
+        return false;
+      }
       table_t const& t = boost::any_cast<table_t const&>(p->value);
       const_iterator it = t.find(this_key);
-      if (it == t.end())
-        { return false; }
+      if (it == t.end()) {
+        return false;
+      }
       p = &it->second;
     }
-  }  // for
+  } // for
   return true;
-}  // exists()
+} // exists()
 
 void
-intermediate_table::erase(std::string const& name,
-                          bool in_prolog)
+intermediate_table::erase(std::string const& name, bool in_prolog)
 {
   // A missing part of the "a.b.c.d" chain will not cause an error; it
   // is an error for an intermediate link in the chain *not* to be a
@@ -206,8 +208,7 @@ intermediate_table::erase(std::string const& name,
       }
       p = &s[i];
       at_sequence = true;
-    }
-    else { /* this_key[0] is alpha or '_' */
+    } else { /* this_key[0] is alpha or '_' */
       if (!p->is_a(TABLE))
         throw exception(cant_find, name)
           << "-- not a table (at part \"" << this_key << "\")";
@@ -221,20 +222,16 @@ intermediate_table::erase(std::string const& name,
       auto prot = p->protection;
       if (prot == Protection::PROTECT_ERROR) {
         throw exception(protection_violation)
-          << ((this_key != name) ?
-              (std::string("Part \"") +
-               this_key +
-               "\" of specification to be erased\n") : "")
-          << '"'
-          << name
-          << "\" is protected on "
-          << p->pretty_src_info()
+          << ((this_key != name) ? (std::string("Part \"") + this_key +
+                                    "\" of specification to be erased\n") :
+                                   "")
+          << '"' << name << "\" is protected on " << p->pretty_src_info()
           << '\n';
       } else if (prot == Protection::PROTECT_IGNORE) {
         return;
       }
     }
-  }  // for
+  } // for
   if (at_sequence) {
     throw fhicl::exception(unimplemented, "erase sequence member");
   }
@@ -247,22 +244,20 @@ extended_value*
 intermediate_table::pre_insert_(std::string const& name,
                                 extended_value const& value)
 {
-  if (!value.in_prolog)  {
+  if (!value.in_prolog) {
     table_t& t = boost::any_cast<table_t&>(ex_val.value);
     std::vector<std::string> const& key = split(name);
     iterator it = t.find(key[0]);
-    if (it != t.end() && it->second.in_prolog)
-      { t.erase(it); }
+    if (it != t.end() && it->second.in_prolog) {
+      t.erase(it);
+    }
   }
   auto located = locate_(name);
   if ((!located.first->is_a(NIL)) &&
       value.protection > located.first->protection) {
     throw exception(protection_violation)
-      << '"'
-      << name
-      << "\" cannot be assigned with increased protection"
-      << "\n(previous definition on "
-      << (located.first)->pretty_src_info()
+      << '"' << name << "\" cannot be assigned with increased protection"
+      << "\n(previous definition on " << (located.first)->pretty_src_info()
       << ")\n";
   }
   return located.second ? located.first : nullptr;
@@ -280,20 +275,22 @@ intermediate_table::locate_(std::string const& name)
     if (this_key.empty())
       ;
     else if (std::isdigit(this_key[0])) {
-      if (p->is_a(NIL))
-        { *p = empty_seq(); }
+      if (p->is_a(NIL)) {
+        *p = empty_seq();
+      }
       if (!p->is_a(SEQUENCE))
         throw exception(cant_find, name)
           << "-- not a sequence (at part \"" << this_key << "\")";
       auto& s = boost::any_cast<sequence_t&>(p->value);
       unsigned i = std::atoi(this_key.c_str());
-      while (s.size() <= i)
-        { s.push_back(nil_item()); }
+      while (s.size() <= i) {
+        s.push_back(nil_item());
+      }
       p = &s[i];
-    }
-    else { /* this_key[0] is alpha or '_' */
-      if (p->is_a(NIL))
-        { *p = empty_tbl(); }
+    } else { /* this_key[0] is alpha or '_' */
+      if (p->is_a(NIL)) {
+        *p = empty_tbl();
+      }
       if (!p->is_a(TABLE))
         throw exception(cant_find, name)
           << "-- not a table (at part \"" << this_key << "\")";
@@ -305,33 +302,28 @@ intermediate_table::locate_(std::string const& name)
     auto prot = p->protection;
     if (prot == Protection::PROTECT_ERROR) {
       throw exception(protection_violation)
-        << ((this_key != name) ?
-            (std::string("Part \"") +
-             this_key +
-             "\" of specification to be overwritten\n") : "")
-        << '"'
-        << name
-        << "\" is protected on "
-        << p->pretty_src_info()
-        << '\n';
+        << ((this_key != name) ? (std::string("Part \"") + this_key +
+                                  "\" of specification to be overwritten\n") :
+                                 "")
+        << '"' << name << "\" is protected on " << p->pretty_src_info() << '\n';
     } else if (prot == Protection::PROTECT_IGNORE) {
       result.second = false;
       // Keep going since we might need definition location information
       // for specified item upstream.
     }
-  }  // for
+  } // for
   return result;
-}  // locate_()
+} // locate_()
 
 std::vector<std::string>
 intermediate_table::split(std::string const& name) const
 {
   std::vector<std::string> result;
-  boost::algorithm::split(result,
-                          name,
-                          boost::algorithm::is_any_of(shims::isSnippetMode()?"[]":".[]"));
+  boost::algorithm::split(
+    result,
+    name,
+    boost::algorithm::is_any_of(shims::isSnippetMode() ? "[]" : ".[]"));
   return result;
 }
-
 
 // ======================================================================

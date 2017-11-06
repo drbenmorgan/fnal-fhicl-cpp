@@ -13,7 +13,7 @@ product		version
 cetlib		v3_01_02
 python          v2_7_14
 
-cetbuildtools	v6_00_00	-	only_for_build
+cetbuildtools	v6_00_01	-	only_for_build
 end_product_list
 
 

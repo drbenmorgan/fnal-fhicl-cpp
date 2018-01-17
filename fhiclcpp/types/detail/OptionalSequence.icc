@@ -16,7 +16,7 @@ namespace fhicl {
                                           Comment&& comment)
     : SequenceBase{std::move(name), std::move(comment), par_style::OPTIONAL, par_type::SEQ_ARRAY, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
-    , value_{nullptr}
+    , value_{{nullptr}}
   {
     for (std::size_t i{}; i != N; ++i) {
       value_.at(i) = std::make_shared<tt::fhicl_type<T>>(Name::sequence_element(i) );
@@ -30,7 +30,7 @@ namespace fhicl {
                                           std::function<bool()> maybeUse)
     : SequenceBase{std::move(name), std::move(comment), par_style::OPTIONAL_CONDITIONAL, par_type::SEQ_ARRAY, maybeUse}
     , RegisterIfTableMember{this}
-    , value_{nullptr}
+    , value_{{nullptr}}
   {
     for (std::size_t i{}; i != N; ++i) {
       value_.at(i) = std::make_shared<tt::fhicl_type<T>>(Name::sequence_element(i) );

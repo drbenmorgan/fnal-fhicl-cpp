@@ -47,7 +47,7 @@ namespace fhicl {
       if (!has_value_)
         return false;
 
-      value_type result = {tt::return_type<T>()};
+      value_type result = {{tt::return_type<T>()}};
       cet::transform_all(
         value_, result.begin(), [](auto const& elem) { return (*elem)(); });
 

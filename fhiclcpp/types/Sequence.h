@@ -103,7 +103,7 @@ namespace fhicl {
     auto
     operator()() const
     {
-      value_type result = {tt::return_type<T>()};
+      value_type result = {{tt::return_type<T>()}};
       cet::transform_all(
         value_, result.begin(), [](auto const& elem) { return (*elem)(); });
       return result;

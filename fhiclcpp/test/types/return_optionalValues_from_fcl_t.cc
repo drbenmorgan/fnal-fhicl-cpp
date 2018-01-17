@@ -31,8 +31,8 @@ using namespace std;
 
 namespace {
 
-  double const tolerance = std::numeric_limits<double>::epsilon();
-  double const ftolerance = std::numeric_limits<float>::epsilon();
+  double const tolerance [[gnu::unused]] = std::numeric_limits<double>::epsilon();
+  double const ftolerance [[gnu::unused]] = std::numeric_limits<float>::epsilon();
 
   struct Physics {
     Tuple<std::string, double> energyCutoff{Name("energyCutoff")};
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(optSeqVector_t3)
   std::vector<std::array<int, 2>> intLists;
   BOOST_CHECK(config().list3(intLists));
 
-  decltype(intLists) const ref{{0, 1}, {1, 2}, {2, 4}, {3, 8}};
+  decltype(intLists) const ref{{{0, 1}}, {{1, 2}}, {{2, 4}}, {{3, 8}}};
   std::size_t i{};
   for (auto const& list : intLists) {
     CET_CHECK_EQUAL_COLLECTIONS(list, ref[i]);
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE(optSeqVector_t4)
   BOOST_CHECK(config().list4(composers));
 
   std::array<std::string, 4> const ref{
-    "Mozart", "Beethoven", "Brahms", "Mahler"};
+    {"Mozart", "Beethoven", "Brahms", "Mahler"}};
 
   std::size_t i{};
   for (auto const& comp : composers) {
@@ -139,9 +139,9 @@ BOOST_AUTO_TEST_CASE(optTuple_t)
   std::array<Composer, 4> composers;
   BOOST_CHECK(config().list4(composers));
 
-  std::array<int, 4> const symphonyNumbers{41, 3, 0, 8};
+  std::array<int, 4> const symphonyNumbers{{41, 3, 0, 8}};
   std::array<std::string, 4> const symphonyMonikers{
-    "Jupiter", "Eroica", "", "Symphony for a Thousand"};
+    {"Jupiter", "Eroica", "", "Symphony for a Thousand"}};
   std::size_t i{};
   for (auto const& comp : composers) {
 

@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(vec_of_vecs)
 BOOST_AUTO_TEST_CASE(vec_of_arrs)
 {
   using array_t = array<int, 2>;
-  auto ref_vec = {array_t{1, 6}, array_t{2, 12}, array_t{3, 18}};
+  auto ref_vec = {array_t{{1, 6}}, array_t{{2, 12}}, array_t{{3, 18}}};
   auto it = ref_vec.begin();
 
   for (auto const& val : config().vecOfArr()) {
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(arr_of_vecs)
 // [13] Sequence< Sequence<T,SZ>, SZ >
 BOOST_AUTO_TEST_CASE(arr_of_arrs)
 {
-  auto ref_vec = {array<int, 2>{1, 0}, array<int, 2>{0, 1}};
+  auto ref_vec = {array<int, 2>{{1, 0}}, array<int, 2>{{0, 1}}};
   auto it = ref_vec.begin();
 
   for (auto const& val : config().arrOfArr()) {

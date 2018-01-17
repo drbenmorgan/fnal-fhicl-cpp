@@ -370,8 +370,8 @@ ParameterSet::walk(ParameterSetWalker& psw) const
   ps_stack.push(this);
 
   std::function<void(std::string const&, boost::any const&)> act_on_element =
-    [this, &psw, &ps_stack, &act_on_element](std::string const& key,
-                                             boost::any const& a) {
+    [&psw, &ps_stack, &act_on_element](std::string const& key,
+                                       boost::any const& a) {
       auto const* ps = ps_stack.top();
       psw.do_before_action(key, a, ps);
 

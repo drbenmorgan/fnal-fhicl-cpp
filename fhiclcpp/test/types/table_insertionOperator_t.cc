@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(simple)
   oss << config;
   auto const& test = oss.str();
   auto const& ref = reference();
-  BOOST_CHECK_EQUAL(oss.str(), reference());
+  BOOST_CHECK_EQUAL(test, ref);
 }
 
 BOOST_AUTO_TEST_CASE(logger)

@@ -115,7 +115,7 @@ set(fhiclcpp_SOURCES
 # - Set target sources. Done in one go here for clarity and
 # simplicity, but note how we could recurse into/include
 # subdirs and add sources step by step.
-# NB: Another alternative is to build each sudbir as an OBJECT
+# NB: Another alternative is to build each subdir as an OBJECT
 # library, then group (but have to set target_XXX on each object
 # lib).
 target_sources(fhiclcpp PRIVATE ${fhiclcpp_SOURCES})

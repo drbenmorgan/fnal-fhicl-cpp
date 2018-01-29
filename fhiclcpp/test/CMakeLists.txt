@@ -1,8 +1,3 @@
-# - When user supplies "-DALT_CMAKE" use the non-CET/UPS system
-if(ALT_CMAKE)
-  include(altCMakeLists.cmake)
-else()
-
 # ======================================================================
 #
 # Testing
@@ -14,6 +9,11 @@ cet_enable_asserts()
 
 # Identify libraries to be linked:
 link_libraries(fhiclcpp)
+
+# ALT_CMAKE needed for so tests can find fhicl-expand
+if(ALT_CMAKE)
+  cet_test_env("PATH=$<TARGET_FILE_DIR:fhicl-expand>:$ENV{PATH}")
+endif()
 
 cet_test_env("FHICL_FILE_PATH=.")
 
@@ -150,4 +150,3 @@ cet_test(fhicl-write-db-test HANDBUILT
 
 cet_test(parse_shimmeddocument_test USE_BOOST_UNIT)
 
-endif() # ALT_CMAKE

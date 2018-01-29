@@ -1,25 +1,9 @@
-#
-#  fhiclcpp/CMakeLists.txt
-#  -------------------------------------------------------------------
-#
-#  CMake build file for library fhiclcpp and fhiclcppD
-#
-#  cd .../path/to/build/directory
-#  source .../path/to/source/code/setup_for_development
-#  cmake [-DCMAKE_INSTALL_PREFIX=/install/path]
-#        -DCMAKE_BUILD_TYPE=$CETPKG_TYPE
-#        $CETPKG_SOURCE
-#  make
-#  make test
-#  make install
-#  make package (builds distribution tarfile)
-
 cmake_minimum_required(VERSION 3.3)
-project(fhiclcpp VERSION 4.6.1)
+project(fhiclcpp VERSION 4.6.5)
 
 # cetbuildtools contains our cmake modules
 # - Cetbuildtools, version2
-find_package(cetbuildtools2 0.1.0 REQUIRED)
+find_package(cetbuildtools2 0.4.0 REQUIRED)
 set(CMAKE_MODULE_PATH ${cetbuildtools2_MODULE_PATH})
 set(CET_COMPILER_CXX_STANDARD_MINIMUM 14)
 include(CetInstallDirs)
@@ -66,5 +50,7 @@ if(DOXYGEN_FOUND)
     DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/API"
     )
 endif()
-# packaging utility
+
+# Packaging
+# TODO
 #include(UseCPack)

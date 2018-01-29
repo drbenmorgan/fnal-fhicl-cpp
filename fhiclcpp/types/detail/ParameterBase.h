@@ -14,7 +14,8 @@
   AtomBase   TableBase                  SequenceBase         DelegateBase
      |          |                      /      |     \             \
      |          |                     /       |      \             \
-  Atom<T>    Table<T>   Sequence<T,SZ>  Sequence<T>   Tuple<T...>  DelegatedParameter
+  Atom<T>    Table<T>   Sequence<T,SZ>  Sequence<T>   Tuple<T...>
+  DelegatedParameter
 
 
   All concrete Optional* fhiclcpp types also inherit from the
@@ -39,43 +40,81 @@ namespace fhicl {
     //========================================================
     class ParameterBase {
     public:
-
-      std::string key()            const { return mdata_.key(); }
-      std::string name()           const { return mdata_.name(); }
-      std::string comment()        const { return mdata_.comment(); }
-      bool        has_default()    const { return mdata_.has_default(); }
-      bool        is_optional()    const { return mdata_.is_optional(); }
-      bool        is_conditional() const { return mdata_.is_conditional(); }
-      par_type    parameter_type() const { return mdata_.type(); }
-      bool        should_use()     const { return maybeUse_(); }
+      std::string
+      key() const
+      {
+        return mdata_.key();
+      }
+      std::string
+      name() const
+      {
+        return mdata_.name();
+      }
+      std::string
+      comment() const
+      {
+        return mdata_.comment();
+      }
+      bool
+      has_default() const
+      {
+        return mdata_.has_default();
+      }
+      bool
+      is_optional() const
+      {
+        return mdata_.is_optional();
+      }
+      bool
+      is_conditional() const
+      {
+        return mdata_.is_conditional();
+      }
+      par_type
+      parameter_type() const
+      {
+        return mdata_.type();
+      }
+      bool
+      should_use() const
+      {
+        return maybeUse_();
+      }
 
       ParameterBase(Name const& name,
                     Comment const& comment,
-                    value_type const vt,
+                    par_style const vt,
                     par_type const type,
                     std::function<bool()> maybeUse = AlwaysUse())
-        : mdata_{name, comment, vt, type}
-        , maybeUse_{maybeUse}
+        : mdata_{name, comment, vt, type}, maybeUse_{maybeUse}
       {}
 
       virtual ~ParameterBase() = default;
 
       // Modifiers
-      void set_value(fhicl::ParameterSet const& ps, bool trimParents)
+      void
+      set_value(fhicl::ParameterSet const& ps, bool trimParents)
       {
         do_set_value(ps, trimParents);
       }
-      void set_value_type(value_type const vt) { mdata_.set_value_type(vt); }
-      void set_key(std::string const& key) { mdata_.set_key(key); }
+      void
+      set_par_style(par_style const vt)
+      {
+        mdata_.set_par_style(vt);
+      }
+      void
+      set_key(std::string const& key)
+      {
+        mdata_.set_key(key);
+      }
 
     private:
-
-      virtual void do_set_value(fhicl::ParameterSet const&, bool trimParents) = 0;
+      virtual void do_set_value(fhicl::ParameterSet const&,
+                                bool trimParents) = 0;
 
       ParameterMetadata mdata_;
       std::function<bool()> maybeUse_;
     };
-
   }
 }
 

@@ -14,9 +14,9 @@ namespace fhicl {
   template<typename T, std::size_t N>
   OptionalSequence<T,N>::OptionalSequence(Name&& name,
                                           Comment&& comment)
-    : SequenceBase{std::move(name), std::move(comment), value_type::OPTIONAL, par_type::SEQ_ARRAY, detail::AlwaysUse()}
+    : SequenceBase{std::move(name), std::move(comment), par_style::OPTIONAL, par_type::SEQ_ARRAY, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
-    , value_{nullptr}
+    , value_{{nullptr}}
   {
     for (std::size_t i{}; i != N; ++i) {
       value_.at(i) = std::make_shared<tt::fhicl_type<T>>(Name::sequence_element(i) );
@@ -28,9 +28,9 @@ namespace fhicl {
   OptionalSequence<T,N>::OptionalSequence(Name&& name,
                                           Comment&& comment,
                                           std::function<bool()> maybeUse)
-    : SequenceBase{std::move(name), std::move(comment), value_type::OPTIONAL_CONDITIONAL, par_type::SEQ_ARRAY, maybeUse}
+    : SequenceBase{std::move(name), std::move(comment), par_style::OPTIONAL_CONDITIONAL, par_type::SEQ_ARRAY, maybeUse}
     , RegisterIfTableMember{this}
-    , value_{nullptr}
+    , value_{{nullptr}}
   {
     for (std::size_t i{}; i != N; ++i) {
       value_.at(i) = std::make_shared<tt::fhicl_type<T>>(Name::sequence_element(i) );
@@ -64,7 +64,7 @@ namespace fhicl {
   template<typename T>
   OptionalSequence<T,-1ull>::OptionalSequence(Name&& name,
                                            Comment&& comment)
-    : SequenceBase{std::move(name), std::move(comment), value_type::OPTIONAL, par_type::SEQ_VECTOR, detail::AlwaysUse()}
+    : SequenceBase{std::move(name), std::move(comment), par_style::OPTIONAL, par_type::SEQ_VECTOR, detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
     value_.emplace_back(new tt::fhicl_type<T>{Name::sequence_element(0ul)});
@@ -75,7 +75,7 @@ namespace fhicl {
   OptionalSequence<T,-1ull>::OptionalSequence(Name&& name,
                                               Comment&& comment,
                                               std::function<bool()> maybeUse)
-    : SequenceBase{std::move(name), std::move(comment), value_type::OPTIONAL_CONDITIONAL, par_type::SEQ_VECTOR, maybeUse}
+    : SequenceBase{std::move(name), std::move(comment), par_style::OPTIONAL_CONDITIONAL, par_type::SEQ_VECTOR, maybeUse}
     , RegisterIfTableMember{this}
   {
     value_.emplace_back(new tt::fhicl_type<T>{Name::sequence_element(0ul)});

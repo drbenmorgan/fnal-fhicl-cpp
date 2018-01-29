@@ -77,7 +77,7 @@ FOREACH(test_file ${testPass})
   GET_FILENAME_COMPONENT(test_file_stem ${test_file} NAME_WE)
   cet_test(${test_file_stem} HANDBUILT
            TEST_EXEC test_suite
-           TEST_ARGS ${test_file}
+           TEST_ARGS -- ${test_file}
            #DATAFILES ${test_file}
            TEST_PROPERTIES ENVIRONMENT FHICL_FILE_PATH=${CMAKE_CURRENT_SOURCE_DIR}
   )
@@ -86,7 +86,7 @@ FOREACH(test_file ${testFail})
   GET_FILENAME_COMPONENT(test_file_stem ${test_file} NAME_WE)
   cet_test(${test_file_stem} HANDBUILT
            TEST_EXEC test_suite
-           TEST_ARGS ${test_file}
+           TEST_ARGS -- ${test_file}
            #DATAFILES ${test_file}
            TEST_PROPERTIES WILL_FAIL true
                            ENVIRONMENT FHICL_FILE_PATH=${CMAKE_CURRENT_SOURCE_DIR}

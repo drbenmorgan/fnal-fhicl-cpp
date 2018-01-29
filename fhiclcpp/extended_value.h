@@ -19,8 +19,17 @@
 // ----------------------------------------------------------------------
 
 namespace fhicl {
-  enum value_tag {UNKNOWN,
-                  NIL, BOOL, NUMBER, COMPLEX, STRING, SEQUENCE, TABLE, TABLEID};
+  enum value_tag {
+    UNKNOWN,
+    NIL,
+    BOOL,
+    NUMBER,
+    COMPLEX,
+    STRING,
+    SEQUENCE,
+    TABLE,
+    TABLEID
+  };
 }
 
 // ----------------------------------------------------------------------
@@ -44,54 +53,48 @@ public:
     , value{value}
     , src_info{src}
     , protection{protection}
-  { }
+  {}
 
   extended_value(bool const in_prolog,
                  value_tag const tag,
                  boost::any const value,
                  std::string const& src = {})
-    : in_prolog{in_prolog}
-    , tag{tag}
-    , value{value}
-    , src_info{src}
-  { }
+    : in_prolog{in_prolog}, tag{tag}, value{value}, src_info{src}
+  {}
 
   bool
   is_a(value_tag t) const
-  { return t == tag; }
+  {
+    return t == tag;
+  }
 
-  std::string
-  to_string() const;
+  std::string to_string() const;
+
+  void set_prolog(bool new_prolog_state);
 
   void
-  set_prolog(bool new_prolog_state);
+  set_src_info(std::string const& src)
+  {
+    src_info = src;
+  }
 
-  void
-  set_src_info(std::string const & src)
-  { src_info = src; }
+  std::string pretty_src_info() const;
 
-  std::string
-  pretty_src_info() const;
+  operator atom_t() const { return boost::any_cast<atom_t>(value); }
 
-  operator atom_t() const
-  { return boost::any_cast<atom_t>(value); }
+  operator complex_t() const { return boost::any_cast<complex_t>(value); }
 
-  operator complex_t() const
-  { return boost::any_cast<complex_t>(value); }
+  operator sequence_t() const { return boost::any_cast<sequence_t>(value); }
 
-  operator sequence_t() const
-  { return boost::any_cast<sequence_t>(value); }
+  operator table_t() const { return boost::any_cast<table_t>(value); }
 
-  operator table_t() const
-  { return boost::any_cast<table_t>(value); }
-
-  bool       in_prolog{false};
-  value_tag  tag{UNKNOWN};
+  bool in_prolog{false};
+  value_tag tag{UNKNOWN};
   boost::any value{};
   std::string src_info{};
   Protection protection{Protection::NONE};
 
-};  // extended_value
+}; // extended_value
 
 // ======================================================================
 

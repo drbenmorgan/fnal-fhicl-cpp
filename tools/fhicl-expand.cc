@@ -17,9 +17,9 @@
 
 #include "boost/program_options.hpp"
 #include "cetlib/container_algorithms.h"
-#include "cetlib_except/exception.h"
 #include "cetlib/filepath_maker.h"
 #include "cetlib/includer.h"
+#include "cetlib_except/exception.h"
 
 #include <fstream>
 #include <iostream>

@@ -118,8 +118,8 @@ BOOST_AUTO_TEST_CASE(tuple_in_seq_t)
 // [9] Sequence< Tuple<T...>, SZ >
 BOOST_AUTO_TEST_CASE(tuple_in_seq_2_t)
 {
-  std::array<std::tuple<int, float>, 2> ref_vec{{std::make_tuple(1, 2.3f),
-        std::make_tuple(9, 3.2f)}};
+  std::array<std::tuple<int, float>, 2> ref_vec{
+    {std::make_tuple(1, 2.3f), std::make_tuple(9, 3.2f)}};
 
   Sequence<Tuple<int, float>, 2> test{Name("seqtuple"), {{1, 2.3f}, {9, 3.2f}}};
   std::size_t i{};
@@ -164,8 +164,8 @@ BOOST_AUTO_TEST_CASE(seq_2_in_seq_t)
 // [12] Sequence< Sequence<T>,SZ >
 BOOST_AUTO_TEST_CASE(seq_in_seq_2_t)
 {
-  std::array<std::vector<int>, 2> ref_vec{{std::vector<int>{4},
-        std::vector<int>{{1, 4, 9, 1}}}};
+  std::array<std::vector<int>, 2> ref_vec{
+    {std::vector<int>{4}, std::vector<int>{{1, 4, 9, 1}}}};
 
   Sequence<Sequence<int>, 2> test{Name("seqseq"), {{4}, {1, 4, 9, 1}}};
   std::size_t i{};
@@ -178,8 +178,8 @@ BOOST_AUTO_TEST_CASE(seq_in_seq_2_t)
 // [13] Sequence< Sequence<T,SZ>, SZ >
 BOOST_AUTO_TEST_CASE(seq_2_in_seq_2_t)
 {
-  std::array<std::array<int, 2>, 2> ref_vec{{std::array<int, 2>{{6, 7}},
-        std::array<int, 2>{{2, 1}}}};
+  std::array<std::array<int, 2>, 2> ref_vec{
+    {std::array<int, 2>{{6, 7}}, std::array<int, 2>{{2, 1}}}};
 
   Sequence<Sequence<int, 2>, 2> test{Name("seqseq"), {{6, 7}, {2, 1}}};
   std::size_t i{};

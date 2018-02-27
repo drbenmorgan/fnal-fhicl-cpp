@@ -31,8 +31,10 @@ using namespace std;
 
 namespace {
 
-  double const tolerance [[gnu::unused]] = std::numeric_limits<double>::epsilon();
-  double const ftolerance [[gnu::unused]] = std::numeric_limits<float>::epsilon();
+  double const tolerance[[gnu::unused]] =
+    std::numeric_limits<double>::epsilon();
+  double const ftolerance[[gnu::unused]] =
+    std::numeric_limits<float>::epsilon();
 
   struct Physics {
     Tuple<std::string, double> energyCutoff{Name("energyCutoff")};

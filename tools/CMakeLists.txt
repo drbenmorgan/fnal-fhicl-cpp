@@ -19,9 +19,5 @@ cet_make_exec(fhicl-write-db
   ${SQLITE3}
 )
 
-include(CetMakeCompletions)
-cet_make_completions(fhicl-dump)
-cet_make_completions(fhicl-expand)
-
 install_headers()
 install_source()

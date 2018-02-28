@@ -5,8 +5,6 @@ fcldir -
 
 table_fragment_begin
    pathPrepend(PYTHONPATH, ${FHICLCPP_LIB})
-   sourceRequired(${FHICLCPP_FQ_DIR}/bin/fhicl-dump_completions, NO_UPS_ENV)
-   sourceRequired(${FHICLCPP_FQ_DIR}/bin/fhicl-expand_completions, NO_UPS_ENV)
 table_fragment_end
 
 #

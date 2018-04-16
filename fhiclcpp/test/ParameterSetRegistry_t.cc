@@ -1,3 +1,4 @@
+// vim: set sw=2 expandtab :
 #define BOOST_TEST_MODULE (ParameterSetRegistry_t)
 #include "cetlib/quiet_unit_test.hpp"
 
@@ -5,10 +6,21 @@
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
 #include "fhiclcpp/make_ParameterSet.h"
+#include "hep_concurrency/RecursiveMutex.h"
 
 #include "sqlite3.h"
 
+#include <atomic>
+#include <functional>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
 using namespace fhicl;
+using namespace hep::concurrency;
+using namespace std;
+using namespace string_literals;
 
 using fhicl::detail::throwOnSQLiteFailure;
 
@@ -16,26 +28,22 @@ BOOST_AUTO_TEST_SUITE(ParameterSetRegistry_t)
 
 BOOST_AUTO_TEST_CASE(Typedefs)
 {
-  using ctype = std::
+  using ctype =
     unordered_map<ParameterSetID, ParameterSet, detail::HashParameterSetID>;
-  static_assert(
-    std::is_same<ctype, ParameterSetRegistry::collection_type>::value,
-    "collection_type failure");
-  static_assert(
-    std::is_same<ParameterSetID, ParameterSetRegistry::key_type>::value,
-    "key_type failure");
-  static_assert(
-    std::is_same<ParameterSet, ParameterSetRegistry::mapped_type>::value,
-    "mapped_type failure");
-  static_assert(std::is_same<std::pair<ParameterSetID const, ParameterSet>,
-                             ParameterSetRegistry::value_type>::value,
+  static_assert(is_same<ctype, ParameterSetRegistry::collection_type>::value,
+                "collection_type failure");
+  static_assert(is_same<ParameterSetID, ParameterSetRegistry::key_type>::value,
+                "key_type failure");
+  static_assert(is_same<ParameterSet, ParameterSetRegistry::mapped_type>::value,
+                "mapped_type failure");
+  static_assert(is_same<pair<ParameterSetID const, ParameterSet>,
+                        ParameterSetRegistry::value_type>::value,
                 "value_type failure");
+  static_assert(is_same<size_t, ParameterSetRegistry::size_type>::value,
+                "size_type failure");
   static_assert(
-    std::is_same<std::size_t, ParameterSetRegistry::size_type>::value,
-    "size_type failure");
-  static_assert(std::is_same<ctype::const_iterator,
-                             ParameterSetRegistry::const_iterator>::value,
-                "const_iterator failure");
+    is_same<ctype::const_iterator, ParameterSetRegistry::const_iterator>::value,
+    "const_iterator failure");
 }
 
 BOOST_AUTO_TEST_CASE(MakeAndAdd)
@@ -56,7 +64,7 @@ BOOST_AUTO_TEST_CASE(MakeAndAdd)
 
 BOOST_AUTO_TEST_CASE(AddFromIterAndGet)
 {
-  std::vector<ParameterSet> v1;
+  vector<ParameterSet> v1;
   auto expected_size = ParameterSetRegistry::size() + 2ul; // a3, x.
   for (auto s :
        {"a1: 4 b1: 7.0 c1: [ 5, 4, 3 ]",
@@ -67,11 +75,11 @@ BOOST_AUTO_TEST_CASE(AddFromIterAndGet)
     v1.emplace_back(pset);
   }
   BOOST_REQUIRE_EQUAL(ParameterSetRegistry::size(), expected_size);
-  std::vector<ParameterSetRegistry::value_type> v2;
-  std::string const f{"filler"};
+  vector<ParameterSetRegistry::value_type> v2;
+  string const f{"filler"};
   for (auto p : v1) {
     p.put("f", f);
-    v2.emplace_back(p.id(), std::move(p));
+    v2.emplace_back(p.id(), move(p));
   }
   expected_size += 3;
   ParameterSetRegistry::put(v1.cbegin(), v1.cend());
@@ -79,7 +87,6 @@ BOOST_AUTO_TEST_CASE(AddFromIterAndGet)
   expected_size += 3;
   ParameterSetRegistry::put(v2.cbegin(), v2.cend());
   BOOST_REQUIRE_EQUAL(ParameterSetRegistry::size(), expected_size);
-
   ParameterSet pset;
   ParameterSetRegistry::get(v2.front().first, pset);
   BOOST_REQUIRE(pset == v2.front().second);
@@ -89,7 +96,7 @@ BOOST_AUTO_TEST_CASE(AddFromIterAndGet)
 
 BOOST_AUTO_TEST_CASE(TestImport)
 {
-  std::atomic<std::size_t> expected_size{ParameterSetRegistry::size()};
+  atomic<size_t> expected_size{ParameterSetRegistry::size()};
   sqlite3* db = nullptr;
   BOOST_REQUIRE(!sqlite3_open(":memory:", &db));
   throwOnSQLiteFailure(db);
@@ -101,36 +108,34 @@ BOOST_AUTO_TEST_CASE(TestImport)
                nullptr,
                &errMsg);
   throwOnSQLiteFailure(db, errMsg);
-
   // testData: bool represents whether the top-level set is already
   // expected to be in the registry or not.
-  std::vector<std::pair<std::string, bool>> testData{
+  vector<pair<string, bool>> testData{
     {"x: [ 1, 3, 5, 7 ]", false},
     {"a2: [ oh, my, stars ]", true}, // Should match a2, above.
     {"y1: \"Oh, home on the range\" y2: \"Where the deer and the antelope "
      "roam\"",
      false}};
-  std::vector<std::pair<ParameterSet, bool>> v1(testData.size());
-
+  vector<pair<ParameterSet, bool>> v1(testData.size());
   // Make ParameterSets in parallel
   {
-    std::vector<std::function<void()>> tasks;
+    vector<function<void()>> tasks;
     cet::for_all_with_index(testData,
-                            [&v1, &tasks](std::size_t const i, auto const& p) {
+                            [&v1, &tasks](size_t const i, auto const& p) {
                               auto& entry = v1[i];
                               tasks.push_back([&entry, &p] {
                                 ParameterSet pset;
                                 make_ParameterSet(p.first, pset);
-                                entry = std::make_pair(pset, p.second);
+                                entry = make_pair(pset, p.second);
                               });
                             });
     cet::SimultaneousFunctionSpawner sfs{tasks};
   }
-
   // Insert ParameterSets into db in parallel
   {
-    auto insert_into_db = [&db](auto const& pr) {
-
+    RecursiveMutex m{"ParameterSetRegistry_t::m"};
+    auto insert_into_db = [&db, &m](auto const& pr) {
+      // auto insert_into_db = [&db, &m](auto pr) {}
       // Since this lambda is intended to be executed in parallel, one
       // should not specify a BEGIN (IMMEDIATE|EXCLUSIVE) TRANSACTION
       // statement--when executed in parallel, two or more BEGIN
@@ -140,7 +145,6 @@ BOOST_AUTO_TEST_CASE(TestImport)
       // Note that SQLite implicitly assumes a transaction is in
       // flight until an sqlite3_reset or sqlite3_finalize function
       // call is made, at which point it is committed.
-
       sqlite3_stmt* oStmt = nullptr;
       sqlite3_prepare_v2(
         db,
@@ -149,60 +153,74 @@ BOOST_AUTO_TEST_CASE(TestImport)
         &oStmt,
         nullptr);
       throwOnSQLiteFailure(db);
-
       auto const& pset = pr.first;
-      bool const inRegistry{pr.second};
-      std::string const id{pset.id().to_string()};
-      std::string const psBlob{pset.to_compact_string()};
+      string const id{pset.id().to_string()};
       sqlite3_bind_text(oStmt, 1, id.c_str(), id.size() + 1, SQLITE_STATIC);
       throwOnSQLiteFailure(db);
-
+      string const psBlob{pset.to_compact_string()};
       sqlite3_bind_text(
         oStmt, 2, psBlob.c_str(), psBlob.size() + 1, SQLITE_STATIC);
       throwOnSQLiteFailure(db);
-      BOOST_REQUIRE_EQUAL(sqlite3_step(oStmt), SQLITE_DONE);
-
+      {
+        // FIXME: sqlite3_step is not thread-safe according to tsan!
+        RecursiveMutexSentry sentry{m, "test"};
+        BOOST_REQUIRE_EQUAL(sqlite3_step(oStmt), SQLITE_DONE);
+      }
       sqlite3_finalize(oStmt);
       throwOnSQLiteFailure(db);
-
-      BOOST_REQUIRE_EQUAL(ParameterSetRegistry::has(pset.id()), inRegistry);
+      bool const inRegistry{pr.second};
+      {
+        // FIXME: Not thread-safe according to tsan!
+        RecursiveMutexSentry sentry{m, "test"};
+        BOOST_REQUIRE_EQUAL(ParameterSetRegistry::has(pset.id()), inRegistry);
+      }
     };
-
-    std::vector<std::function<void()>> tasks;
+    vector<function<void()>> tasks;
     cet::transform_all(
-      v1, std::back_inserter(tasks), [insert_into_db](auto const& pr) {
+      v1, back_inserter(tasks), [insert_into_db](auto const& pr) {
+        //[insert_into_db](auto pr) {}
         return [insert_into_db, pr] { insert_into_db(pr); };
       });
     cet::SimultaneousFunctionSpawner sfs{tasks};
   }
-
   BOOST_REQUIRE_EQUAL(ParameterSetRegistry::size(), expected_size);
   ParameterSetRegistry::importFrom(db);
   // Make sure the registry didn't expand as a result of the insert.
   BOOST_REQUIRE_EQUAL(ParameterSetRegistry::size(), expected_size);
   BOOST_REQUIRE_EQUAL(sqlite3_close(db), SQLITE_OK);
-
   // Read from registry in parallel
   {
-    auto read_from_registry = [&expected_size](auto const& p) {
+    RecursiveMutex m{"ParameterSetRegistry_t::m"};
+    auto read_from_registry = [&expected_size, &m](auto const& p) {
       auto const& id = p.first.id();
       if (p.second) {
-        // Should be in registry already.
-        BOOST_REQUIRE(ParameterSetRegistry::has(id));
+        {
+          // FIXME: Not thread-safe according to tsan!
+          RecursiveMutexSentry sentry{m, "test"};
+          // Should be in registry already.
+          BOOST_REQUIRE(ParameterSetRegistry::has(id));
+        }
       } else {
-        // Make sure the import didn't inject them into the registry.
-        BOOST_REQUIRE(!ParameterSetRegistry::has(id));
+        {
+          // FIXME: Not thread-safe according to tsan!
+          RecursiveMutexSentry sentry{m, "test"};
+          // Make sure the import didn't inject them into the registry.
+          BOOST_REQUIRE(!ParameterSetRegistry::has(id));
+        }
         // We expect the get() call below to increase the size of the
         // registry by pulling the entry in from the backing DB.
         ++expected_size;
       }
-      auto const& p2 = ParameterSetRegistry::get(id);
-      BOOST_REQUIRE(p2 == p.first);
+      {
+        // FIXME: Not thread-safe according to tsan!
+        RecursiveMutexSentry sentry{m, "test"};
+        auto const& p2 = ParameterSetRegistry::get(id);
+        BOOST_REQUIRE(p2 == p.first);
+      }
     };
-
-    std::vector<std::function<void()>> tasks;
+    vector<function<void()>> tasks;
     cet::transform_all(
-      v1, std::back_inserter(tasks), [read_from_registry](auto const& p) {
+      v1, back_inserter(tasks), [read_from_registry](auto const& p) {
         return [read_from_registry, p] { read_from_registry(p); };
       });
     cet::SimultaneousFunctionSpawner sfs{tasks};

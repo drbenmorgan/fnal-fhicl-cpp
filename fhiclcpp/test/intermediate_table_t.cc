@@ -47,4 +47,135 @@ BOOST_AUTO_TEST_CASE(main)
   std::cout << pset.to_indented_string() << std::endl;
 }
 
+BOOST_AUTO_TEST_CASE(prolog_erase_nested)
+{
+  char const * cfg = R"(BEGIN_PROLOG
+w: { x: { y: { z: { a: 2 b: 3 } } } }
+END_PROLOG
+q: { @table::w.x.y })";
+  ParameterSet pset;
+  make_ParameterSet(cfg, pset);
+  std::cout << pset.to_indented_string() << std::endl;
+  BOOST_CHECK(pset.has_key("q.z"));
+  BOOST_CHECK(!pset.has_key("w"));
+}
+
+BOOST_AUTO_TEST_CASE(prolog_erase_dotted)
+{
+  char const * cfg = R"(BEGIN_PROLOG
+w.x.y: { z: { a: 2 b: 3 } }
+END_PROLOG
+q: { @table::w.x.y })";
+  ParameterSet pset;
+  make_ParameterSet(cfg, pset);
+  std::cout << pset.to_indented_string() << std::endl;
+  BOOST_CHECK(pset.has_key("q.z"));
+  BOOST_CHECK(!pset.has_key("w"));
+}
+
+BOOST_AUTO_TEST_CASE(prolog_nested_partial_dup_nested)
+{
+  char const * cfg = R"(BEGIN_PROLOG
+w: { x: { y: 7 } }
+END_PROLOG
+w: { b: { c: 6 } })";
+  ParameterSet pset;
+  make_ParameterSet(cfg, pset);
+  std::cout << pset.to_indented_string() << std::endl;
+  BOOST_CHECK(pset.has_key("w.b"));
+  BOOST_CHECK(!pset.has_key("w.x"));
+}
+
+BOOST_AUTO_TEST_CASE(prolog_nested_partial_dup_dotted)
+{
+  char const * cfg = R"(BEGIN_PROLOG
+w: { x: { y: 7 } }
+END_PROLOG
+w.b.c: 6)";
+  ParameterSet pset;
+  make_ParameterSet(cfg, pset);
+  std::cout << pset.to_indented_string() << std::endl;
+  BOOST_CHECK(pset.has_key("w.b"));
+  BOOST_CHECK(!pset.has_key("w.x"));
+}
+
+BOOST_AUTO_TEST_CASE(prolog_dotted_partial_dup_nested)
+{
+  char const * cfg = R"(BEGIN_PROLOG
+w.x.y: 7
+END_PROLOG
+w: { b: { c: 6 } })";
+  ParameterSet pset;
+  make_ParameterSet(cfg, pset);
+  std::cout << pset.to_indented_string() << std::endl;
+  BOOST_CHECK(pset.has_key("w.b"));
+  BOOST_CHECK(!pset.has_key("w.x"));
+}
+
+BOOST_AUTO_TEST_CASE(prolog_dotted_partial_dup_dotted)
+{
+  char const * cfg = R"(BEGIN_PROLOG
+w.x.y: 7
+END_PROLOG
+w.b.c: 6)";
+  ParameterSet pset;
+  make_ParameterSet(cfg, pset);
+  std::cout << pset.to_indented_string() << std::endl;
+  BOOST_CHECK(pset.has_key("w.b"));
+  BOOST_CHECK(!pset.has_key("w.x"));
+}
+
+BOOST_AUTO_TEST_CASE(prolog_nested_dup_nested)
+{
+  char const * cfg = R"(BEGIN_PROLOG
+w: { x: { y: 7 } }
+END_PROLOG
+w: { x: { c: 6 } })";
+  ParameterSet pset;
+  make_ParameterSet(cfg, pset);
+  std::cout << pset.to_indented_string() << std::endl;
+  BOOST_CHECK(pset.has_key("w.x.c"));
+  BOOST_CHECK(!pset.has_key("w.x.y"));
+}
+
+BOOST_AUTO_TEST_CASE(prolog_nested_dup_dotted)
+{
+  char const * cfg = R"(BEGIN_PROLOG
+w: { x: { y: 7 } }
+END_PROLOG
+w.x.c: 6)";
+  ParameterSet pset;
+  make_ParameterSet(cfg, pset);
+  std::cout << pset.to_indented_string() << std::endl;
+  BOOST_CHECK(pset.has_key("w.x.c"));
+  BOOST_CHECK(!pset.has_key("w.x.y"));
+}
+
+BOOST_AUTO_TEST_CASE(prolog_dotted_dup_nested)
+{
+  char const * cfg = R"(BEGIN_PROLOG
+w.x.y: 7
+END_PROLOG
+w: { x: { c: 6 } })";
+  ParameterSet pset;
+  make_ParameterSet(cfg, pset);
+  std::cout << pset.to_indented_string() << std::endl;
+  BOOST_CHECK(pset.has_key("w.x.c"));
+  BOOST_CHECK(!pset.has_key("w.x.y"));
+}
+
+BOOST_AUTO_TEST_CASE(prolog_dotted_dup_dotted)
+{
+  char const * cfg = R"(BEGIN_PROLOG
+w.x.y: 7
+END_PROLOG
+w.x.c: 6)";
+  ParameterSet pset;
+  make_ParameterSet(cfg, pset);
+  std::cout << pset.to_indented_string() << std::endl;
+  BOOST_CHECK(pset.has_key("w.x.c"));
+  BOOST_CHECK(!pset.has_key("w.x.y"));
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()

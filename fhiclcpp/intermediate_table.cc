@@ -252,7 +252,7 @@ intermediate_table::pre_insert_(std::string const& name,
       t.erase(it);
     }
   }
-  auto located = locate_(name);
+  auto located = locate_(name, value.in_prolog);
   if ((!located.first->is_a(NIL)) &&
       value.protection > located.first->protection) {
     throw exception(protection_violation)
@@ -264,7 +264,7 @@ intermediate_table::pre_insert_(std::string const& name,
 }
 
 std::pair<extended_value*, bool>
-intermediate_table::locate_(std::string const& name)
+intermediate_table::locate_(std::string const& name, bool const in_prolog)
 {
   std::pair<extended_value*, bool> result(nullptr, true);
   std::vector<std::string> const& key = split(name);
@@ -286,10 +286,12 @@ intermediate_table::locate_(std::string const& name)
       while (s.size() <= i) {
         s.push_back(nil_item());
       }
+      p->set_prolog(in_prolog);
       p = &s[i];
     } else { /* this_key[0] is alpha or '_' */
       if (p->is_a(NIL)) {
         *p = empty_tbl();
+        p->set_prolog(in_prolog);
       }
       if (!p->is_a(TABLE))
         throw exception(cant_find, name)
@@ -298,6 +300,7 @@ intermediate_table::locate_(std::string const& name)
       // This will do what we need whether the key is already in the map
       // or not.
       p = &t.emplace(this_key, nil_item()).first->second;
+      p->set_prolog(in_prolog);
     }
     auto prot = p->protection;
     if (prot == Protection::PROTECT_ERROR) {

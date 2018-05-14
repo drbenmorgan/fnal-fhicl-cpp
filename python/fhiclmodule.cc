@@ -31,7 +31,13 @@
 //
 //----------------------------------------------------------------------
 
-#include "Python.h" // Needs to be first due to macro definition issues
+#include "cetlib/compiler_macros.h"
+#pragma GCC diagnostic push
+#if GCC_IS_AT_LEAST(7,1,0)
+#pragma GCC diagnostic ignored "-Wregister"
+#endif
+#include "Python.h" // Needs to be (almost) first due to macro definition issues
+#pragma GCC diagnostic pop
 #include "cetlib/search_path.h"
 #include "cetlib_except/exception.h"
 #include "fhiclcpp/ParameterSet.h"

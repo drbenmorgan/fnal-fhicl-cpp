@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.3)
-project(fhiclcpp VERSION 4.6.7)
+project(fhiclcpp VERSION 4.6.8)
 
 # cetbuildtools contains our cmake modules
 # - Cetbuildtools, version2

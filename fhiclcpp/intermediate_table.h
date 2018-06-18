@@ -144,7 +144,7 @@ private:
                               extended_value const& value);
 
   // Return an item with a bool indicating whether it may be updated.
-  std::pair<extended_value*, bool> locate_(std::string const& name);
+  std::pair<extended_value*, bool> locate_(std::string const& name, bool in_prolog = false);
 
   std::vector<std::string> split(std::string const& name) const;
 

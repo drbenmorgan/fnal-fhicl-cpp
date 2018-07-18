@@ -11,6 +11,7 @@ using namespace fhicl::detail;
 namespace {
 
   std::string const UNKNOWN_SRC{"-:1"};
+  std::regex const reSequenceElement{R"(.*\[(\d+)\])"};
 
   inline bool
   allowed_info(std::string const& src_info)
@@ -53,7 +54,7 @@ detail::printed_suffix(std::string const& key, std::size_t const sz)
     return result;
 
   std::smatch m;
-  if (std::regex_match(key, m, std::regex{R"(.*\[(\d+)\])"}) &&
+  if (std::regex_match(key, m, reSequenceElement) &&
       std::stoul(m[1]) != sz - 1) {
     result = ",";
   }

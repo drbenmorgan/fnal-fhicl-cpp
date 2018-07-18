@@ -4,24 +4,24 @@
 //
 // ======================================================================
 
+#include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetID.h"
 
-#include "boost/format.hpp"
-#include "fhiclcpp/ParameterSet.h"
+#include <iomanip>
 
 using namespace boost;
 using namespace cet;
 using namespace fhicl;
 using namespace std;
 
-typedef sha1::digest_t digest_t;
+using digest_t = sha1::digest_t;
 
 // ======================================================================
 
 static digest_t const&
 invalid_id_()
 {
-  static digest_t invalid_value = {
+  static digest_t const invalid_value = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
   return invalid_value;
 }
@@ -67,10 +67,12 @@ ParameterSetID::is_valid() const
 string
 ParameterSetID::to_string() const
 {
-  string s;
-  for (std::size_t i = 0; i != id_.size(); ++i)
-    s += str(format("%02x") % (unsigned int)id_[i]);
-  return s;
+  std::ostringstream oss;
+  oss << std::hex << std::setfill('0');
+  for (std::size_t i = 0; i != id_.size(); ++i) {
+    oss << std::setw(2) << (unsigned int)id_[i];
+  }
+  return oss.str();
 }
 
 // ----------------------------------------------------------------------

@@ -19,16 +19,16 @@
 using namespace fhicl;
 using namespace fhicl::detail;
 
+using std::string;
+
 namespace {
 
-  std::string const fhicl_env_var{"FHICL_FILE_PATH"};
+  string const fhicl_env_var{"FHICL_FILE_PATH"};
 
   // Error categories
-  std::string const help{"Help"};
-  std::string const processing{"Processing"};
-  std::string const config{"Configuration"};
-
-  using std::string;
+  string const help{"Help"};
+  string const processing{"Processing"};
+  string const config{"Configuration"};
 
   struct Options {
     print_mode mode{print_mode::raw};
@@ -44,7 +44,7 @@ namespace {
   fhicl::ParameterSet form_pset(string const& filename,
                                 cet::filepath_maker& lookup_policy);
 
-  std::unique_ptr<cet::filepath_maker> get_policy(int const lookup_policy,
+  std::unique_ptr<cet::filepath_maker> get_policy(int lookup_policy,
                                                   string const& lookup_path);
 }
 

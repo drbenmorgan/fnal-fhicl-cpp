@@ -320,11 +320,12 @@ intermediate_table::locate_(std::string const& name, bool const in_prolog)
 std::vector<std::string>
 intermediate_table::split(std::string const& name) const
 {
+  static std::string const splitChars{shims::isSnippetMode() ? "[]" : ".[]"};
   std::vector<std::string> result;
   boost::algorithm::split(
     result,
     name,
-    boost::algorithm::is_any_of(shims::isSnippetMode() ? "[]" : ".[]"));
+    boost::algorithm::is_any_of(splitChars));
   return result;
 }
 

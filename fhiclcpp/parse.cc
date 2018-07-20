@@ -415,16 +415,8 @@ namespace {
         << s.highlighted_whereis(pos) << "\n";
     }
     auto const& incoming = boost::any_cast<sequence_t const&>(xval.value);
-#if GCC_IS_AT_LEAST(4, 9, 0) ||                                                \
-  defined(__clang__) /* Compiler supports C++2011 signature for ranged         \
-                        vector::insert() */
     auto it = v.insert(v.end(), incoming.cbegin(), incoming.cend());
-#else
-    v.insert(v.end(), incoming.cbegin(), incoming.cend());
-    auto it = v.end() - incoming.size();
-#endif
-    int count = 0;
-    for (auto const e = v.end(); it != e; ++it, ++count) {
+    for (auto const e = v.end(); it != e; ++it) {
       using std::to_string;
       it->protection = Protection::NONE;
       it->set_prolog(in_prolog);
@@ -838,9 +830,9 @@ namespace {
     catch (qi::expectation_failure<iter_t> const& e) {
       begin = e.first;
     }
-    std::string unparsed(begin, end);
+    std::string const unparsed(begin, end);
     if (b && unparsed.empty()) {
-      result = p.tbl;
+      result = std::move(p.tbl);
     } else {
       auto e = fhicl::exception(fhicl::parse_error, "detected at or near")
                << s.highlighted_whereis(begin) << "\n";
@@ -857,7 +849,7 @@ fhicl::parse_document(std::string const& filename,
                       cet::filepath_maker& maker,
                       intermediate_table& result)
 {
-  parse_document_(cet::includer(filename, maker), result);
+  parse_document_(cet::includer{filename, maker}, result);
 } // parse_document()
 
 void

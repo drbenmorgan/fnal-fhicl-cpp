@@ -122,7 +122,10 @@ cet_test(seq_of_seq_t)
 
 cet_test(traits_t)
 
-cet_test(ParameterSetRegistry_t USE_BOOST_UNIT LIBRARIES pthread)
+find_package(Threads REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+
+cet_test(ParameterSetRegistry_t USE_BOOST_UNIT LIBRARIES Threads::Threads)
 
 cet_test(DatabaseSupport_t USE_BOOST_UNIT
          DATAFILES

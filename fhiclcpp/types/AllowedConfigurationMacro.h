@@ -42,13 +42,13 @@ namespace fhicl {
   }
 }
 
-#define FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                  \
-  EXTERN_C_FUNC_DECLARE_START                                       \
-  std::unique_ptr<fhicl::ConfigurationTable> allowed_configuration( \
-    std::string const& name)                                        \
-  {                                                                 \
-    return fhicl::detail::AllowedConfiguration<klass>::get(name);   \
-  }                                                                 \
+#define FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                             \
+  EXTERN_C_FUNC_DECLARE_START                                                  \
+  std::unique_ptr<fhicl::ConfigurationTable> allowed_configuration(            \
+    std::string const& name)                                                   \
+  {                                                                            \
+    return fhicl::detail::AllowedConfiguration<klass>::get(name);              \
+  }                                                                            \
   EXTERN_C_FUNC_DECLARE_END
 
 #endif /* fhiclcpp_types_AllowedConfigurationMacro_h */

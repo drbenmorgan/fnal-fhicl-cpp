@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(main)
 
 BOOST_AUTO_TEST_CASE(prolog_erase_nested)
 {
-  char const * cfg = R"(BEGIN_PROLOG
+  char const* cfg = R"(BEGIN_PROLOG
 w: { x: { y: { z: { a: 2 b: 3 } } } }
 END_PROLOG
 q: { @table::w.x.y })";
@@ -62,7 +62,7 @@ q: { @table::w.x.y })";
 
 BOOST_AUTO_TEST_CASE(prolog_erase_dotted)
 {
-  char const * cfg = R"(BEGIN_PROLOG
+  char const* cfg = R"(BEGIN_PROLOG
 w.x.y: { z: { a: 2 b: 3 } }
 END_PROLOG
 q: { @table::w.x.y })";
@@ -75,7 +75,7 @@ q: { @table::w.x.y })";
 
 BOOST_AUTO_TEST_CASE(prolog_nested_partial_dup_nested)
 {
-  char const * cfg = R"(BEGIN_PROLOG
+  char const* cfg = R"(BEGIN_PROLOG
 w: { x: { y: 7 } }
 END_PROLOG
 w: { b: { c: 6 } })";
@@ -88,7 +88,7 @@ w: { b: { c: 6 } })";
 
 BOOST_AUTO_TEST_CASE(prolog_nested_partial_dup_dotted)
 {
-  char const * cfg = R"(BEGIN_PROLOG
+  char const* cfg = R"(BEGIN_PROLOG
 w: { x: { y: 7 } }
 END_PROLOG
 w.b.c: 6)";
@@ -101,7 +101,7 @@ w.b.c: 6)";
 
 BOOST_AUTO_TEST_CASE(prolog_dotted_partial_dup_nested)
 {
-  char const * cfg = R"(BEGIN_PROLOG
+  char const* cfg = R"(BEGIN_PROLOG
 w.x.y: 7
 END_PROLOG
 w: { b: { c: 6 } })";
@@ -114,7 +114,7 @@ w: { b: { c: 6 } })";
 
 BOOST_AUTO_TEST_CASE(prolog_dotted_partial_dup_dotted)
 {
-  char const * cfg = R"(BEGIN_PROLOG
+  char const* cfg = R"(BEGIN_PROLOG
 w.x.y: 7
 END_PROLOG
 w.b.c: 6)";
@@ -127,7 +127,7 @@ w.b.c: 6)";
 
 BOOST_AUTO_TEST_CASE(prolog_nested_dup_nested)
 {
-  char const * cfg = R"(BEGIN_PROLOG
+  char const* cfg = R"(BEGIN_PROLOG
 w: { x: { y: 7 } }
 END_PROLOG
 w: { x: { c: 6 } })";
@@ -140,7 +140,7 @@ w: { x: { c: 6 } })";
 
 BOOST_AUTO_TEST_CASE(prolog_nested_dup_dotted)
 {
-  char const * cfg = R"(BEGIN_PROLOG
+  char const* cfg = R"(BEGIN_PROLOG
 w: { x: { y: 7 } }
 END_PROLOG
 w.x.c: 6)";
@@ -153,7 +153,7 @@ w.x.c: 6)";
 
 BOOST_AUTO_TEST_CASE(prolog_dotted_dup_nested)
 {
-  char const * cfg = R"(BEGIN_PROLOG
+  char const* cfg = R"(BEGIN_PROLOG
 w.x.y: 7
 END_PROLOG
 w: { x: { c: 6 } })";
@@ -166,7 +166,7 @@ w: { x: { c: 6 } })";
 
 BOOST_AUTO_TEST_CASE(prolog_dotted_dup_dotted)
 {
-  char const * cfg = R"(BEGIN_PROLOG
+  char const* cfg = R"(BEGIN_PROLOG
 w.x.y: 7
 END_PROLOG
 w.x.c: 6)";
@@ -176,6 +176,5 @@ w.x.c: 6)";
   BOOST_CHECK(pset.has_key("w.x.c"));
   BOOST_CHECK(!pset.has_key("w.x.y"));
 }
-
 
 BOOST_AUTO_TEST_SUITE_END()

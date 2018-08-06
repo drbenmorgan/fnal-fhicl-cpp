@@ -29,22 +29,28 @@ namespace {
 }
 
 void
-fhicl::detail::throwOnSQLiteFailure(sqlite3* db, char* msg)
+fhicl::detail::throwOnSQLiteFailure(int const errcode, char* msg)
 {
   std::string const msgString{msg ? msg : ""};
   sqlite3_free(msg);
-  if (db == nullptr) {
-    throw fhicl::exception(fhicl::error::cant_open_db) << "Can't open DB.";
-  }
-  auto errcode = sqlite3_errcode(db);
   if (errcode != SQLITE_OK) {
     // Caller's responsibility to make sure this really is an error
     // and not (say) SQLITE_ROW or SQLITE_DONE,
     throw exception(error::sql_error, "SQLite error:")
-      << sqlite3_errstr(errcode) << " (" << errcode
-      << "): " << sqlite3_errmsg(db)
-      << (msgString.empty() ? "" : (std::string(". ") + msgString));
+      << sqlite3_errstr(errcode) << " (" << errcode << ')'
+      << (msgString.empty() ? "" : (std::string(": ") + msgString));
   }
+}
+
+void
+fhicl::detail::throwOnSQLiteFailure(sqlite3* db, char* msg)
+{
+  if (db == nullptr) {
+    sqlite3_free(msg);
+    throw fhicl::exception(fhicl::error::cant_open_db) << "Can't open DB.";
+  }
+  auto const errcode = sqlite3_errcode(db);
+  throwOnSQLiteFailure(errcode, msg);
 }
 
 fhicl::ParameterSetRegistry::~ParameterSetRegistry()

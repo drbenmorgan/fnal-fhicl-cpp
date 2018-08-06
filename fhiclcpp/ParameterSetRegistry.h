@@ -22,6 +22,7 @@ namespace fhicl {
 
   namespace detail {
     class HashParameterSetID;
+    void throwOnSQLiteFailure(int rc, char* msg = nullptr);
     void throwOnSQLiteFailure(sqlite3* db, char* msg = nullptr);
   }
 }

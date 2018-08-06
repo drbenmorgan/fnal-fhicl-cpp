@@ -154,16 +154,17 @@ BOOST_AUTO_TEST_CASE(TestImport)
       bool const inRegistry{pr.second};
       std::string const id{pset.id().to_string()};
       std::string const psBlob{pset.to_compact_string()};
-      sqlite3_bind_text(oStmt, 1, id.c_str(), id.size() + 1, SQLITE_STATIC);
-      throwOnSQLiteFailure(db);
+      auto const rc1 =
+        sqlite3_bind_text(oStmt, 1, id.c_str(), id.size() + 1, SQLITE_STATIC);
+      throwOnSQLiteFailure(rc1);
 
-      sqlite3_bind_text(
+      auto const rc2 = sqlite3_bind_text(
         oStmt, 2, psBlob.c_str(), psBlob.size() + 1, SQLITE_STATIC);
-      throwOnSQLiteFailure(db);
+      throwOnSQLiteFailure(rc2);
       BOOST_REQUIRE_EQUAL(sqlite3_step(oStmt), SQLITE_DONE);
 
-      sqlite3_finalize(oStmt);
-      throwOnSQLiteFailure(db);
+      auto const rc3 = sqlite3_finalize(oStmt);
+      throwOnSQLiteFailure(rc3);
 
       BOOST_REQUIRE_EQUAL(ParameterSetRegistry::has(pset.id()), inRegistry);
     };

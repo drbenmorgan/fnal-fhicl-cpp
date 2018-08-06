@@ -154,26 +154,22 @@ BOOST_AUTO_TEST_CASE(TestImport)
         nullptr);
       throwOnSQLiteFailure(db);
       auto const& pset = pr.first;
-      string const id{pset.id().to_string()};
-      sqlite3_bind_text(oStmt, 1, id.c_str(), id.size() + 1, SQLITE_STATIC);
-      throwOnSQLiteFailure(db);
-      string const psBlob{pset.to_compact_string()};
-      sqlite3_bind_text(
-        oStmt, 2, psBlob.c_str(), psBlob.size() + 1, SQLITE_STATIC);
-      throwOnSQLiteFailure(db);
-      {
-        // FIXME: sqlite3_step is not thread-safe according to tsan!
-        RecursiveMutexSentry sentry{m, "test"};
-        BOOST_REQUIRE_EQUAL(sqlite3_step(oStmt), SQLITE_DONE);
-      }
-      sqlite3_finalize(oStmt);
-      throwOnSQLiteFailure(db);
       bool const inRegistry{pr.second};
-      {
-        // FIXME: Not thread-safe according to tsan!
-        RecursiveMutexSentry sentry{m, "test"};
-        BOOST_REQUIRE_EQUAL(ParameterSetRegistry::has(pset.id()), inRegistry);
-      }
+      std::string const id{pset.id().to_string()};
+      std::string const psBlob{pset.to_compact_string()};
+      auto const rc1 =
+        sqlite3_bind_text(oStmt, 1, id.c_str(), id.size() + 1, SQLITE_STATIC);
+      throwOnSQLiteFailure(rc1);
+
+      auto const rc2 = sqlite3_bind_text(
+        oStmt, 2, psBlob.c_str(), psBlob.size() + 1, SQLITE_STATIC);
+      throwOnSQLiteFailure(rc2);
+      BOOST_REQUIRE_EQUAL(sqlite3_step(oStmt), SQLITE_DONE);
+
+      auto const rc3 = sqlite3_finalize(oStmt);
+      throwOnSQLiteFailure(rc3);
+
+      BOOST_REQUIRE_EQUAL(ParameterSetRegistry::has(pset.id()), inRegistry);
     };
     vector<function<void()>> tasks;
     cet::transform_all(

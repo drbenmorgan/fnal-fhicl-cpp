@@ -1,7 +1,7 @@
+#include "fhiclcpp/detail/ParameterSetImplHelpers.h"
 #include "boost/algorithm/string.hpp"
 #include "cetlib/container_algorithms.h"
 #include "cetlib/split_by_regex.h"
-#include "fhiclcpp/detail/ParameterSetImplHelpers.h"
 #include "fhiclcpp/exception.h"
 
 #include <regex>
@@ -42,11 +42,11 @@ namespace fhicl {
       tokens.erase(tokens.begin());
 
       std::vector<std::size_t> indices;
-      cet::transform_all(tokens, std::back_inserter(indices), [](std::string const& index) {
+      cet::transform_all(
+        tokens, std::back_inserter(indices), [](std::string const& index) {
           return std::stoul(index);
         });
       return SequenceKey{name, indices};
     }
-
   }
 }

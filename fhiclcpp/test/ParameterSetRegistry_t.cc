@@ -155,7 +155,8 @@ BOOST_AUTO_TEST_CASE(TestImport)
       throwOnSQLiteFailure(db);
       auto const& pset = pr.first;
       string const id{pset.id().to_string()};
-      auto const rc1 = sqlite3_bind_text(oStmt, 1, id.c_str(), id.size() + 1, SQLITE_STATIC);
+      auto const rc1 =
+        sqlite3_bind_text(oStmt, 1, id.c_str(), id.size() + 1, SQLITE_STATIC);
       throwOnSQLiteFailure(rc1);
 
       string const psBlob{pset.to_compact_string()};

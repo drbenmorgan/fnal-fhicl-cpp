@@ -323,9 +323,7 @@ intermediate_table::split(std::string const& name) const
   static std::string const splitChars{shims::isSnippetMode() ? "[]" : ".[]"};
   std::vector<std::string> result;
   boost::algorithm::split(
-    result,
-    name,
-    boost::algorithm::is_any_of(splitChars));
+    result, name, boost::algorithm::is_any_of(splitChars));
   return result;
 }
 

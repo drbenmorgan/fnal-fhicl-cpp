@@ -17,29 +17,27 @@
 #include <memory>
 #include <string>
 
-namespace fhicl {
-  namespace detail {
+namespace fhicl::detail {
 
-    template <class T, class Enable = void>
-    struct AllowedConfiguration {
-      static std::unique_ptr<fhicl::ConfigurationTable>
-      get(std::string const& /*name*/)
-      {
-        return std::unique_ptr<fhicl::ConfigurationTable>{nullptr};
-      }
-    };
+  template <class T, class Enable = void>
+  struct AllowedConfiguration {
+    static std::unique_ptr<fhicl::ConfigurationTable>
+    get(std::string const& /*name*/)
+    {
+      return std::unique_ptr<fhicl::ConfigurationTable>{nullptr};
+    }
+  };
 
-    template <class T>
-    struct AllowedConfiguration<
-      T,
-      cet::enable_if_type_exists_t<typename T::Parameters>> {
-      static std::unique_ptr<fhicl::ConfigurationTable>
-      get(std::string const& name)
-      {
-        return std::make_unique<typename T::Parameters>(fhicl::Name{name});
-      }
-    };
-  }
+  template <class T>
+  struct AllowedConfiguration<
+    T,
+    cet::enable_if_type_exists_t<typename T::Parameters>> {
+    static std::unique_ptr<fhicl::ConfigurationTable>
+    get(std::string const& name)
+    {
+      return std::make_unique<typename T::Parameters>(fhicl::Name{name});
+    }
+  };
 }
 
 #define FHICL_PROVIDE_ALLOWED_CONFIGURATION(klass)                             \

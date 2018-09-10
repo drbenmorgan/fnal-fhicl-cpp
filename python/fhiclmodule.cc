@@ -33,7 +33,7 @@
 
 #include "cetlib/compiler_macros.h"
 #pragma GCC diagnostic push
-#if GCC_IS_AT_LEAST(7, 1, 0)
+#if GCC_IS_AT_LEAST(7, 1, 0) || CLANG_IS_AT_LEAST(6, 0, 0)
 #pragma GCC diagnostic ignored "-Wregister"
 #endif
 #include "Python.h" // Needs to be (almost) first due to macro definition issues

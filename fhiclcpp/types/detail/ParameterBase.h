@@ -40,17 +40,17 @@ namespace fhicl {
     //========================================================
     class ParameterBase {
     public:
-      std::string
+      std::string const&
       key() const
       {
         return mdata_.key();
       }
-      std::string
+      std::string const&
       name() const
       {
         return mdata_.name();
       }
-      std::string
+      std::string const&
       comment() const
       {
         return mdata_.comment();

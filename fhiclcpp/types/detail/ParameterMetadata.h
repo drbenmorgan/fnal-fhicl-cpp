@@ -29,17 +29,17 @@ namespace fhicl {
         , parType_{parType}
       {}
 
-      std::string
+      std::string const&
       key() const
       {
         return key_;
       }
-      std::string
+      std::string const&
       name() const
       {
         return name_;
       }
-      std::string
+      std::string const&
       comment() const
       {
         return comment_;

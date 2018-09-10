@@ -40,28 +40,28 @@ namespace fhicl {
       {}
 
       auto
-      begin() const
+      begin() const noexcept
       {
         return holder_.cbegin();
       }
       auto
-      end() const
+      end() const noexcept
       {
         return holder_.cend();
       }
       auto
-      cbegin() const
+      cbegin() const noexcept
       {
         return holder_.cbegin();
       }
       auto
-      cend() const
+      cend() const noexcept
       {
         return holder_.cend();
       }
 
     private:
-      std::vector<T> holder_;
+      std::vector<T> const holder_;
     };
   }
 
@@ -110,7 +110,7 @@ namespace fhicl {
     }
 
     auto
-    operator()(std::size_t i) const
+    operator()(std::size_t const i) const
     {
       return (*value_.at(i))();
     }
@@ -119,7 +119,7 @@ namespace fhicl {
     ftype value_;
 
     std::size_t
-    get_size() const override
+    get_size() const noexcept override
     {
       return value_.size();
     }
@@ -192,7 +192,7 @@ namespace fhicl {
     }
 
     auto
-    operator()(std::size_t i) const
+    operator()(std::size_t const i) const
     {
       return (*value_.at(i))();
     }
@@ -230,7 +230,7 @@ namespace fhicl {
     }
 
     std::size_t
-    get_size() const override
+    get_size() const noexcept override
     {
       return value_.size();
     }
@@ -315,7 +315,7 @@ namespace fhicl {
   // c'tors that support defaults
   template <typename T, std::size_t N>
   Sequence<T, N>::Sequence(Name&& name, default_type const& defaults)
-    : Sequence(std::move(name), Comment(""), defaults)
+    : Sequence{std::move(name), Comment{""}, defaults}
   {}
 
   template <typename T, std::size_t N>
@@ -366,7 +366,7 @@ namespace fhicl {
   //
   template <typename T>
   Sequence<T, -1ull>::Sequence(Name&& name)
-    : Sequence{std::move(name), Comment("")}
+    : Sequence{std::move(name), Comment{""}}
   {}
 
   template <typename T>
@@ -400,7 +400,7 @@ namespace fhicl {
   // c'tors that support defaults
   template <typename T>
   Sequence<T, -1ull>::Sequence(Name&& name, default_type const& defaults)
-    : Sequence{std::move(name), Comment(""), defaults}
+    : Sequence{std::move(name), Comment{""}, defaults}
   {}
 
   template <typename T>

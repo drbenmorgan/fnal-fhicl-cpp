@@ -66,7 +66,7 @@ namespace fhicl {
     bool has_value_{false};
 
     std::size_t
-    get_size() const override
+    get_size() const noexcept override
     {
       return value_.size();
     }
@@ -166,7 +166,7 @@ namespace fhicl {
     }
 
     std::size_t
-    get_size() const override
+    get_size() const noexcept override
     {
       return value_.size();
     }

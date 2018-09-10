@@ -139,9 +139,9 @@ vector<string>
 ParameterSet::get_pset_names() const
 {
   vector<string> keys;
-  for (auto const& pr : mapping_) {
-    if (is_table(pr.second)) {
-      keys.push_back(pr.first);
+  for (auto const & [key, value] : mapping_) {
+    if (is_table(value)) {
+      keys.push_back(key);
     }
   }
   return keys;
@@ -379,8 +379,8 @@ ParameterSet::walk(ParameterSetWalker& psw) const
         ParameterSet const* ps = &get_pset_via_any(a);
         ps_stack.push(ps);
         psw.do_enter_table(key, a);
-        for (auto const& elem : ps->mapping_) {
-          act_on_element(elem.first, elem.second);
+        for (auto const & [nested_key, nested_a] : ps->mapping_) {
+          act_on_element(nested_key, nested_a);
         }
         psw.do_exit_table(key, a);
         ps_stack.pop();

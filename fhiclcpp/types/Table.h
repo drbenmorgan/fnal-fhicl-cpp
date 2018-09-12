@@ -26,11 +26,10 @@ namespace fhicl {
   class Table final : public detail::TableBase,
                       private detail::RegisterIfTableMember {
   public:
-    static_assert(!tt::is_sequence_type<T>::value, NO_STD_CONTAINERS);
-    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_TABLE);
-    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS);
-    static_assert(!tt::is_delegated_parameter<T>::value,
-                  NO_DELEGATED_PARAMETERS);
+    static_assert(!tt::is_sequence_type_v<T>, NO_STD_CONTAINERS);
+    static_assert(!tt::is_fhicl_type_v<T>, NO_NESTED_FHICL_TYPES_IN_TABLE);
+    static_assert(!tt::is_table_fragment_v<T>, NO_NESTED_TABLE_FRAGMENTS);
+    static_assert(!tt::is_delegated_parameter_v<T>, NO_DELEGATED_PARAMETERS);
 
     //=====================================================
     // User-friendly
@@ -91,8 +90,7 @@ namespace fhicl {
     members_t members_{
       detail::TableMemberRegistry::instance().release_members()};
 
-    struct Impl {
-    };
+    struct Impl {};
     Table(ParameterSet const&, std::set<std::string> const&, Impl);
     void maybe_implicitly_default();
 
@@ -115,7 +113,7 @@ namespace fhicl {
   }
 }
 
-  // Implementation
+// Implementation
 
 #include "cetlib/container_algorithms.h"
 #include "fhiclcpp/detail/printing_helpers.h"

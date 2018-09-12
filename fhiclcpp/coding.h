@@ -40,146 +40,138 @@
 #include <utility>
 #include <vector>
 
-namespace fhicl {
-  namespace detail {
-    typedef std::string ps_atom_t;
-    typedef std::vector<boost::any> ps_sequence_t;
-    typedef long double ldbl;
+namespace fhicl::detail {
+  using ps_atom_t = std::string;
+  using ps_sequence_t = std::vector<boost::any>;
+  using ldbl = long double;
 
-    inline bool
-    is_sequence(boost::any const& val)
-    {
-      return val.type() == typeid(ps_sequence_t);
-    }
+  inline bool
+  is_sequence(boost::any const& val)
+  {
+    return val.type() == typeid(ps_sequence_t);
+  }
 
-    inline bool
-    is_table(boost::any const& val)
-    {
-      return val.type() == typeid(ParameterSetID);
-    }
+  inline bool
+  is_table(boost::any const& val)
+  {
+    return val.type() == typeid(ParameterSetID);
+  }
 
-    bool is_nil(boost::any const& val);
+  bool is_nil(boost::any const& val);
 
-    // ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
 
-    ps_atom_t encode(std::string const&);       // string (w/ quotes)
-    ps_atom_t encode(char const*);              // string (w/ quotes)
-    ps_atom_t encode(void*);                    // nil
-    ps_atom_t encode(bool);                     // bool
-    ParameterSetID encode(ParameterSet const&); // table
-    ps_atom_t encode(std::uintmax_t);           // unsigned
-    template <class T>
-    typename tt::enable_if<tt::is_uint<T>::value, ps_atom_t>::type encode(
-      T const&);                     // unsigned
-    ps_atom_t encode(std::intmax_t); // signed
-    template <class T>
-    typename tt::enable_if<tt::is_int<T>::value, ps_atom_t>::type encode(
-      T const&);            // signed
-    ps_atom_t encode(ldbl); // floating-point
-    template <class T>
-    typename tt::enable_if<tt::is_floating_point<T>::value, ps_atom_t>::type
-    encode(T const&); // floating-point
-    template <class T>
-    ps_atom_t encode(std::complex<T> const&); // complex
-    template <class T>
-    ps_sequence_t encode(std::vector<T> const&); // sequence
-    template <class T>
-    typename tt::disable_if<tt::is_numeric<T>::value, std::string>::type encode(
-      T const&); // none of the above
+  ps_atom_t encode(std::string const&);       // string (w/ quotes)
+  ps_atom_t encode(char const*);              // string (w/ quotes)
+  ps_atom_t encode(void*);                    // nil
+  ps_atom_t encode(bool);                     // bool
+  ParameterSetID encode(ParameterSet const&); // table
+  ps_atom_t encode(std::uintmax_t);           // unsigned
+  template <class T>
+  std::enable_if_t<tt::is_uint<T>::value, ps_atom_t> encode(
+    T const&);                     // unsigned
+  ps_atom_t encode(std::intmax_t); // signed
+  template <class T>
+  std::enable_if_t<tt::is_int<T>::value, ps_atom_t> encode(T const&); // signed
+  ps_atom_t encode(ldbl); // floating-point
+  template <class T>
+  std::enable_if_t<std::is_floating_point_v<T>, ps_atom_t> encode(
+    T const&); // floating-point
+  template <class T>
+  ps_atom_t encode(std::complex<T> const&); // complex
+  template <class T>
+  ps_sequence_t encode(std::vector<T> const&); // sequence
+  template <class T>
+  tt::disable_if_t<tt::is_numeric<T>::value, std::string> encode(
+    T const&); // none of the above
 
-    // ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
 
-    void decode(boost::any const&, std::string&);    // string
-    void decode(boost::any const&, void*&);          // nil
-    void decode(boost::any const&, bool&);           // bool
-    void decode(boost::any const&, ParameterSet&);   // table
-    void decode(boost::any const&, std::uintmax_t&); // unsigned
+  void decode(boost::any const&, std::string&);    // string
+  void decode(boost::any const&, void*&);          // nil
+  void decode(boost::any const&, bool&);           // bool
+  void decode(boost::any const&, ParameterSet&);   // table
+  void decode(boost::any const&, std::uintmax_t&); // unsigned
 
-    template <class T>
-    typename tt::enable_if<tt::is_uint<T>::value, void>::type decode(
-      boost::any const&,
-      T&); // unsigned
+  template <class T>
+  std::enable_if_t<tt::is_uint<T>::value> decode(boost::any const&,
+                                                 T&); // unsigned
 
-    void decode(boost::any const&, std::intmax_t&); // signed
+  void decode(boost::any const&, std::intmax_t&); // signed
 
-    template <class T>
-    typename tt::enable_if<tt::is_int<T>::value, void>::type decode(
-      boost::any const&,
-      T&); // signed
+  template <class T>
+  std::enable_if_t<tt::is_int<T>::value> decode(boost::any const&,
+                                                T&); // signed
 
-    void decode(boost::any const&, ldbl&); // floating-point
+  void decode(boost::any const&, ldbl&); // floating-point
 
-    template <class T>
-    typename tt::enable_if<tt::is_floating_point<T>::value, void>::type decode(
-      boost::any const&,
-      T&); // floating-point
+  template <class T>
+  std::enable_if_t<std::is_floating_point_v<T>> decode(boost::any const&,
+                                                       T&); // floating-point
 
-    void decode(boost::any const&, std::complex<ldbl>&); // complex
+  void decode(boost::any const&, std::complex<ldbl>&); // complex
 
-    template <class T>
-    void decode(boost::any const&, std::complex<T>&); // complex
+  template <class T>
+  void decode(boost::any const&, std::complex<T>&); // complex
 
-    template <class T>
-    void decode(boost::any const&, std::vector<T>&); // sequence
+  template <class T>
+  void decode(boost::any const&, std::vector<T>&); // sequence
 
-    template <typename U>
-    void decode_tuple(boost::any const&, U& tuple); // tuple-type decoding
+  template <typename U>
+  void decode_tuple(boost::any const&, U& tuple); // tuple-type decoding
 
-    template <typename T, std::size_t SIZE>
-    void decode(boost::any const& a, std::array<T, SIZE>& result) // std::array
-    {
-      decode_tuple(a, result);
-    }
+  template <typename T, std::size_t SIZE>
+  void decode(boost::any const& a, std::array<T, SIZE>& result) // std::array
+  {
+    decode_tuple(a, result);
+  }
 
-    template <typename KEY, typename VALUE>
-    void decode(boost::any const& a, std::pair<KEY, VALUE>& result) // std::pair
-    {
-      decode_tuple(a, result);
-    }
+  template <typename KEY, typename VALUE>
+  void decode(boost::any const& a, std::pair<KEY, VALUE>& result) // std::pair
+  {
+    decode_tuple(a, result);
+  }
 
-    template <typename... ARGS>
-    void decode(boost::any const& a, std::tuple<ARGS...>& result) // std::tuple
-    {
-      decode_tuple(a, result);
-    }
+  template <typename... ARGS>
+  void decode(boost::any const& a, std::tuple<ARGS...>& result) // std::tuple
+  {
+    decode_tuple(a, result);
+  }
 
-    template <unsigned SIZE, typename TUPLE> // tuple support
-    struct per_entry {
-      static void decode_tuple_entry(ps_sequence_t const&, TUPLE&);
-    };
+  template <unsigned SIZE, typename TUPLE> // tuple support
+  struct per_entry {
+    static void decode_tuple_entry(ps_sequence_t const&, TUPLE&);
+  };
 
-    template <typename TUPLE> // tuple support
-    struct per_entry<0, TUPLE> {
-      static void decode_tuple_entry(ps_sequence_t const&, TUPLE&);
-    };
+  template <typename TUPLE> // tuple support
+  struct per_entry<0, TUPLE> {
+    static void decode_tuple_entry(ps_sequence_t const&, TUPLE&);
+  };
 
-    template <class T>
-    typename tt::disable_if<tt::is_numeric<T>::value, void>::type decode(
-      boost::any const&,
-      T&); // none of the above
+  template <class T>
+  tt::disable_if_t<tt::is_numeric<T>::value> decode(boost::any const&,
+                                                    T&); // none of the above
 
-  } // fhicl::detail
-} // fhicl
+} // fhicl::detail
 
 // ======================================================================
 
 template <class T> // unsigned
-typename tt::enable_if<tt::is_uint<T>::value, fhicl::detail::ps_atom_t>::type
+std::enable_if_t<tt::is_uint<T>::value, fhicl::detail::ps_atom_t>
 fhicl::detail::encode(T const& value)
 {
   return encode(uintmax_t(value));
 }
 
 template <class T> // signed
-typename tt::enable_if<tt::is_int<T>::value, fhicl::detail::ps_atom_t>::type
+std::enable_if_t<tt::is_int<T>::value, fhicl::detail::ps_atom_t>
 fhicl::detail::encode(T const& value)
 {
   return encode(intmax_t(value));
 }
 
 template <class T> // floating-point
-typename tt::enable_if<tt::is_floating_point<T>::value,
-                       fhicl::detail::ps_atom_t>::type
+std::enable_if_t<std::is_floating_point_v<T>, fhicl::detail::ps_atom_t>
 fhicl::detail::encode(T const& value)
 {
   return encode(ldbl(value));
@@ -197,17 +189,14 @@ fhicl::detail::ps_sequence_t
 fhicl::detail::encode(std::vector<T> const& value)
 {
   ps_sequence_t result;
-  for (typename std::vector<T>::const_iterator it = value.begin(),
-                                               e = value.end();
-       it != e;
-       ++it) {
-    result.push_back(boost::any(encode(*it)));
+  for (auto const& e : value) {
+    result.emplace_back(encode(e));
   }
   return result;
 }
 
 template <class T> // none of the above
-typename tt::disable_if<tt::is_numeric<T>::value, std::string>::type
+tt::disable_if_t<tt::is_numeric<T>::value, std::string>
 fhicl::detail::encode(T const& value)
 {
   return boost::lexical_cast<std::string>(value);
@@ -218,7 +207,7 @@ fhicl::detail::encode(T const& value)
 //===================================================================
 // unsigned
 template <class T>
-typename tt::enable_if<tt::is_uint<T>::value, void>::type
+std::enable_if_t<tt::is_uint<T>::value>
 fhicl::detail::decode(boost::any const& a, T& result)
 {
   std::uintmax_t via;
@@ -229,7 +218,7 @@ fhicl::detail::decode(boost::any const& a, T& result)
 //====================================================================
 // signed
 template <class T>
-typename tt::enable_if<tt::is_int<T>::value, void>::type
+std::enable_if_t<tt::is_int<T>::value>
 fhicl::detail::decode(boost::any const& a, T& result)
 {
   std::intmax_t via;
@@ -240,7 +229,7 @@ fhicl::detail::decode(boost::any const& a, T& result)
 //====================================================================
 // floating-point
 template <class T>
-typename tt::enable_if<tt::is_floating_point<T>::value, void>::type
+std::enable_if_t<std::is_floating_point_v<T>>
 fhicl::detail::decode(boost::any const& a, T& result)
 {
   ldbl via;
@@ -283,9 +272,8 @@ fhicl::detail::decode(boost::any const& a, std::vector<T>& result)
     sequence_t const& seq = sequence_t(xval);
     result.clear();
     T via;
-    for (sequence_t::const_iterator it = seq.begin(), e = seq.end(); it != e;
-         ++it) {
-      decode(it->to_string(), via);
+    for (auto const& e : seq) {
+      decode(e.to_string(), via);
       result.push_back(via);
     }
   }
@@ -294,9 +282,8 @@ fhicl::detail::decode(boost::any const& a, std::vector<T>& result)
     ps_sequence_t const& seq = boost::any_cast<ps_sequence_t>(a);
     result.clear();
     T via;
-    for (ps_sequence_t::const_iterator it = seq.begin(), e = seq.end(); it != e;
-         ++it) {
-      decode(*it, via);
+    for (auto const& e : seq) {
+      decode(e, via);
       result.push_back(via);
     }
   }
@@ -336,9 +323,9 @@ template <typename U>
 void
 fhicl::detail::decode_tuple(boost::any const& a, U& result)
 {
-  ps_sequence_t const& seq = boost::any_cast<ps_sequence_t>(a);
+  auto const seq = boost::any_cast<ps_sequence_t>(a);
 
-  constexpr std::size_t TUPLE_SIZE = std::tuple_size<U>::value;
+  constexpr std::size_t TUPLE_SIZE = std::tuple_size_v<U>;
 
   if (seq.size() != TUPLE_SIZE) {
     std::ostringstream errmsg;
@@ -362,13 +349,13 @@ fhicl::detail::decode_tuple(boost::any const& a, U& result)
 
 //====================================================================
 template <class T> // none of the above
-typename tt::disable_if<tt::is_numeric<T>::value, void>::type
+tt::disable_if_t<tt::is_numeric<T>::value>
 fhicl::detail::decode(boost::any const& a, T& result)
 {
   result = boost::any_cast<T>(a);
 }
 
-  // ======================================================================
+// ======================================================================
 
 #endif /* fhiclcpp_coding_h */
 

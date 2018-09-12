@@ -74,10 +74,9 @@ namespace fhicl {
   class Sequence final : public detail::SequenceBase,
                          private detail::RegisterIfTableMember {
   public:
-    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS);
-    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES);
-    static_assert(!tt::is_delegated_parameter<T>::value,
-                  NO_DELEGATED_PARAMETERS);
+    static_assert(!tt::is_table_fragment_v<T>, NO_NESTED_TABLE_FRAGMENTS);
+    static_assert(!tt::is_optional_parameter_v<T>, NO_OPTIONAL_TYPES);
+    static_assert(!tt::is_delegated_parameter_v<T>, NO_DELEGATED_PARAMETERS);
 
     using default_type =
       sequence_detail::ValueHolder<typename tt::fhicl_type<T>::default_type>;
@@ -156,10 +155,9 @@ namespace fhicl {
   class Sequence<T, -1ull> final : public detail::SequenceBase,
                                    private detail::RegisterIfTableMember {
   public:
-    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS);
-    static_assert(!tt::is_optional_parameter<T>::value, NO_OPTIONAL_TYPES);
-    static_assert(!tt::is_delegated_parameter<T>::value,
-                  NO_DELEGATED_PARAMETERS);
+    static_assert(!tt::is_table_fragment_v<T>, NO_NESTED_TABLE_FRAGMENTS);
+    static_assert(!tt::is_optional_parameter_v<T>, NO_OPTIONAL_TYPES);
+    static_assert(!tt::is_delegated_parameter_v<T>, NO_DELEGATED_PARAMETERS);
 
     using default_type = std::vector<typename tt::fhicl_type<T>::default_type>;
     using ftype = std::vector<std::shared_ptr<tt::fhicl_type<T>>>;
@@ -414,7 +412,7 @@ namespace fhicl {
                    detail::AlwaysUse()}
     , RegisterIfTableMember{this}
   {
-    static_assert(!tt::is_table<T>::value, NO_DEFAULTS_FOR_TABLE);
+    static_assert(!tt::is_table_v<T>, NO_DEFAULTS_FOR_TABLE);
     std::size_t i{};
     for (auto const& t : defaults) {
       value_.emplace_back(new tt::fhicl_type<T>{Name::sequence_element(i), t});
@@ -435,7 +433,7 @@ namespace fhicl {
                    maybeUse}
     , RegisterIfTableMember{this}
   {
-    static_assert(!tt::is_table<T>::value, NO_DEFAULTS_FOR_TABLE);
+    static_assert(!tt::is_table_v<T>, NO_DEFAULTS_FOR_TABLE);
     std::size_t i{};
     for (auto const& t : defaults) {
       value_.emplace_back(new tt::fhicl_type<T>{Name::sequence_element(i), t});

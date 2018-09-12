@@ -13,6 +13,7 @@
 #include "fhiclcpp/types/detail/ostream_helpers.h"
 #include "fhiclcpp/types/detail/type_traits_error_msgs.h"
 
+#include <optional>
 #include <sstream>
 #include <string>
 
@@ -23,11 +24,10 @@ namespace fhicl {
   class OptionalAtom final : public detail::AtomBase,
                              private detail::RegisterIfTableMember {
   public:
-    static_assert(!tt::is_sequence_type<T>::value, NO_STD_CONTAINERS);
-    static_assert(!tt::is_fhicl_type<T>::value, NO_NESTED_FHICL_TYPES_IN_ATOM);
-    static_assert(!tt::is_table_fragment<T>::value, NO_NESTED_TABLE_FRAGMENTS);
-    static_assert(!tt::is_delegated_parameter<T>::value,
-                  NO_DELEGATED_PARAMETERS);
+    static_assert(!tt::is_sequence_type_v<T>, NO_STD_CONTAINERS);
+    static_assert(!tt::is_fhicl_type_v<T>, NO_NESTED_FHICL_TYPES_IN_ATOM);
+    static_assert(!tt::is_table_fragment_v<T>, NO_NESTED_TABLE_FRAGMENTS);
+    static_assert(!tt::is_delegated_parameter_v<T>, NO_DELEGATED_PARAMETERS);
 
     //=====================================================
     // User-friendly
@@ -42,8 +42,8 @@ namespace fhicl {
     bool
     operator()(T& value) const
     {
-      if (has_value_) {
-        value = value_;
+      if (hasValue()) {
+        value = *value_;
         return true;
       }
       return false;
@@ -52,7 +52,7 @@ namespace fhicl {
     bool
     hasValue() const
     {
-      return has_value_;
+      return value_.has_value();
     }
 
     // Expert-only
@@ -61,8 +61,7 @@ namespace fhicl {
     OptionalAtom();
 
   private:
-    T value_{};
-    bool has_value_{false};
+    std::optional<T> value_{};
 
     std::string get_stringified_value() const override;
     void do_set_value(fhicl::ParameterSet const&, bool const) override;
@@ -76,7 +75,7 @@ namespace fhicl {
 
   template <typename T>
   OptionalAtom<T>::OptionalAtom(Name&& name)
-    : OptionalAtom<T>::OptionalAtom(std::move(name), Comment(""))
+    : OptionalAtom{std::move(name), Comment("")}
   {}
 
   template <typename T>
@@ -108,9 +107,9 @@ namespace fhicl {
   OptionalAtom<T>::get_stringified_value() const
   {
     std::stringstream oss;
-    if (has_value_) {
+    if (value_) {
       using namespace detail::yes_defaults;
-      oss << maybe_quotes<T>(value_);
+      oss << maybe_quotes<T>(*value_);
     } else {
       using namespace detail::no_defaults;
       oss << expected_types<T>();
@@ -126,7 +125,10 @@ namespace fhicl {
     std::string const& rkey = key();
     std::string const& key =
       trimParent ? detail::strip_first_containing_name(rkey) : rkey;
-    has_value_ = pset.get_if_present<T>(key, value_);
+    T tmp{};
+    if (pset.get_if_present<T>(key, tmp)) {
+      value_ = std::move(tmp);
+    }
   }
 }
 

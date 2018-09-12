@@ -67,15 +67,15 @@ public:
   // 2. A range of iterator to ParameterSet.
   template <class FwdIt>
   static std::enable_if_t<
-    std::is_same<typename std::iterator_traits<FwdIt>::value_type,
-                 mapped_type>::value>
+    std::is_same_v<typename std::iterator_traits<FwdIt>::value_type,
+                   mapped_type>>
   put(FwdIt begin, FwdIt end);
   // 3. A range of iterator to pair<ParameterSetID, ParameterSet>. For
   // each pair, first == second.id() is a prerequisite.
   template <class FwdIt>
   static std::enable_if_t<
-    std::is_same<typename std::iterator_traits<FwdIt>::value_type,
-                 value_type>::value>
+    std::is_same_v<typename std::iterator_traits<FwdIt>::value_type,
+                   value_type>>
   put(FwdIt begin, FwdIt end);
   // 4. A collection_type. For each value_type, first == second.id() is
   // a prerequisite.
@@ -125,8 +125,7 @@ fhicl::ParameterSetRegistry::put(ParameterSet const& ps)
 template <class FwdIt>
 inline auto
 fhicl::ParameterSetRegistry::put(FwdIt b, FwdIt const e) -> std::enable_if_t<
-  std::is_same<typename std::iterator_traits<FwdIt>::value_type,
-               mapped_type>::value>
+  std::is_same_v<typename std::iterator_traits<FwdIt>::value_type, mapped_type>>
 {
   // No lock here -- it will be acquired by 3.
   for (; b != e; ++b) {
@@ -139,8 +138,8 @@ template <class FwdIt>
 inline auto
 fhicl::ParameterSetRegistry::put(FwdIt const b, FwdIt const e)
   -> std::enable_if_t<
-    std::is_same<typename std::iterator_traits<FwdIt>::value_type,
-                 value_type>::value>
+    std::is_same_v<typename std::iterator_traits<FwdIt>::value_type,
+                   value_type>>
 {
   hep::concurrency::RecursiveMutexSentry sentry{mutex_, __func__};
   instance_().registry_.insert(b, e);

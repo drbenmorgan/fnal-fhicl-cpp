@@ -58,7 +58,7 @@ fhicl::ParameterSetID::max_str_size() noexcept
   return 2 * cet::sha1::digest_sz;
 }
 
-  // ======================================================================
+// ======================================================================
 
 #endif /* fhiclcpp_ParameterSetID_h */
 

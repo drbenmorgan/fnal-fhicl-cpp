@@ -51,14 +51,14 @@ namespace {
     bool flag_;
   };
 
-  std::ostream& operator<<[[maybe_unused]](std::ostream& os, RefS const& refs)
-  {
-    os << " Atom: " << refs.i_ << " Sequence: [ " << refs.sj_ << ", "
-       << refs.sk_ << " ]"
-       << " Tuple: [ " << refs.tl_ << ", " << refs.str_ << ", "
-       << std::boolalpha << refs.flag_ << " ]";
-    return os;
-  }
+  std::ostream& operator<<
+    [[maybe_unused]](std::ostream& os, RefS const& refs) {
+      os << " Atom: " << refs.i_ << " Sequence: [ " << refs.sj_ << ", "
+         << refs.sk_ << " ]"
+         << " Tuple: [ " << refs.tl_ << ", " << refs.str_ << ", "
+         << std::boolalpha << refs.flag_ << " ]";
+      return os;
+    }
 
   struct S {
     Atom<int> atom{Name("atom")};
@@ -76,8 +76,7 @@ namespace {
     }
   };
 
-  std::ostream& operator<<[[maybe_unused]](std::ostream& os, S const& s)
-  {
+  std::ostream& operator<< [[maybe_unused]](std::ostream& os, S const& s) {
     os << " Atom: " << s.atom() << " Sequence: [ " << s.sequence(0) << ", "
        << s.sequence(1) << " ]"
        << " Tuple: [ " << s.tuple.get<0>() << ", " << s.tuple.get<1>() << ", "

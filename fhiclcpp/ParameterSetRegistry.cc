@@ -98,7 +98,7 @@ fhicl::ParameterSetRegistry::importFrom(sqlite3* db)
   query_result<std::string, std::string> inputPSes;
   inputPSes << select("*").from(db, "ParameterSets");
 
-  for (auto const & [idString, psBlob] : inputPSes) {
+  for (auto const& [idString, psBlob] : inputPSes) {
     sqlite3_bind_text(
       oStmt, 1, idString.c_str(), idString.size() + 1, SQLITE_STATIC);
     throwOnSQLiteFailure(primaryDB);
@@ -161,7 +161,7 @@ fhicl::ParameterSetRegistry::exportTo(sqlite3* db)
   query_result<std::string, std::string> regPSes;
   regPSes << select("*").from(primaryDB, "ParameterSets");
 
-  for (auto const & [idString, psBlob] : regPSes) {
+  for (auto const& [idString, psBlob] : regPSes) {
     sqlite3_bind_text(
       oStmt, 1, idString.c_str(), idString.size() + 1, SQLITE_STATIC);
     throwOnSQLiteFailure(db);
@@ -195,7 +195,7 @@ fhicl::ParameterSetRegistry::stageIn()
   cet::transform_all(entriesToStageIn,
                      std::inserter(registry, std::begin(registry)),
                      [](auto const& row) {
-                       auto const & [idString, psBlob] = row;
+                       auto const& [idString, psBlob] = row;
                        ParameterSet pset;
                        fhicl::make_ParameterSet(psBlob, pset);
                        return std::make_pair(ParameterSetID{idString}, pset);

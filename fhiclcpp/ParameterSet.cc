@@ -23,8 +23,8 @@ using namespace fhicl::detail;
 using namespace std;
 using namespace std::string_literals;
 
-using boost::any;
-using boost::any_cast;
+using std::any;
+using std::any_cast;
 
 using ps_atom_t = ParameterSet::ps_atom_t;
 using ps_sequence_t = ParameterSet::ps_sequence_t;
@@ -54,9 +54,9 @@ namespace {
   }
 
   ParameterSet const&
-  get_pset_via_any(boost::any const& a)
+  get_pset_via_any(std::any const& a)
   {
-    ParameterSetID const& psid = boost::any_cast<ParameterSetID>(a);
+    ParameterSetID const& psid = std::any_cast<ParameterSetID>(a);
     return ParameterSetRegistry::get(psid);
   }
 }
@@ -288,7 +288,7 @@ ParameterSet::erase(string const& key)
 
 bool
 ParameterSet::key_is_type_(std::string const& key,
-                           std::function<bool(boost::any const&)> func) const
+                           std::function<bool(std::any const&)> func) const
 {
   auto split_keys = detail::get_names(key);
   ParameterSet ps;
@@ -324,7 +324,7 @@ ParameterSet::key_is_type_(std::string const& key,
 // table is an extended_value that has a data member 'src_info'.  Note
 // that whenever a printout is provided, the extended_value instances
 // are no longer used, but only the mapping_ key-value pairs, which
-// are the ParameterSet names and associated boost::any objects.
+// are the ParameterSet names and associated std::any objects.
 //
 // ParameterSet instances therefore do not have a natural way of
 // storing source information for sequence entries because the
@@ -354,7 +354,7 @@ namespace fhicl {
   {
     auto insert = [this, &value](auto const& key) {
       using detail::encode;
-      this->insert_(key, boost::any(encode(value)));
+      this->insert_(key, std::any(encode(value)));
       fill_src_info(value, key, srcMapping_);
     };
     detail::try_insert(insert, key);
@@ -369,9 +369,9 @@ ParameterSet::walk(ParameterSetWalker& psw) const
   std::stack<ParameterSet const*> ps_stack;
   ps_stack.push(this);
 
-  std::function<void(std::string const&, boost::any const&)> act_on_element =
+  std::function<void(std::string const&, std::any const&)> act_on_element =
     [&psw, &ps_stack, &act_on_element](std::string const& key,
-                                       boost::any const& a) {
+                                       std::any const& a) {
       auto const* ps = ps_stack.top();
       psw.do_before_action(key, a, ps);
 

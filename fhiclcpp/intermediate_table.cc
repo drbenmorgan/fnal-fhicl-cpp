@@ -7,7 +7,6 @@
 #include "fhiclcpp/intermediate_table.h"
 
 #include "boost/algorithm/string.hpp"
-#include "boost/any.hpp"
 #include "fhiclcpp/exception.h"
 
 #include <cctype>
@@ -58,13 +57,13 @@ intermediate_table::intermediate_table() : ex_val{false, TABLE, table_t{}} {}
 const_iterator
 intermediate_table::begin() const
 {
-  return boost::any_cast<table_t const&>(ex_val.value).begin();
+  return std::any_cast<table_t const&>(ex_val.value).begin();
 }
 
 const_iterator
 intermediate_table::end() const
 {
-  return boost::any_cast<table_t const&>(ex_val.value).end();
+  return std::any_cast<table_t const&>(ex_val.value).end();
 }
 
 // ----------------------------------------------------------------------
@@ -72,7 +71,7 @@ intermediate_table::end() const
 bool
 intermediate_table::empty() const
 {
-  return boost::any_cast<table_t const&>(ex_val.value).empty();
+  return std::any_cast<table_t const&>(ex_val.value).empty();
 }
 
 // ----------------------------------------------------------------------
@@ -81,7 +80,7 @@ bool
 intermediate_table::insert(std::string const& name,
                            bool const in_prolog,
                            value_tag const tag,
-                           boost::any const& value)
+                           std::any const& value)
 {
   return insert(name, extended_value(in_prolog, tag, value));
 }
@@ -123,7 +122,7 @@ intermediate_table::find(std::string const& name) const
       if (!p->is_a(SEQUENCE))
         throw exception(cant_find, name)
           << "-- not a sequence (at part \"" << this_key << "\")";
-      auto const& s = boost::any_cast<sequence_t const&>(p->value);
+      auto const& s = std::any_cast<sequence_t const&>(p->value);
       unsigned i = std::atoi(this_key.c_str());
       if (s.size() <= i)
         throw exception(cant_find, name) << "(at part \"" << this_key << "\")";
@@ -132,7 +131,7 @@ intermediate_table::find(std::string const& name) const
       if (!p->is_a(TABLE))
         throw exception(cant_find, name)
           << "-- not a table (at part \"" << this_key << "\")";
-      auto const& t = boost::any_cast<table_t const&>(p->value);
+      auto const& t = std::any_cast<table_t const&>(p->value);
       auto it = t.find(this_key);
       if (it == t.end())
         throw exception(cant_find, name) << "(at part \"" << this_key << "\")";
@@ -157,7 +156,7 @@ intermediate_table::exists(std::string const& name) const
       if (!p->is_a(SEQUENCE)) {
         return false;
       }
-      auto const& s = boost::any_cast<sequence_t const&>(p->value);
+      auto const& s = std::any_cast<sequence_t const&>(p->value);
       unsigned i = std::atoi(this_key.c_str());
       if (s.size() <= i) {
         return false;
@@ -167,7 +166,7 @@ intermediate_table::exists(std::string const& name) const
       if (!p->is_a(TABLE)) {
         return false;
       }
-      auto const& t = boost::any_cast<table_t const&>(p->value);
+      auto const& t = std::any_cast<table_t const&>(p->value);
       auto it = t.find(this_key);
       if (it == t.end()) {
         return false;
@@ -186,7 +185,7 @@ intermediate_table::erase(std::string const& name, bool const in_prolog)
   // table.
   auto const& key(split(name));
   auto p(&ex_val);
-  auto t(boost::any_cast<table_t>(&p->value));
+  auto t(std::any_cast<table_t>(&p->value));
   auto it(t->end());
   if ((!in_prolog) &&
       (((it = t->find(key[0])) == t->end()) || it->second.in_prolog)) {
@@ -200,7 +199,7 @@ intermediate_table::erase(std::string const& name, bool const in_prolog)
       if (!p->is_a(SEQUENCE))
         throw exception(cant_find, name)
           << "-- not a sequence (at part \"" << this_key << "\")";
-      auto& s = boost::any_cast<sequence_t&>(p->value);
+      auto& s = std::any_cast<sequence_t&>(p->value);
       unsigned i = std::atoi(this_key.c_str());
       if (s.size() <= i) {
         return;
@@ -212,7 +211,7 @@ intermediate_table::erase(std::string const& name, bool const in_prolog)
         throw exception(cant_find, name)
           << "-- not a table (at part \"" << this_key << "\")";
       at_sequence = false;
-      t = boost::any_cast<table_t>(&p->value);
+      t = std::any_cast<table_t>(&p->value);
       it = t->find(this_key);
       if (it == t->end()) {
         return;
@@ -244,7 +243,7 @@ intermediate_table::pre_insert_(std::string const& name,
                                 extended_value const& value)
 {
   if (!value.in_prolog) {
-    auto& t = boost::any_cast<table_t&>(ex_val.value);
+    auto& t = std::any_cast<table_t&>(ex_val.value);
     std::vector<std::string> const& key = split(name);
     auto it = t.find(key[0]);
     if (it != t.end() && it->second.in_prolog) {
@@ -280,7 +279,7 @@ intermediate_table::locate_(std::string const& name, bool const in_prolog)
       if (!p->is_a(SEQUENCE))
         throw exception(cant_find, name)
           << "-- not a sequence (at part \"" << this_key << "\")";
-      auto& s = boost::any_cast<sequence_t&>(p->value);
+      auto& s = std::any_cast<sequence_t&>(p->value);
       unsigned i = std::atoi(this_key.c_str());
       while (s.size() <= i) {
         s.push_back(nil_item());
@@ -295,7 +294,7 @@ intermediate_table::locate_(std::string const& name, bool const in_prolog)
       if (!p->is_a(TABLE))
         throw exception(cant_find, name)
           << "-- not a table (at part \"" << this_key << "\")";
-      auto& t = boost::any_cast<table_t&>(p->value);
+      auto& t = std::any_cast<table_t&>(p->value);
       // This will do what we need whether the key is already in the
       // map or not.
       p = &t.emplace(this_key, nil_item()).first->second;

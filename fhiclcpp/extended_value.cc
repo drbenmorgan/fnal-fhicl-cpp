@@ -8,7 +8,7 @@
 
 #include <regex>
 
-using boost::any_cast;
+using std::any_cast;
 using std::string;
 
 // ----------------------------------------------------------------------

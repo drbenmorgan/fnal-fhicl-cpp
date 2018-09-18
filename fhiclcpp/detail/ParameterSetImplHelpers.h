@@ -71,7 +71,7 @@ namespace fhicl {
     using cit_size_t = std::vector<std::size_t>::const_iterator;
 
     inline bool
-    find_an_any(cit_size_t it, cit_size_t const cend, boost::any& a)
+    find_an_any(cit_size_t it, cit_size_t const cend, std::any& a)
     {
       if (it == cend) {
         // If we got this far, that means the element must exist,
@@ -80,7 +80,7 @@ namespace fhicl {
         return true;
       }
 
-      auto const seq = boost::any_cast<ps_sequence_t>(a);
+      auto const seq = std::any_cast<ps_sequence_t>(a);
 
       if (*it >= seq.size())
         return false;

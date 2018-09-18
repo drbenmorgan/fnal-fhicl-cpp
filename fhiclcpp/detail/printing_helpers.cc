@@ -95,9 +95,9 @@ atom::printed_prefix(std::string const& key)
 }
 
 std::string
-atom::value(boost::any const& a)
+atom::value(std::any const& a)
 {
   using ps_atom_t = std::string;
-  std::string const str = boost::any_cast<ps_atom_t>(a);
+  std::string const str = std::any_cast<ps_atom_t>(a);
   return str == std::string(9, '\0') ? "@nil" : str;
 }

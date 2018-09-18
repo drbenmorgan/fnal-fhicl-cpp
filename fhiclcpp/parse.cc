@@ -7,7 +7,6 @@
 #include "fhiclcpp/parse.h"
 #include "cetlib/compiler_macros.h"
 
-#include "boost/any.hpp"
 #ifdef __ICC
 #pragma warning(push, disable : 780)
 #endif
@@ -42,7 +41,9 @@
 #include "fhiclcpp/tokens.h"
 
 #include "fhiclcpp/parse_shims.h"
+
 #include <algorithm>
+#include <any>
 #include <string>
 #include <vector>
 
@@ -180,7 +181,7 @@ namespace {
   }
 
   extended_value
-  xvalue_vp(bool b, value_tag t, boost::any v)
+  xvalue_vp(bool b, value_tag t, std::any v)
   {
     return extended_value(b, t, v);
   }
@@ -189,7 +190,7 @@ namespace {
   extended_value
   xvalue_dp(bool b,
             value_tag t,
-            boost::any v,
+            std::any v,
             FwdIter pos,
             cet::includer const& s)
   {
@@ -337,7 +338,7 @@ namespace {
         << "key \"" << name << "\" does not refer to a table at "
         << s.highlighted_whereis(pos) << "\n";
     }
-    auto const& incoming = boost::any_cast<table_t const&>(xval.value);
+    auto const& incoming = std::any_cast<table_t const&>(xval.value);
     for (auto incoming_item = incoming.cbegin(), e = incoming.cend();
          incoming_item != e;
          ++incoming_item) {
@@ -387,7 +388,7 @@ namespace {
         << "key \"" << name << "\" does not refer to a table at "
         << s.highlighted_whereis(pos) << "\n";
     }
-    auto const& incoming = boost::any_cast<table_t const&>(xval.value);
+    auto const& incoming = std::any_cast<table_t const&>(xval.value);
     for (auto incoming_item = incoming.cbegin(), e = incoming.cend();
          incoming_item != e;
          ++incoming_item) {
@@ -414,7 +415,7 @@ namespace {
         << "key \"" << name << "\" does not refer to a sequence at "
         << s.highlighted_whereis(pos) << "\n";
     }
-    auto const& incoming = boost::any_cast<sequence_t const&>(xval.value);
+    auto const& incoming = std::any_cast<sequence_t const&>(xval.value);
     auto it = v.insert(v.end(), incoming.cbegin(), incoming.cend());
     for (auto const e = v.end(); it != e; ++it) {
       using std::to_string;

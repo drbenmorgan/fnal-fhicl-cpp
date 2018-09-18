@@ -9,9 +9,9 @@
 //
 // ===================================================
 
-#include "boost/any.hpp"
 #include "fhiclcpp/detail/print_mode.h"
 
+#include <any>
 #include <string>
 
 namespace fhicl {
@@ -60,7 +60,7 @@ namespace fhicl {
 
     namespace atom {
       std::string printed_prefix(std::string const& key);
-      std::string value(boost::any const&);
+      std::string value(std::any const&);
     }
 
     inline bool

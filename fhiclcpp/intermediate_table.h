@@ -21,22 +21,22 @@
 // Supplemental expert notes on intermediate_table vs ParameterSet.
 //
 // 1. Intermediate tables contain only extended values; ParameterSets
-//    contain only boost::any.
+//    contain only std::any.
 //
-// 2. The boost::any in a ParameterSet may not be the same type as the
-//    boost::any in the corresponding extended_value in the intermediate
+// 2. The std::any in a ParameterSet may not be the same type as the
+//    std::any in the corresponding extended_value in the intermediate
 //    table whence it came.
 //
 // 3. An extended_value::sequence_t is std::vector<extended_value>; a
-//    ParameterSet::ps_sequence_t is std::vector<boost::any>.
+//    ParameterSet::ps_sequence_t is std::vector<std::any>.
 //
 // 4. An extended_value::table_t is std::map<std::string,
 //    extended_value>; the equivalent concept in ParameterSet is
-//    ParameterSet (stored as boost::any).
+//    ParameterSet (stored as std::any).
 //
 // 5. An extended_value::complex_t is std::pair<std::string,
 //    std::string>; the equivalent concept in ParameterSet is
-//    std::string (stored as boost::any).
+//    std::string (stored as std::any).
 //
 // 6. Numbers, boolean values and strings are to be stored in
 //    intermediate_tables at all times in their canonical string form
@@ -48,12 +48,12 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-#include "boost/any.hpp"
 #include "fhiclcpp/coding.h"
 #include "fhiclcpp/extended_value.h"
 #include "fhiclcpp/fwd.h"
 #include "fhiclcpp/type_traits.h"
 
+#include <any>
 #include <complex>
 #include <map>
 #include <string>
@@ -124,7 +124,7 @@ public:
   bool insert(std::string const& name,
               bool in_prolog,
               value_tag tag,
-              boost::any const& value);
+              std::any const& value);
   bool insert(std::string const& name, extended_value const& value);
   bool insert(std::string const& name, extended_value&& value);
 
@@ -201,7 +201,7 @@ namespace fhicl {
       intermediate_table::sequence_t
       operator()(intermediate_table& table, std::string const& name)
       {
-        return boost::any_cast<intermediate_table::sequence_t>(
+        return std::any_cast<intermediate_table::sequence_t>(
           table.find(name).value);
       }
     };
@@ -215,7 +215,7 @@ namespace fhicl {
       {
         auto item = sequence.locate(name);
         if (item != nullptr) {
-          return boost::any_cast<intermediate_table::sequence_t&>(item->value);
+          return std::any_cast<intermediate_table::sequence_t&>(item->value);
         } else {
           throw fhicl::exception(protection_violation)
             << "Requested non-updatable parameter \"" << name
@@ -231,7 +231,7 @@ namespace fhicl {
       intermediate_table::sequence_t const&
       operator()(intermediate_table const& table, std::string const& name)
       {
-        return boost::any_cast<intermediate_table::sequence_t const&>(
+        return std::any_cast<intermediate_table::sequence_t const&>(
           table.find(name).value);
       }
     };
@@ -243,7 +243,7 @@ namespace fhicl {
       intermediate_table::table_t
       operator()(intermediate_table& table, std::string const& name)
       {
-        return boost::any_cast<intermediate_table::table_t>(
+        return std::any_cast<intermediate_table::table_t>(
           table.find(name).value);
       }
     };
@@ -257,7 +257,7 @@ namespace fhicl {
       {
         auto item = table.locate(name);
         if (item != nullptr) {
-          return boost::any_cast<intermediate_table::table_t&>(item->value);
+          return std::any_cast<intermediate_table::table_t&>(item->value);
         } else {
           throw fhicl::exception(protection_violation)
             << "Requested non-updatable parameter " << name << " for update.\n";
@@ -272,7 +272,7 @@ namespace fhicl {
       intermediate_table::table_t const&
       operator()(intermediate_table const& table, std::string const& name)
       {
-        return boost::any_cast<intermediate_table::table_t const&>(
+        return std::any_cast<intermediate_table::table_t const&>(
           table.find(name).value);
       }
     };

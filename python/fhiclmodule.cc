@@ -51,7 +51,7 @@
 class PythonDictConverter : public fhicl::ParameterSetWalker {
 public:
   using key_t = std::string;
-  using any_t = boost::any;
+  using any_t = std::any;
 
   // Public methods.
 
@@ -138,7 +138,7 @@ PythonDictConverter::enter_sequence(key_t const& key, any_t const& any)
 //
 {
   // Get length of sequence.
-  auto const& anyvec = boost::any_cast<std::vector<any_t> const&>(any);
+  auto const& anyvec = std::any_cast<std::vector<any_t> const&>(any);
   unsigned int n = anyvec.size();
 
   // Make a new python list of the required size.
@@ -163,7 +163,7 @@ PythonDictConverter::atom(key_t const& key, any_t const& any)
   PyObject* pyval{nullptr};
 
   // Extract atom as string.
-  auto const& atom = boost::any_cast<std::string const&>(any);
+  auto const& atom = std::any_cast<std::string const&>(any);
 
   // Get lower case version of argument string.
   std::string lcatom{atom};

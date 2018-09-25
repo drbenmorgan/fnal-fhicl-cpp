@@ -134,8 +134,7 @@ BOOST_AUTO_TEST_CASE(TestImport)
   // Insert ParameterSets into db in parallel
   {
     RecursiveMutex m{"ParameterSetRegistry_t::m"};
-    auto insert_into_db = [&db, &m](auto const& pr) {
-      // auto insert_into_db = [&db, &m](auto pr) {}
+    auto insert_into_db = [&db](auto const& pr) {
       // Since this lambda is intended to be executed in parallel, one
       // should not specify a BEGIN (IMMEDIATE|EXCLUSIVE) TRANSACTION
       // statement--when executed in parallel, two or more BEGIN
@@ -174,7 +173,6 @@ BOOST_AUTO_TEST_CASE(TestImport)
     vector<function<void()>> tasks;
     cet::transform_all(
       v1, back_inserter(tasks), [insert_into_db](auto const& pr) {
-        //[insert_into_db](auto pr) {}
         return [insert_into_db, pr] { insert_into_db(pr); };
       });
     cet::SimultaneousFunctionSpawner sfs{tasks};

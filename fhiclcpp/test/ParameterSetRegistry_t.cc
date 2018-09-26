@@ -135,7 +135,6 @@ BOOST_AUTO_TEST_CASE(TestImport)
   {
     RecursiveMutex m{"ParameterSetRegistry_t::m"};
     auto insert_into_db = [&db, &m](auto const& pr) {
-      // auto insert_into_db = [&db, &m](auto pr) {}
       // Since this lambda is intended to be executed in parallel, one
       // should not specify a BEGIN (IMMEDIATE|EXCLUSIVE) TRANSACTION
       // statement--when executed in parallel, two or more BEGIN
@@ -154,6 +153,7 @@ BOOST_AUTO_TEST_CASE(TestImport)
         nullptr);
       throwOnSQLiteFailure(db);
       auto const& pset = pr.first;
+      bool const inRegistry{pr.second};
       string const id{pset.id().to_string()};
       auto const rc1 =
         sqlite3_bind_text(oStmt, 1, id.c_str(), id.size() + 1, SQLITE_STATIC);
@@ -170,17 +170,12 @@ BOOST_AUTO_TEST_CASE(TestImport)
       }
       auto const rc3 = sqlite3_finalize(oStmt);
       throwOnSQLiteFailure(rc3);
-      bool const inRegistry{pr.second};
-      {
-        // FIXME: Not thread-safe according to tsan!
-        RecursiveMutexSentry sentry{m, "test"};
-        BOOST_REQUIRE_EQUAL(ParameterSetRegistry::has(pset.id()), inRegistry);
-      }
+
+      BOOST_REQUIRE_EQUAL(ParameterSetRegistry::has(pset.id()), inRegistry);
     };
     vector<function<void()>> tasks;
     cet::transform_all(
       v1, back_inserter(tasks), [insert_into_db](auto const& pr) {
-        //[insert_into_db](auto pr) {}
         return [insert_into_db, pr] { insert_into_db(pr); };
       });
     cet::SimultaneousFunctionSpawner sfs{tasks};

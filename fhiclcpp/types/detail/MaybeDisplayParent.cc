@@ -16,7 +16,7 @@ namespace fhicl::detail {
     std::vector<std::string> parents;
     for (auto const& key : cet::split_by_regex(k, re_dot))
       for (auto const& token :
-             cet::split_by_regex(std::regex_replace(key, re_index, ",$1"), ","))
+           cet::split_by_regex(std::regex_replace(key, re_index, ",$1"), ","))
         parents.push_back(token);
 
     // Skip first key, which is something like "<some_label>" in the context

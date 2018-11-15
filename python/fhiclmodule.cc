@@ -33,8 +33,7 @@
 
 #include "cetlib/compiler_macros.h"
 #pragma GCC diagnostic push
-#if GCC_IS_AT_LEAST(7, 1, 0) || \
-  CLANG_IS_AT_LEAST(6, 0, 0) || \
+#if GCC_IS_AT_LEAST(7, 1, 0) || CLANG_IS_AT_LEAST(6, 0, 0) ||                  \
   APPLE_CLANG_IS_AT_LEAST(10, 0, 0)
 #pragma GCC diagnostic ignored "-Wregister"
 #endif

@@ -1,5 +1,5 @@
-#include "fhiclcpp/exception.h"
 #include "fhiclcpp/types/detail/NameStackRegistry.h"
+#include "fhiclcpp/exception.h"
 
 #include <numeric>
 #include <regex>

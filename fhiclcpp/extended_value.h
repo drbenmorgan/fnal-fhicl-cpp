@@ -47,7 +47,7 @@ public:
                  value_tag const tag,
                  std::any const value,
                  Protection const protection,
-                 std::string&& src = {})
+                 std::string src = {})
     : in_prolog{in_prolog}
     , tag{tag}
     , value{value}
@@ -58,7 +58,7 @@ public:
   extended_value(bool const in_prolog,
                  value_tag const tag,
                  std::any const value,
-                 std::string&& src = {})
+                 std::string src = {})
     : in_prolog{in_prolog}, tag{tag}, value{value}, src_info{move(src)}
   {}
 

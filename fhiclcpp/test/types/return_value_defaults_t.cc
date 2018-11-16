@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(tuple_in_tuple_t)
 {
   Tuple<Tuple<int, float>, double, bool> test{Name("tuple"),
                                               {{4, 3.7f}, 8.1, true}};
-  auto tuple0[[maybe_unused]] = test.get<0>();
+  auto tuple0 [[maybe_unused]] = test.get<0>();
   BOOST_CHECK_EQUAL(std::get<0>(tuple0), 4);
   BOOST_CHECK_EQUAL(std::get<1>(tuple0), 3.7f);
   BOOST_CHECK_EQUAL(test.get<1>(), 8.1);

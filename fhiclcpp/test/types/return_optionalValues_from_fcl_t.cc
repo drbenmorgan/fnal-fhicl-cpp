@@ -31,9 +31,9 @@ using namespace std;
 
 namespace {
 
-  double const tolerance[[maybe_unused]] =
+  double const tolerance [[maybe_unused]] =
     std::numeric_limits<double>::epsilon();
-  double const ftolerance[[maybe_unused]] =
+  double const ftolerance [[maybe_unused]] =
     std::numeric_limits<float>::epsilon();
 
   struct Physics {

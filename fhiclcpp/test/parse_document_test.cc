@@ -803,6 +803,44 @@ BOOST_AUTO_TEST_CASE(erase_11)
 
 BOOST_AUTO_TEST_CASE(protect_local_01)
 {
+  std::string const doc = "a @protect_ignore: 42\n"
+                          "b: @local::a\n";
+  intermediate_table tbl;
+  parse_document(doc, tbl);
+  BOOST_CHECK(tbl.find("b").protection == Protection::PROTECT_IGNORE);
+}
+
+BOOST_AUTO_TEST_CASE(protect_local_02)
+{
+  std::string const doc = "a @protect_error: 42\n"
+                          "b: 43\n"
+                          "b: @local::a\n";
+  intermediate_table tbl;
+  PV_EXCEPTION;
+}
+
+BOOST_AUTO_TEST_CASE(protect_local_03)
+{
+  std::string const doc = "a @protect_ignore: 42\n"
+                          "b: @local::a\n"
+                          "b: @erase\n"
+                          "b: 43\n";
+  intermediate_table tbl;
+  parse_document(doc, tbl);
+  BOOST_CHECK_EQUAL(tbl.get<std::size_t>("b"), 42ul);
+}
+
+BOOST_AUTO_TEST_CASE(protect_local_04)
+{
+  std::string const doc = "a @protect_error: 42\n"
+                          "b: @local::a\n"
+                          "b: 43\n";
+  intermediate_table tbl;
+  PV_EXCEPTION;
+}
+
+BOOST_AUTO_TEST_CASE(protect_local_05)
+{
   std::string const doc = "BEGIN_PROLOG\n"
                           "x @protect_ignore: 27\n"
                           "a: { b: { x: @local::x } }\n"
@@ -815,7 +853,7 @@ BOOST_AUTO_TEST_CASE(protect_local_01)
   BOOST_CHECK(tbl.find("a.b.x").protection == Protection::PROTECT_IGNORE);
 }
 
-BOOST_AUTO_TEST_CASE(protect_local_02)
+BOOST_AUTO_TEST_CASE(protect_local_06)
 {
   std::string const doc = "BEGIN_PROLOG\n"
                           "x @protect_ignore: 27\n"
@@ -827,7 +865,7 @@ BOOST_AUTO_TEST_CASE(protect_local_02)
   PV_EXCEPTION;
 }
 
-BOOST_AUTO_TEST_CASE(protect_local_03)
+BOOST_AUTO_TEST_CASE(protect_local_07)
 {
   std::string const doc = "BEGIN_PROLOG\n"
                           "x @protect_ignore: 27\n"

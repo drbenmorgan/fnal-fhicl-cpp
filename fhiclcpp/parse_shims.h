@@ -29,8 +29,7 @@ namespace boost {
   namespace spirit {
     template <>
     struct use_terminal<::boost::spirit::qi::domain, shims::tag::catchall>
-      : mpl::true_ {
-    };
+      : mpl::true_ {};
   }
 }
 

@@ -59,7 +59,7 @@ namespace {
 
   template <typename R, typename T>
   void
-  require_type_as(T& t[[gnu::unused]])
+  require_type_as(T& t [[gnu::unused]])
   {
     auto rt = t();
     BOOST_CHECK((std::is_same<R, decltype(rt)>::value));

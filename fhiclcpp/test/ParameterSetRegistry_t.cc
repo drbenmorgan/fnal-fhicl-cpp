@@ -130,7 +130,6 @@ BOOST_AUTO_TEST_CASE(TestImport)
   // Insert ParameterSets into db in parallel
   {
     auto insert_into_db = [&db](auto const& pr) {
-
       // Since this lambda is intended to be executed in parallel, one
       // should not specify a BEGIN (IMMEDIATE|EXCLUSIVE) TRANSACTION
       // statement--when executed in parallel, two or more BEGIN

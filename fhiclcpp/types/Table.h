@@ -91,8 +91,7 @@ namespace fhicl {
     members_t members_{
       detail::TableMemberRegistry::instance().release_members()};
 
-    struct Impl {
-    };
+    struct Impl {};
     Table(ParameterSet const&, std::set<std::string> const&, Impl);
     void maybe_implicitly_default();
 

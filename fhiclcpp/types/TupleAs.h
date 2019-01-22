@@ -176,8 +176,7 @@ namespace fhicl {
 
   template <typename T>
   struct has_insertion_operator
-    : has_insertion_operator_impl::has_insertion_operator<T> {
-  };
+    : has_insertion_operator_impl::has_insertion_operator<T> {};
 
   struct NoInsert {
     template <typename T>

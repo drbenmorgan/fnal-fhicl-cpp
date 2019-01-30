@@ -22,15 +22,16 @@ using namespace string_literals;
 namespace {
 
   struct ArrayConfig {
-    Sequence<string, 2> composers {Name{"composers"}, {"Mahler", "Elgar"}};
+    Sequence<string, 2> composers{Name{"composers"}, {"Mahler", "Elgar"}};
   };
 
   struct TupleConfig {
-    Tuple<string, unsigned> ages {Name{"ages"}, {"David"s, 9}};
+    Tuple<string, unsigned> ages{Name{"ages"}, {"David"s, 9}};
   };
 
   template <typename T>
-  Table<T> validateConfig(std::string const& cfg)
+  Table<T>
+  validateConfig(std::string const& cfg)
   {
     ParameterSet ps;
     make_ParameterSet(cfg, ps);
@@ -55,19 +56,21 @@ BOOST_AUTO_TEST_CASE(GoodTuple)
   string const good{};
   auto const& validatedTable = validateConfig<TupleConfig>(good);
   BOOST_CHECK_EQUAL(validatedTable().ages.get<0>(), "David"s);
-  BOOST_CHECK_EQUAL(validatedTable().ages.get<1>(), 9);
+  BOOST_CHECK_EQUAL(validatedTable().ages.get<1>(), 9u);
 }
 
 BOOST_AUTO_TEST_CASE(BadSequence)
 {
   string const bad{"composers: [Beethoven]"};
-  BOOST_REQUIRE_THROW(validateConfig<ArrayConfig>(bad), detail::validationException);
+  BOOST_REQUIRE_THROW(validateConfig<ArrayConfig>(bad),
+                      detail::validationException);
 }
 
 BOOST_AUTO_TEST_CASE(BadTuple)
 {
   string const bad{"ages: [Jenny]"};
-  BOOST_REQUIRE_THROW(validateConfig<TupleConfig>(bad), detail::validationException);
+  BOOST_REQUIRE_THROW(validateConfig<TupleConfig>(bad),
+                      detail::validationException);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

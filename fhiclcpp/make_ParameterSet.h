@@ -16,19 +16,17 @@
 
 namespace fhicl {
 
-  void
-  make_ParameterSet(intermediate_table const& tbl, ParameterSet& ps);
+  void make_ParameterSet(intermediate_table const& tbl, ParameterSet& ps);
 
-  void
-  make_ParameterSet(extended_value const& xval, ParameterSet& ps);
+  void make_ParameterSet(extended_value const& xval, ParameterSet& ps);
 
-  void
-  make_ParameterSet(std::string const& str, ParameterSet& ps);
+  void make_ParameterSet(std::string const& str, ParameterSet& ps);
 
-  void
-  make_ParameterSet(std::string const& filename, cet::filepath_maker& maker, ParameterSet& ps);
+  void make_ParameterSet(std::string const& filename,
+                         cet::filepath_maker& maker,
+                         ParameterSet& ps);
 
-}  // fhicl
+} // fhicl
 
 // ======================================================================
 

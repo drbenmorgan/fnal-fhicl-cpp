@@ -14,7 +14,6 @@ namespace fhicl {
   class ParameterSetWalker;
   class extended_value;
   class intermediate_table;
-
 }
 
 // ======================================================================

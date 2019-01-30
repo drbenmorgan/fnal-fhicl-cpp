@@ -72,7 +72,7 @@ FOREACH(test_file ${testPass})
   GET_FILENAME_COMPONENT(test_file_stem ${test_file} NAME_WE)
   cet_test(${test_file_stem} HANDBUILT
            TEST_EXEC test_suite
-           TEST_ARGS ${test_file}
+           TEST_ARGS -- ${test_file}
            #DATAFILES ${test_file}
            TEST_PROPERTIES ENVIRONMENT FHICL_FILE_PATH=${CMAKE_CURRENT_SOURCE_DIR}
   )
@@ -81,7 +81,7 @@ FOREACH(test_file ${testFail})
   GET_FILENAME_COMPONENT(test_file_stem ${test_file} NAME_WE)
   cet_test(${test_file_stem} HANDBUILT
            TEST_EXEC test_suite
-           TEST_ARGS ${test_file}
+           TEST_ARGS -- ${test_file}
            #DATAFILES ${test_file}
            TEST_PROPERTIES WILL_FAIL true
                            ENVIRONMENT FHICL_FILE_PATH=${CMAKE_CURRENT_SOURCE_DIR}
@@ -122,7 +122,10 @@ cet_test(seq_of_seq_t)
 
 cet_test(traits_t)
 
-cet_test(ParameterSetRegistry_t USE_BOOST_UNIT LIBRARIES pthread)
+find_package(Threads REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+
+cet_test(ParameterSetRegistry_t USE_BOOST_UNIT LIBRARIES Threads::Threads)
 
 cet_test(DatabaseSupport_t USE_BOOST_UNIT
          DATAFILES

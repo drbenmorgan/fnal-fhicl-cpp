@@ -13,16 +13,17 @@ namespace fhicl {
 
   class ConfigurationTable {
   public:
-
     virtual ~ConfigurationTable() = default;
 
-    cet::exempt_ptr<fhicl::detail::ParameterBase const> parameter_base() const
+    cet::exempt_ptr<fhicl::detail::ParameterBase const>
+    parameter_base() const
     {
       return get_parameter_base();
     }
 
   private:
-    virtual cet::exempt_ptr<fhicl::detail::ParameterBase const> get_parameter_base() const = 0;
+    virtual cet::exempt_ptr<fhicl::detail::ParameterBase const>
+    get_parameter_base() const = 0;
   };
 
   template <typename T, typename KeysToIgnore = void>
@@ -30,11 +31,24 @@ namespace fhicl {
   public:
     WrappedTable(fhicl::Name&& name) : table_{std::move(name)} {}
     WrappedTable(fhicl::ParameterSet const& pset) : table_{pset} {}
-    auto const& operator()() const { return table_(); }
-    auto const& get_PSet() const { return table_.get_PSet(); }
+    auto const&
+    operator()() const
+    {
+      return table_();
+    }
+    auto const&
+    get_PSet() const
+    {
+      return table_.get_PSet();
+    }
+
   private:
     fhicl::Table<T, KeysToIgnore> table_;
-    cet::exempt_ptr<fhicl::detail::ParameterBase const> get_parameter_base() const override { return &table_; }
+    cet::exempt_ptr<fhicl::detail::ParameterBase const>
+    get_parameter_base() const override
+    {
+      return &table_;
+    }
   };
 }
 

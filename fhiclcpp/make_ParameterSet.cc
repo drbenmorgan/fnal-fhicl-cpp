@@ -6,7 +6,6 @@
 
 #include "fhiclcpp/make_ParameterSet.h"
 
-#include "boost/any.hpp"
 #include "cetlib/includer.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "fhiclcpp/ParameterSetRegistry.h"
@@ -17,12 +16,12 @@
 
 using namespace fhicl;
 
-using atom_t     = intermediate_table::atom_t;
-using complex_t  = intermediate_table::complex_t   ;
-using sequence_t = intermediate_table::sequence_t  ;
-using table_t    = intermediate_table::table_t     ;
+using atom_t = intermediate_table::atom_t;
+using complex_t = intermediate_table::complex_t;
+using sequence_t = intermediate_table::sequence_t;
+using table_t = intermediate_table::table_t;
 
-using ps_atom_t = ParameterSet::ps_atom_t;  // same as atom_t!
+using ps_atom_t = ParameterSet::ps_atom_t; // same as atom_t!
 using ps_sequence_t = ParameterSet::ps_sequence_t;
 
 // ----------------------------------------------------------------------

@@ -19,12 +19,13 @@ using namespace std;
 using namespace string_literals;
 
 namespace {
-  using Val_t = Sequence<Tuple<string, Sequence<string> > >;
+  using Val_t = Sequence<Tuple<string, Sequence<string>>>;
   struct Config {
-    Val_t pars {Name("pars")};
+    Val_t pars{Name("pars")};
   };
 
-  Table<Config> validateConfig(std::string const & cfg)
+  Table<Config>
+  validateConfig(std::string const& cfg)
   {
     intermediate_table table;
     ParameterSet ps;
@@ -36,7 +37,7 @@ namespace {
   }
 }
 
-BOOST_AUTO_TEST_SUITE (Nested_Validation)
+BOOST_AUTO_TEST_SUITE(Nested_Validation)
 
 BOOST_AUTO_TEST_CASE(GoodTuple1)
 {
@@ -44,8 +45,8 @@ BOOST_AUTO_TEST_CASE(GoodTuple1)
   std::vector<std::string> const ref1{"B"s};
   std::vector<std::string> const ref2{"Y"s, "Z"s};
   auto validatedConfig = validateConfig(good);
-  auto const & pars = validatedConfig().pars();
-  BOOST_TEST_REQUIRE(pars.size() == 2);
+  auto const& pars = validatedConfig().pars();
+  BOOST_TEST_REQUIRE(pars.size() == 2ull);
   BOOST_TEST_REQUIRE(std::get<0>(pars[0]) == "A"s);
   BOOST_TEST_REQUIRE(std::get<1>(pars[0]) == ref1);
   BOOST_TEST_REQUIRE(std::get<0>(pars[1]) == "X"s);

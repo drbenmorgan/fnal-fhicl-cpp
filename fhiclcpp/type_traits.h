@@ -21,22 +21,33 @@
 
 namespace fhicl {
 
-  template <typename T> class Atom;
-  template <typename T> class OptionalAtom;
+  template <typename T>
+  class Atom;
+  template <typename T>
+  class OptionalAtom;
 
-  template <typename T, typename KeysToIgnore> class Table;
-  template <typename T> class OptionalTable;
+  template <typename T, typename KeysToIgnore>
+  class Table;
+  template <typename T>
+  class OptionalTable;
 
-  template <typename T> class TableFragment;
+  template <typename T>
+  class TableFragment;
 
-  template <typename... ARGS> class Tuple;
-  template <typename... ARGS> class OptionalTuple;
+  template <typename... ARGS>
+  class Tuple;
+  template <typename... ARGS>
+  class OptionalTuple;
 
-  template <typename T, std::size_t SZ> class Sequence;
-  template <typename T, std::size_t SZ> class OptionalSequence;
+  template <typename T, std::size_t SZ>
+  class Sequence;
+  template <typename T, std::size_t SZ>
+  class OptionalSequence;
 
-  template <typename T, typename... ARGS> class TupleAs;
-  template <typename T, typename... ARGS> class OptionalTupleAs;
+  template <typename T, typename... ARGS>
+  class TupleAs;
+  template <typename T, typename... ARGS>
+  class OptionalTupleAs;
 
   class DelegatedParameter;
   class OptionalDelegatedParameter;
@@ -44,17 +55,17 @@ namespace fhicl {
 
 namespace tt {
 
-  using std::is_floating_point;
-  using std::enable_if;
   using cet::enable_if_function_exists_t;
 
   template <bool b, typename T = void>
   using disable_if = std::enable_if<!b, T>;
 
-  template<typename T>
-  struct is_int : std::integral_constant<bool,
-                                         std::is_integral<T>::value &&
-                                         !std::is_unsigned<T>::value> {};
+  template <bool b, typename T = void>
+  using disable_if_t = typename disable_if<b, T>::type;
+
+  template <typename T>
+  struct is_int
+    : std::bool_constant<std::is_integral_v<T> && !std::is_unsigned_v<T>> {};
 
   template <typename T>
   using is_numeric = std::is_arithmetic<T>;
@@ -66,10 +77,16 @@ namespace tt {
   struct is_callable : std::false_type {};
 
   template <typename T>
-  struct is_callable<T, enable_if_function_exists_t<std::set<std::string>(T::*)(), &T::operator()>> : std::true_type {};
+  struct is_callable<
+    T,
+    enable_if_function_exists_t<std::set<std::string> (T::*)(), &T::operator()>>
+    : std::true_type {};
 
   template <typename T>
-  struct is_callable<T, enable_if_function_exists_t<std::set<std::string>(T::*)() const, &T::operator()>> : std::true_type {};
+  struct is_callable<
+    T,
+    enable_if_function_exists_t<std::set<std::string> (T::*)() const,
+                                &T::operator()>> : std::true_type {};
 
   //=======================================================
   // Enforce (non)const-ness
@@ -82,7 +99,7 @@ namespace tt {
   };
 
   template <typename T>
-  struct maybe_const<T,const_flavor::require_const> {
+  struct maybe_const<T, const_flavor::require_const> {
     using type = std::add_const_t<T>;
   };
 
@@ -92,35 +109,48 @@ namespace tt {
   //=======================================================
   // Check if sequence type
   //
-  template <typename Container> struct is_sequence_type : std::false_type {};
+  template <typename Container>
+  struct is_sequence_type : std::false_type {};
 
-  template <typename ARG,std::size_t SZ>
-  struct is_sequence_type<std::array<ARG,SZ>> : std::true_type {};
+  template <typename ARG, std::size_t SZ>
+  struct is_sequence_type<std::array<ARG, SZ>> : std::true_type {};
   template <typename... ARGS>
   struct is_sequence_type<std::tuple<ARGS...>> : std::true_type {};
   template <typename... ARGS>
   struct is_sequence_type<std::vector<ARGS...>> : std::true_type {};
 
+  template <typename T>
+  inline constexpr bool is_sequence_type_v{is_sequence_type<T>::value};
+
   //=======================================================
   // Check if Table<>
   //
-  template <typename T> struct is_table : std::false_type {};
+  template <typename T>
+  struct is_table : std::false_type {};
 
   template <typename T, typename KeysToIgnore>
-  struct is_table<fhicl::Table<T,KeysToIgnore>> : std::true_type {};
+  struct is_table<fhicl::Table<T, KeysToIgnore>> : std::true_type {};
+
+  template <typename T>
+  inline constexpr bool is_table_v{is_table<T>::value};
 
   //=======================================================
   // Check if TableFragment<>
   //
-  template <typename T> struct is_table_fragment : std::false_type {};
+  template <typename T>
+  struct is_table_fragment : std::false_type {};
 
   template <typename T>
   struct is_table_fragment<fhicl::TableFragment<T>> : std::true_type {};
 
+  template <typename T>
+  inline constexpr bool is_table_fragment_v{is_table_fragment<T>::value};
+
   //=======================================================
   // Check if optional parameter
   //
-  template <typename T> struct is_optional_parameter : std::false_type {};
+  template <typename T>
+  struct is_optional_parameter : std::false_type {};
 
   template <typename T>
   struct is_optional_parameter<fhicl::OptionalTable<T>> : std::true_type {};
@@ -129,24 +159,37 @@ namespace tt {
   struct is_optional_parameter<fhicl::OptionalAtom<T>> : std::true_type {};
 
   template <typename T, std::size_t SZ>
-  struct is_optional_parameter<fhicl::OptionalSequence<T, SZ>> : std::true_type {};
+  struct is_optional_parameter<fhicl::OptionalSequence<T, SZ>>
+    : std::true_type {};
 
   template <typename... TYPES>
-  struct is_optional_parameter<fhicl::OptionalTuple<TYPES...>> : std::true_type {};
+  struct is_optional_parameter<fhicl::OptionalTuple<TYPES...>>
+    : std::true_type {};
 
   template <typename T, typename... ARGS>
-  struct is_optional_parameter<fhicl::OptionalTupleAs<T(ARGS...)>> : std::true_type {};
+  struct is_optional_parameter<fhicl::OptionalTupleAs<T(ARGS...)>>
+    : std::true_type {};
+
+  template <typename T>
+  inline constexpr bool is_optional_parameter_v{
+    is_optional_parameter<T>::value};
 
   //=======================================================
   // Check if delegated parameter
   //
-  template <typename T> struct is_delegated_parameter : std::false_type {};
+  template <typename T>
+  struct is_delegated_parameter : std::false_type {};
 
   template <>
   struct is_delegated_parameter<fhicl::DelegatedParameter> : std::true_type {};
 
   template <>
-  struct is_delegated_parameter<fhicl::OptionalDelegatedParameter> : std::true_type {};
+  struct is_delegated_parameter<fhicl::OptionalDelegatedParameter>
+    : std::true_type {};
+
+  template <typename T>
+  inline constexpr bool is_delegated_parameter_v{
+    is_delegated_parameter<T>::value};
 
   //=======================================================
   // Check if fhicl type -- i.e. Atom<>, Table<>, etc.
@@ -156,7 +199,7 @@ namespace tt {
 
   // ... Table
   template <typename T, typename KeysToIgnore>
-  struct is_fhicl_type<fhicl::Table<T,KeysToIgnore>> : std::true_type {};
+  struct is_fhicl_type<fhicl::Table<T, KeysToIgnore>> : std::true_type {};
 
   template <typename T>
   struct is_fhicl_type<fhicl::OptionalTable<T>> : std::true_type {};
@@ -189,6 +232,9 @@ namespace tt {
   template <typename T, typename... ARGS>
   struct is_fhicl_type<fhicl::OptionalTupleAs<T(ARGS...)>> : std::true_type {};
 
+  template <typename T>
+  inline constexpr bool is_fhicl_type_v{is_fhicl_type<T>::value};
+
   //=======================================================
   // Get FHiCL types: can be Atom, Sequence, Tuple, or Table
   //
@@ -198,13 +244,13 @@ namespace tt {
   };
 
   template <typename T, std::size_t SZ>
-  struct fhicl_type_impl<fhicl::Sequence<T,SZ>> {
-    using type = fhicl::Sequence<T,SZ>;
+  struct fhicl_type_impl<fhicl::Sequence<T, SZ>> {
+    using type = fhicl::Sequence<T, SZ>;
   };
 
   template <typename T, typename KeysToIgnore>
-  struct fhicl_type_impl<fhicl::Table<T,KeysToIgnore>> {
-    using type = fhicl::Table<T,KeysToIgnore>;
+  struct fhicl_type_impl<fhicl::Table<T, KeysToIgnore>> {
+    using type = fhicl::Table<T, KeysToIgnore>;
   };
 
   template <typename... ARGS>
@@ -223,8 +269,8 @@ namespace tt {
   };
 
   template <typename T, std::size_t SZ>
-  struct fhicl_type_impl<fhicl::OptionalSequence<T,SZ>> {
-    using type = fhicl::OptionalSequence<T,SZ>;
+  struct fhicl_type_impl<fhicl::OptionalSequence<T, SZ>> {
+    using type = fhicl::OptionalSequence<T, SZ>;
   };
 
   template <typename T>
@@ -246,27 +292,27 @@ namespace tt {
   template <typename T>
   using fhicl_type = typename fhicl_type_impl<T>::type;
 
-
   //=======================================================
   // Get Return types
   //
-  template <typename T> struct return_type_impl {
+  template <typename T>
+  struct return_type_impl {
     using value_type = T;
   };
 
   template <typename T>
-  struct return_type_impl<fhicl::Atom<T>>{
+  struct return_type_impl<fhicl::Atom<T>> {
     using value_type = typename fhicl::Atom<T>::value_type;
   };
 
   template <typename T, std::size_t SZ>
-  struct return_type_impl<fhicl::Sequence<T,SZ>> {
-    using value_type = typename fhicl::Sequence<T,SZ>::value_type;
+  struct return_type_impl<fhicl::Sequence<T, SZ>> {
+    using value_type = typename fhicl::Sequence<T, SZ>::value_type;
   };
 
   template <typename S, typename KeysToIgnore>
-  struct return_type_impl<fhicl::Table<S,KeysToIgnore>> {
-    using value_type = typename fhicl::Table<S,KeysToIgnore>::value_type;
+  struct return_type_impl<fhicl::Table<S, KeysToIgnore>> {
+    using value_type = typename fhicl::Table<S, KeysToIgnore>::value_type;
   };
 
   template <typename... ARGS>
@@ -280,9 +326,8 @@ namespace tt {
   };
 
   // The alias
-  template < typename... ARGS>
+  template <typename... ARGS>
   using return_type = typename return_type_impl<ARGS...>::value_type;
-
 }
 
 #endif /* fhiclcpp_type_traits_h */

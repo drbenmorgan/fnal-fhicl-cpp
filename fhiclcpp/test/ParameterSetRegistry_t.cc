@@ -166,12 +166,12 @@ BOOST_AUTO_TEST_CASE(TestImport)
       {
         // FIXME: sqlite3_step is not thread-safe according to tsan!
         RecursiveMutexSentry sentry{m, "test"};
-        BOOST_REQUIRE_EQUAL(sqlite3_step(oStmt), SQLITE_DONE);
+        assert(sqlite3_step(oStmt) == SQLITE_DONE);
       }
       auto const rc3 = sqlite3_finalize(oStmt);
       throwOnSQLiteFailure(rc3);
 
-      BOOST_REQUIRE_EQUAL(ParameterSetRegistry::has(pset.id()), inRegistry);
+      assert(ParameterSetRegistry::has(pset.id()) == inRegistry);
     };
     vector<function<void()>> tasks;
     cet::transform_all(

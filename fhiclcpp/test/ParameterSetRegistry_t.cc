@@ -30,20 +30,14 @@ BOOST_AUTO_TEST_CASE(Typedefs)
 {
   using ctype =
     unordered_map<ParameterSetID, ParameterSet, detail::HashParameterSetID>;
-  static_assert(is_same<ctype, ParameterSetRegistry::collection_type>::value,
-                "collection_type failure");
-  static_assert(is_same<ParameterSetID, ParameterSetRegistry::key_type>::value,
-                "key_type failure");
-  static_assert(is_same<ParameterSet, ParameterSetRegistry::mapped_type>::value,
-                "mapped_type failure");
-  static_assert(is_same<pair<ParameterSetID const, ParameterSet>,
-                        ParameterSetRegistry::value_type>::value,
-                "value_type failure");
-  static_assert(is_same<size_t, ParameterSetRegistry::size_type>::value,
-                "size_type failure");
+  static_assert(is_same_v<ctype, ParameterSetRegistry::collection_type>);
+  static_assert(is_same_v<ParameterSetID, ParameterSetRegistry::key_type>);
+  static_assert(is_same_v<ParameterSet, ParameterSetRegistry::mapped_type>);
+  static_assert(is_same_v<pair<ParameterSetID const, ParameterSet>,
+                          ParameterSetRegistry::value_type>);
+  static_assert(is_same_v<size_t, ParameterSetRegistry::size_type>);
   static_assert(
-    is_same<ctype::const_iterator, ParameterSetRegistry::const_iterator>::value,
-    "const_iterator failure");
+    is_same_v<ctype::const_iterator, ParameterSetRegistry::const_iterator>);
 }
 
 BOOST_AUTO_TEST_CASE(MakeAndAdd)

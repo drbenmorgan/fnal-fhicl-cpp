@@ -54,16 +54,6 @@ namespace py = pybind11;
 
 namespace {
 
-  std::size_t
-  index_for_element(std::string const& name)
-  {
-    assert(fhicl::detail::is_sequence_element(name));
-    auto const b = name.find_last_of("[");
-    auto const e = name.find_last_of("]");
-    assert(e == name.length() - 1);
-    return std::stoull(name.substr(b + 1, 1));
-  }
-
   class PythonDictConverter : public fhicl::ParameterSetWalker {
   public:
     using key_t = std::string;
@@ -262,7 +252,7 @@ namespace {
 
     assert(!lists_.empty());
     auto& parent_list = lists_.back();
-    auto const i = index_for_element(key);
+    auto const i = fhicl::detail::index_for_sequence_element(key);
     parent_list[i] = pyobj;
   }
 

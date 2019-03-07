@@ -70,9 +70,6 @@ find_ups_product(python)
 find_ups_product(sqlite v3_07_15_00)
 find_ups_boost(v1_50_0)
 
-# Python
-cet_find_library(PYTHON NAMES python2.7 PATHS ENV PYTHON_LIB NO_DEFAULT_PATH)
-
 # SQLite
 cet_find_library(SQLITE3 NAMES sqlite3_ups PATHS ENV SQLITE_LIB NO_DEFAULT_PATH)
 

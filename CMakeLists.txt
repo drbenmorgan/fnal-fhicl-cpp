@@ -14,7 +14,7 @@
 #  make install
 #  make package (builds distribution tarfile)
 
-cmake_minimum_required(VERSION 3.11)  # use cmake 3.11 or later
+cmake_minimum_required(VERSION 3.11...3.14 FATAL_ERROR)
 
 project(fhiclcpp VERSION 4.09.03 LANGUAGES CXX)
 
